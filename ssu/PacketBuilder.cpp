@@ -1,5 +1,6 @@
 #include "PacketBuilder.h"
 
+#include "../i2p.h"
 #include "../datatypes/RouterIdentity.h"
 
 #include <chrono>
@@ -51,7 +52,7 @@ namespace i2pcpp {
 
 			sc.insert(sc.end(), 0x01);
 
-			ByteArray idBytes = state->getIdentity().getBytes();
+			ByteArray idBytes = state->getContext().getRouterIdentity().getBytes();
 			unsigned short size = idBytes.size();
 			sc.insert(sc.end(), size >> 8);
 			sc.insert(sc.end(), size);

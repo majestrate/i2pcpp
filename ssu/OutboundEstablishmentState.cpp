@@ -44,7 +44,10 @@ namespace i2pcpp {
 			const DL_Group& group = m_context.getDSAParameters();
 			const DSA_PrivateKey *key = m_context.getSigningKey();
 
-			Pipe sigPipe(new Hash_Filter("SHA-1"), new PK_Signer_Filter(new PK_Signer(*key, "Raw"), rng));
+			Pipe sigPipe(new Fork(
+						new Chain(new Hash_Filter("SHA-1"), new PK_Signer_Filter(new PK_Signer(*key, "Raw"), rng)),
+						new Base64_Encoder
+						 ));
 			sigPipe.start_msg();
 
 			ByteArray DHX(m_dhPrivateKey->public_value());
@@ -60,7 +63,6 @@ namespace i2pcpp {
 			ByteArray bobIP = m_endpoint.getRawIP();
 			unsigned short bobPort = m_endpoint.getPort();
 			sigPipe.write(bobIP.data(), bobIP.size());
-			bobPort = 10673;
 			sigPipe.write(bobPort >> 8);
 			sigPipe.write(bobPort);
 
@@ -75,6 +77,8 @@ namespace i2pcpp {
 
 			ByteArray signature(sigPipe.remaining());
 			sigPipe.read(signature.data(), sigPipe.remaining());
+
+			cerr << sigPipe.read_all_as_string(1) << "\n";
 
 			return signature;
 		}
@@ -95,7 +99,6 @@ namespace i2pcpp {
 
 			ByteArray dsaKeyBytes = m_routerInfo.getIdentity().getSigningKey();
 			DSA_PublicKey dsaKey(group, BigInt(dsaKeyBytes.data(), dsaKeyBytes.size()));
-			PK_Verifier v(dsaKey, "Raw");
 
 			Pipe sigPipe(new Hash_Filter("SHA-1"), new PK_Verifier_Filter(new PK_Verifier(dsaKey, "Raw"), decryptedSig));
 			sigPipe.start_msg();
@@ -113,7 +116,6 @@ namespace i2pcpp {
 			ByteArray bobIP = m_endpoint.getRawIP();
 			unsigned short bobPort = m_endpoint.getPort();
 			sigPipe.write(bobIP.data(), bobIP.size());
-			bobPort = 10673;
 			sigPipe.write(bobPort >> 8);
 			sigPipe.write(bobPort);
 

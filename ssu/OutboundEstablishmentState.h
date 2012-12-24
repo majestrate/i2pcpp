@@ -40,6 +40,7 @@ namespace i2pcpp {
 
 				State getState() { return m_state; }
 				Endpoint getEndpoint() { return m_endpoint; }
+				const I2PContext& getContext() const { return m_context; }
 
 				const RouterIdentity& getIdentity() const { return m_routerInfo.getIdentity(); }
 				const SessionKey& getSessionKey() const { return m_sessionKey; }

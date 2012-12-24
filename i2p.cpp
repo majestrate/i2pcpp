@@ -24,10 +24,9 @@ namespace i2pcpp {
 	{
 		AutoSeeded_RNG rng;
 
-		m_encryptingKey = NULL;
-		/*		ByteArray encryptingKey = m_db.getConfigValue("private_encryption_key");
-					DataSource_Memory dsm((unsigned char *)encryptingKey.data(), encryptingKey.size());
-					m_encryptingKey = dynamic_cast<ElGamal_PrivateKey *>(PKCS8::load_key(dsm, rng, ""));*/
+		string encryptingKey = m_db.getConfigValue("private_encryption_key");
+		DataSource_Memory dsm((unsigned char *)encryptingKey.data(), encryptingKey.size());
+		m_encryptionKey = dynamic_cast<ElGamal_PrivateKey *>(PKCS8::load_key(dsm, rng, ""));
 
 		string signingKey = m_db.getConfigValue("private_signing_key");
 		DataSource_Memory dsm2((unsigned char *)signingKey.data(), signingKey.size());
@@ -35,6 +34,15 @@ namespace i2pcpp {
 
 		string dsaParameters = m_db.getConfigValue("dsa_parameters");
 		m_dsaParameters.PEM_decode(dsaParameters);
+
+		BigInt encryptionKeyPublic, signingKeyPublic;
+		encryptionKeyPublic = m_encryptionKey->get_y();
+		signingKeyPublic = m_signingKey->get_y();
+
+		ByteArray encryptionKeyBytes = BigInt::encode(encryptionKeyPublic), signingKeyBytes = BigInt::encode(signingKeyPublic);
+		m_routerIdentity = RouterIdentity(encryptionKeyBytes, signingKeyBytes, Certificate());
+
+		cerr << "My router hash: " << m_routerIdentity.getHash() << "\n";
 	}
 }
 

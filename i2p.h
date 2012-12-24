@@ -6,6 +6,7 @@
 #include <botan/elgamal.h>
 #include <botan/dsa.h>
 
+#include "datatypes/RouterIdentity.h"
 #include "Database.h"
 
 using namespace std;
@@ -15,19 +16,24 @@ namespace i2pcpp {
 	class I2PContext {
 		public:
 			I2PContext(string const &database);
-			~I2PContext() { if(m_signingKey) delete m_signingKey; if(m_encryptingKey) delete m_encryptingKey; }
+			~I2PContext() { if(m_signingKey) delete m_signingKey; if(m_encryptionKey) delete m_encryptionKey; }
 
 			Database& getDatabase() { return m_db; }
 
 			const DL_Group& getDSAParameters() const { return m_dsaParameters; }
 			const DSA_PrivateKey *getSigningKey() const { return m_signingKey; }
+			const ElGamal_PrivateKey *getEncryptionKey() const { return m_encryptionKey; }
+
+			const RouterIdentity& getRouterIdentity() const { return m_routerIdentity; };
 
 		private:
 			Database m_db;
 
-			ElGamal_PrivateKey *m_encryptingKey;
+			ElGamal_PrivateKey *m_encryptionKey;
 			DSA_PrivateKey *m_signingKey;
 			DL_Group m_dsaParameters;
+
+			RouterIdentity m_routerIdentity;
 	};
 }
 

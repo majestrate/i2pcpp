@@ -15,6 +15,7 @@ namespace i2pcpp {
 			RouterIdentity(ByteArray const &publicKey, ByteArray const &signingKey, Certificate const &certificate);
 
 			ByteArray getBytes() const;
+			string getHash() const;
 			ByteArray getSigningKey() const
 			{
 				ByteArray b(128);
