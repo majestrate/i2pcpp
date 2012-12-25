@@ -6,6 +6,7 @@
 #include <botan/auto_rng.h>
 #include <botan/pk_filts.h>
 
+#include "../util/Base64.h"
 #include "../i2p.h"
 
 #include <string>
@@ -37,17 +38,14 @@ namespace i2pcpp {
 			if(m_dhSecret[0] & 0x80)
 				m_dhSecret.insert(m_dhSecret.begin(), 0x00); // 2's comlpement
 		}
-	
+
 		ByteArray OutboundEstablishmentState::calculateConfirmationSignature(const unsigned int signedOn) const
 		{
 			AutoSeeded_RNG rng;
 			const DL_Group& group = m_context.getDSAParameters();
 			const DSA_PrivateKey *key = m_context.getSigningKey();
 
-			Pipe sigPipe(new Fork(
-						new Chain(new Hash_Filter("SHA-1"), new PK_Signer_Filter(new PK_Signer(*key, "Raw"), rng)),
-						new Base64_Encoder
-						 ));
+			Pipe sigPipe(new Hash_Filter("SHA-1"), new PK_Signer_Filter(new PK_Signer(*key, "Raw"), rng));
 			sigPipe.start_msg();
 
 			ByteArray DHX(m_dhPrivateKey->public_value());
@@ -77,8 +75,6 @@ namespace i2pcpp {
 
 			ByteArray signature(sigPipe.remaining());
 			sigPipe.read(signature.data(), sigPipe.remaining());
-
-			cerr << sigPipe.read_all_as_string(1) << "\n";
 
 			return signature;
 		}

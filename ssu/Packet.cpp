@@ -64,8 +64,12 @@ namespace i2pcpp {
 
 			SymmetricKey sessionKey(sk.data(), sk.size());
 			SymmetricKey macKey(mk.data(), mk.size());
-			Pipe cipherPipe(get_cipher("AES-256/CBC/OneAndZeros", sessionKey, iv, ENCRYPTION));
+			Pipe cipherPipe(get_cipher("AES-256/CBC/NoPadding", sessionKey, iv, ENCRYPTION));
 			Pipe hmacPipe(new MAC_Filter(new I2PHMAC(new MD5()), macKey));
+
+			unsigned char padSize = 16 - (m_data.size() % 16);
+			if(padSize < 16)
+				m_data.insert(m_data.end(), padSize, padSize);
 
 			cipherPipe.process_msg(m_data.data(), m_data.size());
 

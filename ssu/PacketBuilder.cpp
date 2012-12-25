@@ -65,7 +65,7 @@ namespace i2pcpp {
 			sc.insert(sc.end(), timestamp >> 8);
 			sc.insert(sc.end(), timestamp);
 
-			sc.insert(sc.end(), 0x00, 8);
+			sc.insert(sc.end(), 9, 0x00);
 
 			ByteArray signature = state->calculateConfirmationSignature(timestamp);
 			sc.insert(sc.end(), signature.begin(), signature.end());
