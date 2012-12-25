@@ -1,9 +1,14 @@
 #include "PacketHandler.h"
 
+#include <bitset>
+
+#include <botan/pipe.h>
+#include <botan/filter.h>
+
 #include "UDPTransport.h"
+#include "../i2np/Message.h"
 
 #include <iostream>
-#include "../util/Base64.h"
 
 using namespace std;
 
@@ -40,7 +45,7 @@ namespace i2pcpp {
 				p->decrypt(state->getSessionKey());
 				data = p->getData();
 
-				auto dataItr = data.begin();
+				auto dataItr = data.cbegin();
 				unsigned char flag = *(dataItr++);
 				Packet::PayloadType ptype = (Packet::PayloadType)(flag >> 4);
 
@@ -51,13 +56,18 @@ namespace i2pcpp {
 						cerr << "PacketHandler: received session created from " << state->getEndpoint().toString() << "\n";
 						handleSessionCreated(dataItr, state);
 						break;
+
+					case Packet::DATA:
+						cerr << "PacketHandler: data received from " << state->getEndpoint().toString() << ":\n";
+						handleData(dataItr);
+						break;
 				}
 
 				state->unlock();
 			}
 		}
 
-		void PacketHandler::handleSessionCreated(ByteArray::iterator dataItr, OutboundEstablishmentStatePtr const &state)
+		void PacketHandler::handleSessionCreated(ByteArray::const_iterator &dataItr, OutboundEstablishmentStatePtr const &state)
 		{
 			if(state->getState() != OutboundEstablishmentState::REQUEST_SENT)
 				return;
@@ -82,6 +92,46 @@ namespace i2pcpp {
 			state->setSignature(dataItr, dataItr + 48);
 
 			state->createdReceived();
+		}
+
+		void PacketHandler::handleData(ByteArray::const_iterator &dataItr)
+		{
+			bitset<8> flag = *(dataItr++);
+			cerr << "Data flag: " << flag << "\n";
+
+			if(flag[7]) {
+				// Handle explicit ACKs
+			}
+
+			if(flag[6]) {
+				// Handle ACK bitfields
+			}
+
+			unsigned char numFragments = *(dataItr++);
+			cerr << "Number of fragments: " << to_string(numFragments) << "\n";
+
+			ByteArray msgId(dataItr, dataItr + 4);
+			dataItr += 4;
+
+			for(int i = 0; i < numFragments; i++)	{
+				bitset<24> fragInfo = (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
+				cerr << "Fragment info: " << fragInfo << "\n";
+
+				unsigned short fragSize = fragInfo.to_ulong() & 0x3fff;
+
+				cerr << "Fragment size: " << fragSize << "\n";
+				cerr << "Fragment data: ";
+				ByteArray fragData(dataItr, dataItr + fragSize);
+				Pipe hexPipe(new Hex_Encoder, new DataSink_Stream(cerr));
+				hexPipe.start_msg();
+				hexPipe.write(fragData);
+				hexPipe.end_msg();
+				cerr << "\n";
+
+				auto fragDataItr = fragData.cbegin();
+
+				cerr << "\n";
+			}
 		}
 	}
 }

@@ -22,7 +22,8 @@ namespace i2pcpp {
 				void run();
 
 			private:
-				void handleSessionCreated(ByteArray::iterator dataItr, OutboundEstablishmentStatePtr const &state);
+				void handleSessionCreated(ByteArray::const_iterator &dataItr, OutboundEstablishmentStatePtr const &state);
+				void handleData(ByteArray::const_iterator &dataItr);
 
 				UDPTransport &m_transport;
 		};

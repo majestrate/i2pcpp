@@ -5,11 +5,6 @@ CREATE TABLE "config" (
 	"value" TEXT
 );
 
-CREATE TABLE "config_blobs" (
-	"name" TEXT PRIMARY KEY NOT NULL,
-	"data" BLOB NOT NULL
-);
-
 CREATE TABLE "routers" (
 	"id" BLOB PRIMARY KEY,
 	"encryption_key" BLOB NOT NULL,
