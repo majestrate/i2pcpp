@@ -73,7 +73,7 @@ namespace i2pcpp {
 			return s;
 		}
 
-		PacketPtr PacketBuilder::buildSessionDestroyed(OutboundEstablishmentStatePtr const &state) const
+		PacketPtr PacketBuilder::buildSessionDestroyed(PeerStatePtr const &state) const
 		{
 			PacketPtr s = buildHeader(state->getEndpoint(), Packet::PayloadType::SESSION_DESTROY << 4);
 

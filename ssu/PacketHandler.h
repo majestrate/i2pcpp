@@ -5,6 +5,7 @@
 
 #include "OutboundEstablishmentState.h"
 #include "Packet.h"
+#include "PeerState.h"
 
 #include "../datatypes/Endpoint.h"
 #include "../datatypes/ByteArray.h"
@@ -22,6 +23,8 @@ namespace i2pcpp {
 				void run();
 
 			private:
+				void handlePacket(PacketPtr const &packet,	PeerStatePtr const &state);
+				void handlePacket(PacketPtr const &packet, OutboundEstablishmentStatePtr const &state);
 				void handleSessionCreated(ByteArray::const_iterator &dataItr, OutboundEstablishmentStatePtr const &state);
 				void handleData(ByteArray::const_iterator &dataItr);
 

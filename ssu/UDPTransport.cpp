@@ -69,6 +69,28 @@ namespace i2pcpp {
 			}
 		}
 
+		void UDPTransport::addRemotePeer(PeerStatePtr const &ps)
+		{
+			m_remotePeersMutex.lock();
+			m_remotePeers[ps->getEndpoint()] = ps;
+			m_remotePeersMutex.unlock();
+		}
+
+		PeerStatePtr UDPTransport::getRemotePeer(Endpoint const &ep)
+		{
+			PeerStatePtr ps;
+
+			m_remotePeersMutex.lock();
+
+			auto itr = m_remotePeers.find(ep);
+			if(itr != m_remotePeers.end())
+				ps = itr->second;
+
+			m_remotePeersMutex.unlock();
+
+			return ps;
+		}
+
 		void UDPTransport::shutdown()
 		{
 			m_keepRunning = false;

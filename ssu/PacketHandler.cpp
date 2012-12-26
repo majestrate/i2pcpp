@@ -26,51 +26,85 @@ namespace i2pcpp {
 				if(!p)
 					continue;
 
-				ByteArray &data = p->getData();
-
-				if(data.size() < Packet::MIN_PACKET_LEN)
+				if(p->getData().size() < Packet::MIN_PACKET_LEN)
 					continue;
 
-				OutboundEstablishmentStatePtr state = em.getOutboundState(p->getEndpoint());
-				state->lock();
-
-				if(!p->verify(state->getMacKey())) {
-					cerr << "PacketHandler: packet verification failed from " << p->getEndpoint().toString() << "\n";
-					state->unlock();
-					continue;
+				PeerStatePtr ps = m_transport.getRemotePeer(p->getEndpoint());
+				if(ps)
+					handlePacket(p, ps);
+				else {
+					OutboundEstablishmentStatePtr oes = em.getOutboundState(p->getEndpoint());
+					if(oes)
+						handlePacket(p, oes);
+					else
+						cerr << "PacketHandler: no PeerState and no OES, dropping packet\n";
 				}
-
-				state->setIV(data.begin() + 16, data.begin() + 32);
-
-				p->decrypt(state->getSessionKey());
-				data = p->getData();
-
-				auto dataItr = data.cbegin();
-				unsigned char flag = *(dataItr++);
-				Packet::PayloadType ptype = (Packet::PayloadType)(flag >> 4);
-
-				dataItr += 4; // Need to validate timestamp
-
-				switch(ptype) {
-					case Packet::SESSION_CREATED:
-						cerr << "PacketHandler: received session created from " << state->getEndpoint().toString() << "\n";
-						handleSessionCreated(dataItr, state);
-						break;
-
-					case Packet::DATA:
-						cerr << "PacketHandler: data received from " << state->getEndpoint().toString() << ":\n";
-						handleData(dataItr);
-
-						/* Only temporary */
-						PacketBuilder b;
-						PacketPtr sdp = b.buildSessionDestroyed(state);
-						sdp->encrypt(state->getSessionKey(), state->getMacKey());
-						m_transport.send(sdp);
-						break;
-				}
-
-				state->unlock();
 			}
+		}
+
+		void PacketHandler::handlePacket(PacketPtr const &packet, PeerStatePtr const &state)
+		{
+			state->lock();
+
+			if(!packet->verify(state->getCurrentMacKey())) {
+				cerr << "PacketHandler[PS]: packet verification failed from " << packet->getEndpoint().toString() << "\n";
+				return;
+			}
+
+			packet->decrypt(state->getCurrentSessionKey());
+			ByteArray &data = packet->getData();
+
+			auto dataItr = data.cbegin();
+			unsigned char flag = *(dataItr++);
+			Packet::PayloadType ptype = (Packet::PayloadType)(flag >> 4);
+
+			dataItr += 4; // Need to validate timestamp
+
+			switch(ptype) {
+				case Packet::DATA:
+					cerr << "PacketHandler[PS]: data received from " << state->getEndpoint().toString() << ":\n";
+					handleData(dataItr);
+					break;
+			}
+
+			state->unlock();
+
+			/* Only temporary */
+			/*PacketBuilder b;
+			PacketPtr sdp = b.buildSessionDestroyed(state);
+			sdp->encrypt(state->getCurrentSessionKey(), state->getCurrentMacKey());
+			m_transport.send(sdp);*/
+		}
+
+		void PacketHandler::handlePacket(PacketPtr const &packet, OutboundEstablishmentStatePtr const &state)
+		{
+			state->lock();
+
+			if(!packet->verify(state->getMacKey())) {
+				cerr << "PacketHandler[OES]: packet verification failed from " << packet->getEndpoint().toString() << "\n";
+				return;
+			}
+
+			ByteArray &data = packet->getData();
+			state->setIV(data.begin() + 16, data.begin() + 32);
+
+			packet->decrypt(state->getSessionKey());
+			data = packet->getData();
+
+			auto dataItr = data.cbegin();
+			unsigned char flag = *(dataItr++);
+			Packet::PayloadType ptype = (Packet::PayloadType)(flag >> 4);
+
+			dataItr += 4; // Need to validate timestamp
+
+			switch(ptype) {
+				case Packet::SESSION_CREATED:
+					cerr << "PacketHandler[OES]: received session created from " << state->getEndpoint().toString() << "\n";
+					handleSessionCreated(dataItr, state);
+					break;
+			}
+
+			state->unlock();
 		}
 
 		void PacketHandler::handleSessionCreated(ByteArray::const_iterator &dataItr, OutboundEstablishmentStatePtr const &state)

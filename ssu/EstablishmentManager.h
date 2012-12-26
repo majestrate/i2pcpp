@@ -30,11 +30,12 @@ namespace i2pcpp {
 
 				void establish(RouterInfo const &ri);
 
+			private:
 				void sendRequest(OutboundEstablishmentStatePtr const &state);
 				void processCreated(OutboundEstablishmentStatePtr const &state);
 				void sendConfirmed(OutboundEstablishmentStatePtr const &state);
+				void processComplete(OutboundEstablishmentStatePtr const &state);
 
-			private:
 				UDPTransport& m_transport;
 				PacketBuilder m_builder;
 

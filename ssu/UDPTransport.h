@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 #include <thread>
+#include <mutex>
 
 #include <boost/asio.hpp>
 
@@ -34,7 +35,8 @@ namespace i2pcpp {
 				ip::udp::socket& getSocket() { return m_socket; }
 				bool keepRunning() const { return m_keepRunning; }
 
-				PeerState getPeerState(Endpoint const &ep);
+				void addRemotePeer(PeerStatePtr const &ps);
+				PeerStatePtr getRemotePeer(Endpoint const &ep);
 				void shutdown();
 				void join();
 				void begin();
@@ -66,7 +68,9 @@ namespace i2pcpp {
 				PacketQueue m_inboundQueue;
 				PacketQueue m_outboundQueue;
 
-				unordered_map<Endpoint, shared_ptr<PeerState>> m_remotePeers;
+				unordered_map<Endpoint, PeerStatePtr> m_remotePeers;
+
+				mutex m_remotePeersMutex;
 
 				bool m_keepRunning;
 		};
