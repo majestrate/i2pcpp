@@ -38,8 +38,8 @@ namespace i2pcpp {
 				UDPTransport& m_transport;
 				PacketBuilder m_builder;
 
-				unordered_map<string, InboundEstablishmentStatePtr> m_inboundTable;
-				unordered_map<string, OutboundEstablishmentStatePtr> m_outboundTable;
+				unordered_map<Endpoint, InboundEstablishmentStatePtr> m_inboundTable;
+				unordered_map<Endpoint, OutboundEstablishmentStatePtr> m_outboundTable;
 
 				mutex m_inboundTableMutex;
 				mutex m_outboundTableMutex;

@@ -16,8 +16,8 @@ namespace i2pcpp {
 	namespace SSU {
 		void PacketHandler::run()
 		{
-			PacketQueue &pq = m_transport.getInboundQueue();
-			EstablishmentManager &em = m_transport.getEstablisher();
+			PacketQueue& pq = m_transport.getInboundQueue();
+			EstablishmentManager& em = m_transport.getEstablisher();
 
 			while(m_transport.keepRunning()) {
 				pq.wait();
@@ -60,6 +60,12 @@ namespace i2pcpp {
 					case Packet::DATA:
 						cerr << "PacketHandler: data received from " << state->getEndpoint().toString() << ":\n";
 						handleData(dataItr);
+
+						/* Only temporary */
+						PacketBuilder b;
+						PacketPtr sdp = b.buildSessionDestroyed(state);
+						sdp->encrypt(state->getSessionKey(), state->getMacKey());
+						m_transport.send(sdp);
 						break;
 				}
 
@@ -110,22 +116,29 @@ namespace i2pcpp {
 			unsigned char numFragments = *(dataItr++);
 			cerr << "Number of fragments: " << to_string(numFragments) << "\n";
 
-			ByteArray msgId(dataItr, dataItr + 4);
-			dataItr += 4;
+			Pipe hexPipe(new Hex_Encoder, new DataSink_Stream(cerr));
 
 			for(int i = 0; i < numFragments; i++)	{
-				bitset<24> fragInfo = (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
-				cerr << "Fragment info: " << fragInfo << "\n";
+				ByteArray msgId(dataItr, dataItr + 4);
+				cerr << "Fragment[" << i << "] Message ID: ";
+				hexPipe.start_msg(); hexPipe.write(msgId); hexPipe.end_msg();
+				cerr << "\n";
+				dataItr += 4;
 
-				unsigned short fragSize = fragInfo.to_ulong() & 0x3fff;
+				unsigned long fragInfo = (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
 
-				cerr << "Fragment size: " << fragSize << "\n";
-				cerr << "Fragment data: ";
+				unsigned short fragNum = fragInfo & 0xfe0000;
+				cerr << "Fragment[" << i << "] fragment #: " << fragNum << "\n";
+
+				bool isLast = fragInfo & 0x010000;
+				cerr << "Fragment[" << i << "] isLast: " << isLast << "\n";
+
+				unsigned short fragSize = fragInfo & 0x003fff;
+				cerr << "Fragment[" << i << "] size: " << fragSize << "\n";
+
+				cerr << "Fragment[" << i << "] data: ";
 				ByteArray fragData(dataItr, dataItr + fragSize);
-				Pipe hexPipe(new Hex_Encoder, new DataSink_Stream(cerr));
-				hexPipe.start_msg();
-				hexPipe.write(fragData);
-				hexPipe.end_msg();
+				hexPipe.start_msg(); hexPipe.write(fragData); hexPipe.end_msg();
 				cerr << "\n";
 
 				auto fragDataItr = fragData.cbegin();

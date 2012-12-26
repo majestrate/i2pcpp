@@ -2,6 +2,7 @@
 #define ENDPOINT_H
 
 #include <string>
+#include <functional>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/asio.hpp>
@@ -53,10 +54,34 @@ namespace i2pcpp {
 				}
 			}
 
+			bool operator==(const Endpoint& rhs) const
+			{
+				return m_addr == rhs.m_addr && m_port == rhs.m_port;
+			}
+
 		private:
 			ip::address m_addr;
 			unsigned short m_port;
 	};
 }
+
+template<>
+class hash<i2pcpp::Endpoint> {
+	public:
+		size_t operator()(const i2pcpp::Endpoint &ep) const
+		{
+			hash<string> f;
+			return f(ep.toString());
+		}
+};
+
+template<>
+class equal_to<i2pcpp::Endpoint> {
+	public:
+		bool operator()(const i2pcpp::Endpoint& lhs, const i2pcpp::Endpoint& rhs) const
+		{
+			return lhs == rhs;
+		}
+};
 
 #endif

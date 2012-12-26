@@ -1,7 +1,7 @@
 #ifndef I2NPDATABASESTORE_H
 #define I2NPDATABASESTORE_H
 
-#include "../datatypes/ByteArray.h"
+#include "Message.h"
 
 namespace i2pcpp {
 	namespace I2NP {

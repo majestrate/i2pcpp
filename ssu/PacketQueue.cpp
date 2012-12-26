@@ -5,7 +5,7 @@ namespace i2pcpp {
 		void PacketQueue::enqueue(PacketPtr const &p)
 		{
 			m_packetQueueMutex.lock();
-			m_packetQueue.push_back(p);
+			m_packetQueue.push(p);
 			m_packetQueueMutex.unlock();
 			m_condition.notify_all();
 		}
@@ -18,7 +18,7 @@ namespace i2pcpp {
 				return PacketPtr();
 
 			PacketPtr p = m_packetQueue.front();
-			m_packetQueue.pop_front();
+			m_packetQueue.pop();
 
 			m_packetQueueMutex.unlock();
 

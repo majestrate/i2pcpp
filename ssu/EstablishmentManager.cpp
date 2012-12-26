@@ -32,6 +32,9 @@ namespace i2pcpp {
 							cerr << "EstablishmentManager: sending session confirmed to " << s.second->getEndpoint().toString() << "\n";
 							sendConfirmed(s.second);
 							break;
+
+						case OutboundEstablishmentState::CONFIRMED_COMPLETELY:
+							break;
 					}
 
 					s.second->unlock();
@@ -44,7 +47,7 @@ namespace i2pcpp {
 		InboundEstablishmentStatePtr EstablishmentManager::getInboundState(Endpoint const &ep)
 		{
 			m_inboundTableMutex.lock();
-			InboundEstablishmentStatePtr state = m_inboundTable[ep.toString()];
+			InboundEstablishmentStatePtr state = m_inboundTable[ep];
 			m_inboundTableMutex.unlock();
 
 			return state;
@@ -53,7 +56,7 @@ namespace i2pcpp {
 		OutboundEstablishmentStatePtr EstablishmentManager::getOutboundState(Endpoint const &ep)
 		{
 			m_outboundTableMutex.lock();
-			OutboundEstablishmentStatePtr state = m_outboundTable[ep.toString()];
+			OutboundEstablishmentStatePtr state = m_outboundTable[ep];
 			m_outboundTableMutex.unlock();
 
 			return state;
@@ -63,7 +66,7 @@ namespace i2pcpp {
 		{
 			OutboundEstablishmentStatePtr oes(new OutboundEstablishmentState(m_transport.getContext(), ri));
 			m_outboundTableMutex.lock();
-			m_outboundTable[oes->getEndpoint().toString()] = oes;
+			m_outboundTable[oes->getEndpoint()] = oes;
 			m_outboundTableMutex.unlock();
 			oes->introduced();
 		}
@@ -104,6 +107,8 @@ namespace i2pcpp {
 			p->encrypt(state->getSessionKey(), state->getMacKey());
 			state->confirmedCompletely();
 			m_transport.send(p);
+
+			state->confirmedCompletely();
 		}
 	}
 }

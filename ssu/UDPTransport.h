@@ -1,6 +1,7 @@
 #ifndef SSUUDPTRANSPORT_H
 #define SSUUDPTRANSPORT_H
 
+#include <unordered_map>
 #include <thread>
 
 #include <boost/asio.hpp>
@@ -14,6 +15,7 @@
 #include "UDPSender.h"
 #include "PacketHandler.h"
 #include "EstablishmentManager.h"
+#include "PeerState.h"
 
 using namespace std;
 using namespace boost::asio;
@@ -31,6 +33,8 @@ namespace i2pcpp {
 				EstablishmentManager& getEstablisher() { return m_establisher; }
 				ip::udp::socket& getSocket() { return m_socket; }
 				bool keepRunning() const { return m_keepRunning; }
+
+				PeerState getPeerState(Endpoint const &ep);
 				void shutdown();
 				void join();
 				void begin();
@@ -61,6 +65,8 @@ namespace i2pcpp {
 
 				PacketQueue m_inboundQueue;
 				PacketQueue m_outboundQueue;
+
+				unordered_map<Endpoint, shared_ptr<PeerState>> m_remotePeers;
 
 				bool m_keepRunning;
 		};

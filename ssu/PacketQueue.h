@@ -1,7 +1,7 @@
 #ifndef PACKETQUEUE_H
 #define PACKETQUEUE_H
 
-#include <deque>
+#include <queue>
 #include <mutex>
 #include <condition_variable>
 
@@ -20,7 +20,7 @@ namespace i2pcpp {
 				void wait();
 
 			private:
-				deque<PacketPtr> m_packetQueue;
+				queue<PacketPtr> m_packetQueue;
 				mutex m_packetQueueMutex;
 
 				condition_variable m_condition;
