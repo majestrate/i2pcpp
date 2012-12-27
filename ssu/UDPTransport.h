@@ -7,8 +7,7 @@
 
 #include <boost/asio.hpp>
 
-#include "PacketQueue.h"
-
+#include "../util/LockingQueue.h"
 #include "../datatypes/SessionKey.h"
 #include "../datatypes/Endpoint.h"
 
@@ -17,6 +16,7 @@
 #include "PacketHandler.h"
 #include "EstablishmentManager.h"
 #include "PeerState.h"
+#include "Packet.h"
 
 using namespace std;
 using namespace boost::asio;
@@ -25,6 +25,8 @@ namespace i2pcpp {
 	class I2PContext;
 
 	namespace SSU {
+		typedef LockingQueue<PacketPtr> PacketQueue;
+
 		class UDPTransport {
 			public:
 				UDPTransport(I2PContext &ctx, Endpoint const &ep);

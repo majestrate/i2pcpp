@@ -2,11 +2,8 @@
 
 #include <bitset>
 
-#include <botan/pipe.h>
-#include <botan/filter.h>
-
 #include "UDPTransport.h"
-#include "../i2np/Message.h"
+#include "InboundMessageFragments.h"
 
 #include <iostream>
 
@@ -63,7 +60,7 @@ namespace i2pcpp {
 			switch(ptype) {
 				case Packet::DATA:
 					cerr << "PacketHandler[PS]: data received from " << state->getEndpoint().toString() << ":\n";
-					handleData(dataItr);
+					m_imf.receiveData(dataItr, state);
 					break;
 			}
 
@@ -132,53 +129,6 @@ namespace i2pcpp {
 			state->setSignature(dataItr, dataItr + 48);
 
 			state->createdReceived();
-		}
-
-		void PacketHandler::handleData(ByteArray::const_iterator &dataItr)
-		{
-			bitset<8> flag = *(dataItr++);
-			cerr << "Data flag: " << flag << "\n";
-
-			if(flag[7]) {
-				// Handle explicit ACKs
-			}
-
-			if(flag[6]) {
-				// Handle ACK bitfields
-			}
-
-			unsigned char numFragments = *(dataItr++);
-			cerr << "Number of fragments: " << to_string(numFragments) << "\n";
-
-			Pipe hexPipe(new Hex_Encoder, new DataSink_Stream(cerr));
-
-			for(int i = 0; i < numFragments; i++)	{
-				ByteArray msgId(dataItr, dataItr + 4);
-				cerr << "Fragment[" << i << "] Message ID: ";
-				hexPipe.start_msg(); hexPipe.write(msgId); hexPipe.end_msg();
-				cerr << "\n";
-				dataItr += 4;
-
-				unsigned long fragInfo = (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
-
-				unsigned short fragNum = fragInfo & 0xfe0000;
-				cerr << "Fragment[" << i << "] fragment #: " << fragNum << "\n";
-
-				bool isLast = fragInfo & 0x010000;
-				cerr << "Fragment[" << i << "] isLast: " << isLast << "\n";
-
-				unsigned short fragSize = fragInfo & 0x003fff;
-				cerr << "Fragment[" << i << "] size: " << fragSize << "\n";
-
-				cerr << "Fragment[" << i << "] data: ";
-				ByteArray fragData(dataItr, dataItr + fragSize);
-				hexPipe.start_msg(); hexPipe.write(fragData); hexPipe.end_msg();
-				cerr << "\n";
-
-				auto fragDataItr = fragData.cbegin();
-
-				cerr << "\n";
-			}
 		}
 	}
 }

@@ -3,6 +3,9 @@
 
 #include <mutex>
 #include <memory>
+#include <unordered_map>
+
+#include "InboundMessageState.h"
 
 #include "../datatypes/RouterIdentity.h"
 #include "../datatypes/Endpoint.h"
@@ -29,10 +32,15 @@ namespace i2pcpp {
 
 				Endpoint getEndpoint() { return m_endpoint; }
 
+				InboundMessageStatePtr getInboundMessageState(const unsigned long msgId);
+				void addInboundMessageState(InboundMessageStatePtr const &ims);
+
 			private:
 				Endpoint m_endpoint;
 				RouterIdentity m_identity;
 				bool m_isInbound;
+
+				unordered_map<unsigned long, InboundMessageStatePtr> m_inboundMessageStates;
 
 				SessionKey m_sessionKey;
 				SessionKey m_macKey;
