@@ -49,11 +49,13 @@ namespace i2pcpp {
 
 				InboundMessageStatePtr ims = ps->getInboundMessageState(msgId);
 				if(!ims) {
-					ims = InboundMessageStatePtr(new InboundMessageState(msgId));
+					ims = InboundMessageStatePtr(new InboundMessageState(ps->getIdentity().getHash(), msgId));
 					ps->addInboundMessageState(ims);
 				}
 
+				ims->lock();
 				ims->addFragment(fragNum, fragData);
+				ims->unlock();
 
 				cerr << "\n";
 			}

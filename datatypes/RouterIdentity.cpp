@@ -36,14 +36,28 @@ namespace i2pcpp {
 		return b;
 	}
 
-	string RouterIdentity::getHash() const
+	RouterHash RouterIdentity::getHash() const
+	{
+		Pipe hashPipe(new Hash_Filter("SHA-256"));
+		hashPipe.start_msg();
+
+		hashPipe.write(getBytes());
+
+		hashPipe.end_msg();
+
+		RouterHash hash;
+		hashPipe.read(hash.data(), 32);
+
+		return hash;
+	}
+
+	string RouterIdentity::getHashEncoded() const
 	{
 		Pipe hashPipe(new Hash_Filter("SHA-256"), new Base64_Encoder);
 
 		hashPipe.start_msg();
 
-		ByteArray bytes = getBytes();
-		hashPipe.write(bytes.data(), bytes.size());
+		hashPipe.write(getBytes());
 
 		hashPipe.end_msg();
 

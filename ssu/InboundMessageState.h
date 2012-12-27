@@ -2,10 +2,11 @@
 #define SSUINBOUNDMESSAGESTATE_H
 
 #include <memory>
-#include <unordered_map>
+#include <map>
 #include <mutex>
 
 #include "../datatypes/ByteArray.h"
+#include "../datatypes/RouterHash.h"
 
 using namespace std;
 
@@ -13,7 +14,7 @@ namespace i2pcpp {
 	namespace SSU {
 		class InboundMessageState {
 			public:
-				InboundMessageState(const unsigned long msgId) : m_msgid(msgId) {}
+				InboundMessageState(RouterHash const &routerHash, const unsigned long msgId) : m_msgid(msgId), m_routerHash(routerHash) {}
 
 				void lock() { m_mutex.lock(); }
 				void unlock() { m_mutex.unlock(); }
@@ -25,8 +26,9 @@ namespace i2pcpp {
 
 			private:
 				unsigned long m_msgid;
+				RouterHash m_routerHash;
 
-				unordered_map<unsigned char, ByteArray> m_fragments;
+				map<unsigned char, ByteArray> m_fragments;
 
 				mutex m_mutex;
 		};

@@ -13,6 +13,7 @@
 #include "RouterAddress.h"
 #include "RouterIdentity.h"
 #include "Date.h"
+#include "RouterHash.h"
 
 using namespace std;
 using namespace Botan;
@@ -60,21 +61,6 @@ namespace i2pcpp {
 			const RouterAddress& getAddress(const int index) const
 			{
 				return m_addresses[index];
-			}
-
-			array<unsigned char, 32> getRouterHash() const
-			{
-				Pipe hashPipe(new Hash_Filter("SHA-256"));
-				hashPipe.start_msg();
-
-				hashPipe.write(m_identity.getBytes());
-
-				hashPipe.end_msg();
-
-				array<unsigned char, 32> hash;
-				hashPipe.read(hash.data(), 32);
-
-				return hash;
 			}
 
 			const RouterIdentity& getIdentity() const

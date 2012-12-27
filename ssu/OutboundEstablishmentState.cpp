@@ -24,7 +24,7 @@ namespace i2pcpp {
 			unsigned short port = ri.getAddress(0).getPort();
 			m_endpoint = Endpoint(host, port);
 
-			m_sessionKey = ri.getRouterHash();
+			m_sessionKey = ri.getIdentity().getHash();
 			m_macKey = m_sessionKey;
 		}
 

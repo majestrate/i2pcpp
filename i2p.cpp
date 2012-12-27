@@ -42,7 +42,7 @@ namespace i2pcpp {
 		ByteArray encryptionKeyBytes = BigInt::encode(encryptionKeyPublic), signingKeyBytes = BigInt::encode(signingKeyPublic);
 		m_routerIdentity = RouterIdentity(encryptionKeyBytes, signingKeyBytes, Certificate());
 
-		cerr << "My router hash: " << m_routerIdentity.getHash() << "\n";
+		cerr << "My router hash: " << m_routerIdentity.getHashEncoded() << "\n";
 	}
 }
 

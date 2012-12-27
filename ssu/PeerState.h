@@ -25,12 +25,13 @@ namespace i2pcpp {
 				void setNextSessionKey(SessionKey const &sk) { m_nextSessionKey = sk; }
 				void setNextMacKey(SessionKey const &mk) { m_nextMacKey = mk; }
 
-				SessionKey getCurrentSessionKey() { return m_sessionKey; }
-				SessionKey getCurrentMacKey() { return m_macKey; }
-				SessionKey getNextSessionKey() { return m_nextSessionKey; }
-				SessionKey getNextMacKey() { return m_nextMacKey; }
+				SessionKey getCurrentSessionKey() const { return m_sessionKey; }
+				SessionKey getCurrentMacKey() const { return m_macKey; }
+				SessionKey getNextSessionKey() const { return m_nextSessionKey; }
+				SessionKey getNextMacKey() const { return m_nextMacKey; }
 
-				Endpoint getEndpoint() { return m_endpoint; }
+				Endpoint getEndpoint() const { return m_endpoint; }
+				const RouterIdentity& getIdentity() { return m_identity; }
 
 				InboundMessageStatePtr getInboundMessageState(const unsigned long msgId);
 				void addInboundMessageState(InboundMessageStatePtr const &ims);

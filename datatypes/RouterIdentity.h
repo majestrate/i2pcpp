@@ -6,6 +6,7 @@
 #include "Datatype.h"
 #include "Certificate.h"
 #include "ByteArray.h"
+#include "RouterHash.h"
 
 namespace i2pcpp {
 	class RouterIdentity : public Datatype {
@@ -15,7 +16,8 @@ namespace i2pcpp {
 			RouterIdentity(ByteArray const &publicKey, ByteArray const &signingKey, Certificate const &certificate);
 
 			ByteArray getBytes() const;
-			string getHash() const;
+			RouterHash getHash() const;
+			string getHashEncoded() const;
 			ByteArray getSigningKey() const
 			{
 				ByteArray b(128);
