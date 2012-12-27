@@ -13,13 +13,14 @@ namespace i2pcpp {
 		void EstablishmentManager::run()
 		{
 			while(m_transport.keepRunning()) {
-				m_outboundTableMutex.lock();
+				lock_guard<mutex> lock(m_outboundTableMutex);
 
 				auto obtItr = m_outboundTable.begin();
 				while(obtItr != m_outboundTable.end()) {
 					OutboundEstablishmentStatePtr oes = (*obtItr).second;
 
-					oes->lock();
+					lock_guard<mutex> lock(oes->getMutex());
+
 					switch(oes->getState()) {
 						case OutboundEstablishmentState::INTRODUCED:
 							cerr << "EstablishmentManager: sending session request to " << oes->getEndpoint().toString() << "\n";
@@ -38,54 +39,46 @@ namespace i2pcpp {
 						case OutboundEstablishmentState::CONFIRMED_COMPLETELY:
 							processComplete(oes);
 							m_outboundTable.erase(obtItr++);
-							oes->unlock();
 							continue;
 					}
 
-					oes->unlock();
 					++obtItr;
 				}
-
-				m_outboundTableMutex.unlock();
 			}
 		}
 
 		InboundEstablishmentStatePtr EstablishmentManager::getInboundState(Endpoint const &ep)
 		{
-			InboundEstablishmentStatePtr ies;
+			lock_guard<mutex> lock(m_inboundTableMutex);
 
-			m_inboundTableMutex.lock();
+			InboundEstablishmentStatePtr ies;
 
 			auto itr = m_inboundTable.find(ep);
 			if(itr != m_inboundTable.end())
 				ies = itr->second;
-
-			m_inboundTableMutex.unlock();
 
 			return ies;
 		}
 
 		OutboundEstablishmentStatePtr EstablishmentManager::getOutboundState(Endpoint const &ep)
 		{
-			OutboundEstablishmentStatePtr oes;
+			lock_guard<mutex> lock(m_outboundTableMutex);
 
-			m_outboundTableMutex.lock();
+			OutboundEstablishmentStatePtr oes;
 
 			auto itr = m_outboundTable.find(ep);
 			if(itr != m_outboundTable.end())
 				oes = itr->second;
-
-			m_outboundTableMutex.unlock();
 
 			return oes;
 		}
 
 		void EstablishmentManager::establish(RouterInfo const &ri)
 		{
+			lock_guard<mutex> lock(m_outboundTableMutex);
+
 			OutboundEstablishmentStatePtr oes(new OutboundEstablishmentState(m_transport.getContext(), ri));
-			m_outboundTableMutex.lock();
 			m_outboundTable[oes->getEndpoint()] = oes;
-			m_outboundTableMutex.unlock();
 			oes->introduced();
 		}
 

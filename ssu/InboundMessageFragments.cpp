@@ -64,7 +64,7 @@ namespace i2pcpp {
 					ps->addInboundMessageState(ims);
 				}
 
-				ims->lock();
+				lock_guard<mutex> lock(ims->getMutex());
 				bool fragOK = ims->addFragment(fragNum, fragData, isLast);
 
 				if(!fragOK)
@@ -72,8 +72,6 @@ namespace i2pcpp {
 
 				if(ims->isComplete())
 					m_messageReceiver.addMessage(ims);
-
-				ims->unlock();
 
 				cerr << "\n";
 			}

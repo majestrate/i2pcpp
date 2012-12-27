@@ -46,7 +46,7 @@ namespace i2pcpp {
 
 		void PacketHandler::handlePacket(PacketPtr const &packet, PeerStatePtr const &state)
 		{
-			state->lock();
+			lock_guard<mutex> lock(state->getMutex());
 
 			if(!packet->verify(state->getCurrentMacKey())) {
 				cerr << "PacketHandler[PS]: packet verification failed from " << packet->getEndpoint().toString() << "\n";
@@ -69,8 +69,6 @@ namespace i2pcpp {
 					break;
 			}
 
-			state->unlock();
-
 			/* Only temporary */
 			/*PacketBuilder b;
 			PacketPtr sdp = b.buildSessionDestroyed(state);
@@ -80,7 +78,7 @@ namespace i2pcpp {
 
 		void PacketHandler::handlePacket(PacketPtr const &packet, OutboundEstablishmentStatePtr const &state)
 		{
-			state->lock();
+			lock_guard<mutex> lock(state->getMutex());
 
 			if(!packet->verify(state->getMacKey())) {
 				cerr << "PacketHandler[OES]: packet verification failed from " << packet->getEndpoint().toString() << "\n";
@@ -105,8 +103,6 @@ namespace i2pcpp {
 					handleSessionCreated(dataItr, state);
 					break;
 			}
-
-			state->unlock();
 		}
 
 		void PacketHandler::handleSessionCreated(ByteArray::const_iterator &dataItr, OutboundEstablishmentStatePtr const &state)

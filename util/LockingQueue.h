@@ -15,24 +15,21 @@ namespace i2pcpp {
 
 				void enqueue(T const &p)
 				{
-					m_queueMutex.lock();
+					lock_guard<mutex> lock(m_queueMutex);
 					m_queue.push(p);
-					m_queueMutex.unlock();
 					m_condition.notify_all();
 				}
 
 				T pop()
 				{
-					T ret;
+					lock_guard<mutex> lock(m_queueMutex);
 
-					m_queueMutex.lock();
+					T ret;
 
 					if(m_queue.size()) {
 						ret = m_queue.front();
 						m_queue.pop();
 					}
-
-					m_queueMutex.unlock();
 
 					return ret;
 				}

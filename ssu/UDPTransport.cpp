@@ -71,22 +71,19 @@ namespace i2pcpp {
 
 		void UDPTransport::addRemotePeer(PeerStatePtr const &ps)
 		{
-			m_remotePeersMutex.lock();
+			lock_guard<mutex> lock(m_remotePeersMutex);
 			m_remotePeers[ps->getEndpoint()] = ps;
-			m_remotePeersMutex.unlock();
 		}
 
 		PeerStatePtr UDPTransport::getRemotePeer(Endpoint const &ep)
 		{
-			PeerStatePtr ps;
+			lock_guard<mutex> lock(m_remotePeersMutex);
 
-			m_remotePeersMutex.lock();
+			PeerStatePtr ps;
 
 			auto itr = m_remotePeers.find(ep);
 			if(itr != m_remotePeers.end())
 				ps = itr->second;
-
-			m_remotePeersMutex.unlock();
 
 			return ps;
 		}

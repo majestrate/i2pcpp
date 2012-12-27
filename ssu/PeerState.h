@@ -17,9 +17,6 @@ namespace i2pcpp {
 			public:
 				PeerState(Endpoint const &ep, RouterIdentity const &ri, bool isInbound) : m_endpoint(ep), m_identity(ri), m_isInbound(isInbound) {}
 
-				void lock() { m_mutex.lock(); }
-				void unlock() { m_mutex.unlock(); }
-
 				void setCurrentSessionKey(SessionKey const &sk) { m_sessionKey = sk; }
 				void setCurrentMacKey(SessionKey const &mk) { m_macKey = mk; }
 				void setNextSessionKey(SessionKey const &sk) { m_nextSessionKey = sk; }
@@ -30,6 +27,7 @@ namespace i2pcpp {
 				SessionKey getNextSessionKey() const { return m_nextSessionKey; }
 				SessionKey getNextMacKey() const { return m_nextMacKey; }
 
+				mutex& getMutex() { return m_mutex; }
 				Endpoint getEndpoint() const { return m_endpoint; }
 				const RouterIdentity& getIdentity() { return m_identity; }
 

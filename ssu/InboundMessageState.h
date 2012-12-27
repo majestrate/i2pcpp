@@ -16,12 +16,10 @@ namespace i2pcpp {
 			public:
 				InboundMessageState(RouterHash const &routerHash, const unsigned long msgId) : m_msgid(msgId), m_routerHash(routerHash), m_gotLast(false), m_byteTotal(0) {}
 
-				void lock() { m_mutex.lock(); }
-				void unlock() { m_mutex.unlock(); }
-
 				bool addFragment(const unsigned char fragNum, ByteArray const &data, bool isLast);
 				bool isComplete() const;
 
+				mutex& getMutex() { return m_mutex; }
 				unsigned long getMsgId() { return m_msgid; }
 				unsigned char getNumFragments() { return m_fragments.size(); }
 				void assemble(ByteArray &dst) const;

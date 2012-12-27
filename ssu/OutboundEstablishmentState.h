@@ -35,9 +35,7 @@ namespace i2pcpp {
 					VALIDATION_FAILED
 				};
 
-				void lock() { m_mutex.lock(); }
-				void unlock() { m_mutex.unlock(); }
-
+				mutex& getMutex() { return m_mutex; }
 				State getState() { return m_state; }
 				Endpoint getEndpoint() { return m_endpoint; }
 				const I2PContext& getContext() const { return m_context; }
