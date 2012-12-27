@@ -18,14 +18,14 @@ namespace i2pcpp {
 				if(!ims)
 					continue;
 
-				cerr << "MessageReceiver: Received IMS with " << (int)ims->getNumFragments() << " fragments\n";
+				cerr << "MessageReceiver[" << ims->getMsgId() << "]: Received IMS with " << (int)ims->getNumFragments() << " fragments\n";
 
 				ByteArray data;
 				ims->assemble(data);
 				I2NP::Message *m = I2NP::Message::fromBytes(data);
 
 				if(m) {
-					cerr << "MessageReceiver: This looks like a message of type: " << (int)m->getType() << "\n";
+					cerr << "MessageReceiver[" << ims->getMsgId() << "]: This looks like a message of type: " << (int)m->getType() << "\n";
 
 					delete m;
 				}

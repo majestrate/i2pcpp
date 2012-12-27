@@ -25,7 +25,12 @@ namespace i2pcpp {
 					return NULL;
 			}
 
-			return m;
+			m->m_expiration = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
+
+			if(m->parse(dataItr))
+				return m;
+			else
+				return NULL;
 		}
 	}
 }

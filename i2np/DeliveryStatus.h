@@ -1,9 +1,9 @@
 #ifndef I2NPDELIVERYSTATUS_H
 #define I2NPDELIVERYSTATUS_H
 
-#include "../datatypes/Date.h"
-
 #include "Message.h"
+
+#include "../datatypes/Date.h"
 
 namespace i2pcpp {
 	namespace I2NP {
@@ -13,7 +13,11 @@ namespace i2pcpp {
 
 				Message::MessageType getType() { return Message::MessageType::DELIVERY_STATUS; }
 			protected:
-				bool parse() { return true; }
+				bool parse(ByteArray::const_iterator &dataItr);
+
+			private:
+				unsigned long m_msgId;
+				Date m_timestamp;
 		};
 	}
 }

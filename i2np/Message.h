@@ -2,7 +2,6 @@
 #define I2NPMESSAGE_H
 
 #include "../datatypes/ByteArray.h"
-#include "../datatypes/Date.h"
 
 namespace i2pcpp {
 	namespace I2NP {
@@ -29,9 +28,9 @@ namespace i2pcpp {
 				virtual MessageType getType() = 0;
 
 			protected:
-				virtual bool parse() = 0;
+				virtual bool parse(ByteArray::const_iterator &dataItr) = 0;
 
-			private:
+				unsigned long m_expiration;
 		};
 	}
 }
