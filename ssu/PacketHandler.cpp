@@ -4,6 +4,7 @@
 
 #include "UDPTransport.h"
 #include "InboundMessageFragments.h"
+#include "MessageReceiver.h"
 
 #include <iostream>
 
@@ -15,6 +16,8 @@ namespace i2pcpp {
 		{
 			PacketQueue& pq = m_transport.getInboundQueue();
 			EstablishmentManager& em = m_transport.getEstablisher();
+
+			m_messageReceiverThread = thread(&PacketHandler::startMessageReceiver, this);
 
 			while(m_transport.keepRunning()) {
 				pq.wait();
@@ -37,6 +40,9 @@ namespace i2pcpp {
 						cerr << "PacketHandler: no PeerState and no OES, dropping packet\n";
 				}
 			}
+
+			m_keepRunning = false;
+			m_messageReceiverThread.join();
 		}
 
 		void PacketHandler::handlePacket(PacketPtr const &packet, PeerStatePtr const &state)
@@ -129,6 +135,15 @@ namespace i2pcpp {
 			state->setSignature(dataItr, dataItr + 48);
 
 			state->createdReceived();
+		}
+
+		void PacketHandler::startMessageReceiver()
+		{
+			try {
+				m_messageReceiver.run();
+			} catch(exception &e) {
+				cerr << "MessageReceiver exception: " << e.what() << "\n";
+			}
 		}
 	}
 }

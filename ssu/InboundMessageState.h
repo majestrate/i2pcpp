@@ -14,12 +14,13 @@ namespace i2pcpp {
 	namespace SSU {
 		class InboundMessageState {
 			public:
-				InboundMessageState(RouterHash const &routerHash, const unsigned long msgId) : m_msgid(msgId), m_routerHash(routerHash) {}
+				InboundMessageState(RouterHash const &routerHash, const unsigned long msgId) : m_msgid(msgId), m_routerHash(routerHash), m_gotLast(false) {}
 
 				void lock() { m_mutex.lock(); }
 				void unlock() { m_mutex.unlock(); }
 
-				void addFragment(const unsigned char fragNum, ByteArray const &data);
+				bool addFragment(const unsigned char fragNum, ByteArray const &data, bool isLast);
+				bool isComplete() const;
 
 				unsigned long getMsgId() { return m_msgid; }
 				unsigned char getNumFragments() { return m_fragments.size(); }
@@ -27,6 +28,8 @@ namespace i2pcpp {
 			private:
 				unsigned long m_msgid;
 				RouterHash m_routerHash;
+				bool m_gotLast;
+				unsigned char m_lastFragment;
 
 				map<unsigned char, ByteArray> m_fragments;
 

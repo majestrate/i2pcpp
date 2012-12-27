@@ -54,7 +54,13 @@ namespace i2pcpp {
 				}
 
 				ims->lock();
-				ims->addFragment(fragNum, fragData);
+				bool fragOK = ims->addFragment(fragNum, fragData, isLast);
+
+				if(!fragOK)
+					cerr << "InboundMessageFragments: BAD FRAGMENT!\n";
+
+				if(ims->isComplete()) { /* Queue it in the MessageReceiver */ }
+
 				ims->unlock();
 
 				cerr << "\n";
