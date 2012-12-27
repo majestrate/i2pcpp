@@ -17,6 +17,8 @@ namespace i2pcpp {
 				m_lastFragment = fragNum;
 			}
 
+			m_byteTotal += data.size();
+
 			return true;
 		}
 
@@ -28,6 +30,22 @@ namespace i2pcpp {
 				if(m_fragments.count(f) < 1) return false;
 
 			return true;
+		}
+
+		void InboundMessageState::assemble(ByteArray &dst) const
+		{
+			if(!isComplete()) return;
+
+			dst.resize(m_byteTotal);
+			dst.clear();
+
+			auto itr = dst.begin();
+			for(auto fp: m_fragments)
+			{
+				ByteArray f = fp.second;
+				copy(f.cbegin(), f.cend(), itr);
+				itr += f.size();
+			}
 		}
 	}
 }

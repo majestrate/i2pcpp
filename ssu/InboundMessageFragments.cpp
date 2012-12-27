@@ -7,6 +7,17 @@ using namespace Botan;
 
 namespace i2pcpp {
 	namespace SSU {
+		void InboundMessageFragments::begin()
+		{
+			m_messageReceiverThread = thread(&InboundMessageFragments::startMessageReceiver, this);
+		}
+
+		void InboundMessageFragments::join()
+		{
+			m_messageReceiver.notify();
+			m_messageReceiverThread.join();
+		}
+
 		void InboundMessageFragments::receiveData(ByteArray::const_iterator &dataItr, PeerStatePtr const &ps)
 		{
 			bitset<8> flag = *(dataItr++);
@@ -59,11 +70,21 @@ namespace i2pcpp {
 				if(!fragOK)
 					cerr << "InboundMessageFragments: BAD FRAGMENT!\n";
 
-				if(ims->isComplete()) { /* Queue it in the MessageReceiver */ }
+				if(ims->isComplete())
+					m_messageReceiver.addMessage(ims);
 
 				ims->unlock();
 
 				cerr << "\n";
+			}
+		}
+
+		void InboundMessageFragments::startMessageReceiver()
+		{
+			try {
+				m_messageReceiver.run();
+			} catch(exception &e) {
+				cerr << "MessageReceiver exception: " << e.what() << "\n";
 			}
 		}
 	}

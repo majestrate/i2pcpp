@@ -8,6 +8,8 @@ namespace i2pcpp {
 	namespace I2NP {
 		class Message {
 			public:
+				virtual ~Message() {}
+
 				enum MessageType {
 					DB_STORE = 1,
 					DB_LOOKUP = 2,
@@ -23,12 +25,13 @@ namespace i2pcpp {
 					VARIABLE_TUNNEL_BUILD_REPLY = 24
 				};
 
-				static void handleMessage(ByteArray::const_iterator &dataItr);
+				static Message *fromBytes(ByteArray const &data);
+				virtual MessageType getType() = 0;
+
+			protected:
+				virtual bool parse() = 0;
 
 			private:
-				static void handleDeliveryStatus(ByteArray::const_iterator &dataItr);
-
-				MessageType m_type;
 		};
 	}
 }

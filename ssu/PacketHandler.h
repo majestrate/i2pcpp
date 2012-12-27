@@ -8,7 +8,6 @@
 #include "Packet.h"
 #include "PeerState.h"
 #include "InboundMessageFragments.h"
-#include "MessageReceiver.h"
 
 #include "../datatypes/Endpoint.h"
 #include "../datatypes/ByteArray.h"
@@ -21,10 +20,9 @@ namespace i2pcpp {
 
 		class PacketHandler {
 			public:
-				PacketHandler(UDPTransport &transport) : m_transport(transport), m_messageReceiver(*this), m_keepRunning(true) {}
+				PacketHandler(UDPTransport &transport) : m_transport(transport), m_imf(transport) {}
 
 				void run();
-				bool keepRunning() const { return m_keepRunning; }
 
 			private:
 				void handlePacket(PacketPtr const &packet,	PeerStatePtr const &state);
@@ -34,9 +32,6 @@ namespace i2pcpp {
 
 				UDPTransport &m_transport;
 				InboundMessageFragments m_imf;
-				MessageReceiver m_messageReceiver;
-				thread m_messageReceiverThread;
-				bool m_keepRunning;
 		};
 	}
 }

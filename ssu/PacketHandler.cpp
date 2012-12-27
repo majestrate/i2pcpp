@@ -17,7 +17,7 @@ namespace i2pcpp {
 			PacketQueue& pq = m_transport.getInboundQueue();
 			EstablishmentManager& em = m_transport.getEstablisher();
 
-			m_messageReceiverThread = thread(&PacketHandler::startMessageReceiver, this);
+			m_imf.begin();
 
 			while(m_transport.keepRunning()) {
 				pq.wait();
@@ -41,8 +41,7 @@ namespace i2pcpp {
 				}
 			}
 
-			m_keepRunning = false;
-			m_messageReceiverThread.join();
+			m_imf.join();
 		}
 
 		void PacketHandler::handlePacket(PacketPtr const &packet, PeerStatePtr const &state)
@@ -135,15 +134,6 @@ namespace i2pcpp {
 			state->setSignature(dataItr, dataItr + 48);
 
 			state->createdReceived();
-		}
-
-		void PacketHandler::startMessageReceiver()
-		{
-			try {
-				m_messageReceiver.run();
-			} catch(exception &e) {
-				cerr << "MessageReceiver exception: " << e.what() << "\n";
-			}
 		}
 	}
 }
