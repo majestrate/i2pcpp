@@ -32,7 +32,6 @@ namespace i2pcpp {
 					return ret;
 				}
 
-				void notify() { m_condition.notify_all(); }
 				void finish() { m_finished = true; m_condition.notify_all(); }
 
 				void wait()

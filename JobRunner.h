@@ -12,9 +12,11 @@ namespace i2pcpp {
 	class JobRunner : public Thread {
 		public:
 			JobRunner(JobQueue &jq) : m_jobQueue(jq) {}
-			void loop();
 
 		private:
+			void loop();
+			void stopHook() { m_jobQueue.finish(); }
+
 			JobQueue& m_jobQueue;
 	};
 
