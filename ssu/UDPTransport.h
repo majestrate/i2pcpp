@@ -2,15 +2,11 @@
 #define SSUUDPTRANSPORT_H
 
 #include <unordered_map>
-#include <thread>
 #include <mutex>
 
 #include <boost/asio.hpp>
 
-#include "../util/LockingQueue.h"
-#include "../datatypes/SessionKey.h"
 #include "../datatypes/Endpoint.h"
-
 #include "../InboundMessageDispatcher.h"
 
 #include "UDPReceiver.h"

@@ -14,8 +14,8 @@ namespace i2pcpp {
 			public:
 				InboundMessageFragments(UDPTransport &transport) : m_messageReceiver(transport) {}
 
-				void begin();
-				void shutdown();
+				void begin() { m_messageReceiver.start(); }
+				void shutdown() { m_messageReceiver.stop(); }
 				void receiveData(ByteArray::const_iterator &dataItr, PeerStatePtr const &ps);
 
 			private:

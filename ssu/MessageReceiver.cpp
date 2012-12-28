@@ -38,10 +38,5 @@ namespace i2pcpp {
 		{
 			m_queue.enqueue(ims);
 		}
-
-		void MessageReceiver::stopHook()
-		{
-			m_queue.finish();
-		}
 	}
 }

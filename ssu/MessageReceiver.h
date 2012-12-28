@@ -20,7 +20,7 @@ namespace i2pcpp {
 
 			private:
 				void loop();
-				void stopHook();
+				void stopHook() { m_queue.finish(); }
 
 				UDPTransport& m_transport;
 

@@ -58,6 +58,8 @@ namespace i2pcpp {
 
 		void UDPTransport::shutdown()
 		{
+			m_socket.shutdown(boost::asio::ip::udp::socket::shutdown_both);
+
 			m_inboundQueue.finish();
 			m_outboundQueue.finish();
 
@@ -65,8 +67,6 @@ namespace i2pcpp {
 			m_sender.stop();
 			m_handler.stop();
 			m_establisher.stop();
-
-			m_socket.shutdown(boost::asio::ip::udp::socket::shutdown_both);
 		}
 
 		void UDPTransport::send(PacketPtr const &p)

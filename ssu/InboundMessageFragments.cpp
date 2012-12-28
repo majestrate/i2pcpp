@@ -7,16 +7,6 @@
 
 namespace i2pcpp {
 	namespace SSU {
-		void InboundMessageFragments::begin()
-		{
-			m_messageReceiver.start();
-		}
-
-		void InboundMessageFragments::shutdown()
-		{
-			m_messageReceiver.stop();
-		}
-
 		void InboundMessageFragments::receiveData(ByteArray::const_iterator &dataItr, PeerStatePtr const &ps)
 		{
 			std::bitset<8> flag = *(dataItr++);
