@@ -10,7 +10,6 @@
 
 #include "Database.h"
 #include "InboundMessageDispatcher.h"
-#include "Job.h"
 
 namespace i2pcpp {
 	class I2PContext {
@@ -26,6 +25,8 @@ namespace i2pcpp {
 
 			const RouterIdentity& getRouterIdentity() const { return m_routerIdentity; };
 
+			InboundMessageDispatcher& getInMsgDispatcher() { return m_inMsgDispatcher; }
+
 		private:
 			Database m_db;
 
@@ -36,7 +37,7 @@ namespace i2pcpp {
 			RouterIdentity m_routerIdentity;
 
 			InboundMessageDispatcher m_inMsgDispatcher;
-			LockingQueue<JobPtr> m_jobQueue;
+			JobQueue m_jobQueue;
 	};
 }
 

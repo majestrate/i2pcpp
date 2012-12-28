@@ -1,6 +1,8 @@
 #ifndef I2NPMESSAGE_H
 #define I2NPMESSAGE_H
 
+#include <memory>
+
 #include "../datatypes/ByteArray.h"
 
 namespace i2pcpp {
@@ -24,7 +26,7 @@ namespace i2pcpp {
 					VARIABLE_TUNNEL_BUILD_REPLY = 24
 				};
 
-				static Message *fromBytes(ByteArray const &data);
+				static std::shared_ptr<Message> fromBytes(ByteArray const &data);
 				virtual MessageType getType() = 0;
 
 			protected:
@@ -32,6 +34,8 @@ namespace i2pcpp {
 
 				unsigned long m_expiration;
 		};
+
+		typedef std::shared_ptr<Message> MessagePtr;
 	}
 }
 

@@ -6,9 +6,9 @@
 
 namespace i2pcpp {
 	namespace I2NP {
-		Message *Message::fromBytes(ByteArray const &data)
+		MessagePtr Message::fromBytes(ByteArray const &data)
 		{
-			Message *m;
+			MessagePtr m;
 
 			auto dataItr = data.cbegin();
 			MessageType mtype = (MessageType)*(dataItr++);
@@ -16,11 +16,11 @@ namespace i2pcpp {
 			switch(mtype)
 			{
 				case MessageType::DELIVERY_STATUS:
-					m = new DeliveryStatus();
+					m = MessagePtr(new DeliveryStatus());
 					break;
 
 				default:
-					return NULL;
+					return MessagePtr();
 			}
 
 			m->m_expiration = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
@@ -28,7 +28,7 @@ namespace i2pcpp {
 			if(m->parse(dataItr))
 				return m;
 			else
-				return NULL;
+				return MessagePtr();
 		}
 	}
 }

@@ -3,12 +3,15 @@
 #include "PacketHandler.h"
 #include "UDPTransport.h"
 
+#include "../i2p.h"
 #include "../i2np/Message.h"
 
 namespace i2pcpp {
 	namespace SSU {
 		void MessageReceiver::run()
 		{
+			InboundMessageDispatcher &imd = m_transport.getContext().getInMsgDispatcher();
+
 			while(m_transport.keepRunning())
 			{
 				m_queue.wait();
@@ -22,12 +25,12 @@ namespace i2pcpp {
 
 				ByteArray data;
 				ims->assemble(data);
-				I2NP::Message *m = I2NP::Message::fromBytes(data);
+				I2NP::MessagePtr m = I2NP::Message::fromBytes(data);
 
 				if(m) {
 					std::cerr << "MessageReceiver[" << ims->getMsgId() << "]: This looks like a message of type: " << (int)m->getType() << "\n";
 
-					delete m;
+					imd.addMessage(m);
 				}
 			}
 		}

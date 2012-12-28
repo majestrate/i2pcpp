@@ -8,7 +8,7 @@
 #include "ssu/UDPTransport.h"
 
 namespace i2pcpp {
-	I2PContext::I2PContext(std::string const &database) : m_db(database)
+	I2PContext::I2PContext(std::string const &database) : m_db(database), m_inMsgDispatcher(m_jobQueue)
 	{
 		Botan::AutoSeeded_RNG rng;
 
