@@ -5,19 +5,17 @@
 
 #include <sqlite3.h>
 
-#include "datatypes/RouterInfo.h"
 #include "datatypes/ByteArray.h"
-
-using namespace std;
+#include "datatypes/RouterInfo.h"
 
 namespace i2pcpp {
 	class Database {
 		public:
-			Database(string const &file);
+			Database(std::string const &file);
 
-			string getConfigValue(string const &name);
-			ByteArray getConfigBlob(string const &name);
-			RouterInfo getRouterInfo(string const &routerHash);
+			std::string getConfigValue(std::string const &name);
+			ByteArray getConfigBlob(std::string const &name);
+			RouterInfo getRouterInfo(std::string const &routerHash);
 
 		private:
 			sqlite3 *m_db;

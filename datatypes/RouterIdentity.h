@@ -17,7 +17,7 @@ namespace i2pcpp {
 
 			ByteArray getBytes() const;
 			RouterHash getHash() const;
-			string getHashEncoded() const;
+			std::string getHashEncoded() const;
 			ByteArray getSigningKey() const
 			{
 				ByteArray b(128);
@@ -26,8 +26,8 @@ namespace i2pcpp {
 			}
 
 		private:
-			array<unsigned char, 256> m_publicKey;
-			array<unsigned char, 128> m_signingKey;
+			std::array<unsigned char, 256> m_publicKey;
+			std::array<unsigned char, 128> m_signingKey;
 			Certificate m_certificate;
 	};
 }

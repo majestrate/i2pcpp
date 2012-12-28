@@ -5,8 +5,6 @@
 
 #include "Datatype.h"
 
-using namespace std;
-
 namespace i2pcpp {
 	class Date : public Datatype {
 		public:

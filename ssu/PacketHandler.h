@@ -12,8 +12,6 @@
 #include "../datatypes/Endpoint.h"
 #include "../datatypes/ByteArray.h"
 
-using namespace std;
-
 namespace i2pcpp {
 	namespace SSU {
 		class UDPTransport;

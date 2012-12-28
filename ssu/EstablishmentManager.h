@@ -13,8 +13,6 @@
 
 #include "PacketBuilder.h"
 
-using namespace std;
-
 namespace i2pcpp {
 	namespace SSU {
 		class UDPTransport;
@@ -39,11 +37,11 @@ namespace i2pcpp {
 				UDPTransport& m_transport;
 				PacketBuilder m_builder;
 
-				unordered_map<Endpoint, InboundEstablishmentStatePtr> m_inboundTable;
-				unordered_map<Endpoint, OutboundEstablishmentStatePtr> m_outboundTable;
+				std::unordered_map<Endpoint, InboundEstablishmentStatePtr> m_inboundTable;
+				std::unordered_map<Endpoint, OutboundEstablishmentStatePtr> m_outboundTable;
 
-				mutex m_inboundTableMutex;
-				mutex m_outboundTableMutex;
+				std::mutex m_inboundTableMutex;
+				std::mutex m_outboundTableMutex;
 		};
 	}
 }

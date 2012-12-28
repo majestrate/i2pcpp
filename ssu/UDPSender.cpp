@@ -4,8 +4,6 @@
 
 #include "UDPTransport.h"
 
-using namespace boost::asio;
-
 namespace i2pcpp {
 	namespace SSU {
 		void UDPSender::run()
@@ -22,9 +20,9 @@ namespace i2pcpp {
 				ByteArray pdata = p->getData();
 				Endpoint ep = p->getEndpoint();
 
-				ip::udp::socket& s = m_transport.getSocket();
+				boost::asio::ip::udp::socket& s = m_transport.getSocket();
 				if(s.is_open())
-					s.send_to(buffer(pdata.data(), pdata.size()), ep.getUDPEndpoint());
+					s.send_to(boost::asio::buffer(pdata.data(), pdata.size()), ep.getUDPEndpoint());
 			}
 		}
 	}

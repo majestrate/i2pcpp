@@ -1,9 +1,7 @@
 #include "Date.h"
 
-using namespace chrono;
-
 namespace i2pcpp {
-	Date::Date() : m_value(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count()) {}
+	Date::Date() : m_value(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count()) {}
 
 	Date::Date(ByteArray::const_iterator &dateItr) : m_value(0)
 	{

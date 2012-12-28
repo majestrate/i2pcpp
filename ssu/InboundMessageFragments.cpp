@@ -1,15 +1,15 @@
 #include "InboundMessageFragments.h"
 
+#include <string>
+
 #include <botan/pipe.h>
 #include <botan/filters.h>
-
-using namespace Botan;
 
 namespace i2pcpp {
 	namespace SSU {
 		void InboundMessageFragments::begin()
 		{
-			m_messageReceiverThread = thread(&InboundMessageFragments::startMessageReceiver, this);
+			m_messageReceiverThread = std::thread(&InboundMessageFragments::startMessageReceiver, this);
 		}
 
 		void InboundMessageFragments::join()
@@ -20,8 +20,8 @@ namespace i2pcpp {
 
 		void InboundMessageFragments::receiveData(ByteArray::const_iterator &dataItr, PeerStatePtr const &ps)
 		{
-			bitset<8> flag = *(dataItr++);
-			cerr << "Data flag: " << flag << "\n";
+			std::bitset<8> flag = *(dataItr++);
+			std::cerr << "Data flag: " << flag << "\n";
 
 			if(flag[7]) {
 				// Handle explicit ACKs
@@ -32,31 +32,29 @@ namespace i2pcpp {
 			}
 
 			unsigned char numFragments = *(dataItr++);
-			cerr << "Number of fragments: " << to_string(numFragments) << "\n";
+			std::cerr << "Number of fragments: " << std::to_string(numFragments) << "\n";
 
-			Pipe hexPipe(new Hex_Encoder, new DataSink_Stream(cerr));
+			Botan::Pipe hexPipe(new Botan::Hex_Encoder, new Botan::DataSink_Stream(std::cerr));
 
 			for(int i = 0; i < numFragments; i++) {
 				unsigned long msgId = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
-				cerr << "Fragment[" << i << "] Message ID: " << msgId << "\n";
+				std::cerr << "Fragment[" << i << "] Message ID: " << msgId << "\n";
 
 				unsigned long fragInfo = (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
 
 				unsigned short fragNum = fragInfo >> 17;
-				cerr << "Fragment[" << i << "] fragment #: " << fragNum << "\n";
+				std::cerr << "Fragment[" << i << "] fragment #: " << fragNum << "\n";
 
 				bool isLast = (fragInfo & 0x010000) >> 16;
-				cerr << "Fragment[" << i << "] isLast: " << isLast << "\n";
+				std::cerr << "Fragment[" << i << "] isLast: " << isLast << "\n";
 
 				unsigned short fragSize = fragInfo & 0x003fff;
-				cerr << "Fragment[" << i << "] size: " << fragSize << "\n";
+				std::cerr << "Fragment[" << i << "] size: " << fragSize << "\n";
 
-				cerr << "Fragment[" << i << "] data: ";
+				std::cerr << "Fragment[" << i << "] data: ";
 				ByteArray fragData(dataItr, dataItr + fragSize);
 				hexPipe.start_msg(); hexPipe.write(fragData); hexPipe.end_msg();
-				cerr << "\n";
-
-				auto fragDataItr = fragData.cbegin();
+				std::cerr << "\n";
 
 				InboundMessageStatePtr ims = ps->getInboundMessageState(msgId);
 				if(!ims) {
@@ -64,16 +62,16 @@ namespace i2pcpp {
 					ps->addInboundMessageState(ims);
 				}
 
-				lock_guard<mutex> lock(ims->getMutex());
+				std::lock_guard<std::mutex> lock(ims->getMutex());
 				bool fragOK = ims->addFragment(fragNum, fragData, isLast);
 
 				if(!fragOK)
-					cerr << "InboundMessageFragments: BAD FRAGMENT!\n";
+					std::cerr << "InboundMessageFragments: BAD FRAGMENT!\n";
 
 				if(ims->isComplete())
 					m_messageReceiver.addMessage(ims);
 
-				cerr << "\n";
+				std::cerr << "\n";
 			}
 		}
 
@@ -81,8 +79,8 @@ namespace i2pcpp {
 		{
 			try {
 				m_messageReceiver.run();
-			} catch(exception &e) {
-				cerr << "MessageReceiver exception: " << e.what() << "\n";
+			} catch(std::exception &e) { // TODO Do this for real
+				std::cerr << "MessageReceiver exception: " << e.what() << "\n";
 			}
 		}
 	}

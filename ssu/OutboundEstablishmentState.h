@@ -12,9 +12,6 @@
 #include "../datatypes/Endpoint.h"
 #include "../datatypes/RouterInfo.h"
 
-using namespace std;
-using namespace Botan;
-
 namespace i2pcpp {
 	class I2PContext;
 
@@ -35,7 +32,7 @@ namespace i2pcpp {
 					VALIDATION_FAILED
 				};
 
-				mutex& getMutex() { return m_mutex; }
+				std::mutex& getMutex() { return m_mutex; }
 				State getState() { return m_state; }
 				Endpoint getEndpoint() { return m_endpoint; }
 				const I2PContext& getContext() const { return m_context; }
@@ -77,7 +74,7 @@ namespace i2pcpp {
 				void validationFailed() { m_state = VALIDATION_FAILED; }
 
 			private:
-				mutex m_mutex;
+				std::mutex m_mutex;
 
 				Endpoint m_endpoint;
 				State m_state;
@@ -94,13 +91,13 @@ namespace i2pcpp {
 				ByteArray m_signatureTimestamp;
 				ByteArray m_signature;
 
-				DH_PrivateKey *m_dhPrivateKey;
+				Botan::DH_PrivateKey *m_dhPrivateKey;
 				ByteArray m_dhSecret;
 
 				I2PContext &m_context;
 		};
 
-		typedef shared_ptr<OutboundEstablishmentState> OutboundEstablishmentStatePtr;
+		typedef std::shared_ptr<OutboundEstablishmentState> OutboundEstablishmentStatePtr;
 	}
 }
 

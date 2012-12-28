@@ -13,7 +13,7 @@ namespace i2pcpp {
 			ByteArray getBytes() const;
 
 		private:
-			array<unsigned char, 32> m_tag;
+			std::array<unsigned char, 32> m_tag;
 	};
 }
 

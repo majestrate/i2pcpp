@@ -11,31 +11,31 @@
 
 #include "../util/Base64.h"
 
-const string peer_hash = "zhPja0k1cboGnHbhqO50hNPTVHIRE8b4GMwi7Htey~E=";
+const std::string peer_hash = "zhPja0k1cboGnHbhqO50hNPTVHIRE8b4GMwi7Htey~E=";
 
 namespace i2pcpp {
 	namespace SSU {
 		UDPTransport::UDPTransport(I2PContext &ctx, Endpoint const &ep) : m_socket(m_ios), m_ctx(ctx), m_keepRunning(true), m_receiver(*this), m_sender(*this), m_handler(*this), m_establisher(*this)
 		{
 			m_endpoint = ep.getUDPEndpoint();
-			m_socket.open(ip::udp::v4());
+			m_socket.open(boost::asio::ip::udp::v4());
 			m_socket.bind(m_endpoint);
 		}
 
 		void UDPTransport::begin()
 		{
-			m_receiver_thread = thread(&UDPTransport::startReceiver, this);
-			m_sender_thread = thread(&UDPTransport::startSender, this);
-			m_handler_thread = thread(&UDPTransport::startHandler, this);
-			m_establisher_thread = thread(&UDPTransport::startEstablisher, this);
+			m_receiver_thread = std::thread(&UDPTransport::startReceiver, this);
+			m_sender_thread = std::thread(&UDPTransport::startSender, this);
+			m_handler_thread = std::thread(&UDPTransport::startHandler, this);
+			m_establisher_thread = std::thread(&UDPTransport::startEstablisher, this);
 		}
 
 		void UDPTransport::startReceiver()
 		{
 			try {
 				m_receiver.run();
-			} catch(exception &e) {
-				cerr << "UDPReceiver exception: " << e.what() << "\n";
+			} catch(std::exception &e) {
+				std::cerr << "UDPReceiver exception: " << e.what() << "\n";
 			}
 		}
 
@@ -43,8 +43,8 @@ namespace i2pcpp {
 		{
 			try {
 				m_sender.run();
-			} catch(exception &e) {
-				cerr << "UDPSender exception: " << e.what() << "\n";
+			} catch(std::exception &e) {
+				std::cerr << "UDPSender exception: " << e.what() << "\n";
 			}
 		}
 
@@ -52,8 +52,8 @@ namespace i2pcpp {
 		{
 			try {
 				m_handler.run();
-			} catch(exception &e) {
-				cerr << "PacketHandler exception: " << e.what() << "\n";
+			} catch(std::exception &e) {
+				std::cerr << "PacketHandler exception: " << e.what() << "\n";
 			}
 		}
 
@@ -64,20 +64,20 @@ namespace i2pcpp {
 				m_establisher.establish(ri);
 
 				m_establisher.run();
-			} catch(exception &e) {
-				cerr << "EstablishmentManager exception: " << e.what() << "\n";
+			} catch(std::exception &e) {
+				std::cerr << "EstablishmentManager exception: " << e.what() << "\n";
 			}
 		}
 
 		void UDPTransport::addRemotePeer(PeerStatePtr const &ps)
 		{
-			lock_guard<mutex> lock(m_remotePeersMutex);
+			std::lock_guard<std::mutex> lock(m_remotePeersMutex);
 			m_remotePeers[ps->getEndpoint()] = ps;
 		}
 
 		PeerStatePtr UDPTransport::getRemotePeer(Endpoint const &ep)
 		{
-			lock_guard<mutex> lock(m_remotePeersMutex);
+			std::lock_guard<std::mutex> lock(m_remotePeersMutex);
 
 			PeerStatePtr ps;
 
@@ -91,7 +91,7 @@ namespace i2pcpp {
 		void UDPTransport::shutdown()
 		{
 			m_keepRunning = false;
-			m_socket.shutdown(ip::udp::socket::shutdown_both);
+			m_socket.shutdown(boost::asio::ip::udp::socket::shutdown_both);
 			m_inboundQueue.notify();
 			m_outboundQueue.notify();
 		}

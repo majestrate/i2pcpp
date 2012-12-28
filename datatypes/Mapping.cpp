@@ -8,28 +8,28 @@ namespace i2pcpp {
 
 		while(mapItr != end) {
 			unsigned char keySize = *(mapItr++);
-			string key(mapItr, mapItr + keySize);
+			std::string key(mapItr, mapItr + keySize);
 			mapItr += keySize;
 
 			unsigned char valueSize = *(mapItr++);
-			string value(mapItr, mapItr + valueSize);
+			std::string value(mapItr, mapItr + valueSize);
 			mapItr += valueSize;
 
 			m_map[key] = value;
 		}
 	}
 
-	void Mapping::setValue(string const &name, string const &value)
+	void Mapping::setValue(std::string const &name, std::string const &value)
 	{
 		m_map[name] = value;
 	}
 
-	void Mapping::deleteValue(string const &name)
+	void Mapping::deleteValue(std::string const &name)
 	{
 		m_map.erase(name);
 	}
 
-	string Mapping::getValue(string const &name) const
+	std::string Mapping::getValue(std::string const &name) const
 	{
 		return m_map.find(name)->second;
 	}

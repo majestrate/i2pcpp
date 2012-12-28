@@ -18,9 +18,6 @@
 #include "PeerState.h"
 #include "Packet.h"
 
-using namespace std;
-using namespace boost::asio;
-
 namespace i2pcpp {
 	class I2PContext;
 
@@ -34,7 +31,7 @@ namespace i2pcpp {
 				PacketQueue& getInboundQueue() { return m_inboundQueue; }
 				PacketQueue& getOutboundQueue() { return m_outboundQueue; }
 				EstablishmentManager& getEstablisher() { return m_establisher; }
-				ip::udp::socket& getSocket() { return m_socket; }
+				boost::asio::ip::udp::socket& getSocket() { return m_socket; }
 				bool keepRunning() const { return m_keepRunning; }
 
 				void addRemotePeer(PeerStatePtr const &ps);
@@ -53,26 +50,26 @@ namespace i2pcpp {
 
 				I2PContext &m_ctx;
 
-				io_service m_ios;
-				ip::udp::endpoint m_endpoint;
-				ip::udp::socket m_socket;
+				boost::asio::io_service m_ios;
+				boost::asio::ip::udp::endpoint m_endpoint;
+				boost::asio::ip::udp::socket m_socket;
 
 				UDPReceiver m_receiver;
 				UDPSender m_sender;
 				PacketHandler m_handler;
 				EstablishmentManager m_establisher;
 
-				thread m_receiver_thread;
-				thread m_sender_thread;
-				thread m_handler_thread;
-				thread m_establisher_thread;
+				std::thread m_receiver_thread;
+				std::thread m_sender_thread;
+				std::thread m_handler_thread;
+				std::thread m_establisher_thread;
 
 				PacketQueue m_inboundQueue;
 				PacketQueue m_outboundQueue;
 
-				unordered_map<Endpoint, PeerStatePtr> m_remotePeers;
+				std::unordered_map<Endpoint, PeerStatePtr> m_remotePeers;
 
-				mutex m_remotePeersMutex;
+				std::mutex m_remotePeersMutex;
 
 				bool m_keepRunning;
 		};

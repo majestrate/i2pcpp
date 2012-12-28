@@ -15,12 +15,12 @@ namespace i2pcpp {
 	namespace SSU {
 		OutboundEstablishmentState::OutboundEstablishmentState(I2PContext &ctx, RouterInfo const &ri) : m_state(PENDING_INTRO), m_routerInfo(ri), m_context(ctx)
 		{
-			AutoSeeded_RNG rng;
-			DL_Group shared_domain("modp/ietf/2048");
+			Botan::AutoSeeded_RNG rng;
+			Botan::DL_Group shared_domain("modp/ietf/2048");
 
-			m_dhPrivateKey = new DH_PrivateKey(rng, shared_domain);
+			m_dhPrivateKey = new Botan::DH_PrivateKey(rng, shared_domain);
 
-			string host = ri.getAddress(0).getHost();
+			std::string host = ri.getAddress(0).getHost();
 			unsigned short port = ri.getAddress(0).getPort();
 			m_endpoint = Endpoint(host, port);
 
@@ -30,8 +30,8 @@ namespace i2pcpp {
 
 		void OutboundEstablishmentState::calculateDHSecret()
 		{
-			DH_KA_Operation keyop(*m_dhPrivateKey);
-			SymmetricKey secret = keyop.agree(m_DHY.data(), m_DHY.size());
+			Botan::DH_KA_Operation keyop(*m_dhPrivateKey);
+			Botan::SymmetricKey secret = keyop.agree(m_DHY.data(), m_DHY.size());
 
 			m_dhSecret.resize(secret.length());
 			copy(secret.begin(), secret.end(), m_dhSecret.begin());
@@ -41,11 +41,11 @@ namespace i2pcpp {
 
 		ByteArray OutboundEstablishmentState::calculateConfirmationSignature(const unsigned int signedOn) const
 		{
-			AutoSeeded_RNG rng;
-			const DL_Group& group = m_context.getDSAParameters();
-			const DSA_PrivateKey *key = m_context.getSigningKey();
+			Botan::AutoSeeded_RNG rng;
+			const Botan::DL_Group& group = m_context.getDSAParameters();
+			const Botan::DSA_PrivateKey *key = m_context.getSigningKey();
 
-			Pipe sigPipe(new Hash_Filter("SHA-1"), new PK_Signer_Filter(new PK_Signer(*key, "Raw"), rng));
+			Botan::Pipe sigPipe(new Botan::Hash_Filter("SHA-1"), new Botan::PK_Signer_Filter(new Botan::PK_Signer(*key, "Raw"), rng));
 			sigPipe.start_msg();
 
 			ByteArray DHX(m_dhPrivateKey->public_value());
@@ -81,22 +81,22 @@ namespace i2pcpp {
 
 		bool OutboundEstablishmentState::verifyCreationSignature() const
 		{
-			InitializationVector iv(m_iv.data(), m_iv.size());
-			SymmetricKey key(m_dhSecret.data(), 32);
-			Pipe cipherPipe(get_cipher("AES-256/CBC/NoPadding", key, iv, DECRYPTION));
+			Botan::InitializationVector iv(m_iv.data(), m_iv.size());
+			Botan::SymmetricKey key(m_dhSecret.data(), 32);
+			Botan::Pipe cipherPipe(get_cipher("AES-256/CBC/NoPadding", key, iv, Botan::DECRYPTION));
 
 			cipherPipe.process_msg(m_signature.data(), m_signature.size());
 
 			size_t decryptedSize = cipherPipe.remaining() - 8;
-			secure_vector<byte> decryptedSig(decryptedSize);
+			Botan::secure_vector<Botan::byte> decryptedSig(decryptedSize);
 			cipherPipe.read(decryptedSig.data(), decryptedSize);
 
-			const DL_Group& group = m_context.getDSAParameters();
+			const Botan::DL_Group& group = m_context.getDSAParameters();
 
 			ByteArray dsaKeyBytes = m_routerInfo.getIdentity().getSigningKey();
-			DSA_PublicKey dsaKey(group, BigInt(dsaKeyBytes.data(), dsaKeyBytes.size()));
+			Botan::DSA_PublicKey dsaKey(group, Botan::BigInt(dsaKeyBytes.data(), dsaKeyBytes.size()));
 
-			Pipe sigPipe(new Hash_Filter("SHA-1"), new PK_Verifier_Filter(new PK_Verifier(dsaKey, "Raw"), decryptedSig));
+			Botan::Pipe sigPipe(new Botan::Hash_Filter("SHA-1"), new Botan::PK_Verifier_Filter(new Botan::PK_Verifier(dsaKey, "Raw"), decryptedSig));
 			sigPipe.start_msg();
 
 			ByteArray DHX(m_dhPrivateKey->public_value());

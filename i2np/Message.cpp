@@ -4,8 +4,6 @@
 
 #include <iostream>
 
-using namespace std;
-
 namespace i2pcpp {
 	namespace I2NP {
 		Message *Message::fromBytes(ByteArray const &data)

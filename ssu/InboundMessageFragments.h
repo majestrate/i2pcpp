@@ -23,7 +23,7 @@ namespace i2pcpp {
 
 				// TODO: Decaying bloom filter
 				MessageReceiver m_messageReceiver;
-				thread m_messageReceiverThread;
+				std::thread m_messageReceiverThread;
 		};
 	}
 }

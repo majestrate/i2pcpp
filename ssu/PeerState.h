@@ -27,7 +27,7 @@ namespace i2pcpp {
 				SessionKey getNextSessionKey() const { return m_nextSessionKey; }
 				SessionKey getNextMacKey() const { return m_nextMacKey; }
 
-				mutex& getMutex() { return m_mutex; }
+				std::mutex& getMutex() { return m_mutex; }
 				Endpoint getEndpoint() const { return m_endpoint; }
 				const RouterIdentity& getIdentity() { return m_identity; }
 
@@ -39,17 +39,17 @@ namespace i2pcpp {
 				RouterIdentity m_identity;
 				bool m_isInbound;
 
-				unordered_map<unsigned long, InboundMessageStatePtr> m_inboundMessageStates;
+				std::unordered_map<unsigned long, InboundMessageStatePtr> m_inboundMessageStates;
 
 				SessionKey m_sessionKey;
 				SessionKey m_macKey;
 				SessionKey m_nextSessionKey;
 				SessionKey m_nextMacKey;
 
-				mutex m_mutex;
+				std::mutex m_mutex;
 		};
 
-		typedef shared_ptr<PeerState> PeerStatePtr;
+		typedef std::shared_ptr<PeerState> PeerStatePtr;
 	}
 }
 

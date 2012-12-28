@@ -3,10 +3,8 @@
 
 #include <array>
 
-using namespace std;
-
 namespace i2pcpp {
-	typedef array<unsigned char, 32> RouterHash;
+	typedef std::array<unsigned char, 32> RouterHash;
 }
 
 #endif

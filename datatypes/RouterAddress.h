@@ -7,12 +7,10 @@
 #include "Date.h"
 #include "Mapping.h"
 
-using namespace std;
-
 namespace i2pcpp {
 	class RouterAddress : public Datatype {
 		public:
-			RouterAddress(int cost, Date const &expiration, string const &transport, Mapping const &options) : m_cost(cost), m_expiration(expiration), m_transport(transport), m_options(options) {}
+			RouterAddress(int cost, Date const &expiration, std::string const &transport, Mapping const &options) : m_cost(cost), m_expiration(expiration), m_transport(transport), m_options(options) {}
 
 			RouterAddress(ByteArray::const_iterator &addrItr)
 			{
@@ -37,7 +35,7 @@ namespace i2pcpp {
 				return b;
 			}
 
-			string getHost() const
+			std::string getHost() const
 			{
 				return m_options.getValue("host");
 			}
@@ -50,7 +48,7 @@ namespace i2pcpp {
 		private:
 			unsigned char m_cost;
 			Date m_expiration;
-			string m_transport;
+			std::string m_transport;
 			Mapping m_options;
 	};
 }

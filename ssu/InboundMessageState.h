@@ -8,8 +8,6 @@
 #include "../datatypes/ByteArray.h"
 #include "../datatypes/RouterHash.h"
 
-using namespace std;
-
 namespace i2pcpp {
 	namespace SSU {
 		class InboundMessageState {
@@ -19,7 +17,7 @@ namespace i2pcpp {
 				bool addFragment(const unsigned char fragNum, ByteArray const &data, bool isLast);
 				bool isComplete() const;
 
-				mutex& getMutex() { return m_mutex; }
+				std::mutex& getMutex() { return m_mutex; }
 				unsigned long getMsgId() { return m_msgid; }
 				unsigned char getNumFragments() { return m_fragments.size(); }
 				void assemble(ByteArray &dst) const;
@@ -31,12 +29,12 @@ namespace i2pcpp {
 				unsigned char m_lastFragment;
 				unsigned long m_byteTotal;
 
-				map<unsigned char, ByteArray> m_fragments;
+				std::map<unsigned char, ByteArray> m_fragments;
 
-				mutex m_mutex;
+				std::mutex m_mutex;
 		};
 
-		typedef shared_ptr<InboundMessageState> InboundMessageStatePtr;
+		typedef std::shared_ptr<InboundMessageState> InboundMessageStatePtr;
 	}
 }
 

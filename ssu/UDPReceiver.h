@@ -5,9 +5,6 @@
 
 #include <boost/asio.hpp>
 
-using namespace std;
-using namespace boost::asio;
-
 namespace i2pcpp {
 	namespace SSU {
 		class UDPTransport;
@@ -20,10 +17,10 @@ namespace i2pcpp {
 
 			private:
 				UDPTransport &m_transport;
-				ip::udp::endpoint m_endpoint;
+				boost::asio::ip::udp::endpoint m_endpoint;
 
 				static const unsigned int BUFSIZE = 1024;
-				array<unsigned char, BUFSIZE> m_receiveBuf;
+				std::array<unsigned char, BUFSIZE> m_receiveBuf;
 		};
 	}
 }

@@ -15,9 +15,6 @@
 #include "Date.h"
 #include "RouterHash.h"
 
-using namespace std;
-using namespace Botan;
-
 namespace i2pcpp {
 	class RouterInfo : public Datatype {
 		public:
@@ -71,7 +68,7 @@ namespace i2pcpp {
 		private:
 			ByteArray calculateHash(ByteArray const &signedBytes) const
 			{
-				Pipe hashPipe(new Hash_Filter("SHA-256"));
+				Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-256"));
 				hashPipe.start_msg();
 
 				hashPipe.write(signedBytes);
@@ -111,7 +108,7 @@ namespace i2pcpp {
 
 			RouterIdentity m_identity;
 			Date m_published;
-			vector<RouterAddress> m_addresses;
+			std::vector<RouterAddress> m_addresses;
 			Mapping m_options;
 			ByteArray m_signature;
 	};

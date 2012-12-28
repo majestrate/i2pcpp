@@ -1,14 +1,14 @@
 #include "Base64.h"
 
 namespace i2pcpp {
-	const string Base64::b64chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-~";
+	const std::string Base64::b64chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-~";
 
 	inline bool Base64::is_base64(unsigned char c) {
 		return (isalnum(c) || (c == '-') || (c == '~'));
 	}
 
-	string Base64::encode(ByteArray const &b) {
-		string ret;
+	std::string Base64::encode(ByteArray const &b) {
+		std::string ret;
 		int h = 0, i = 0, j = 0;
 		size_t length = b.size();
 		unsigned char char_array_3[3];
@@ -49,7 +49,7 @@ namespace i2pcpp {
 		return ret;
 	}
 
-	ByteArray Base64::decode(string const &s)
+	ByteArray Base64::decode(std::string const &s)
 	{
 		size_t in_len = s.size();
 		size_t i = 0, j = 0;

@@ -7,8 +7,6 @@
 #include "../datatypes/ByteArray.h"
 #include "../datatypes/SessionKey.h"
 
-using namespace std;
-
 namespace i2pcpp {
 	namespace SSU {
 		class Packet {
@@ -45,7 +43,7 @@ namespace i2pcpp {
 				static const unsigned short PROTOCOL_VERSION = 0;
 		};
 
-		typedef shared_ptr<Packet> PacketPtr;
+		typedef std::shared_ptr<Packet> PacketPtr;
 	}
 }
 

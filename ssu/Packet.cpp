@@ -8,8 +8,6 @@
 #include "../util/I2PHMAC.h"
 #include "../util/Base64.h"
 
-using namespace Botan;
-
 namespace i2pcpp {
 	namespace SSU {
 		Packet::Packet(Endpoint const &endpoint, const unsigned char *data, size_t length) : m_endpoint(endpoint)
@@ -24,9 +22,9 @@ namespace i2pcpp {
 			const unsigned char *packet = m_data.data() + 32;
 			const unsigned int packetSize = m_data.size() - 32;
 
-			InitializationVector iv(packetIV, 16);
-			SymmetricKey key(sk.data(), sk.size());
-			Pipe cipherPipe(get_cipher("AES-256/CBC/NoPadding", key, iv, DECRYPTION));
+			Botan::InitializationVector iv(packetIV, 16);
+			Botan::SymmetricKey key(sk.data(), sk.size());
+			Botan::Pipe cipherPipe(get_cipher("AES-256/CBC/NoPadding", key, iv, Botan::DECRYPTION));
 
 			cipherPipe.process_msg(packet, packetSize);
 
@@ -41,8 +39,8 @@ namespace i2pcpp {
 		{
 			unsigned int packetSize = m_data.size() - 32;
 
-			SymmetricKey key(mk.data(), mk.size());
-			Pipe hmacPipe(new MAC_Filter(new I2PHMAC(new MD5()), key));
+			Botan::SymmetricKey key(mk.data(), mk.size());
+			Botan::Pipe hmacPipe(new Botan::MAC_Filter(new I2PHMAC(new Botan::MD5()), key));
 
 			hmacPipe.start_msg();
 			hmacPipe.write(m_data.data() + 32, packetSize);
@@ -59,13 +57,13 @@ namespace i2pcpp {
 
 		void Packet::encrypt(SessionKey const &sk, SessionKey const &mk)
 		{
-			AutoSeeded_RNG rng;
-			InitializationVector iv(rng, 16);
+			Botan::AutoSeeded_RNG rng;
+			Botan::InitializationVector iv(rng, 16);
 
-			SymmetricKey sessionKey(sk.data(), sk.size());
-			SymmetricKey macKey(mk.data(), mk.size());
-			Pipe cipherPipe(get_cipher("AES-256/CBC/NoPadding", sessionKey, iv, ENCRYPTION));
-			Pipe hmacPipe(new MAC_Filter(new I2PHMAC(new MD5()), macKey));
+			Botan::SymmetricKey sessionKey(sk.data(), sk.size());
+			Botan::SymmetricKey macKey(mk.data(), mk.size());
+			Botan::Pipe cipherPipe(get_cipher("AES-256/CBC/NoPadding", sessionKey, iv, Botan::ENCRYPTION));
+			Botan::Pipe hmacPipe(new Botan::MAC_Filter(new I2PHMAC(new Botan::MD5()), macKey));
 
 			unsigned char padSize = 16 - (m_data.size() % 16);
 			if(padSize < 16)
@@ -78,7 +76,7 @@ namespace i2pcpp {
 
 			cipherPipe.read(m_data.data() + 32, encryptedSize);
 			if(cipherPipe.remaining())
-				throw runtime_error("Bytes still remaining in the cipherPipe!?");
+				throw std::runtime_error("Bytes still remaining in the cipherPipe!?"); // TODO For real
 
 			copy(iv.begin(), iv.end(), m_data.begin() + 16);
 
@@ -91,7 +89,7 @@ namespace i2pcpp {
 
 			hmacPipe.read(m_data.data(), 16);
 			if(hmacPipe.remaining())
-				throw runtime_error("Bytes still remaining in the hmacPipe!?");
+				throw std::runtime_error("Bytes still remaining in the hmacPipe!?"); // TODO For real
 		}
 	}
 }

@@ -7,21 +7,19 @@
 #include "Datatype.h"
 #include "ByteArray.h"
 
-using namespace std;
-
 namespace i2pcpp {
 	class Mapping : public Datatype {
 		public:
 			Mapping() {}
 			Mapping(ByteArray::const_iterator &mapItr);
 
-			void setValue(string const &name, string const &value);
-			void deleteValue(string const &name);
-			string getValue(string const &name) const;
+			void setValue(std::string const &name, std::string const &value);
+			void deleteValue(std::string const &name);
+			std::string getValue(std::string const &name) const;
 			ByteArray getBytes() const;
 
 		private:
-			unordered_map<string, string> m_map;
+			std::unordered_map<std::string, std::string> m_map;
 	};
 }
 

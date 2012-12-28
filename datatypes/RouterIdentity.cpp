@@ -7,9 +7,6 @@
 
 #include <string>
 
-using namespace Botan;
-using namespace std;
-
 namespace i2pcpp {
 	RouterIdentity::RouterIdentity(ByteArray const &publicKey, ByteArray const &signingKey, Certificate const &certificate) : m_certificate(certificate)
 	{
@@ -38,7 +35,7 @@ namespace i2pcpp {
 
 	RouterHash RouterIdentity::getHash() const
 	{
-		Pipe hashPipe(new Hash_Filter("SHA-256"));
+		Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-256"));
 		hashPipe.start_msg();
 
 		hashPipe.write(getBytes());
@@ -51,9 +48,9 @@ namespace i2pcpp {
 		return hash;
 	}
 
-	string RouterIdentity::getHashEncoded() const
+	std::string RouterIdentity::getHashEncoded() const
 	{
-		Pipe hashPipe(new Hash_Filter("SHA-256"), new Base64_Encoder);
+		Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-256"), new Botan::Base64_Encoder);
 
 		hashPipe.start_msg();
 
@@ -61,7 +58,7 @@ namespace i2pcpp {
 
 		hashPipe.end_msg();
 
-		string encoded = hashPipe.read_all_as_string(0);
+		std::string encoded = hashPipe.read_all_as_string(0);
 		replace(encoded.begin(), encoded.end(), '+', '-');
 		replace(encoded.begin(), encoded.end(), '/', '~');
 

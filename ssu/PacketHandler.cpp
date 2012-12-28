@@ -8,8 +8,6 @@
 
 #include <iostream>
 
-using namespace std;
-
 namespace i2pcpp {
 	namespace SSU {
 		void PacketHandler::run()
@@ -37,7 +35,7 @@ namespace i2pcpp {
 					if(oes)
 						handlePacket(p, oes);
 					else
-						cerr << "PacketHandler: no PeerState and no OES, dropping packet\n";
+						std::cerr << "PacketHandler: no PeerState and no OES, dropping packet\n";
 				}
 			}
 
@@ -46,10 +44,10 @@ namespace i2pcpp {
 
 		void PacketHandler::handlePacket(PacketPtr const &packet, PeerStatePtr const &state)
 		{
-			lock_guard<mutex> lock(state->getMutex());
+			std::lock_guard<std::mutex> lock(state->getMutex());
 
 			if(!packet->verify(state->getCurrentMacKey())) {
-				cerr << "PacketHandler[PS]: packet verification failed from " << packet->getEndpoint().toString() << "\n";
+				std::cerr << "PacketHandler[PS]: packet verification failed from " << packet->getEndpoint().toString() << "\n";
 				return;
 			}
 
@@ -64,7 +62,7 @@ namespace i2pcpp {
 
 			switch(ptype) {
 				case Packet::DATA:
-					cerr << "PacketHandler[PS]: data received from " << state->getEndpoint().toString() << ":\n";
+					std::cerr << "PacketHandler[PS]: data received from " << state->getEndpoint().toString() << ":\n";
 					m_imf.receiveData(dataItr, state);
 					break;
 			}
@@ -78,10 +76,10 @@ namespace i2pcpp {
 
 		void PacketHandler::handlePacket(PacketPtr const &packet, OutboundEstablishmentStatePtr const &state)
 		{
-			lock_guard<mutex> lock(state->getMutex());
+			std::lock_guard<std::mutex> lock(state->getMutex());
 
 			if(!packet->verify(state->getMacKey())) {
-				cerr << "PacketHandler[OES]: packet verification failed from " << packet->getEndpoint().toString() << "\n";
+				std::cerr << "PacketHandler[OES]: packet verification failed from " << packet->getEndpoint().toString() << "\n";
 				return;
 			}
 
@@ -99,7 +97,7 @@ namespace i2pcpp {
 
 			switch(ptype) {
 				case Packet::SESSION_CREATED:
-					cerr << "PacketHandler[OES]: received session created from " << state->getEndpoint().toString() << "\n";
+					std::cerr << "PacketHandler[OES]: received session created from " << state->getEndpoint().toString() << "\n";
 					handleSessionCreated(dataItr, state);
 					break;
 			}

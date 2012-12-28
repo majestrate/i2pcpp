@@ -5,8 +5,6 @@
 
 #include "../datatypes/SessionKey.h"
 
-using namespace std;
-
 namespace i2pcpp {
 	namespace SSU {
 		class InboundEstablishmentState {
@@ -24,7 +22,7 @@ namespace i2pcpp {
 			private:
 		};
 
-		typedef shared_ptr<InboundEstablishmentState> InboundEstablishmentStatePtr;
+		typedef std::shared_ptr<InboundEstablishmentState> InboundEstablishmentStatePtr;
 	}
 }
 

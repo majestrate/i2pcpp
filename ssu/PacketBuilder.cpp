@@ -5,8 +5,6 @@
 
 #include <chrono>
 
-using namespace chrono;
-
 namespace i2pcpp {
 	namespace SSU {
 		PacketPtr PacketBuilder::buildHeader(Endpoint const &ep, unsigned char flag) const
@@ -16,7 +14,7 @@ namespace i2pcpp {
 
 			data.insert(data.begin(), flag);
 
-			unsigned int timestamp = duration_cast<seconds>(system_clock::now().time_since_epoch()).count();
+			unsigned int timestamp = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 			data.insert(data.end(), timestamp >> 24);
 			data.insert(data.end(), timestamp >> 16);
 			data.insert(data.end(), timestamp >> 8);
@@ -59,7 +57,7 @@ namespace i2pcpp {
 
 			sc.insert(sc.end(), idBytes.begin(), idBytes.end());
 
-			unsigned int timestamp = duration_cast<seconds>(system_clock::now().time_since_epoch()).count();
+			unsigned int timestamp = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 			sc.insert(sc.end(), timestamp >> 24);
 			sc.insert(sc.end(), timestamp >> 16);
 			sc.insert(sc.end(), timestamp >> 8);

@@ -13,17 +13,17 @@ namespace i2pcpp {
 		void EstablishmentManager::run()
 		{
 			while(m_transport.keepRunning()) {
-				lock_guard<mutex> lock(m_outboundTableMutex);
+				std::lock_guard<std::mutex> lock(m_outboundTableMutex);
 
 				auto obtItr = m_outboundTable.begin();
 				while(obtItr != m_outboundTable.end()) {
 					OutboundEstablishmentStatePtr oes = (*obtItr).second;
 
-					lock_guard<mutex> lock(oes->getMutex());
+					std::lock_guard<std::mutex> lock(oes->getMutex());
 
 					switch(oes->getState()) {
 						case OutboundEstablishmentState::INTRODUCED:
-							cerr << "EstablishmentManager: sending session request to " << oes->getEndpoint().toString() << "\n";
+							std::cerr << "EstablishmentManager: sending session request to " << oes->getEndpoint().toString() << "\n";
 							sendRequest(oes);
 							break;
 
@@ -32,7 +32,7 @@ namespace i2pcpp {
 							break;
 
 						case OutboundEstablishmentState::CONFIRMED_PARTIALLY:
-							cerr << "EstablishmentManager: sending session confirmed to " << oes->getEndpoint().toString() << "\n";
+							std::cerr << "EstablishmentManager: sending session confirmed to " << oes->getEndpoint().toString() << "\n";
 							sendConfirmed(oes);
 							break;
 
@@ -49,7 +49,7 @@ namespace i2pcpp {
 
 		InboundEstablishmentStatePtr EstablishmentManager::getInboundState(Endpoint const &ep)
 		{
-			lock_guard<mutex> lock(m_inboundTableMutex);
+			std::lock_guard<std::mutex> lock(m_inboundTableMutex);
 
 			InboundEstablishmentStatePtr ies;
 
@@ -62,7 +62,7 @@ namespace i2pcpp {
 
 		OutboundEstablishmentStatePtr EstablishmentManager::getOutboundState(Endpoint const &ep)
 		{
-			lock_guard<mutex> lock(m_outboundTableMutex);
+			std::lock_guard<std::mutex> lock(m_outboundTableMutex);
 
 			OutboundEstablishmentStatePtr oes;
 
@@ -75,7 +75,7 @@ namespace i2pcpp {
 
 		void EstablishmentManager::establish(RouterInfo const &ri)
 		{
-			lock_guard<mutex> lock(m_outboundTableMutex);
+			std::lock_guard<std::mutex> lock(m_outboundTableMutex);
 
 			OutboundEstablishmentStatePtr oes(new OutboundEstablishmentState(m_transport.getContext(), ri));
 			m_outboundTable[oes->getEndpoint()] = oes;
@@ -95,7 +95,7 @@ namespace i2pcpp {
 			state->calculateDHSecret();
 
 			if(!state->verifyCreationSignature()) {
-				cerr << "Signature verification failed!\n";
+				std::cerr << "Signature verification failed!\n";
 				state->validationFailed();
 				return;
 			}

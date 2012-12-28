@@ -26,7 +26,7 @@ namespace i2pcpp {
 		{
 			if(!m_gotLast) return false;
 
-			for(unsigned char f; f < m_lastFragment; f++)
+			for(unsigned char f = 0; f < m_lastFragment; f++)
 				if(m_fragments.count(f) < 1) return false;
 
 			return true;

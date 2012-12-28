@@ -5,8 +5,6 @@
 #include <mutex>
 #include <condition_variable>
 
-using namespace std;
-
 namespace i2pcpp {
 	template<class T>
 		class LockingQueue {
@@ -15,14 +13,14 @@ namespace i2pcpp {
 
 				void enqueue(T const &p)
 				{
-					lock_guard<mutex> lock(m_queueMutex);
+					std::lock_guard<std::mutex> lock(m_queueMutex);
 					m_queue.push(p);
 					m_condition.notify_all();
 				}
 
 				T pop()
 				{
-					lock_guard<mutex> lock(m_queueMutex);
+					std::lock_guard<std::mutex> lock(m_queueMutex);
 
 					T ret;
 
@@ -44,17 +42,17 @@ namespace i2pcpp {
 					m_queueMutex.unlock();
 
 					if(!size) {
-						unique_lock<mutex> lock(m_conditionMutex);
+						std::unique_lock<std::mutex> lock(m_conditionMutex);
 						m_condition.wait(lock);
 					}
 				}
 
 			private:
-				queue<T> m_queue;
-				mutex m_queueMutex;
+				std::queue<T> m_queue;
+				std::mutex m_queueMutex;
 
-				condition_variable m_condition;
-				mutex m_conditionMutex;
+				std::condition_variable m_condition;
+				std::mutex m_conditionMutex;
 		};
 }
 
