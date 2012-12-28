@@ -42,7 +42,6 @@ namespace i2pcpp {
 		ByteArray OutboundEstablishmentState::calculateConfirmationSignature(const unsigned int signedOn) const
 		{
 			Botan::AutoSeeded_RNG rng;
-			const Botan::DL_Group& group = m_context.getDSAParameters();
 			const Botan::DSA_PrivateKey *key = m_context.getSigningKey();
 
 			Botan::Pipe sigPipe(new Botan::Hash_Filter("SHA-1"), new Botan::PK_Signer_Filter(new Botan::PK_Signer(*key, "Raw"), rng));

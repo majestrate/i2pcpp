@@ -24,49 +24,13 @@ namespace i2pcpp {
 
 		void UDPTransport::begin()
 		{
-			m_receiver_thread = std::thread(&UDPTransport::startReceiver, this);
-			m_sender_thread = std::thread(&UDPTransport::startSender, this);
-			m_handler_thread = std::thread(&UDPTransport::startHandler, this);
-			m_establisher_thread = std::thread(&UDPTransport::startEstablisher, this);
-		}
+			m_receiver.start();
+			m_sender.start();
+			m_handler.start();
+			m_establisher.start();
 
-		void UDPTransport::startReceiver()
-		{
-			try {
-				m_receiver.run();
-			} catch(std::exception &e) {
-				std::cerr << "UDPReceiver exception: " << e.what() << "\n";
-			}
-		}
-
-		void UDPTransport::startSender()
-		{
-			try {
-				m_sender.run();
-			} catch(std::exception &e) {
-				std::cerr << "UDPSender exception: " << e.what() << "\n";
-			}
-		}
-
-		void UDPTransport::startHandler()
-		{
-			try {
-				m_handler.run();
-			} catch(std::exception &e) {
-				std::cerr << "PacketHandler exception: " << e.what() << "\n";
-			}
-		}
-
-		void UDPTransport::startEstablisher()
-		{
-			try {
-				RouterInfo ri = m_ctx.getDatabase().getRouterInfo(peer_hash);
-				m_establisher.establish(ri);
-
-				m_establisher.run();
-			} catch(std::exception &e) {
-				std::cerr << "EstablishmentManager exception: " << e.what() << "\n";
-			}
+			RouterInfo ri = m_ctx.getDatabase().getRouterInfo(peer_hash);
+			m_establisher.establish(ri);
 		}
 
 		void UDPTransport::addRemotePeer(PeerStatePtr const &ps)
@@ -90,28 +54,20 @@ namespace i2pcpp {
 
 		void UDPTransport::shutdown()
 		{
-			m_keepRunning = false;
-			m_socket.shutdown(boost::asio::ip::udp::socket::shutdown_both);
-			m_inboundQueue.notify();
-			m_outboundQueue.notify();
-		}
+			m_inboundQueue.finish();
+			m_outboundQueue.finish();
 
-		void UDPTransport::join()
-		{
-			m_establisher_thread.join();
-			m_receiver_thread.join();
-			m_handler_thread.join();
-			m_sender_thread.join();
+			m_receiver.stop();
+			m_sender.stop();
+			m_handler.stop();
+			m_establisher.stop();
+
+			m_socket.shutdown(boost::asio::ip::udp::socket::shutdown_both);
 		}
 
 		void UDPTransport::send(PacketPtr const &p)
 		{
 			m_outboundQueue.enqueue(p);
-		}
-
-		I2PContext& UDPTransport::getContext() const
-		{
-			return m_ctx;
 		}
 	}
 }

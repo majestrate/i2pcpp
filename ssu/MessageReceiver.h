@@ -3,6 +3,8 @@
 
 #include "InboundMessageState.h"
 
+#include "../Thread.h"
+
 #include "../util/LockingQueue.h"
 
 namespace i2pcpp {
@@ -10,15 +12,16 @@ namespace i2pcpp {
 		class UDPTransport;
 		typedef LockingQueue<InboundMessageStatePtr> MessageQueue;
 
-		class MessageReceiver {
+		class MessageReceiver : public Thread {
 			public:
 				MessageReceiver(UDPTransport &transport) : m_transport(transport) {}
 
-				void run();
 				void addMessage(InboundMessageStatePtr const &ims);
-				void notify();
 
 			private:
+				void loop();
+				void stopHook();
+
 				UDPTransport& m_transport;
 
 				MessageQueue m_queue;

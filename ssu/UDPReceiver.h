@@ -5,17 +5,19 @@
 
 #include <boost/asio.hpp>
 
+#include "../Thread.h"
+
 namespace i2pcpp {
 	namespace SSU {
 		class UDPTransport;
 
-		class UDPReceiver {
+		class UDPReceiver : public Thread {
 			public:
-			UDPReceiver(UDPTransport &transport) : m_transport(transport)	{}
-
-				void run();
+				UDPReceiver(UDPTransport &transport) : m_transport(transport)	{}
 
 			private:
+				void loop();
+
 				UDPTransport &m_transport;
 				boost::asio::ip::udp::endpoint m_endpoint;
 

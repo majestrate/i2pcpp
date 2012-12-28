@@ -13,6 +13,10 @@ set(SRCS
 	Database.cpp
 	i2p.cpp
 	Job.cpp
+	JobQueue.cpp
+	JobRunner.cpp
+	MessageHandler.cpp
+	Thread.cpp
 	handlers/DeliveryStatus.cpp
 	InboundMessageDispatcher.cpp
 	i2np/DeliveryStatus.cpp

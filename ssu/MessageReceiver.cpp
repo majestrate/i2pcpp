@@ -8,11 +8,11 @@
 
 namespace i2pcpp {
 	namespace SSU {
-		void MessageReceiver::run()
+		void MessageReceiver::loop()
 		{
 			InboundMessageDispatcher &imd = m_transport.getContext().getInMsgDispatcher();
 
-			while(m_transport.keepRunning())
+			while(m_keepRunning)
 			{
 				m_queue.wait();
 
@@ -38,12 +38,11 @@ namespace i2pcpp {
 		void MessageReceiver::addMessage(InboundMessageStatePtr const &ims)
 		{
 			m_queue.enqueue(ims);
-			m_queue.notify();
 		}
 
-		void MessageReceiver::notify()
+		void MessageReceiver::stopHook()
 		{
-			m_queue.notify();
+			m_queue.finish();
 		}
 	}
 }

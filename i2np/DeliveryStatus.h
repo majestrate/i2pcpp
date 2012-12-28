@@ -11,7 +11,7 @@ namespace i2pcpp {
 			public:
 				~DeliveryStatus() {}
 
-				Message::MessageType getType() { return Message::MessageType::DELIVERY_STATUS; }
+				Message::MessageType getType() const { return Message::MessageType::DELIVERY_STATUS; }
 			protected:
 				bool parse(ByteArray::const_iterator &dataItr);
 

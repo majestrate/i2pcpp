@@ -6,16 +6,16 @@
 
 namespace i2pcpp {
 	namespace SSU {
-		void UDPSender::run()
+		void UDPSender::loop()
 		{
 			PacketQueue& oq = m_transport.getOutboundQueue();
 
-			while(m_transport.keepRunning()) {
+			while(m_keepRunning) {
 				oq.wait();
 
 				PacketPtr p = oq.pop();
 				if(!p)
-					return;
+					continue;
 
 				ByteArray pdata = p->getData();
 				Endpoint ep = p->getEndpoint();

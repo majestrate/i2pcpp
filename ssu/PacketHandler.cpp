@@ -10,14 +10,12 @@
 
 namespace i2pcpp {
 	namespace SSU {
-		void PacketHandler::run()
+		void PacketHandler::loop()
 		{
 			PacketQueue& pq = m_transport.getInboundQueue();
 			EstablishmentManager& em = m_transport.getEstablisher();
 
-			m_imf.begin();
-
-			while(m_transport.keepRunning()) {
+			while(m_keepRunning) {
 				pq.wait();
 				PacketPtr p = pq.pop();
 
@@ -38,8 +36,6 @@ namespace i2pcpp {
 						std::cerr << "PacketHandler: no PeerState and no OES, dropping packet\n";
 				}
 			}
-
-			m_imf.join();
 		}
 
 		void PacketHandler::handlePacket(PacketPtr const &packet, PeerStatePtr const &state)

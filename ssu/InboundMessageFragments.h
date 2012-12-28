@@ -15,7 +15,7 @@ namespace i2pcpp {
 				InboundMessageFragments(UDPTransport &transport) : m_messageReceiver(transport) {}
 
 				void begin();
-				void join();
+				void shutdown();
 				void receiveData(ByteArray::const_iterator &dataItr, PeerStatePtr const &ps);
 
 			private:
@@ -23,7 +23,6 @@ namespace i2pcpp {
 
 				// TODO: Decaying bloom filter
 				MessageReceiver m_messageReceiver;
-				std::thread m_messageReceiverThread;
 		};
 	}
 }

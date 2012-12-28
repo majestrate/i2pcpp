@@ -36,11 +36,10 @@ namespace i2pcpp {
 
 				void addRemotePeer(PeerStatePtr const &ps);
 				PeerStatePtr getRemotePeer(Endpoint const &ep);
-				void shutdown();
-				void join();
 				void begin();
+				void shutdown();
 				void send(PacketPtr const &p);
-				I2PContext& getContext() const;
+				I2PContext& getContext() const { return m_ctx; }
 
 			private:
 				void startReceiver();
@@ -58,11 +57,6 @@ namespace i2pcpp {
 				UDPSender m_sender;
 				PacketHandler m_handler;
 				EstablishmentManager m_establisher;
-
-				std::thread m_receiver_thread;
-				std::thread m_sender_thread;
-				std::thread m_handler_thread;
-				std::thread m_establisher_thread;
 
 				PacketQueue m_inboundQueue;
 				PacketQueue m_outboundQueue;

@@ -9,13 +9,12 @@ namespace i2pcpp {
 	namespace SSU {
 		void InboundMessageFragments::begin()
 		{
-			m_messageReceiverThread = std::thread(&InboundMessageFragments::startMessageReceiver, this);
+			m_messageReceiver.start();
 		}
 
-		void InboundMessageFragments::join()
+		void InboundMessageFragments::shutdown()
 		{
-			m_messageReceiver.notify();
-			m_messageReceiverThread.join();
+			m_messageReceiver.stop();
 		}
 
 		void InboundMessageFragments::receiveData(ByteArray::const_iterator &dataItr, PeerStatePtr const &ps)
@@ -72,15 +71,6 @@ namespace i2pcpp {
 					m_messageReceiver.addMessage(ims);
 
 				std::cerr << "\n";
-			}
-		}
-
-		void InboundMessageFragments::startMessageReceiver()
-		{
-			try {
-				m_messageReceiver.run();
-			} catch(std::exception &e) { // TODO Do this for real
-				std::cerr << "MessageReceiver exception: " << e.what() << "\n";
 			}
 		}
 	}

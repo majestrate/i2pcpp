@@ -33,9 +33,13 @@ namespace i2pcpp {
 				}
 
 				void notify() { m_condition.notify_all(); }
+				void finish() { m_finished = true; m_condition.notify_all(); }
+
 				void wait()
 				{
 					int size;
+
+					if(m_finished) return;
 
 					m_queueMutex.lock();
 					size = m_queue.size();
@@ -53,6 +57,8 @@ namespace i2pcpp {
 
 				std::condition_variable m_condition;
 				std::mutex m_conditionMutex;
+
+				bool m_finished;
 		};
 }
 

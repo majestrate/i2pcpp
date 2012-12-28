@@ -5,6 +5,8 @@
 #include <mutex>
 #include <unordered_map>
 
+#include "../Thread.h"
+
 #include "../datatypes/Endpoint.h"
 #include "../datatypes/RouterInfo.h"
 
@@ -17,11 +19,9 @@ namespace i2pcpp {
 	namespace SSU {
 		class UDPTransport;
 
-		class EstablishmentManager {
+		class EstablishmentManager : public Thread {
 			public:
 				EstablishmentManager(UDPTransport &transport) : m_transport(transport) {}
-
-				void run();
 
 				InboundEstablishmentStatePtr getInboundState(Endpoint const &ep);
 				OutboundEstablishmentStatePtr getOutboundState(Endpoint const &ep);
@@ -29,6 +29,8 @@ namespace i2pcpp {
 				void establish(RouterInfo const &ri);
 
 			private:
+				void loop();
+
 				void sendRequest(OutboundEstablishmentStatePtr const &state);
 				void processCreated(OutboundEstablishmentStatePtr const &state);
 				void sendConfirmed(OutboundEstablishmentStatePtr const &state);

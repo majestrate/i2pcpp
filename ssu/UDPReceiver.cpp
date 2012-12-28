@@ -4,12 +4,12 @@
 
 namespace i2pcpp {
 	namespace SSU {
-		void UDPReceiver::run()
+		void UDPReceiver::loop()
 		{
 			boost::asio::ip::udp::socket& s =  m_transport.getSocket();
 			PacketQueue& iq = m_transport.getInboundQueue();
 
-			while(m_transport.keepRunning()) {
+			while(m_keepRunning) {
 				size_t len = s.receive_from(boost::asio::buffer(m_receiveBuf.data(), BUFSIZE), m_endpoint);
 
 				if(len > 0) {

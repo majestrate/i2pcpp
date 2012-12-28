@@ -50,7 +50,6 @@ int main()
 
 		std::this_thread::sleep_for(std::chrono::seconds(5));
 		u.shutdown();
-		u.join();
 	} catch (std::runtime_error &e) {
 		std::cerr << "main thread exception: " << e.what() << "\n";
 	}

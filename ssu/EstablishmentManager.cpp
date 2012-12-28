@@ -10,9 +10,9 @@
 
 namespace i2pcpp {
 	namespace SSU {
-		void EstablishmentManager::run()
+		void EstablishmentManager::loop()
 		{
-			while(m_transport.keepRunning()) {
+			while(m_keepRunning) {
 				std::lock_guard<std::mutex> lock(m_outboundTableMutex);
 
 				auto obtItr = m_outboundTable.begin();
