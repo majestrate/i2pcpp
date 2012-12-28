@@ -16,6 +16,8 @@ set(SRCS
 	JobQueue.cpp
 	JobRunner.cpp
 	MessageHandler.cpp
+	Router.cpp
+	RouterContext.cpp
 	Thread.cpp
 	handlers/DeliveryStatus.cpp
 	InboundMessageDispatcher.cpp

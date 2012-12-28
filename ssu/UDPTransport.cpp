@@ -5,8 +5,6 @@
 #include "PacketHandler.h"
 #include "EstablishmentManager.h"
 
-#include "../i2p.h"
-
 #include <iostream>
 
 #include "../util/Base64.h"
@@ -15,15 +13,21 @@ const std::string peer_hash = "zhPja0k1cboGnHbhqO50hNPTVHIRE8b4GMwi7Htey~E=";
 
 namespace i2pcpp {
 	namespace SSU {
-		UDPTransport::UDPTransport(I2PContext &ctx, Endpoint const &ep) : m_socket(m_ios), m_ctx(ctx), m_keepRunning(true), m_receiver(*this), m_sender(*this), m_handler(*this), m_establisher(*this)
+		UDPTransport::UDPTransport(RouterContext &ctx, InboundMessageDispatcher &imd) :
+			m_socket(m_ios),
+			m_ctx(ctx),
+			m_inMsgDispatcher(imd),
+			m_receiver(*this),
+			m_sender(*this),
+			m_handler(*this),
+			m_establisher(*this) {}
+
+		void UDPTransport::begin(Endpoint const &ep)
 		{
 			m_endpoint = ep.getUDPEndpoint();
 			m_socket.open(boost::asio::ip::udp::v4());
 			m_socket.bind(m_endpoint);
-		}
 
-		void UDPTransport::begin()
-		{
 			m_receiver.start();
 			m_sender.start();
 			m_handler.start();

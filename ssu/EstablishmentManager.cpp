@@ -4,7 +4,6 @@
 
 #include "../datatypes/SessionKey.h"
 #include "../util/Base64.h"
-#include "../i2p.h"
 
 #include <fstream>
 

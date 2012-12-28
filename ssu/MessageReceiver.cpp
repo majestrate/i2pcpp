@@ -3,14 +3,13 @@
 #include "PacketHandler.h"
 #include "UDPTransport.h"
 
-#include "../i2p.h"
 #include "../i2np/Message.h"
 
 namespace i2pcpp {
 	namespace SSU {
 		void MessageReceiver::loop()
 		{
-			InboundMessageDispatcher &imd = m_transport.getContext().getInMsgDispatcher();
+			InboundMessageDispatcher &imd = m_transport.getInMsgDispatcher();
 
 			while(m_keepRunning)
 			{

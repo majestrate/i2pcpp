@@ -7,13 +7,12 @@
 #include <botan/pk_filts.h>
 
 #include "../util/Base64.h"
-#include "../i2p.h"
 
 #include <string>
 
 namespace i2pcpp {
 	namespace SSU {
-		OutboundEstablishmentState::OutboundEstablishmentState(I2PContext &ctx, RouterInfo const &ri) : m_state(PENDING_INTRO), m_routerInfo(ri), m_context(ctx)
+		OutboundEstablishmentState::OutboundEstablishmentState(RouterContext &ctx, RouterInfo const &ri) : m_state(PENDING_INTRO), m_routerInfo(ri), m_context(ctx)
 		{
 			Botan::AutoSeeded_RNG rng;
 			Botan::DL_Group shared_domain("modp/ietf/2048");

@@ -7,6 +7,8 @@
 
 #include <botan/dh.h>
 
+#include "../RouterContext.h"
+
 #include "../datatypes/ByteArray.h"
 #include "../datatypes/SessionKey.h"
 #include "../datatypes/Endpoint.h"
@@ -18,7 +20,7 @@ namespace i2pcpp {
 	namespace SSU {
 		class OutboundEstablishmentState {
 			public:
-				OutboundEstablishmentState(I2PContext &ctx, RouterInfo const &ri);
+				OutboundEstablishmentState(RouterContext &ctx, RouterInfo const &ri);
 				~OutboundEstablishmentState() { if(m_dhPrivateKey) delete m_dhPrivateKey; }
 
 				enum State {
@@ -35,7 +37,7 @@ namespace i2pcpp {
 				std::mutex& getMutex() { return m_mutex; }
 				State getState() { return m_state; }
 				Endpoint getEndpoint() { return m_endpoint; }
-				const I2PContext& getContext() const { return m_context; }
+				const RouterContext& getContext() const { return m_context; }
 
 				const RouterIdentity& getIdentity() const { return m_routerInfo.getIdentity(); }
 				const SessionKey& getSessionKey() const { return m_sessionKey; }
@@ -94,7 +96,7 @@ namespace i2pcpp {
 				Botan::DH_PrivateKey *m_dhPrivateKey;
 				ByteArray m_dhSecret;
 
-				I2PContext &m_context;
+				RouterContext &m_context;
 		};
 
 		typedef std::shared_ptr<OutboundEstablishmentState> OutboundEstablishmentStatePtr;

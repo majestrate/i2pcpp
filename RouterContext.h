@@ -1,21 +1,17 @@
-#ifndef I2P_H
-#define I2P_H
-
-#include <string>
+#ifndef ROUTERCONTEXT_H
+#define ROUTERCONTEXT_H
 
 #include <botan/elgamal.h>
 #include <botan/dsa.h>
 
-#include "util/LockingQueue.h"
-
+#include "datatypes/RouterIdentity.h"
 #include "Database.h"
-#include "InboundMessageDispatcher.h"
 
 namespace i2pcpp {
-	class I2PContext {
+	class RouterContext {
 		public:
-			I2PContext(std::string const &database);
-			~I2PContext() { if(m_signingKey) delete m_signingKey; if(m_encryptionKey) delete m_encryptionKey; }
+			RouterContext(Database &db);
+			~RouterContext() { if(m_signingKey) delete m_signingKey; if(m_encryptionKey) delete m_encryptionKey; }
 
 			Database& getDatabase() { return m_db; }
 
@@ -25,19 +21,14 @@ namespace i2pcpp {
 
 			const RouterIdentity& getRouterIdentity() const { return m_routerIdentity; };
 
-			InboundMessageDispatcher& getInMsgDispatcher() { return m_inMsgDispatcher; }
-
 		private:
-			Database m_db;
+			Database& m_db;
 
 			Botan::ElGamal_PrivateKey *m_encryptionKey;
 			Botan::DSA_PrivateKey *m_signingKey;
 			Botan::DL_Group m_dsaParameters;
 
 			RouterIdentity m_routerIdentity;
-
-			InboundMessageDispatcher m_inMsgDispatcher;
-			JobQueue m_jobQueue;
 	};
 }
 

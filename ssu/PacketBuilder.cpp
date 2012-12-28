@@ -1,6 +1,7 @@
 #include "PacketBuilder.h"
 
-#include "../i2p.h"
+#include "../RouterContext.h"
+
 #include "../datatypes/RouterIdentity.h"
 
 #include <chrono>
