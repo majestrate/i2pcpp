@@ -11,7 +11,7 @@ namespace i2pcpp {
 			void stop();
 
 		protected:
-			~Thread() { if(m_keepRunning) stop(); }
+			~Thread() { } // TODO Need to figure out what to do here
 
 			std::atomic<bool> m_keepRunning;
 

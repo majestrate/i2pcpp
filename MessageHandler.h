@@ -8,9 +8,10 @@
 #include "Job.h"
 
 namespace i2pcpp {
-	class MessageHandler : public Job {
+	class MessageHandler {
 		public:
-			virtual I2NP::Message::MessageType getMessageType() const = 0;
+			virtual I2NP::Message::MessageType getType() const = 0;
+			virtual JobPtr createJob() const = 0;
 	};
 
 	typedef std::shared_ptr<MessageHandler> MessageHandlerPtr;

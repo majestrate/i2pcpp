@@ -3,11 +3,23 @@
 
 #include "Thread.h"
 
+#include <memory>
+#include <vector>
+
+#include "JobQueue.h"
+
 namespace i2pcpp {
 	class JobRunner : public Thread {
 		public:
+			JobRunner(JobQueue &jq) : m_jobQueue(jq) {}
 			void loop();
+
+		private:
+			JobQueue& m_jobQueue;
 	};
+
+	typedef std::shared_ptr<JobRunner> JobRunnerPtr;
+	typedef std::vector<JobRunnerPtr> JobRunnerPool;
 }
 
 #endif

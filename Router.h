@@ -9,6 +9,7 @@
 #include "Database.h"
 #include "InboundMessageDispatcher.h"
 #include "JobQueue.h"
+#include "JobRunner.h"
 
 namespace i2pcpp {
 	class Router {
@@ -27,6 +28,7 @@ namespace i2pcpp {
 			RouterContext m_ctx;
 			InboundMessageDispatcher m_inMsgDispatcher;
 			JobQueue m_jobQueue;
+			JobRunnerPool m_jobRunnerPool;
 			SSU::UDPTransport m_transport;
 	};
 }

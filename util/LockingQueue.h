@@ -9,7 +9,7 @@ namespace i2pcpp {
 	template<class T>
 		class LockingQueue {
 			public:
-				LockingQueue() {}
+				LockingQueue() : m_finished(false) {}
 
 				void enqueue(T const &p)
 				{

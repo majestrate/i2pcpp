@@ -1,6 +1,8 @@
 #ifndef JOB_H
 #define JOB_H
 
+/* DEY TOOK R JERBZ! */
+
 #include <atomic>
 #include <memory>
 
@@ -12,9 +14,10 @@ namespace i2pcpp {
 			unsigned long getId() { return m_id; }
 			virtual void run() = 0;
 
-		private:
+		protected:
 			std::atomic<unsigned long> m_id;
 
+		private:
 			static std::atomic<unsigned long> m_idSource;
 	};
 
