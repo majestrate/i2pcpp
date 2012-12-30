@@ -12,6 +12,7 @@ set(PACKAGE_STRING "${PACKAGE_NAME} ${PACKAGE_VERSION}")
 set(SRCS
 	Database.cpp
 	i2p.cpp
+	InboundMessageDispatcher.cpp
 	Job.cpp
 	JobQueue.cpp
 	JobRunner.cpp
@@ -19,10 +20,13 @@ set(SRCS
 	Router.cpp
 	RouterContext.cpp
 	Thread.cpp
+	handlers/DatabaseStore.cpp
 	handlers/DeliveryStatus.cpp
-	InboundMessageDispatcher.cpp
+	i2np/DatabaseStore.cpp
 	i2np/DeliveryStatus.cpp
 	i2np/Message.cpp
+	jobs/DatabaseStore.cpp
+	jobs/MessageHandlerJob.cpp
 	ssu/PeerState.cpp
 	ssu/PacketHandler.cpp
 	ssu/UDPReceiver.cpp

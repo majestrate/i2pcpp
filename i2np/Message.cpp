@@ -1,6 +1,7 @@
 #include "Message.h"
 
 #include "DeliveryStatus.h"
+#include "DatabaseStore.h"
 
 #include <iostream>
 
@@ -11,12 +12,16 @@ namespace i2pcpp {
 			MessagePtr m;
 
 			auto dataItr = data.cbegin();
-			MessageType mtype = (MessageType)*(dataItr++);
+			Type mtype = (Type)*(dataItr++);
 
 			switch(mtype)
 			{
-				case MessageType::DELIVERY_STATUS:
+				case Type::DELIVERY_STATUS:
 					m = MessagePtr(new DeliveryStatus());
+					break;
+
+				case Type::DB_STORE:
+					m = MessagePtr(new DatabaseStore());
 					break;
 
 				default:

@@ -14,10 +14,11 @@ namespace i2pcpp {
 		copy(signingKey.begin(), signingKey.end(), m_signingKey.begin());
 	}
 
-	RouterIdentity::RouterIdentity(ByteArray::const_iterator &idItr) : m_certificate(Certificate(idItr))
+	RouterIdentity::RouterIdentity(ByteArray::const_iterator &idItr)
 	{
 		copy(idItr, idItr + 256, m_publicKey.begin()), idItr += 256;
 		copy(idItr, idItr + 128, m_signingKey.begin()), idItr += 128;
+		m_certificate = Certificate(idItr);
 	}
 
 	ByteArray RouterIdentity::getBytes() const

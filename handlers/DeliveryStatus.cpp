@@ -2,18 +2,16 @@
 
 #include <iostream>
 
-#include "../TestJob.h"
-
 namespace i2pcpp {
 	namespace Handlers {
-		I2NP::Message::MessageType DeliveryStatus::getType() const
+		I2NP::Message::Type DeliveryStatus::getType() const
 		{
-			return I2NP::Message::MessageType::DELIVERY_STATUS;
+			return I2NP::Message::Type::DELIVERY_STATUS;
 		}
 
-		JobPtr DeliveryStatus::createJob() const
+		JobPtr DeliveryStatus::createJob(RouterHash const &from, I2NP::MessagePtr const &msg) const
 		{
-			return JobPtr(new TestJob());
+			return JobPtr();
 		}
 	}
 }

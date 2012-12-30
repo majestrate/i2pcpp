@@ -9,9 +9,8 @@ namespace i2pcpp {
 	namespace I2NP {
 		class DeliveryStatus : public Message {
 			public:
-				~DeliveryStatus() {}
+				Message::Type getType() const { return Message::Type::DELIVERY_STATUS; }
 
-				Message::MessageType getType() const { return Message::MessageType::DELIVERY_STATUS; }
 			protected:
 				bool parse(ByteArray::const_iterator &dataItr);
 

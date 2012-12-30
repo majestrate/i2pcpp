@@ -11,29 +11,9 @@ namespace i2pcpp {
 	class RouterAddress : public Datatype {
 		public:
 			RouterAddress(int cost, Date const &expiration, std::string const &transport, Mapping const &options) : m_cost(cost), m_expiration(expiration), m_transport(transport), m_options(options) {}
+			RouterAddress(ByteArray::const_iterator &addrItr);
 
-			RouterAddress(ByteArray::const_iterator &addrItr)
-			{
-				m_cost = *(addrItr++);
-				m_expiration = Date(addrItr);
-				m_options = Mapping(addrItr);
-			}
-
-			ByteArray getBytes() const
-			{
-				ByteArray b;
-
-				ByteArray expiration = m_expiration.getBytes();
-				ByteArray options = m_options.getBytes();
-
-				b.insert(b.end(), m_cost);
-				b.insert(b.end(), expiration.begin(), expiration.end());
-				b.insert(b.end(), m_transport.size());
-				b.insert(b.end(), m_transport.begin(), m_transport.end());
-				b.insert(b.end(), options.begin(), options.end());
-
-				return b;
-			}
+			ByteArray getBytes() const;
 
 			std::string getHost() const
 			{

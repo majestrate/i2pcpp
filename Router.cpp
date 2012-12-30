@@ -2,12 +2,12 @@
 
 #include "ssu/UDPTransport.h"
 
-#include "handlers/DeliveryStatus.h"
+#include "handlers/DatabaseStore.h"
 
 namespace i2pcpp {
 	void Router::start()
 	{
-		m_inMsgDispatcher.registerHandler(I2NP::Message::MessageType::DELIVERY_STATUS, MessageHandlerPtr(new Handlers::DeliveryStatus));
+		m_inMsgDispatcher.registerHandler(I2NP::Message::Type::DB_STORE, MessageHandlerPtr(new Handlers::DatabaseStore));
 		m_transport.begin(Endpoint("127.0.0.1", 27333)); // TODO Pull from DB
 
 		m_jobRunnerPool.push_back(JobRunnerPtr(new JobRunner(m_jobQueue)));

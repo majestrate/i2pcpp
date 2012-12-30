@@ -1,5 +1,7 @@
 #include "Mapping.h"
 
+#include <iostream>
+
 namespace i2pcpp {
 	Mapping::Mapping(ByteArray::const_iterator &mapItr)
 	{
@@ -11,12 +13,17 @@ namespace i2pcpp {
 			std::string key(mapItr, mapItr + keySize);
 			mapItr += keySize;
 
+			mapItr++; // Equal
+
 			unsigned char valueSize = *(mapItr++);
 			std::string value(mapItr, mapItr + valueSize);
 			mapItr += valueSize;
 
+			mapItr++; // Semi-colon
+
 			m_map[key] = value;
 		}
+
 	}
 
 	void Mapping::setValue(std::string const &name, std::string const &value)

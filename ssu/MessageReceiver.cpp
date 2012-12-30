@@ -29,7 +29,7 @@ namespace i2pcpp {
 				if(m) {
 					std::cerr << "MessageReceiver[" << ims->getMsgId() << "]: This looks like a message of type: " << (int)m->getType() << "\n";
 
-					imd.addMessage(m);
+					imd.addMessage(ims->getRouterHash(), m);
 				}
 			}
 		}

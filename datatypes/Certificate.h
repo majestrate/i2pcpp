@@ -4,6 +4,8 @@
 #include "Datatype.h"
 #include "ByteArray.h"
 
+#include <iostream>
+
 namespace i2pcpp {
 	class Certificate : public Datatype {
 		public:
@@ -17,27 +19,10 @@ namespace i2pcpp {
 
 			Certificate() : m_type(NIL) {}
 
-			Certificate(ByteArray::const_iterator &certItr)
-			{
-				m_type = (Type)*(certItr++);
-				if(m_type == NIL)
-					return;
-			}
-
+			Certificate(ByteArray::const_iterator &certItr);
 
 			unsigned short getLength() const { return (1 + 2 + m_payload.size()); }
-
-			ByteArray getBytes() const
-			{
-				ByteArray b(m_payload);
-				unsigned short length = m_payload.size();
-
-				b.insert(b.begin(), length);
-				b.insert(b.begin(), (length >> 8));
-				b.insert(b.begin(), (unsigned char)m_type);
-
-				return b;
-			}
+			ByteArray getBytes() const;
 
 		private:
 			Type m_type;

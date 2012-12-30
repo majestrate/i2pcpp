@@ -11,7 +11,7 @@ namespace i2pcpp {
 			public:
 				virtual ~Message() {}
 
-				enum MessageType {
+				enum Type {
 					DB_STORE = 1,
 					DB_LOOKUP = 2,
 					DB_SEARCH_REPLY = 3,
@@ -27,7 +27,7 @@ namespace i2pcpp {
 				};
 
 				static std::shared_ptr<Message> fromBytes(ByteArray const &data);
-				virtual MessageType getType() const = 0;
+				virtual Type getType() const = 0;
 
 			protected:
 				virtual bool parse(ByteArray::const_iterator &dataItr) = 0;
