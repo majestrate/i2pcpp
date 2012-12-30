@@ -11,7 +11,7 @@ namespace i2pcpp {
 
 		JobPtr DatabaseStore::createJob(RouterHash const &from, I2NP::MessagePtr const &msg) const
 		{
-			return JobPtr(new Jobs::DatabaseStore(from, msg));
+			return JobPtr(new Jobs::DatabaseStore(m_ctx, from, msg));
 		}
 	}
 }

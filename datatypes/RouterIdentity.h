@@ -13,20 +13,17 @@ namespace i2pcpp {
 		public:
 			RouterIdentity() {};
 			RouterIdentity(ByteArray::const_iterator &idItr);
-			RouterIdentity(ByteArray const &publicKey, ByteArray const &signingKey, Certificate const &certificate);
+			RouterIdentity(ByteArray const &encryptionKey, ByteArray const &signingKey, Certificate const &certificate);
 
 			ByteArray getBytes() const;
 			RouterHash getHash() const;
 			std::string getHashEncoded() const;
-			ByteArray getSigningKey() const
-			{
-				ByteArray b(128);
-				copy(m_signingKey.begin(), m_signingKey.end(), b.begin());
-				return b;
-			}
+			ByteArray getEncryptionKey() const;
+			ByteArray getSigningKey() const;
+			const Certificate& getCertificate() const { return m_certificate; }
 
 		private:
-			std::array<unsigned char, 256> m_publicKey;
+			std::array<unsigned char, 256> m_encryptionKey;
 			std::array<unsigned char, 128> m_signingKey;
 			Certificate m_certificate;
 	};

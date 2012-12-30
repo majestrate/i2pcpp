@@ -125,7 +125,7 @@ namespace i2pcpp {
 			size = sqlite3_column_bytes(statement, 3);
 			std::string transport(bytes, size);
 
-			select = "SELECT name, value FROM router_address_options WHERE router_id = ? AND \"index\" = ?";
+			select = "SELECT name, value FROM router_address_options WHERE router_id = ? AND \"index\" = ? ORDER BY name ASC";
 			if(sqlite3_prepare(m_db, select.c_str(), -1, &options_statement, NULL) != SQLITE_OK) {} // TODO Exception
 
 			sqlite3_bind_blob(options_statement, 1, hashBytes.data(), hashBytes.size(), SQLITE_STATIC);
@@ -159,6 +159,104 @@ namespace i2pcpp {
 
 		return ri;
 
+	}
+
+	void Database::deleteRouter(RouterHash const &rh)
+	{
+		sqlite3_stmt *statement;
+		int rc;
+
+		std::string del = "DELETE FROM router_address_options WHERE router_id = ?";
+		if((rc = sqlite3_prepare(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) { std::cerr << "RC: " << rc << "\n"; } // TODO Exception
+		sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
+		if((rc = sqlite3_step(statement)) != SQLITE_DONE) { std::cerr << "Delete RC: " << rc << "\n"; } // TODO Exception`
+		sqlite3_finalize(statement);
+
+		del = "DELETE FROM router_addresses WHERE router_id = ?";
+		if((rc = sqlite3_prepare(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) { std::cerr << "RC: " << rc << "\n"; } // TODO Exception
+		sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
+		if((rc = sqlite3_step(statement)) != SQLITE_DONE) { std::cerr << "Delete RC: " << rc << "\n"; } // TODO Exception`
+		sqlite3_finalize(statement);
+
+		del = "DELETE FROM router_options WHERE router_id = ?";
+		if((rc = sqlite3_prepare(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) { std::cerr << "RC: " << rc << "\n"; } // TODO Exception
+		sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
+		if((rc = sqlite3_step(statement)) != SQLITE_DONE) { std::cerr << "Delete RC: " << rc << "\n"; } // TODO Exception`
+		sqlite3_finalize(statement);
+
+		del = "DELETE FROM routers WHERE id = ?";
+		if((rc = sqlite3_prepare(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) { std::cerr << "RC: " << rc << "\n"; } // TODO Exception
+		sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
+		if((rc = sqlite3_step(statement)) != SQLITE_DONE) { std::cerr << "Delete RC: " << rc << "\n"; } // TODO Exception`
+		sqlite3_finalize(statement);
+	}
+
+	void Database::setRouterInfo(RouterInfo const &info)
+	{
+		sqlite3_exec(m_db, "BEGIN TRANSACTION", NULL, NULL, NULL);
+		RouterHash rh = info.getIdentity().getHash();
+		deleteRouter(rh);
+
+		sqlite3_stmt *statement;
+		int rc;
+
+		const ByteArray& encKey = info.getIdentity().getEncryptionKey();
+		const ByteArray& sigKey = info.getIdentity().getSigningKey();
+		const ByteArray& cert   = info.getIdentity().getCertificate().getBytes();
+		const ByteArray& pub    = info.getPublished().getBytes();
+		const ByteArray& sig   = info.getSignature();
+
+		std::string insert = "INSERT INTO routers(id, encryption_key, signing_key, certificate, published, signature) VALUES(?, ?, ?, ?, ?, ?)";
+		if((rc = sqlite3_prepare(m_db, insert.c_str(), -1, &statement, NULL)) != SQLITE_OK) { std::cerr << "RC: " << rc << "\n"; } // TODO Exception
+		sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
+		sqlite3_bind_blob(statement, 2, encKey.data(), encKey.size(), SQLITE_STATIC);
+		sqlite3_bind_blob(statement, 3, sigKey.data(), sigKey.size(), SQLITE_STATIC);
+		sqlite3_bind_blob(statement, 4, cert.data(), cert.size(), SQLITE_STATIC);
+		sqlite3_bind_blob(statement, 5, pub.data(), pub.size(), SQLITE_STATIC);
+		sqlite3_bind_blob(statement, 6, sig.data(), sig.size(), SQLITE_STATIC);
+		if((rc = sqlite3_step(statement)) != SQLITE_DONE) { std::cerr << "Insert RC: " << rc << "\n"; } // TODO Exception
+		sqlite3_finalize(statement);
+
+		int i = 0;
+		for(auto a: info) {
+			std::string istr = std::to_string(i);
+			insert = "INSERT INTO router_addresses(router_id, \"index\", cost, expiration, transport) VALUES(?, ?, ?, ?, ?)";
+
+			if((rc = sqlite3_prepare(m_db, insert.c_str(), -1, &statement, NULL)) != SQLITE_OK) {} // TODO Exception
+			sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
+			sqlite3_bind_text(statement, 2, istr.c_str(), -1, SQLITE_STATIC);
+			sqlite3_bind_int(statement, 3, (int)a.getCost());
+			ByteArray expBytes = a.getExpiration().getBytes();
+			sqlite3_bind_blob(statement, 4, expBytes.data(), expBytes.size(), SQLITE_STATIC);
+			sqlite3_bind_text(statement, 5, a.getTransport().c_str(), -1, SQLITE_STATIC);
+			if((rc = sqlite3_step(statement)) != SQLITE_DONE) { std::cerr << "Insert RC: " << rc << "\n"; } // TODO Exception
+			sqlite3_finalize(statement);
+
+			for(auto o: a.getOptions()) {
+				insert = "INSERT INTO router_address_options(router_id, \"index\", name, value) VALUES(?, ?, ?, ?)";
+				if((rc = sqlite3_prepare(m_db, insert.c_str(), -1, &statement, NULL)) != SQLITE_OK) {} // TODO Exception
+				sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
+				sqlite3_bind_text(statement, 2, istr.c_str(), -1, SQLITE_STATIC);
+				sqlite3_bind_text(statement, 3, o.first.c_str(), -1, SQLITE_STATIC);
+				sqlite3_bind_text(statement, 4, o.second.c_str(), -1, SQLITE_STATIC);
+				if((rc = sqlite3_step(statement)) != SQLITE_DONE) { std::cerr << "Insert[" << i << "] RC: " << rc << "\n"; } // TODO Exception
+				sqlite3_finalize(statement);
+			}
+
+			i++;
+		}
+
+		for(auto o: info.getOptions()) {
+			insert = "INSERT INTO router_options(router_id, name, value) VALUES(?, ?, ?)";
+			if((rc = sqlite3_prepare(m_db, insert.c_str(), -1, &statement, NULL)) != SQLITE_OK) {} // TODO Exception
+			sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
+			sqlite3_bind_text(statement, 2, o.first.c_str(), -1, SQLITE_STATIC);
+			sqlite3_bind_text(statement, 3, o.second.c_str(), -1, SQLITE_STATIC);
+			if((rc = sqlite3_step(statement)) != SQLITE_DONE) { std::cerr << "Insert[" << i << "] RC: " << rc << "\n"; } // TODO Exception
+			sqlite3_finalize(statement);
+		}
+
+		sqlite3_exec(m_db, "COMMIT TRANSACTION", NULL, NULL, NULL);
 	}
 
 	void Database::sha256_func(sqlite3_context *context, int argc, sqlite3_value **argv)

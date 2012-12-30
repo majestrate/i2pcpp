@@ -6,6 +6,7 @@
 #include "../util/Base64.h"
 #include "../i2np/DatabaseStore.h"
 #include "../datatypes/RouterInfo.h"
+#include "../Database.h"
 
 #include <iostream>
 
@@ -38,7 +39,13 @@ namespace i2pcpp {
 
 				RouterInfo ri(inflatedData);
 
-				std::cerr << "RouterInfo RouterAddress[0] host: " << ri.getAddress(0).getHost() << "\n";
+				std::cerr << "RouterInfo RouterAddress[0] host: " << ri.getAddress(0).getOptions().getValue("host") << "\n";
+
+				if(ri.verifySignature(m_ctx)) {
+					m_ctx.getDatabase().setRouterInfo(ri);
+					std::cerr << "Added RouterInfo to DB\n";
+				} else
+					std::cerr << "RouterInfo verification failed\n";
 
 			} catch(Botan::Decoding_Error &e) {
 				std::cerr << "Jobs::DatabaseStore: Decoding error: " << e.what() << "\n";

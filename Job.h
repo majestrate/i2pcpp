@@ -6,16 +6,19 @@
 #include <atomic>
 #include <memory>
 
+#include "RouterContext.h"
+
 namespace i2pcpp {
 	class Job {
 		public:
-			Job() : m_id(m_idSource++) {}
+			Job(RouterContext &ctx) : m_id(m_idSource++), m_ctx(ctx) {}
 
 			unsigned long getId() { return m_id; }
 			virtual void run() = 0;
 
 		protected:
 			std::atomic<unsigned long> m_id;
+			RouterContext& m_ctx;
 
 		private:
 			static std::atomic<unsigned long> m_idSource;

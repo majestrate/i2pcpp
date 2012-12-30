@@ -7,7 +7,7 @@
 namespace i2pcpp {
 	void Router::start()
 	{
-		m_inMsgDispatcher.registerHandler(I2NP::Message::Type::DB_STORE, MessageHandlerPtr(new Handlers::DatabaseStore));
+		m_inMsgDispatcher.registerHandler(I2NP::Message::Type::DB_STORE, MessageHandlerPtr(new Handlers::DatabaseStore(m_ctx)));
 		m_transport.begin(Endpoint("127.0.0.1", 27333)); // TODO Pull from DB
 
 		m_jobRunnerPool.push_back(JobRunnerPtr(new JobRunner(m_jobQueue)));

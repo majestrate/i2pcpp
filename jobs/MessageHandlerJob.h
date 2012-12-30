@@ -9,7 +9,7 @@ namespace i2pcpp {
 	namespace Jobs {
 		class MessageHandlerJob : public Job {
 			public:
-				MessageHandlerJob(RouterHash const &from, I2NP::MessagePtr const &msg) : m_from(from), m_msg(msg) {}
+				MessageHandlerJob(RouterContext &ctx, RouterHash const &from, I2NP::MessagePtr const &msg) : Job(ctx), m_from(from), m_msg(msg) {}
 
 			protected:
 				RouterHash m_from;

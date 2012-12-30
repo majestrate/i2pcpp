@@ -8,6 +8,8 @@
 #include <botan/lookup.h>
 #include <botan/dsa.h>
 
+#include "../RouterContext.h"
+
 #include "Datatype.h"
 #include "Mapping.h"
 #include "RouterAddress.h"
@@ -20,37 +22,20 @@ namespace i2pcpp {
 		public:
 			RouterInfo() {}
 			RouterInfo(RouterIdentity const &identity, Date const &published, Mapping const &options, ByteArray const &signature) : m_identity(identity), m_published(published), m_options(options), m_signature(signature) {}
-
 			RouterInfo(ByteArray const &infoBytes);
 
-			ByteArray getBytes() const
-			{
-				ByteArray signedBytes = getSignedBytes();
-				signedBytes.insert(signedBytes.end(), m_signature.begin(), m_signature.end());
+			ByteArray getBytes() const;
+			void addAddress(RouterAddress const &address)	{	m_addresses.push_back(address);	}
+			bool verifySignature(RouterContext const &ctx) const;
 
-				return signedBytes;
-			}
+			const RouterAddress& getAddress(const int index) const { return m_addresses[index];	}
+			const RouterIdentity& getIdentity() const	{	return m_identity; }
+			const Date& getPublished() const { return m_published; }
+			const Mapping& getOptions() const { return m_options; }
+			const ByteArray& getSignature() const { return m_signature; }
 
-			void addAddress(RouterAddress const &address)
-			{
-				m_addresses.push_back(address);
-			}
-
-			bool verifySignature(ByteArray const &signature)
-			{
-				ByteArray hash = calculateHash(getSignedBytes());
-				return false;
-			}
-
-			const RouterAddress& getAddress(const int index) const
-			{
-				return m_addresses[index];
-			}
-
-			const RouterIdentity& getIdentity() const
-			{
-				return m_identity;
-			}
+			const std::vector<RouterAddress>::const_iterator begin() const { return m_addresses.cbegin(); }
+			const std::vector<RouterAddress>::const_iterator end() const { return m_addresses.cend(); }
 
 		private:
 			ByteArray calculateHash(ByteArray const &signedBytes) const;

@@ -14,16 +14,10 @@ namespace i2pcpp {
 			RouterAddress(ByteArray::const_iterator &addrItr);
 
 			ByteArray getBytes() const;
-
-			std::string getHost() const
-			{
-				return m_options.getValue("host");
-			}
-
-			unsigned short getPort() const
-			{
-				return stoi(m_options.getValue("port"));
-			}
+			const unsigned char getCost() const { return m_cost; }
+			const Date& getExpiration() const { return m_expiration; }
+			const std::string getTransport() const { return m_transport; }
+			const Mapping& getOptions() const { return m_options; }
 
 		private:
 			unsigned char m_cost;

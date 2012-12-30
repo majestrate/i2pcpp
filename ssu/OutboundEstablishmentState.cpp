@@ -7,6 +7,7 @@
 #include <botan/pk_filts.h>
 
 #include "../util/Base64.h"
+#include "../datatypes/Mapping.h"
 
 #include <string>
 
@@ -19,8 +20,11 @@ namespace i2pcpp {
 
 			m_dhPrivateKey = new Botan::DH_PrivateKey(rng, shared_domain);
 
-			std::string host = ri.getAddress(0).getHost();
-			unsigned short port = ri.getAddress(0).getPort();
+			//Mapping m = ri.getAddress(0).getOptions();
+			//std::string host = m.getValue("host");
+			std::string host = "127.0.0.1"; // Testing purposes
+			//unsigned short port = stoi(m.getValue("port"));
+			unsigned short port = 28481;
 			m_endpoint = Endpoint(host, port);
 
 			m_sessionKey = ri.getIdentity().getHash();

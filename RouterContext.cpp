@@ -4,6 +4,8 @@
 
 #include <botan/auto_rng.h>
 
+#include "Database.h"
+
 namespace i2pcpp {
 	RouterContext::RouterContext(Database &db) : m_db(db)
 	{

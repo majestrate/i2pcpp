@@ -5,6 +5,8 @@
 #include "PacketHandler.h"
 #include "EstablishmentManager.h"
 
+#include "../Database.h"
+
 #include <iostream>
 
 #include "../util/Base64.h"

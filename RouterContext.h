@@ -5,9 +5,9 @@
 #include <botan/dsa.h>
 
 #include "datatypes/RouterIdentity.h"
-#include "Database.h"
 
 namespace i2pcpp {
+	class Database;
 	class RouterContext {
 		public:
 			RouterContext(Database &db);
