@@ -35,5 +35,23 @@ namespace i2pcpp {
 			else
 				return MessagePtr();
 		}
+
+		ByteArray Message::toBytes() const
+		{
+			ByteArray b;
+			const ByteArray& m = getBytes();
+
+			b.insert(b.end(), getType());
+
+			unsigned int expiration = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+			b.insert(b.end(), expiration << 24);
+			b.insert(b.end(), expiration << 16);
+			b.insert(b.end(), expiration << 8);
+			b.insert(b.end(), expiration);
+
+			b.insert(b.end(), m.cbegin(), m.cend());
+
+			return b;
+		}
 	}
 }

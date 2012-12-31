@@ -27,9 +27,13 @@ namespace i2pcpp {
 				};
 
 				static std::shared_ptr<Message> fromBytes(ByteArray const &data);
+
+				ByteArray toBytes() const;
 				virtual Type getType() const = 0;
 
 			protected:
+				Message() {}
+				virtual ByteArray getBytes() const = 0;
 				virtual bool parse(ByteArray::const_iterator &dataItr) = 0;
 
 				unsigned long m_expiration;

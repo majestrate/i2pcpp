@@ -34,15 +34,14 @@ namespace i2pcpp {
 					case EstablishmentState::CONFIRMED_PARTIALLY:
 						std::cerr << "EstablishmentManager: sending session confirmed to " << es->getTheirEndpoint().toString() << "\n";
 						sendConfirmed(es);
+						addWork(es);
 						break;
 
 					case EstablishmentState::CONFIRMED_COMPLETELY:
-						processComplete(es);
-
 						m_stateTableMutex.lock();
 						m_stateTable.erase(es->getTheirEndpoint());
 						m_stateTableMutex.unlock();
-						continue;
+						break;
 				}
 			}
 		}
@@ -102,21 +101,17 @@ namespace i2pcpp {
 
 		void EstablishmentManager::sendConfirmed(EstablishmentStatePtr const &state)
 		{
-			PacketPtr p = m_builder.buildSessionConfirmed(state);
-			p->encrypt(state->getSessionKey(), state->getMacKey());
-			state->confirmedCompletely();
-			m_transport.send(p);
-
-			state->confirmedCompletely();
-		}
-
-		void EstablishmentManager::processComplete(EstablishmentStatePtr const &state)
-		{
 			Endpoint ep = state->getTheirEndpoint();
 			PeerStatePtr ps(new PeerState(ep, state->getIdentity(), false));
 			ps->setCurrentSessionKey(state->getSessionKey());
 			ps->setCurrentMacKey(state->getMacKey());
 			m_transport.addRemotePeer(ps);
+
+			PacketPtr p = m_builder.buildSessionConfirmed(state);
+			p->encrypt(state->getSessionKey(), state->getMacKey());
+			m_transport.send(p);
+
+			state->confirmedCompletely();
 		}
 	}
 }

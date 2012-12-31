@@ -34,7 +34,6 @@ namespace i2pcpp {
 				void sendRequest(EstablishmentStatePtr const &state);
 				void processCreated(EstablishmentStatePtr const &state);
 				void sendConfirmed(EstablishmentStatePtr const &state);
-				void processComplete(EstablishmentStatePtr const &state);
 
 				UDPTransport& m_transport;
 				PacketBuilder m_builder;

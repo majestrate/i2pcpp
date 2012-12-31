@@ -9,5 +9,9 @@ namespace i2pcpp {
 
 			return true;
 		}
+
+		ByteArray DeliveryStatus::getBytes() const
+		{
+		}
 	}
 }

@@ -6,6 +6,7 @@
 #include "PeerState.h"
 
 #include "../datatypes/Endpoint.h"
+#include "../i2np/Message.h"
 
 namespace i2pcpp {
 	namespace SSU {
@@ -13,6 +14,7 @@ namespace i2pcpp {
 			public:
 				PacketPtr buildSessionRequest(EstablishmentStatePtr const &state) const;
 				PacketPtr buildSessionConfirmed(EstablishmentStatePtr const &state) const;
+				PacketPtr buildData(I2NP::MessagePtr const &msg, PeerStatePtr const &state) const;
 				PacketPtr buildSessionDestroyed(PeerStatePtr const &state) const;
 
 			private:

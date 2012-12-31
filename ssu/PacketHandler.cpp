@@ -31,6 +31,7 @@ namespace i2pcpp {
 				else {
 					EstablishmentStatePtr es = em.getState(p->getEndpoint());
 					if(es) {
+						std::lock_guard<std::mutex> lock(es->getMutex());
 						if(es->isInbound()) {
 						} else
 							handlePacketOutbound(p, es);
@@ -75,8 +76,6 @@ namespace i2pcpp {
 
 		void PacketHandler::handlePacketOutbound(PacketPtr const &packet, EstablishmentStatePtr const &state)
 		{
-			std::lock_guard<std::mutex> lock(state->getMutex());
-
 			if(!packet->verify(state->getMacKey())) {
 				std::cerr << "PacketHandler[ES]: packet verification failed from " << packet->getEndpoint().toString() << "\n";
 				return;

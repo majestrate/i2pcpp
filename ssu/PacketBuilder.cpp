@@ -78,5 +78,12 @@ namespace i2pcpp {
 
 			return s;
 		}
+
+		PacketPtr PacketBuilder::buildData(I2NP::MessagePtr const &msg, PeerStatePtr const &state) const
+		{
+			PacketPtr s = buildHeader(state->getEndpoint(), Packet::PayloadType::DATA << 4);
+
+			return s;
+		}
 	}
 }
