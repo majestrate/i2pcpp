@@ -5,83 +5,72 @@
 #include "../datatypes/SessionKey.h"
 #include "../util/Base64.h"
 
-#include <fstream>
+#include <thread>
 
 namespace i2pcpp {
 	namespace SSU {
 		void EstablishmentManager::loop()
 		{
 			while(m_keepRunning) {
-				std::lock_guard<std::mutex> lock(m_outboundTableMutex);
+				m_workQueue.wait();
+				EstablishmentStatePtr es = m_workQueue.pop();
 
-				auto obtItr = m_outboundTable.begin();
-				while(obtItr != m_outboundTable.end()) {
-					OutboundEstablishmentStatePtr oes = (*obtItr).second;
+				if(!es)
+					continue;
 
-					std::lock_guard<std::mutex> lock(oes->getMutex());
+				std::lock_guard<std::mutex> lock(es->getMutex());
 
-					switch(oes->getState()) {
-						case OutboundEstablishmentState::INTRODUCED:
-							std::cerr << "EstablishmentManager: sending session request to " << oes->getEndpoint().toString() << "\n";
-							sendRequest(oes);
-							break;
+				switch(es->getState()) {
+					case EstablishmentState::INTRODUCED:
+						std::cerr << "EstablishmentManager: sending session request to " << es->getTheirEndpoint().toString() << "\n";
+						sendRequest(es);
+						break;
 
-						case OutboundEstablishmentState::CREATED_RECEIVED:
-							processCreated(oes);
-							break;
+					case EstablishmentState::CREATED_RECEIVED:
+						processCreated(es);
+						addWork(es);
+						break;
 
-						case OutboundEstablishmentState::CONFIRMED_PARTIALLY:
-							std::cerr << "EstablishmentManager: sending session confirmed to " << oes->getEndpoint().toString() << "\n";
-							sendConfirmed(oes);
-							break;
+					case EstablishmentState::CONFIRMED_PARTIALLY:
+						std::cerr << "EstablishmentManager: sending session confirmed to " << es->getTheirEndpoint().toString() << "\n";
+						sendConfirmed(es);
+						break;
 
-						case OutboundEstablishmentState::CONFIRMED_COMPLETELY:
-							processComplete(oes);
-							m_outboundTable.erase(obtItr++);
-							continue;
-					}
+					case EstablishmentState::CONFIRMED_COMPLETELY:
+						processComplete(es);
 
-					++obtItr;
+						m_stateTableMutex.lock();
+						m_stateTable.erase(es->getTheirEndpoint());
+						m_stateTableMutex.unlock();
+						continue;
 				}
 			}
 		}
 
-		InboundEstablishmentStatePtr EstablishmentManager::getInboundState(Endpoint const &ep)
+		EstablishmentStatePtr EstablishmentManager::getState(Endpoint const &ep)
 		{
-			std::lock_guard<std::mutex> lock(m_inboundTableMutex);
+			std::lock_guard<std::mutex> lock(m_stateTableMutex);
 
-			InboundEstablishmentStatePtr ies;
+			EstablishmentStatePtr es;
 
-			auto itr = m_inboundTable.find(ep);
-			if(itr != m_inboundTable.end())
-				ies = itr->second;
+			auto itr = m_stateTable.find(ep);
+			if(itr != m_stateTable.end())
+				es = itr->second;
 
-			return ies;
-		}
-
-		OutboundEstablishmentStatePtr EstablishmentManager::getOutboundState(Endpoint const &ep)
-		{
-			std::lock_guard<std::mutex> lock(m_outboundTableMutex);
-
-			OutboundEstablishmentStatePtr oes;
-
-			auto itr = m_outboundTable.find(ep);
-			if(itr != m_outboundTable.end())
-				oes = itr->second;
-
-			return oes;
+			return es;
 		}
 
 		void EstablishmentManager::establish(RouterInfo const &ri)
 		{
-			std::lock_guard<std::mutex> lock(m_outboundTableMutex);
+			std::lock_guard<std::mutex> lock(m_stateTableMutex);
 
-			OutboundEstablishmentStatePtr oes(new OutboundEstablishmentState(m_transport.getContext(), ri));
-			m_outboundTable[oes->getEndpoint()] = oes;
-			oes->introduced();
+			EstablishmentStatePtr es(new EstablishmentState(m_transport.getContext(), ri, false));
+			m_stateTable[es->getTheirEndpoint()] = es;
+			es->introduced();
+			addWork(es);
 		}
 
-		void EstablishmentManager::sendRequest(OutboundEstablishmentStatePtr const &state)
+		void EstablishmentManager::sendRequest(EstablishmentStatePtr const &state)
 		{
 			PacketPtr p = m_builder.buildSessionRequest(state);
 			p->encrypt(state->getSessionKey(), state->getSessionKey());
@@ -89,7 +78,7 @@ namespace i2pcpp {
 			m_transport.send(p);
 		}
 
-		void EstablishmentManager::processCreated(OutboundEstablishmentStatePtr const &state)
+		void EstablishmentManager::processCreated(EstablishmentStatePtr const &state)
 		{
 			state->calculateDHSecret();
 
@@ -111,7 +100,7 @@ namespace i2pcpp {
 			state->confirmedPartially();
 		}
 
-		void EstablishmentManager::sendConfirmed(OutboundEstablishmentStatePtr const &state)
+		void EstablishmentManager::sendConfirmed(EstablishmentStatePtr const &state)
 		{
 			PacketPtr p = m_builder.buildSessionConfirmed(state);
 			p->encrypt(state->getSessionKey(), state->getMacKey());
@@ -121,9 +110,9 @@ namespace i2pcpp {
 			state->confirmedCompletely();
 		}
 
-		void EstablishmentManager::processComplete(OutboundEstablishmentStatePtr const &state)
+		void EstablishmentManager::processComplete(EstablishmentStatePtr const &state)
 		{
-			Endpoint ep = state->getEndpoint();
+			Endpoint ep = state->getTheirEndpoint();
 			PeerStatePtr ps(new PeerState(ep, state->getIdentity(), false));
 			ps->setCurrentSessionKey(state->getSessionKey());
 			ps->setCurrentMacKey(state->getMacKey());

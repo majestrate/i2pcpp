@@ -27,20 +27,19 @@ set(SRCS
 	i2np/Message.cpp
 	jobs/DatabaseStore.cpp
 	jobs/MessageHandlerJob.cpp
-	ssu/PeerState.cpp
-	ssu/PacketHandler.cpp
-	ssu/UDPReceiver.cpp
-	ssu/UDPSender.cpp
+	ssu/EstablishmentManager.cpp
+	ssu/EstablishmentState.cpp
 	ssu/InboundMessageFragments.cpp
+	ssu/InboundMessageState.cpp
 	ssu/InboundEstablishmentState.cpp
+	ssu/PacketHandler.cpp
+	ssu/PeerState.cpp
 	ssu/MessageReceiver.cpp
 	ssu/Packet.cpp
-	ssu/PacketParser.cpp
-	ssu/InboundMessageState.cpp
 	ssu/PacketBuilder.cpp
-	ssu/EstablishmentManager.cpp
+	ssu/UDPReceiver.cpp
+	ssu/UDPSender.cpp
 	ssu/UDPTransport.cpp
-	ssu/OutboundEstablishmentState.cpp
 	util/Base64.cpp
 	util/I2PHMAC.cpp
 	util/LockingQueue.cpp

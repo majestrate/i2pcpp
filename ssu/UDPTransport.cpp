@@ -11,6 +11,7 @@
 
 #include "../util/Base64.h"
 
+// Temporary
 const std::string peer_hash = "zhPja0k1cboGnHbhqO50hNPTVHIRE8b4GMwi7Htey~E=";
 
 namespace i2pcpp {
@@ -35,6 +36,7 @@ namespace i2pcpp {
 			m_handler.start();
 			m_establisher.start();
 
+			// Temporary
 			RouterInfo ri = m_ctx.getDatabase().getRouterInfo(peer_hash);
 			m_establisher.establish(ri);
 		}

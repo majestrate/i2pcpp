@@ -27,6 +27,7 @@ namespace i2pcpp {
 			ByteArray getBytes() const;
 			void addAddress(RouterAddress const &address)	{	m_addresses.push_back(address);	}
 			bool verifySignature(RouterContext const &ctx) const;
+			void sign(RouterContext const &ctx);
 
 			const RouterAddress& getAddress(const int index) const { return m_addresses[index];	}
 			const RouterIdentity& getIdentity() const	{	return m_identity; }

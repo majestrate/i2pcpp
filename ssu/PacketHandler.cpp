@@ -29,11 +29,14 @@ namespace i2pcpp {
 				if(ps)
 					handlePacket(p, ps);
 				else {
-					OutboundEstablishmentStatePtr oes = em.getOutboundState(p->getEndpoint());
-					if(oes)
-						handlePacket(p, oes);
-					else
-						std::cerr << "PacketHandler: no PeerState and no OES, dropping packet\n";
+					EstablishmentStatePtr es = em.getState(p->getEndpoint());
+					if(es) {
+						if(es->isInbound()) {
+						} else
+							handlePacketOutbound(p, es);
+						em.addWork(es);
+					} else
+						std::cerr << "PacketHandler: no PeerState and no ES, dropping packet\n";
 				}
 			}
 		}
@@ -70,12 +73,12 @@ namespace i2pcpp {
 			m_transport.send(sdp);*/
 		}
 
-		void PacketHandler::handlePacket(PacketPtr const &packet, OutboundEstablishmentStatePtr const &state)
+		void PacketHandler::handlePacketOutbound(PacketPtr const &packet, EstablishmentStatePtr const &state)
 		{
 			std::lock_guard<std::mutex> lock(state->getMutex());
 
 			if(!packet->verify(state->getMacKey())) {
-				std::cerr << "PacketHandler[OES]: packet verification failed from " << packet->getEndpoint().toString() << "\n";
+				std::cerr << "PacketHandler[ES]: packet verification failed from " << packet->getEndpoint().toString() << "\n";
 				return;
 			}
 
@@ -93,18 +96,18 @@ namespace i2pcpp {
 
 			switch(ptype) {
 				case Packet::SESSION_CREATED:
-					std::cerr << "PacketHandler[OES]: received session created from " << state->getEndpoint().toString() << "\n";
+					std::cerr << "PacketHandler[ES]: received session created from " << state->getTheirEndpoint().toString() << "\n";
 					handleSessionCreated(dataItr, state);
 					break;
 			}
 		}
 
-		void PacketHandler::handleSessionCreated(ByteArray::const_iterator &dataItr, OutboundEstablishmentStatePtr const &state)
+		void PacketHandler::handleSessionCreated(ByteArray::const_iterator &dataItr, EstablishmentStatePtr const &state)
 		{
-			if(state->getState() != OutboundEstablishmentState::REQUEST_SENT)
+			if(state->getState() != EstablishmentState::REQUEST_SENT)
 				return;
 
-			state->setDHY(dataItr, dataItr + 256), dataItr += 256;
+			state->setTheirDH(dataItr, dataItr + 256), dataItr += 256;
 
 			unsigned char ipSize = *(dataItr++);
 

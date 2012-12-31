@@ -2,7 +2,7 @@
 #define SSUPACKETBUILDER_H
 
 #include "Packet.h"
-#include "OutboundEstablishmentState.h"
+#include "EstablishmentState.h"
 #include "PeerState.h"
 
 #include "../datatypes/Endpoint.h"
@@ -11,8 +11,8 @@ namespace i2pcpp {
 	namespace SSU {
 		class PacketBuilder {
 			public:
-				PacketPtr buildSessionRequest(OutboundEstablishmentStatePtr const &state) const;
-				PacketPtr buildSessionConfirmed(OutboundEstablishmentStatePtr const &state) const;
+				PacketPtr buildSessionRequest(EstablishmentStatePtr const &state) const;
+				PacketPtr buildSessionConfirmed(EstablishmentStatePtr const &state) const;
 				PacketPtr buildSessionDestroyed(PeerStatePtr const &state) const;
 
 			private:

@@ -10,8 +10,7 @@
 #include "../datatypes/Endpoint.h"
 #include "../datatypes/RouterInfo.h"
 
-#include "InboundEstablishmentState.h"
-#include "OutboundEstablishmentState.h"
+#include "../util/LockingQueue.h"
 
 #include "PacketBuilder.h"
 
@@ -23,27 +22,27 @@ namespace i2pcpp {
 			public:
 				EstablishmentManager(UDPTransport &transport) : m_transport(transport) {}
 
-				InboundEstablishmentStatePtr getInboundState(Endpoint const &ep);
-				OutboundEstablishmentStatePtr getOutboundState(Endpoint const &ep);
+				EstablishmentStatePtr getState(Endpoint const &ep);
 
 				void establish(RouterInfo const &ri);
+				inline void addWork(EstablishmentStatePtr const &es) { m_workQueue.enqueue(es); }
 
 			private:
 				void loop();
+				void stopHook() { m_workQueue.finish(); }
 
-				void sendRequest(OutboundEstablishmentStatePtr const &state);
-				void processCreated(OutboundEstablishmentStatePtr const &state);
-				void sendConfirmed(OutboundEstablishmentStatePtr const &state);
-				void processComplete(OutboundEstablishmentStatePtr const &state);
+				void sendRequest(EstablishmentStatePtr const &state);
+				void processCreated(EstablishmentStatePtr const &state);
+				void sendConfirmed(EstablishmentStatePtr const &state);
+				void processComplete(EstablishmentStatePtr const &state);
 
 				UDPTransport& m_transport;
 				PacketBuilder m_builder;
 
-				std::unordered_map<Endpoint, InboundEstablishmentStatePtr> m_inboundTable;
-				std::unordered_map<Endpoint, OutboundEstablishmentStatePtr> m_outboundTable;
+				LockingQueue<EstablishmentStatePtr> m_workQueue;
 
-				std::mutex m_inboundTableMutex;
-				std::mutex m_outboundTableMutex;
+				std::unordered_map<Endpoint, EstablishmentStatePtr> m_stateTable;
+				std::mutex m_stateTableMutex;
 		};
 	}
 }

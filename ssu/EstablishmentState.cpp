@@ -1,4 +1,4 @@
-#include "OutboundEstablishmentState.h"
+#include "EstablishmentState.h"
 
 #include <botan/pipe.h>
 #include <botan/lookup.h>
@@ -6,35 +6,33 @@
 #include <botan/auto_rng.h>
 #include <botan/pk_filts.h>
 
-#include "../util/Base64.h"
 #include "../datatypes/Mapping.h"
-
-#include <string>
+#include "../util/Base64.h"
 
 namespace i2pcpp {
 	namespace SSU {
-		OutboundEstablishmentState::OutboundEstablishmentState(RouterContext &ctx, RouterInfo const &ri) : m_state(PENDING_INTRO), m_routerInfo(ri), m_context(ctx)
+		EstablishmentState::EstablishmentState(RouterContext &ctx, RouterInfo const &ri, bool isInbound) : m_context(ctx), m_routerInfo(ri)
 		{
 			Botan::AutoSeeded_RNG rng;
 			Botan::DL_Group shared_domain("modp/ietf/2048");
-
-			m_dhPrivateKey = new Botan::DH_PrivateKey(rng, shared_domain);
 
 			//Mapping m = ri.getAddress(0).getOptions();
 			//std::string host = m.getValue("host");
 			std::string host = "127.0.0.1"; // Testing purposes
 			//unsigned short port = stoi(m.getValue("port"));
 			unsigned short port = 28481;
-			m_endpoint = Endpoint(host, port);
 
+			m_dhPrivateKey = new Botan::DH_PrivateKey(rng, shared_domain);
+			m_theirEndpoint = Endpoint(host, port);
 			m_sessionKey = ri.getIdentity().getHash();
 			m_macKey = m_sessionKey;
+			m_isInbound = isInbound;
 		}
 
-		void OutboundEstablishmentState::calculateDHSecret()
+		void EstablishmentState::calculateDHSecret()
 		{
 			Botan::DH_KA_Operation keyop(*m_dhPrivateKey);
-			Botan::SymmetricKey secret = keyop.agree(m_DHY.data(), m_DHY.size());
+			Botan::SymmetricKey secret = keyop.agree(m_theirDH.data(), m_theirDH.size());
 
 			m_dhSecret.resize(secret.length());
 			copy(secret.begin(), secret.end(), m_dhSecret.begin());
@@ -42,7 +40,7 @@ namespace i2pcpp {
 				m_dhSecret.insert(m_dhSecret.begin(), 0x00); // 2's comlpement
 		}
 
-		ByteArray OutboundEstablishmentState::calculateConfirmationSignature(const unsigned int signedOn) const
+		const ByteArray EstablishmentState::calculateConfirmationSignature(const unsigned int signedOn) const
 		{
 			Botan::AutoSeeded_RNG rng;
 			const Botan::DSA_PrivateKey *key = m_context.getSigningKey();
@@ -50,21 +48,21 @@ namespace i2pcpp {
 			Botan::Pipe sigPipe(new Botan::Hash_Filter("SHA-1"), new Botan::PK_Signer_Filter(new Botan::PK_Signer(*key, "Raw"), rng));
 			sigPipe.start_msg();
 
-			ByteArray DHX(m_dhPrivateKey->public_value());
-			sigPipe.write(DHX.data(), DHX.size());
-			sigPipe.write(m_DHY.data(), m_DHY.size());
+			const ByteArray& myDH(m_dhPrivateKey->public_value());
+			sigPipe.write(myDH.data(), myDH.size());
+			sigPipe.write(m_theirDH.data(), m_theirDH.size());
 
-			ByteArray aliceIP = m_myEndpoint.getRawIP();
-			unsigned short alicePort =  m_myEndpoint.getPort();
-			sigPipe.write(aliceIP.data(), aliceIP.size());
-			sigPipe.write(alicePort >> 8);
-			sigPipe.write(alicePort);
+			const ByteArray& myIP = m_myEndpoint.getRawIP();
+			unsigned short myPort =  m_myEndpoint.getPort();
+			sigPipe.write(myIP.data(), myIP.size());
+			sigPipe.write(myPort >> 8);
+			sigPipe.write(myPort);
 
-			ByteArray bobIP = m_endpoint.getRawIP();
-			unsigned short bobPort = m_endpoint.getPort();
-			sigPipe.write(bobIP.data(), bobIP.size());
-			sigPipe.write(bobPort >> 8);
-			sigPipe.write(bobPort);
+			const ByteArray& theirIP = m_theirEndpoint.getRawIP();
+			unsigned short theirPort = m_theirEndpoint.getPort();
+			sigPipe.write(theirIP.data(), theirIP.size());
+			sigPipe.write(theirPort >> 8);
+			sigPipe.write(theirPort);
 
 			sigPipe.write(m_relayTag.data(), m_relayTag.size());
 
@@ -81,7 +79,7 @@ namespace i2pcpp {
 			return signature;
 		}
 
-		bool OutboundEstablishmentState::verifyCreationSignature() const
+		bool EstablishmentState::verifyCreationSignature() const
 		{
 			Botan::InitializationVector iv(m_iv.data(), m_iv.size());
 			Botan::SymmetricKey key(m_dhSecret.data(), 32);
@@ -101,21 +99,21 @@ namespace i2pcpp {
 			Botan::Pipe sigPipe(new Botan::Hash_Filter("SHA-1"), new Botan::PK_Verifier_Filter(new Botan::PK_Verifier(dsaKey, "Raw"), decryptedSig));
 			sigPipe.start_msg();
 
-			ByteArray DHX(m_dhPrivateKey->public_value());
-			sigPipe.write(DHX.data(), DHX.size());
-			sigPipe.write(m_DHY.data(), m_DHY.size());
+			const ByteArray& myDH(m_dhPrivateKey->public_value());
+			sigPipe.write(myDH.data(), myDH.size());
+			sigPipe.write(m_theirDH.data(), m_theirDH.size());
 
-			ByteArray aliceIP = m_myEndpoint.getRawIP();
-			unsigned short alicePort =  m_myEndpoint.getPort();
-			sigPipe.write(aliceIP.data(), aliceIP.size());
-			sigPipe.write(alicePort >> 8);
-			sigPipe.write(alicePort);
+			const ByteArray& myIP = m_myEndpoint.getRawIP();
+			unsigned short myPort =  m_myEndpoint.getPort();
+			sigPipe.write(myIP.data(), myIP.size());
+			sigPipe.write(myPort >> 8);
+			sigPipe.write(myPort);
 
-			ByteArray bobIP = m_endpoint.getRawIP();
-			unsigned short bobPort = m_endpoint.getPort();
-			sigPipe.write(bobIP.data(), bobIP.size());
-			sigPipe.write(bobPort >> 8);
-			sigPipe.write(bobPort);
+			const ByteArray& theirIP = m_theirEndpoint.getRawIP();
+			unsigned short theirPort = m_theirEndpoint.getPort();
+			sigPipe.write(theirIP.data(), theirIP.size());
+			sigPipe.write(theirPort >> 8);
+			sigPipe.write(theirPort);
 
 			sigPipe.write(m_relayTag.data(), m_relayTag.size());
 

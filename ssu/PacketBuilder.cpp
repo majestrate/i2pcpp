@@ -24,28 +24,28 @@ namespace i2pcpp {
 			return s;
 		}
 
-		PacketPtr PacketBuilder::buildSessionRequest(OutboundEstablishmentStatePtr const &state) const
+		PacketPtr PacketBuilder::buildSessionRequest(EstablishmentStatePtr const &state) const
 		{
-			PacketPtr s = buildHeader(state->getEndpoint(), Packet::PayloadType::SESSION_REQUEST << 4);
+			PacketPtr s = buildHeader(state->getTheirEndpoint(), Packet::PayloadType::SESSION_REQUEST << 4);
 
 			ByteArray& sr = s->getData();
 
-			ByteArray dhx = state->getDHX();
-			sr.insert(sr.end(), dhx.begin(), dhx.end());
+			ByteArray myDH = state->getMyDH();
+			sr.insert(sr.end(), myDH.begin(), myDH.end());
 
-			ByteArray ip = state->getEndpoint().getRawIP();
+			ByteArray ip = state->getTheirEndpoint().getRawIP();
 			sr.insert(sr.end(), (unsigned char)ip.size());
 			sr.insert(sr.end(), ip.begin(), ip.end());
-			unsigned short port = state->getEndpoint().getPort();
+			unsigned short port = state->getTheirEndpoint().getPort();
 			sr.insert(sr.end(), (port >> 8));
 			sr.insert(sr.end(), port);
 
 			return s;
 		}
 
-		PacketPtr PacketBuilder::buildSessionConfirmed(OutboundEstablishmentStatePtr const &state) const
+		PacketPtr PacketBuilder::buildSessionConfirmed(EstablishmentStatePtr const &state) const
 		{
-			PacketPtr s = buildHeader(state->getEndpoint(), Packet::PayloadType::SESSION_CONFIRMED << 4);
+			PacketPtr s = buildHeader(state->getTheirEndpoint(), Packet::PayloadType::SESSION_CONFIRMED << 4);
 
 			ByteArray& sc = s->getData();
 

@@ -5,7 +5,7 @@
 #include <thread>
 #include <memory>
 
-#include "OutboundEstablishmentState.h"
+#include "EstablishmentState.h"
 #include "Packet.h"
 #include "PeerState.h"
 #include "InboundMessageFragments.h"
@@ -29,8 +29,8 @@ namespace i2pcpp {
 				void stopHook() { m_imf.shutdown(); }
 
 				void handlePacket(PacketPtr const &packet,	PeerStatePtr const &state);
-				void handlePacket(PacketPtr const &packet, OutboundEstablishmentStatePtr const &state);
-				void handleSessionCreated(ByteArray::const_iterator &dataItr, OutboundEstablishmentStatePtr const &state);
+				void handlePacketOutbound(PacketPtr const &packet, EstablishmentStatePtr const &state);
+				void handleSessionCreated(ByteArray::const_iterator &dataItr, EstablishmentStatePtr const &state);
 				void startMessageReceiver();
 
 				UDPTransport &m_transport;

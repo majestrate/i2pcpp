@@ -1,9 +1,17 @@
-#include "Router.h"
-
 #include <iostream>
 #include <thread>
+#include <csignal>
 
 #include <botan/botan.h>
+
+#include "Router.h"
+
+bool keepRunning = true;
+
+void sigint_handler(int sig)
+{
+	keepRunning = false;
+}
 
 int main()
 {
@@ -12,13 +20,19 @@ int main()
 
 		i2pcpp::Router r("i2p.db");
 
+		std::signal(SIGINT, &sigint_handler);
+
 		r.start();
 
-		std::this_thread::sleep_for(std::chrono::seconds(5));
+		while(keepRunning) {
+			std::this_thread::sleep_for(std::chrono::seconds(1));
+		}
 
 		std::cerr << "Shutting down...\n";
+
 		r.stop();
-	} catch (std::runtime_error &e) {
+
+	} catch (std::system_error &e) {
 		std::cerr << "main thread exception: " << e.what() << "\n";
 	}
 
