@@ -10,10 +10,12 @@
 
 namespace i2pcpp {
 	namespace SSU {
+		PacketHandler::PacketHandler(UDPTransport &transport) : m_transport(transport), m_imf(transport.m_ctx) {}
+
 		void PacketHandler::loop()
 		{
-			PacketQueue& pq = m_transport.getInboundQueue();
-			EstablishmentManager& em = m_transport.getEstablisher();
+			PacketQueue& pq = m_transport.m_inboundQueue;
+			EstablishmentManager& em = m_transport.m_establisher;
 
 			while(m_keepRunning) {
 				pq.wait();

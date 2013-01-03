@@ -8,6 +8,7 @@
 #include "../datatypes/RouterInfo.h"
 #include "../ssu/PacketBuilder.h"
 #include "../Database.h"
+#include "../OutboundMessageDispatcher.h"
 
 #include <iostream>
 
@@ -42,14 +43,14 @@ namespace i2pcpp {
 
 				std::cerr << "RouterInfo RouterAddress[0] host: " << ri.getAddress(0).getOptions().getValue("host") << "\n";
 
-				if(ri.verifySignature(m_ctx)) {
-					m_ctx.getDatabase().setRouterInfo(ri);
+				if(ri.verifySignature(m_ctx.getDSAParameters())) {
+					m_ctx.setRouterInfo(ri);
 					std::cerr << "Added RouterInfo to DB\n";
 				} else
 					std::cerr << "RouterInfo verification failed\n";
 
-				RouterInfo myInfo(m_ctx.getRouterIdentity(), Date(), Mapping(), ByteArray(40));
-				myInfo.sign(m_ctx);
+				RouterInfo myInfo(m_ctx.getMyRouterIdentity(), Date(), Mapping());
+				myInfo.sign(m_ctx.getSigningKey());
 
 				Botan::Pipe gzPipe(new Botan::Zlib_Compression);
 				gzPipe.start_msg();
@@ -60,9 +61,8 @@ namespace i2pcpp {
 				ByteArray gzInfoBytes(size);
 				gzPipe.read(gzInfoBytes.data(), size);
 
-				I2NP::DatabaseStore mydsm(m_ctx.getRouterIdentity().getHash(), I2NP::DatabaseStore::DataType::ROUTER_INFO, 0, gzInfoBytes);
-				/*SSU::PacketBuilder pb;
-				SSU::PacketPtr p = pb.buildData(ps, mydsm);*/
+				/*I2NP::MessagePtr mydsm(new I2NP::DatabaseStore(myInfo.getIdentity().getHash(), I2NP::DatabaseStore::DataType::ROUTER_INFO, 0, gzInfoBytes));
+				m_ctx.getOutMsgDispatcher().sendMessage(m_from, mydsm);*/
 
 			} catch(Botan::Decoding_Error &e) {
 				std::cerr << "Jobs::DatabaseStore: Decoding error: " << e.what() << "\n";

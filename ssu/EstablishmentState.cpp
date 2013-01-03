@@ -11,7 +11,7 @@
 
 namespace i2pcpp {
 	namespace SSU {
-		EstablishmentState::EstablishmentState(RouterContext &ctx, RouterInfo const &ri, bool isInbound) : m_context(ctx), m_routerInfo(ri)
+		EstablishmentState::EstablishmentState(RouterContext &ctx, RouterInfo const &ri, bool isInbound) : m_ctx(ctx), m_routerInfo(ri)
 		{
 			Botan::AutoSeeded_RNG rng;
 			Botan::DL_Group shared_domain("modp/ietf/2048");
@@ -43,7 +43,7 @@ namespace i2pcpp {
 		const ByteArray EstablishmentState::calculateConfirmationSignature(const unsigned int signedOn) const
 		{
 			Botan::AutoSeeded_RNG rng;
-			const Botan::DSA_PrivateKey *key = m_context.getSigningKey();
+			const Botan::DSA_PrivateKey *key = m_ctx.getSigningKey();
 
 			Botan::Pipe sigPipe(new Botan::Hash_Filter("SHA-1"), new Botan::PK_Signer_Filter(new Botan::PK_Signer(*key, "Raw"), rng));
 			sigPipe.start_msg();
@@ -91,7 +91,7 @@ namespace i2pcpp {
 			Botan::secure_vector<Botan::byte> decryptedSig(decryptedSize);
 			cipherPipe.read(decryptedSig.data(), decryptedSize);
 
-			const Botan::DL_Group& group = m_context.getDSAParameters();
+			const Botan::DL_Group& group = m_ctx.getDSAParameters();
 
 			ByteArray dsaKeyBytes = m_routerInfo.getIdentity().getSigningKey();
 			Botan::DSA_PublicKey dsaKey(group, Botan::BigInt(dsaKeyBytes.data(), dsaKeyBytes.size()));

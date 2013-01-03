@@ -3,13 +3,14 @@
 #include "PacketHandler.h"
 #include "UDPTransport.h"
 
+#include "../InboundMessageDispatcher.h"
 #include "../i2np/Message.h"
 
 namespace i2pcpp {
 	namespace SSU {
 		void MessageReceiver::loop()
 		{
-			InboundMessageDispatcher &imd = m_transport.getInMsgDispatcher();
+			const InboundMessageDispatcher &imd = m_ctx.getInMsgDispatcher();
 
 			while(m_keepRunning)
 			{
@@ -29,7 +30,7 @@ namespace i2pcpp {
 				if(m) {
 					std::cerr << "MessageReceiver[" << ims->getMsgId() << "]: This looks like a message of type: " << (int)m->getType() << "\n";
 
-					imd.addMessage(ims->getRouterHash(), m);
+					imd.receiveMessage(ims->getRouterHash(), m);
 				}
 			}
 		}

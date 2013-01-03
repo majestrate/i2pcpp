@@ -16,7 +16,7 @@ void sigint_handler(int sig)
 int main()
 {
 	try {
-		Botan::LibraryInitializer init;
+		Botan::LibraryInitializer init("thread_safe=true");
 
 		i2pcpp::Router r("i2p.db");
 
@@ -32,7 +32,7 @@ int main()
 
 		r.stop();
 
-	} catch (std::system_error &e) {
+	} catch (std::runtime_error &e) {
 		std::cerr << "main thread exception: " << e.what() << "\n";
 	}
 

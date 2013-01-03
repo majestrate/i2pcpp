@@ -12,7 +12,7 @@ namespace i2pcpp {
 	namespace SSU {
 		class InboundMessageFragments {
 			public:
-				InboundMessageFragments(UDPTransport &transport) : m_messageReceiver(transport) {}
+				InboundMessageFragments(RouterContext &ctx) : m_messageReceiver(ctx) {}
 
 				void begin() { m_messageReceiver.start(); }
 				void shutdown() { m_messageReceiver.stop(); }

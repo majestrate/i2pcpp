@@ -8,7 +8,8 @@ namespace i2pcpp {
 	namespace SSU {
 		void UDPSender::loop()
 		{
-			PacketQueue& oq = m_transport.getOutboundQueue();
+			PacketQueue& oq = m_transport.m_outboundQueue;
+			boost::asio::ip::udp::socket& s = m_transport.m_socket;
 
 			while(m_keepRunning) {
 				oq.wait();
@@ -20,7 +21,6 @@ namespace i2pcpp {
 				ByteArray pdata = p->getData();
 				Endpoint ep = p->getEndpoint();
 
-				boost::asio::ip::udp::socket& s = m_transport.getSocket();
 				if(s.is_open())
 					s.send_to(boost::asio::buffer(pdata.data(), pdata.size()), ep.getUDPEndpoint());
 			}

@@ -6,9 +6,9 @@
 #include <atomic>
 #include <memory>
 
-#include "RouterContext.h"
-
 namespace i2pcpp {
+	class RouterContext;
+
 	class Job {
 		public:
 			Job(RouterContext &ctx) : m_id(m_idSource++), m_ctx(ctx) {}

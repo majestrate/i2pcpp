@@ -51,7 +51,7 @@ namespace i2pcpp {
 
 			sc.insert(sc.end(), 0x01);
 
-			ByteArray idBytes = state->getContext().getRouterIdentity().getBytes();
+			ByteArray idBytes = state->getContext().getMyRouterIdentity().getBytes();
 			unsigned short size = idBytes.size();
 			sc.insert(sc.end(), size >> 8);
 			sc.insert(sc.end(), size);

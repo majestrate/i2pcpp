@@ -7,7 +7,7 @@
 #include <boost/asio.hpp>
 
 #include "../datatypes/Endpoint.h"
-#include "../InboundMessageDispatcher.h"
+#include "../Transport.h"
 
 #include "UDPReceiver.h"
 #include "UDPSender.h"
@@ -17,27 +17,23 @@
 #include "Packet.h"
 
 namespace i2pcpp {
-	class RouterContext;
-
 	namespace SSU {
 		typedef LockingQueue<PacketPtr> PacketQueue;
 
-		class UDPTransport {
+		class UDPTransport : public Transport {
+			friend class UDPReceiver;
+			friend class UDPSender;
+			friend class PacketHandler;
+			friend class EstablishmentManager;
+
 			public:
-				UDPTransport(RouterContext &ctx, InboundMessageDispatcher &imd);
+				UDPTransport(RouterContext &ctx);
 
-				PacketQueue& getInboundQueue() { return m_inboundQueue; }
-				PacketQueue& getOutboundQueue() { return m_outboundQueue; }
-				EstablishmentManager& getEstablisher() { return m_establisher; }
-				InboundMessageDispatcher& getInMsgDispatcher() { return m_inMsgDispatcher; }
-				boost::asio::ip::udp::socket& getSocket() { return m_socket; }
-
-				void addRemotePeer(PeerStatePtr const &ps);
-				PeerStatePtr getRemotePeer(Endpoint const &ep);
 				void begin(Endpoint const &ep);
+				void connect(RouterHash const &rh);
+				void send(RouterHash const &rh, ByteArray const &data);
+				void disconnect(RouterHash const &rh);
 				void shutdown();
-				void send(PacketPtr const &p);
-				RouterContext& getContext() const { return m_ctx; }
 
 			private:
 				void startReceiver();
@@ -45,12 +41,12 @@ namespace i2pcpp {
 				void startHandler();
 				void startEstablisher();
 
+				void addRemotePeer(PeerStatePtr const &ps);
+				PeerStatePtr getRemotePeer(Endpoint const &ep);
+
 				boost::asio::io_service m_ios;
 				boost::asio::ip::udp::endpoint m_endpoint;
 				boost::asio::ip::udp::socket m_socket;
-
-				RouterContext &m_ctx;
-				InboundMessageDispatcher& m_inMsgDispatcher;
 
 				UDPReceiver m_receiver;
 				UDPSender m_sender;

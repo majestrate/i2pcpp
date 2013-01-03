@@ -32,14 +32,18 @@ namespace i2pcpp {
 
 	RouterInfo Database::getRouterInfo(std::string const &routerHash)
 	{
+		return getRouterInfo(Base64::decode(routerHash));
+	}
+
+	RouterInfo Database::getRouterInfo(RouterHash const &routerHash)
+	{
 		std::string select = "SELECT encryption_key, signing_key, certificate, published, signature FROM routers WHERE id = ?";
 		sqlite3_stmt *statement, *options_statement;
 
 		int rc;
 		if((rc = sqlite3_prepare(m_db, select.c_str(), -1, &statement, NULL)) != SQLITE_OK) {} // TODO Exception
 
-		ByteArray hashBytes = Base64::decode(routerHash);
-		sqlite3_bind_blob(statement, 1, hashBytes.data(), hashBytes.size(), SQLITE_STATIC);
+		sqlite3_bind_blob(statement, 1, routerHash.data(), routerHash.size(), SQLITE_STATIC);
 
 		ByteArray encryptionKey, signingKey, certificate, published, signature;
 		rc = sqlite3_step(statement);
@@ -80,7 +84,7 @@ namespace i2pcpp {
 		select = "SELECT name, value FROM router_options WHERE router_id = ?";
 		if(sqlite3_prepare(m_db, select.c_str(), -1, &statement, NULL) != SQLITE_OK) {} // TODO Exception
 
-		sqlite3_bind_blob(statement, 1, hashBytes.data(), hashBytes.size(), SQLITE_STATIC);
+		sqlite3_bind_blob(statement, 1, routerHash.data(), routerHash.size(), SQLITE_STATIC);
 
 		while(sqlite3_step(statement) == SQLITE_ROW) {
 			char *bytes;
@@ -106,7 +110,7 @@ namespace i2pcpp {
 		select = "SELECT \"index\", cost, expiration, transport FROM router_addresses WHERE router_id = ?";
 		if(sqlite3_prepare(m_db, select.c_str(), -1, &statement, NULL) != SQLITE_OK) {} // TODO Exception
 
-		sqlite3_bind_blob(statement, 1, hashBytes.data(), hashBytes.size(), SQLITE_STATIC);
+		sqlite3_bind_blob(statement, 1, routerHash.data(), routerHash.size(), SQLITE_STATIC);
 
 		while(sqlite3_step(statement) == SQLITE_ROW) {
 			char *bytes;
@@ -128,7 +132,7 @@ namespace i2pcpp {
 			select = "SELECT name, value FROM router_address_options WHERE router_id = ? AND \"index\" = ? ORDER BY name ASC";
 			if(sqlite3_prepare(m_db, select.c_str(), -1, &options_statement, NULL) != SQLITE_OK) {} // TODO Exception
 
-			sqlite3_bind_blob(options_statement, 1, hashBytes.data(), hashBytes.size(), SQLITE_STATIC);
+			sqlite3_bind_blob(options_statement, 1, routerHash.data(), routerHash.size(), SQLITE_STATIC);
 			sqlite3_bind_int(options_statement, 2, index);
 
 			Mapping address_options;

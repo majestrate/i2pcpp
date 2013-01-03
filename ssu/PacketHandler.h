@@ -21,7 +21,7 @@ namespace i2pcpp {
 
 		class PacketHandler : public Thread {
 			public:
-				PacketHandler(UDPTransport &transport) : m_transport(transport), m_imf(transport) {}
+				PacketHandler(UDPTransport &transport);
 
 			private:
 				void startHook() { m_imf.begin(); }
@@ -31,7 +31,6 @@ namespace i2pcpp {
 				void handlePacket(PacketPtr const &packet,	PeerStatePtr const &state);
 				void handlePacketOutbound(PacketPtr const &packet, EstablishmentStatePtr const &state);
 				void handleSessionCreated(ByteArray::const_iterator &dataItr, EstablishmentStatePtr const &state);
-				void startMessageReceiver();
 
 				UDPTransport &m_transport;
 				InboundMessageFragments m_imf;

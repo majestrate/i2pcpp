@@ -7,7 +7,7 @@
 #include "Database.h"
 
 namespace i2pcpp {
-	RouterContext::RouterContext(Database &db) : m_db(db)
+	RouterContext::RouterContext(Database &db, InboundMessageDispatcher &imd, OutboundMessageDispatcher &omd) : m_db(db), m_inMsgDispatcher(imd), m_outMsgDispatcher(omd)
 	{
 		Botan::AutoSeeded_RNG rng;
 
@@ -30,5 +30,15 @@ namespace i2pcpp {
 		m_routerIdentity = RouterIdentity(encryptionKeyBytes, signingKeyBytes, Certificate());
 
 		std::cerr << "My router hash: " << m_routerIdentity.getHashEncoded() << "\n";
+	}
+
+	RouterInfo RouterContext::getRouterInfo(RouterHash const &rh) const
+	{
+		return m_db.getRouterInfo(rh);
+	}
+
+	void RouterContext::setRouterInfo(RouterInfo const &ri) const
+	{
+		m_db.setRouterInfo(ri);
 	}
 }

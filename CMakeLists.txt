@@ -17,9 +17,11 @@ set(SRCS
 	JobQueue.cpp
 	JobRunner.cpp
 	MessageHandler.cpp
+	OutboundMessageDispatcher.cpp
 	Router.cpp
 	RouterContext.cpp
 	Thread.cpp
+	Transport.cpp
 	handlers/DatabaseStore.cpp
 	handlers/DeliveryStatus.cpp
 	i2np/DatabaseStore.cpp
@@ -31,7 +33,8 @@ set(SRCS
 	ssu/EstablishmentState.cpp
 	ssu/InboundMessageFragments.cpp
 	ssu/InboundMessageState.cpp
-	ssu/InboundEstablishmentState.cpp
+	ssu/MessageSender.cpp
+	ssu/OutboundMessageState.cpp
 	ssu/PacketHandler.cpp
 	ssu/PeerState.cpp
 	ssu/MessageReceiver.cpp

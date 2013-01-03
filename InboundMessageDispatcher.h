@@ -15,7 +15,7 @@ namespace i2pcpp {
 		public:
 			InboundMessageDispatcher(JobQueue &jq) : m_jobQueue(jq) {}
 
-			void addMessage(RouterHash const &from, I2NP::MessagePtr const &msg);
+			void receiveMessage(RouterHash const &from, I2NP::MessagePtr const &msg) const;
 			void registerHandler(I2NP::Message::Type const mtype, MessageHandlerPtr const &handler);
 			void unregisterHandler(I2NP::Message::Type const mtype);
 

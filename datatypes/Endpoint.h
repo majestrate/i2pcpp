@@ -43,7 +43,7 @@ struct std::hash<i2pcpp::Endpoint> {
 	public:
 		size_t operator()(const i2pcpp::Endpoint &ep) const
 		{
-			std::hash<string> f;
+			std::hash<std::string> f;
 			return f(ep.toString());
 		}
 };

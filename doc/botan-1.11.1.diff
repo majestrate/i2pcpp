@@ -1,0 +1,144 @@
+diff -Naur Botan-1.11.1.orig/botan_version.py Botan-1.11.1/botan_version.py
+--- Botan-1.11.1.orig/botan_version.py	2012-10-30 16:20:04.000000000 -0400
++++ Botan-1.11.1/botan_version.py	2012-11-26 16:07:23.620843467 -0500
+@@ -3,6 +3,7 @@
+ release_minor = 11
+ release_patch = 1
+ release_so_abi_rev = 0
++release_datestamp = 20121030
+ 
+ # These are set by the distribution script
+ release_vc_rev = 'mtn:42ca51eeaa472a50f88fe5a8c8a8acb9761a673b'
+diff -Naur Botan-1.11.1.orig/src/filters/bzip2/bzip2.cpp Botan-1.11.1/src/filters/bzip2/bzip2.cpp
+--- Botan-1.11.1.orig/src/filters/bzip2/bzip2.cpp	2012-10-30 16:20:04.000000000 -0400
++++ Botan-1.11.1/src/filters/bzip2/bzip2.cpp	2013-01-02 14:56:11.448658814 -0500
+@@ -14,6 +14,7 @@
+ #include <cstring>
+ #define BZ_NO_STDIO
+ #include <bzlib.h>
++#include <cstdlib>
+ 
+ namespace Botan {
+ 
+diff -Naur Botan-1.11.1.orig/src/filters/lzma/lzma.cpp Botan-1.11.1/src/filters/lzma/lzma.cpp
+--- Botan-1.11.1.orig/src/filters/lzma/lzma.cpp	2012-10-30 16:20:04.000000000 -0400
++++ Botan-1.11.1/src/filters/lzma/lzma.cpp	2013-01-02 14:56:26.486658357 -0500
+@@ -14,6 +14,7 @@
+ #include <cstring>
+ #include <map>
+ #include <lzma.h>
++#include <cstdlib>
+ 
+ namespace Botan {
+ 
+diff -Naur Botan-1.11.1.orig/src/filters/pk_filts/pk_filts.cpp Botan-1.11.1/src/filters/pk_filts/pk_filts.cpp
+--- Botan-1.11.1.orig/src/filters/pk_filts/pk_filts.cpp	2012-10-30 16:20:04.000000000 -0400
++++ Botan-1.11.1/src/filters/pk_filts/pk_filts.cpp	2013-01-03 02:01:17.065935314 -0500
+@@ -43,6 +43,11 @@
+    buffer.clear();
+    }
+ 
++std::string PK_Signer_Filter::name() const
++   {
++      return "PK_Signer_Filter";
++   }
++
+ /*
+ * Add more data
+ */
+@@ -59,6 +64,11 @@
+    send(signer->signature(rng));
+    }
+ 
++std::string PK_Verifier_Filter::name() const
++   {
++      return "PK_Verifier_Filter";
++   }
++
+ /*
+ * Add more data
+ */
+diff -Naur Botan-1.11.1.orig/src/filters/pk_filts/pk_filts.h Botan-1.11.1/src/filters/pk_filts/pk_filts.h
+--- Botan-1.11.1.orig/src/filters/pk_filts/pk_filts.h	2012-10-30 16:20:04.000000000 -0400
++++ Botan-1.11.1/src/filters/pk_filts/pk_filts.h	2013-01-03 01:58:55.769658279 -0500
+@@ -52,6 +52,7 @@
+ class BOTAN_DLL PK_Signer_Filter : public Filter
+    {
+    public:
++      std::string name() const;
+       void write(const byte[], size_t);
+       void end_msg();
+ 
+@@ -71,6 +72,7 @@
+ class BOTAN_DLL PK_Verifier_Filter : public Filter
+    {
+    public:
++      std::string name() const;
+       void write(const byte[], size_t);
+       void end_msg();
+ 
+diff -Naur Botan-1.11.1.orig/src/filters/zlib/zlib.cpp Botan-1.11.1/src/filters/zlib/zlib.cpp
+--- Botan-1.11.1.orig/src/filters/zlib/zlib.cpp	2012-10-30 16:20:04.000000000 -0400
++++ Botan-1.11.1/src/filters/zlib/zlib.cpp	2013-01-03 02:00:34.017660920 -0500
+@@ -13,6 +13,7 @@
+ #include <cstring>
+ #include <map>
+ #include <zlib.h>
++#include <cstdlib>
+ 
+ namespace Botan {
+ 
+@@ -215,7 +216,7 @@
+    clear();
+    zlib = new Zlib_Stream;
+ 
+-   if(inflateInit2(&(zlib->stream), (raw_deflate ? -15 : 15)) != Z_OK)
++   if(inflateInit2(&(zlib->stream), (raw_deflate ? -16 : 16)) != Z_OK)
+       throw Memory_Exhaustion();
+    }
+ 
+@@ -257,7 +258,12 @@
+       if(rc == Z_STREAM_END)
+          {
+          size_t read_from_block = length - zlib->stream.avail_in;
+-         start_msg();
++
++         clear();
++         zlib = new Zlib_Stream;
++         if(inflateInit2(&(zlib->stream), (raw_deflate ? -15 : 15)) != Z_OK) {
++            throw Memory_Exhaustion();
++         }
+ 
+          zlib->stream.next_in = input + read_from_block;
+          zlib->stream.avail_in = length - read_from_block;
+diff -Naur Botan-1.11.1.orig/src/pubkey/dsa/dsa.cpp Botan-1.11.1/src/pubkey/dsa/dsa.cpp
+--- Botan-1.11.1.orig/src/pubkey/dsa/dsa.cpp	2012-10-30 16:20:04.000000000 -0400
++++ Botan-1.11.1/src/pubkey/dsa/dsa.cpp	2012-11-29 08:55:44.182780144 -0500
+@@ -89,12 +89,8 @@
+          k.randomize(rng, q.bits());
+       while(k >= q);
+ 
+-      auto future_r = std::async(std::launch::async,
+-                            [&]() { return mod_q.reduce(powermod_g_p(k)); });
+-
+-      s = inverse_mod(k, q);
+-      r = future_r.get();
+-      s = mod_q.multiply(s, mul_add(x, r, i));
++      r = mod_q.reduce(powermod_g_p(k));
++      s = mod_q.multiply(inverse_mod(k, q), mul_add(x, r, i));
+       }
+ 
+    secure_vector<byte> output(2*q.bytes());
+@@ -129,11 +125,8 @@
+ 
+    s = inverse_mod(s, q);
+ 
+-   auto future_s_i = std::async(std::launch::async,
+-      [&]() { return powermod_g_p(mod_q.multiply(s, i)); });
+-
+    BigInt s_r = powermod_y_p(mod_q.multiply(s, r));
+-   BigInt s_i = future_s_i.get();
++   BigInt s_i = powermod_g_p(mod_q.multiply(s, i));
+ 
+    s = mod_p.multiply(s_i, s_r);
+ 

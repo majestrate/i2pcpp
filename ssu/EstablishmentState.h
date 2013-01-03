@@ -37,7 +37,7 @@ namespace i2pcpp {
 				State getState() { return m_state; }
 				std::mutex& getMutex() { return m_mutex; }
 				const Endpoint& getTheirEndpoint() { return m_theirEndpoint; }
-				const RouterContext& getContext() const { return m_context; }
+				const RouterContext& getContext() const { return m_ctx; }
 				const RouterIdentity& getIdentity() const { return m_routerInfo.getIdentity(); }
 
 				void setIV(ByteArray::const_iterator iv_begin, ByteArray::const_iterator iv_end) { m_iv = ByteArray(iv_begin, iv_end); }
@@ -74,7 +74,7 @@ namespace i2pcpp {
 
 			private:
 				std::mutex m_mutex;
-				RouterContext &m_context;
+				RouterContext &m_ctx;
 
 				Botan::DH_PrivateKey *m_dhPrivateKey;
 				ByteArray m_theirDH;

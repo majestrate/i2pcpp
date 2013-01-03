@@ -3,11 +3,11 @@
 #include <iostream>
 
 namespace i2pcpp {
-	void InboundMessageDispatcher::addMessage(RouterHash const &from, I2NP::MessagePtr const &msg)
+	void InboundMessageDispatcher::receiveMessage(RouterHash const &from, I2NP::MessagePtr const &msg) const
 	{
 		I2NP::Message::Type mtype = msg->getType();
 		if(m_msgHandlers.count(mtype) > 0) {
-			JobPtr j = m_msgHandlers[mtype]->createJob(from, msg);
+			JobPtr j = (m_msgHandlers.find(mtype))->second->createJob(from, msg);
 			if(j)
 				m_jobQueue.enqueue(j);
 		}	else

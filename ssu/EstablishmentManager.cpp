@@ -63,7 +63,7 @@ namespace i2pcpp {
 		{
 			std::lock_guard<std::mutex> lock(m_stateTableMutex);
 
-			EstablishmentStatePtr es(new EstablishmentState(m_transport.getContext(), ri, false));
+			EstablishmentStatePtr es(new EstablishmentState(m_transport.m_ctx, ri, false));
 			m_stateTable[es->getTheirEndpoint()] = es;
 			es->introduced();
 			addWork(es);
@@ -74,7 +74,7 @@ namespace i2pcpp {
 			PacketPtr p = m_builder.buildSessionRequest(state);
 			p->encrypt(state->getSessionKey(), state->getSessionKey());
 			state->requestSent();
-			m_transport.send(p);
+			m_transport.m_outboundQueue.enqueue(p);
 		}
 
 		void EstablishmentManager::processCreated(EstablishmentStatePtr const &state)
@@ -88,9 +88,8 @@ namespace i2pcpp {
 			}
 
 			const ByteArray& dhSecret = state->getDHSecret();
-			SessionKey newKey, newMacKey;
+			SessionKey newKey(dhSecret), newMacKey;
 
-			copy(dhSecret.begin(), dhSecret.begin() + 32, newKey.begin());
 			state->setSessionKey(newKey);
 
 			copy(dhSecret.begin() + 32, dhSecret.begin() + 32 + 32, newMacKey.begin());
@@ -109,7 +108,7 @@ namespace i2pcpp {
 
 			PacketPtr p = m_builder.buildSessionConfirmed(state);
 			p->encrypt(state->getSessionKey(), state->getMacKey());
-			m_transport.send(p);
+			m_transport.m_outboundQueue.enqueue(p);
 
 			state->confirmedCompletely();
 		}

@@ -5,21 +5,15 @@
 #include "PacketHandler.h"
 #include "EstablishmentManager.h"
 
-#include "../Database.h"
-
 #include <iostream>
 
 #include "../util/Base64.h"
 
-// Temporary
-const std::string peer_hash = "zhPja0k1cboGnHbhqO50hNPTVHIRE8b4GMwi7Htey~E=";
-
 namespace i2pcpp {
 	namespace SSU {
-		UDPTransport::UDPTransport(RouterContext &ctx, InboundMessageDispatcher &imd) :
+		UDPTransport::UDPTransport(RouterContext &ctx) :
+			Transport(ctx),
 			m_socket(m_ios),
-			m_ctx(ctx),
-			m_inMsgDispatcher(imd),
 			m_receiver(*this),
 			m_sender(*this),
 			m_handler(*this),
@@ -35,10 +29,20 @@ namespace i2pcpp {
 			m_sender.start();
 			m_handler.start();
 			m_establisher.start();
+		}
 
-			// Temporary
-			RouterInfo ri = m_ctx.getDatabase().getRouterInfo(peer_hash);
+		void UDPTransport::connect(RouterHash const &rh)
+		{
+			RouterInfo ri = m_ctx.getRouterInfo(rh);
 			m_establisher.establish(ri);
+		}
+
+		void UDPTransport::send(RouterHash const &rh, ByteArray const &data)
+		{
+		}
+
+		void UDPTransport::disconnect(RouterHash const &rh)
+		{
 		}
 
 		void UDPTransport::addRemotePeer(PeerStatePtr const &ps)
@@ -71,11 +75,6 @@ namespace i2pcpp {
 			m_sender.stop();
 			m_handler.stop();
 			m_establisher.stop();
-		}
-
-		void UDPTransport::send(PacketPtr const &p)
-		{
-			m_outboundQueue.enqueue(p);
 		}
 	}
 }

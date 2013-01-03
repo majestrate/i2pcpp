@@ -8,13 +8,14 @@
 #include "../util/LockingQueue.h"
 
 namespace i2pcpp {
+	class RouterContext;
+
 	namespace SSU {
-		class UDPTransport;
-		typedef LockingQueue<InboundMessageStatePtr> MessageQueue;
+		typedef LockingQueue<InboundMessageStatePtr> InboundMessageQueue;
 
 		class MessageReceiver : public Thread {
 			public:
-				MessageReceiver(UDPTransport &transport) : m_transport(transport) {}
+				MessageReceiver(RouterContext &ctx) : m_ctx(ctx) {}
 
 				void addMessage(InboundMessageStatePtr const &ims);
 
@@ -22,9 +23,9 @@ namespace i2pcpp {
 				void loop();
 				void stopHook() { m_queue.finish(); }
 
-				UDPTransport& m_transport;
+				RouterContext& m_ctx;
 
-				MessageQueue m_queue;
+				InboundMessageQueue m_queue;
 		};
 	}
 }
