@@ -50,9 +50,20 @@ namespace i2pcpp {
 				} else
 					std::cerr << "RouterInfo verification failed\n";
 
-				Mapping m;
-				m.setValue("netId", "2");
-				RouterInfo myInfo(m_ctx.getMyRouterIdentity(), Date(), m);
+				Mapping am;
+				am.setValue("caps", "BC");
+				am.setValue("host", "127.0.0.1");
+				am.setValue("key", m_ctx.getMyRouterIdentity().getHashEncoded());
+				am.setValue("port", "27333");
+				RouterAddress a(5, Date(0), "SSU", am);
+				
+				Mapping rm;
+				rm.setValue("coreVersion", "0.9.4");
+				rm.setValue("netId", "2");
+				rm.setValue("router.version", "0.9.4");
+				rm.setValue("stat_uptime", "90m");
+				RouterInfo myInfo(m_ctx.getMyRouterIdentity(), Date(), rm);
+				myInfo.addAddress(a);
 				myInfo.sign(m_ctx.getSigningKey());
 
 				Botan::Pipe gzPipe(new Botan::Zlib_Compression);

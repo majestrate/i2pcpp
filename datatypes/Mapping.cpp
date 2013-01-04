@@ -56,7 +56,7 @@ namespace i2pcpp {
 
 		uint16_t size = ret.size();
 		ret.insert(ret.begin(), size);
-		ret.insert(ret.begin(), size << 8);
+		ret.insert(ret.begin(), size >> 8);
 
 		return ret;
 	}

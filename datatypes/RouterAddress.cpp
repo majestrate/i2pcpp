@@ -17,14 +17,14 @@ namespace i2pcpp {
 	{
 		ByteArray b;
 
-		ByteArray expiration = m_expiration.getBytes();
-		ByteArray options = m_options.getBytes();
+		const ByteArray& expiration = m_expiration.getBytes();
+		const ByteArray& options = m_options.getBytes();
 
 		b.insert(b.end(), m_cost);
-		b.insert(b.end(), expiration.begin(), expiration.end());
+		b.insert(b.end(), expiration.cbegin(), expiration.cend());
 		b.insert(b.end(), m_transport.size());
-		b.insert(b.end(), m_transport.begin(), m_transport.end());
-		b.insert(b.end(), options.begin(), options.end());
+		b.insert(b.end(), m_transport.cbegin(), m_transport.cend());
+		b.insert(b.end(), options.cbegin(), options.cend());
 
 		return b;
 	}

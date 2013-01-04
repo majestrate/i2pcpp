@@ -79,9 +79,9 @@ namespace i2pcpp {
 	{
 		ByteArray b;
 
-		ByteArray idBytes = m_identity.getBytes();
-		ByteArray pubBytes = m_published.getBytes();
-		ByteArray optBytes = m_options.getBytes();
+		const ByteArray& idBytes = m_identity.getBytes();
+		const ByteArray& pubBytes = m_published.getBytes();
+		const ByteArray& optBytes = m_options.getBytes();
 
 		b.insert(b.end(), idBytes.cbegin(), idBytes.cend());
 
@@ -89,7 +89,7 @@ namespace i2pcpp {
 
 		b.insert(b.end(), m_addresses.size());
 		for(auto a: m_addresses) {
-			ByteArray addr = a.getBytes();
+			const ByteArray& addr = a.getBytes();
 			b.insert(b.end(), addr.cbegin(), addr.cend());
 		}
 

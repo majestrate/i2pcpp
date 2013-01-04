@@ -6,6 +6,7 @@ namespace i2pcpp {
 		m_type = (Type)*(certItr++);
 	
 		uint16_t size = (*(certItr++) << 8) | *(certItr++);
+		m_payload.resize(size);
 		copy(certItr, certItr + size, m_payload.begin()), certItr += size;
 	}
 
