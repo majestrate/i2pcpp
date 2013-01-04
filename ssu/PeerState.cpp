@@ -2,7 +2,7 @@
 
 namespace i2pcpp {
 	namespace SSU {
-		InboundMessageStatePtr PeerState::getInboundMessageState(const unsigned long msgId)
+		InboundMessageStatePtr PeerState::getInboundMessageState(const uint32_t msgId)
 		{
 			InboundMessageStatePtr ims;
 

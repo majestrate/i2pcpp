@@ -7,6 +7,7 @@
 #include "MessageReceiver.h"
 
 #include <iostream>
+#include <iomanip>
 
 namespace i2pcpp {
 	namespace SSU {
@@ -65,7 +66,9 @@ namespace i2pcpp {
 			switch(ptype) {
 				case Packet::DATA:
 					std::cerr << "PacketHandler[PS]: data received from " << state->getEndpoint().toString() << ":\n";
-					m_imf.receiveData(dataItr, state);
+					for(auto c: data) std::cerr << std::setw(2) << std::setfill('0') << std::hex << (int)c << std::setw(0) << std::dec;
+				std::cerr << "\n";
+					m_imf.receiveData(state, dataItr);
 					break;
 			}
 

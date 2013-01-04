@@ -1,10 +1,11 @@
 #include "PacketBuilder.h"
 
-#include "../RouterContext.h"
+#include <chrono>
 
+#include "../RouterContext.h"
 #include "../datatypes/RouterIdentity.h"
 
-#include <chrono>
+#include <iostream>
 
 namespace i2pcpp {
 	namespace SSU {
@@ -15,7 +16,7 @@ namespace i2pcpp {
 
 			data.insert(data.begin(), flag);
 
-			unsigned int timestamp = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+			uint32_t timestamp = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 			data.insert(data.end(), timestamp >> 24);
 			data.insert(data.end(), timestamp >> 16);
 			data.insert(data.end(), timestamp >> 8);
@@ -36,7 +37,7 @@ namespace i2pcpp {
 			ByteArray ip = state->getTheirEndpoint().getRawIP();
 			sr.insert(sr.end(), (unsigned char)ip.size());
 			sr.insert(sr.end(), ip.begin(), ip.end());
-			unsigned short port = state->getTheirEndpoint().getPort();
+			uint16_t port = state->getTheirEndpoint().getPort();
 			sr.insert(sr.end(), (port >> 8));
 			sr.insert(sr.end(), port);
 
@@ -52,13 +53,13 @@ namespace i2pcpp {
 			sc.insert(sc.end(), 0x01);
 
 			ByteArray idBytes = state->getContext().getMyRouterIdentity().getBytes();
-			unsigned short size = idBytes.size();
+			uint16_t size = idBytes.size();
 			sc.insert(sc.end(), size >> 8);
 			sc.insert(sc.end(), size);
 
 			sc.insert(sc.end(), idBytes.begin(), idBytes.end());
 
-			unsigned int timestamp = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+			uint32_t timestamp = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 			sc.insert(sc.end(), timestamp >> 24);
 			sc.insert(sc.end(), timestamp >> 16);
 			sc.insert(sc.end(), timestamp >> 8);
@@ -79,9 +80,42 @@ namespace i2pcpp {
 			return s;
 		}
 
-		PacketPtr PacketBuilder::buildData(I2NP::MessagePtr const &msg, PeerStatePtr const &state) const
+		PacketPtr PacketBuilder::buildData(PeerStatePtr const &ps, bool wantReply, std::forward_list<OutboundMessageState::Fragment> const &fragments) const
 		{
-			PacketPtr s = buildHeader(state->getEndpoint(), Packet::PayloadType::DATA << 4);
+			PacketPtr s = buildHeader(ps->getEndpoint(), Packet::PayloadType::DATA << 4);
+
+			ByteArray& d = s->getData();
+
+			unsigned char dataFlag = 0;
+
+			if(wantReply)
+				dataFlag |= (1 << 2);
+			d.insert(d.end(), dataFlag);
+
+			d.insert(d.end(), distance(fragments.cbegin(), fragments.cend()));
+
+			for(auto f: fragments) {
+				d.insert(d.end(), f.msgId >> 24);
+				d.insert(d.end(), f.msgId >> 16);
+				d.insert(d.end(), f.msgId >> 8);
+				d.insert(d.end(), f.msgId);
+
+				uint32_t fragInfo = 0;
+
+				fragInfo |= f.fragNum << 17;
+
+				if(f.isLast)
+					fragInfo |= (1 << 16);
+
+				// TODO Exception if fragment size > 16383 (maybe)
+				fragInfo |= (f.data.size());
+
+				d.insert(d.end(), fragInfo >> 16);
+				d.insert(d.end(), fragInfo >> 8);
+				d.insert(d.end(), fragInfo);
+
+				d.insert(d.end(), f.data.cbegin(), f.data.cend());
+			}
 
 			return s;
 		}

@@ -40,7 +40,7 @@ namespace i2pcpp {
 				m_dhSecret.insert(m_dhSecret.begin(), 0x00); // 2's comlpement
 		}
 
-		const ByteArray EstablishmentState::calculateConfirmationSignature(const unsigned int signedOn) const
+		const ByteArray EstablishmentState::calculateConfirmationSignature(const uint32_t signedOn) const
 		{
 			Botan::AutoSeeded_RNG rng;
 			const Botan::DSA_PrivateKey *key = m_ctx.getSigningKey();

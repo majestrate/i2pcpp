@@ -12,23 +12,23 @@ namespace i2pcpp {
 	namespace SSU {
 		class InboundMessageState {
 			public:
-				InboundMessageState(RouterHash const &routerHash, const unsigned long msgId) : m_msgid(msgId), m_routerHash(routerHash), m_gotLast(false), m_byteTotal(0) {}
+				InboundMessageState(RouterHash const &routerHash, const uint32_t msgId) : m_msgId(msgId), m_routerHash(routerHash), m_gotLast(false), m_byteTotal(0) {}
 
 				bool addFragment(const unsigned char fragNum, ByteArray const &data, bool isLast);
 				bool isComplete() const;
 
 				std::mutex& getMutex() { return m_mutex; }
-				unsigned long getMsgId() { return m_msgid; }
+				uint32_t getMsgId() { return m_msgId; }
 				RouterHash& getRouterHash() { return m_routerHash; }
 				unsigned char getNumFragments() { return m_fragments.size(); }
-				void assemble(ByteArray &dst) const;
+				ByteArray assemble() const;
 
 			private:
-				unsigned long m_msgid;
+				uint32_t m_msgId;
 				RouterHash m_routerHash;
 				bool m_gotLast;
 				unsigned char m_lastFragment;
-				unsigned long m_byteTotal;
+				uint32_t m_byteTotal;
 
 				std::map<unsigned char, ByteArray> m_fragments;
 

@@ -18,12 +18,12 @@ namespace i2pcpp {
 				};
 
 				DatabaseStore() {}
-				DatabaseStore(std::array<unsigned char, 32> const &key, DataType type, unsigned long replyToken, ByteArray const &data) : Message(), m_key(key), m_type(type), m_replyToken(replyToken), m_data(data) {}
+				DatabaseStore(std::array<unsigned char, 32> const &key, DataType type, uint32_t replyToken, ByteArray const &data) : Message(), m_key(key), m_type(type), m_replyToken(replyToken), m_data(data) {}
 
 				Message::Type getType() const { return Message::Type::DB_STORE; }
 
 				DataType getDataType() const { return m_type; }
-				unsigned long getReplyToken() const { return m_replyToken; }
+				uint32_t getReplyToken() const { return m_replyToken; }
 				const ByteArray& getData() const { return m_data; }
 
 			protected:
@@ -33,8 +33,8 @@ namespace i2pcpp {
 			private:
 				std::array<unsigned char, 32> m_key;
 				DataType m_type;
-				unsigned long m_replyToken;
-				unsigned long m_replyTunnelId;
+				uint32_t m_replyToken;
+				uint32_t m_replyTunnelId;
 				RouterHash m_replyGateway;
 				ByteArray m_data;
 		};

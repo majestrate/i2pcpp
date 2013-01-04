@@ -1,7 +1,7 @@
 #include "Endpoint.h"
 
 namespace i2pcpp {
-	Endpoint::Endpoint(ByteArray const &addr, unsigned short port) : m_port(port)
+	Endpoint::Endpoint(ByteArray const &addr, uint16_t port) : m_port(port)
 	{
 		if(addr.size() == 4) {
 			boost::asio::ip::address_v4::bytes_type b;

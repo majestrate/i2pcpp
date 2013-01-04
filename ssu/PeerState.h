@@ -31,7 +31,7 @@ namespace i2pcpp {
 				Endpoint getEndpoint() const { return m_endpoint; }
 				const RouterIdentity& getIdentity() { return m_identity; }
 
-				InboundMessageStatePtr getInboundMessageState(const unsigned long msgId);
+				InboundMessageStatePtr getInboundMessageState(const uint32_t msgId);
 				void addInboundMessageState(InboundMessageStatePtr const &ims);
 
 			private:
@@ -39,7 +39,7 @@ namespace i2pcpp {
 				RouterIdentity m_identity;
 				bool m_isInbound;
 
-				std::unordered_map<unsigned long, InboundMessageStatePtr> m_inboundMessageStates;
+				std::unordered_map<uint32_t, InboundMessageStatePtr> m_inboundMessageStates;
 
 				SessionKey m_sessionKey;
 				SessionKey m_macKey;

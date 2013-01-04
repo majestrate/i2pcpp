@@ -2,26 +2,36 @@
 #define SSUOUTBOUNDMESSAGESTATE_H
 
 #include <vector>
-#include <mutex>
+#include <forward_list>
 
-#include "../datatypes/Endpoint.h"
+
 #include "../i2np/Message.h"
+#include "../datatypes/ByteArray.h"
+
+#include "PeerState.h"
 
 namespace i2pcpp {
 	namespace SSU {
 		class OutboundMessageState {
 			public:
-				OutboundMessageState(Endpoint const &ep, I2NP::MessagePtr const &msg) : m_endpoint(ep), m_msg(msg) {}
+				struct Fragment {
+					bool isLast;
+					uint32_t msgId;
+					uint8_t fragNum;
+					ByteArray data;
+				};
 
-				//void fragment
-				std::mutex& getMutex() { return m_mutex; }
+				OutboundMessageState(PeerStatePtr const &ps, I2NP::MessagePtr const &msg);
+
+				void fragment();
+				const PeerStatePtr getPeerState() const { return m_state; }
+				const std::forward_list<Fragment> getFragments() const;
 
 			private:
-				Endpoint m_endpoint;
+				PeerStatePtr m_state;
+				uint32_t m_msgId;
 				I2NP::MessagePtr m_msg;
 				std::vector<ByteArray> m_fragments;
-
-				std::mutex m_mutex;
 		};
 
 		typedef std::shared_ptr<OutboundMessageState> OutboundMessageStatePtr;

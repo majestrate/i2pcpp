@@ -59,7 +59,7 @@ namespace i2pcpp {
 				void setSignatureTimestamp(ByteArray::const_iterator ts_begin, ByteArray::const_iterator ts_end) { m_signatureTimestamp = ByteArray(ts_begin, ts_end); }
 				void setSignature(ByteArray::const_iterator sig_begin, ByteArray::const_iterator sig_end) { m_signature = ByteArray(sig_begin, sig_end); }
 
-				const ByteArray calculateConfirmationSignature(const unsigned int signedOn) const;
+				const ByteArray calculateConfirmationSignature(const uint32_t signedOn) const;
 				bool verifyCreationSignature() const;
 
 				void requestSent() { m_state = REQUEST_SENT; }

@@ -32,12 +32,11 @@ namespace i2pcpp {
 			return true;
 		}
 
-		void InboundMessageState::assemble(ByteArray &dst) const
+		ByteArray InboundMessageState::assemble() const
 		{
-			if(!isComplete()) return;
+			ByteArray dst(m_byteTotal);
 
-			dst.resize(m_byteTotal);
-			dst.clear();
+			if(!isComplete()) return dst;
 
 			auto itr = dst.begin();
 			for(auto fp: m_fragments)
@@ -46,6 +45,8 @@ namespace i2pcpp {
 				copy(f.cbegin(), f.cend(), itr);
 				itr += f.size();
 			}
+
+			return dst;
 		}
 	}
 }

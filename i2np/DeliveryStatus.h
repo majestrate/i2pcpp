@@ -16,7 +16,7 @@ namespace i2pcpp {
 				ByteArray getBytes() const;
 
 			private:
-				unsigned long m_msgId;
+				uint32_t m_msgId;
 				Date m_timestamp;
 		};
 	}

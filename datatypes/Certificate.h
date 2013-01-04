@@ -21,7 +21,7 @@ namespace i2pcpp {
 
 			Certificate(ByteArray::const_iterator &certItr);
 
-			unsigned short getLength() const { return (1 + 2 + m_payload.size()); }
+			uint16_t getLength() const { return (1 + 2 + m_payload.size()); }
 			ByteArray getBytes() const;
 
 		private:

@@ -36,7 +36,7 @@ namespace i2pcpp {
 				virtual ByteArray getBytes() const = 0;
 				virtual bool parse(ByteArray::const_iterator &dataItr) = 0;
 
-				unsigned long m_expiration;
+				uint32_t m_expiration;
 		};
 
 		typedef std::shared_ptr<Message> MessagePtr;

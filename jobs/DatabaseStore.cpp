@@ -11,6 +11,7 @@
 #include "../OutboundMessageDispatcher.h"
 
 #include <iostream>
+#include <iomanip>
 
 namespace i2pcpp {
 	namespace Jobs {
@@ -49,7 +50,9 @@ namespace i2pcpp {
 				} else
 					std::cerr << "RouterInfo verification failed\n";
 
-				RouterInfo myInfo(m_ctx.getMyRouterIdentity(), Date(), Mapping());
+				Mapping m;
+				m.setValue("netId", "2");
+				RouterInfo myInfo(m_ctx.getMyRouterIdentity(), Date(), m);
 				myInfo.sign(m_ctx.getSigningKey());
 
 				Botan::Pipe gzPipe(new Botan::Zlib_Compression);
@@ -61,8 +64,8 @@ namespace i2pcpp {
 				ByteArray gzInfoBytes(size);
 				gzPipe.read(gzInfoBytes.data(), size);
 
-				/*I2NP::MessagePtr mydsm(new I2NP::DatabaseStore(myInfo.getIdentity().getHash(), I2NP::DatabaseStore::DataType::ROUTER_INFO, 0, gzInfoBytes));
-				m_ctx.getOutMsgDispatcher().sendMessage(m_from, mydsm);*/
+				I2NP::MessagePtr mydsm(new I2NP::DatabaseStore(myInfo.getIdentity().getHash(), I2NP::DatabaseStore::DataType::ROUTER_INFO, 0, gzInfoBytes));
+				m_ctx.getOutMsgDispatcher().sendMessage(m_from, mydsm);
 
 			} catch(Botan::Decoding_Error &e) {
 				std::cerr << "Jobs::DatabaseStore: Decoding error: " << e.what() << "\n";

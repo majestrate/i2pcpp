@@ -4,6 +4,7 @@
 #include "DatabaseStore.h"
 
 #include <iostream>
+#include <iomanip>
 
 namespace i2pcpp {
 	namespace I2NP {
@@ -43,10 +44,11 @@ namespace i2pcpp {
 
 			b.insert(b.end(), getType());
 
-			unsigned int expiration = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-			b.insert(b.end(), expiration << 24);
-			b.insert(b.end(), expiration << 16);
-			b.insert(b.end(), expiration << 8);
+			// m_expiration?
+			uint32_t expiration = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count() + 60;
+			b.insert(b.end(), expiration >> 24);
+			b.insert(b.end(), expiration >> 16);
+			b.insert(b.end(), expiration >> 8);
 			b.insert(b.end(), expiration);
 
 			b.insert(b.end(), m.cbegin(), m.cend());

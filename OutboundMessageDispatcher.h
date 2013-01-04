@@ -9,9 +9,9 @@
 namespace i2pcpp {
 	class OutboundMessageDispatcher {
 		public:
-			OutboundMessageDispatcher(TransportPtr const &transport) : m_transport(transport) {}
-
 			void sendMessage(RouterHash const &to, I2NP::MessagePtr const &msg) const;
+
+			void registerTransport(TransportPtr const &t);
 
 		private:
 			TransportPtr m_transport;

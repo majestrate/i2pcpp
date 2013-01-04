@@ -15,6 +15,7 @@
 #include "EstablishmentManager.h"
 #include "PeerState.h"
 #include "Packet.h"
+#include "MessageSender.h"
 
 namespace i2pcpp {
 	namespace SSU {
@@ -25,13 +26,14 @@ namespace i2pcpp {
 			friend class UDPSender;
 			friend class PacketHandler;
 			friend class EstablishmentManager;
+			friend class MessageSender;
 
 			public:
 				UDPTransport(RouterContext &ctx);
 
 				void begin(Endpoint const &ep);
 				void connect(RouterHash const &rh);
-				void send(RouterHash const &rh, ByteArray const &data);
+				void send(RouterHash const &rh, I2NP::MessagePtr const &msg);
 				void disconnect(RouterHash const &rh);
 				void shutdown();
 
@@ -43,6 +45,7 @@ namespace i2pcpp {
 
 				void addRemotePeer(PeerStatePtr const &ps);
 				PeerStatePtr getRemotePeer(Endpoint const &ep);
+				PeerStatePtr getRemotePeer(RouterHash const &rh);
 
 				boost::asio::io_service m_ios;
 				boost::asio::ip::udp::endpoint m_endpoint;
@@ -52,11 +55,13 @@ namespace i2pcpp {
 				UDPSender m_sender;
 				PacketHandler m_handler;
 				EstablishmentManager m_establisher;
+				MessageSender m_messageSender;
 
 				PacketQueue m_inboundQueue;
 				PacketQueue m_outboundQueue;
 
 				std::unordered_map<Endpoint, PeerStatePtr> m_remotePeers;
+				std::unordered_map<RouterHash, PeerStatePtr> m_remotePeersByHash;
 
 				std::mutex m_remotePeersMutex;
 		};

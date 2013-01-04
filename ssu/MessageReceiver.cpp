@@ -23,14 +23,16 @@ namespace i2pcpp {
 
 				std::cerr << "MessageReceiver[" << ims->getMsgId() << "]: Received IMS with " << (int)ims->getNumFragments() << " fragments\n";
 
-				ByteArray data;
-				ims->assemble(data);
-				I2NP::MessagePtr m = I2NP::Message::fromBytes(data);
+				const ByteArray& data = ims->assemble();
 
-				if(m) {
-					std::cerr << "MessageReceiver[" << ims->getMsgId() << "]: This looks like a message of type: " << (int)m->getType() << "\n";
+				if(data.size()) {
+					I2NP::MessagePtr m = I2NP::Message::fromBytes(data);
 
-					imd.receiveMessage(ims->getRouterHash(), m);
+					if(m) {
+						std::cerr << "MessageReceiver[" << ims->getMsgId() << "]: This looks like a message of type: " << (int)m->getType() << "\n";
+
+						imd.receiveMessage(ims->getRouterHash(), m);
+					}
 				}
 			}
 		}

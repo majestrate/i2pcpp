@@ -5,14 +5,14 @@ namespace i2pcpp {
 	{
 		m_type = (Type)*(certItr++);
 	
-		unsigned short size = (*(certItr++) << 8) | *(certItr++);
+		uint16_t size = (*(certItr++) << 8) | *(certItr++);
 		copy(certItr, certItr + size, m_payload.begin()), certItr += size;
 	}
 
 	ByteArray Certificate::getBytes() const
 	{
 		ByteArray b(m_payload);
-		unsigned short length = m_payload.size();
+		uint16_t length = m_payload.size();
 
 		b.insert(b.begin(), length);
 		b.insert(b.begin(), (length >> 8));

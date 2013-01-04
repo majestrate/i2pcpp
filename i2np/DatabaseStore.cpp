@@ -16,7 +16,7 @@ namespace i2pcpp {
 				dataItr += 32;
 			}
 
-			unsigned short size = (*(dataItr++) << 8) | *(dataItr++);
+			uint16_t size = (*(dataItr++) << 8) | *(dataItr++);
 			m_data = ByteArray(dataItr, dataItr + size);
 
 			return true;
@@ -26,15 +26,21 @@ namespace i2pcpp {
 		{
 			ByteArray b;
 
-			b.insert(b.end(), m_key.begin(), m_key.end());
+			b.insert(b.end(), m_key.cbegin(), m_key.cend());
 			b.insert(b.end(), m_type);
 
-			b.insert(b.end(), m_replyToken << 24);
-			b.insert(b.end(), m_replyToken << 16);
-			b.insert(b.end(), m_replyToken << 8);
+			b.insert(b.end(), m_replyToken >> 24);
+			b.insert(b.end(), m_replyToken >> 16);
+			b.insert(b.end(), m_replyToken >> 8);
 			b.insert(b.end(), m_replyToken);
 
-			b.insert(b.end(), m_data.begin(), m_data.end());
+			if(m_type == DataType::ROUTER_INFO) {
+				uint16_t size = m_data.size();
+				b.insert(b.end(), size >> 8);
+				b.insert(b.end(), size);
+			}
+
+			b.insert(b.end(), m_data.cbegin(), m_data.cend());
 
 			return b;
 		}

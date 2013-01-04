@@ -9,7 +9,7 @@ namespace i2pcpp {
 
 		class UDPSender : public Thread {
 			public:
-				UDPSender(UDPTransport &transport) : Thread(), m_transport(transport) {}
+				UDPSender(UDPTransport &transport) : m_transport(transport) {}
 
 			private:
 				void loop();

@@ -79,7 +79,7 @@ diff -Naur Botan-1.11.1.orig/src/filters/pk_filts/pk_filts.h Botan-1.11.1/src/fi
  
 diff -Naur Botan-1.11.1.orig/src/filters/zlib/zlib.cpp Botan-1.11.1/src/filters/zlib/zlib.cpp
 --- Botan-1.11.1.orig/src/filters/zlib/zlib.cpp	2012-10-30 16:20:04.000000000 -0400
-+++ Botan-1.11.1/src/filters/zlib/zlib.cpp	2013-01-03 02:00:34.017660920 -0500
++++ Botan-1.11.1/src/filters/zlib/zlib.cpp	2013-01-04 02:31:25.819603214 -0500
 @@ -13,6 +13,7 @@
  #include <cstring>
  #include <map>
@@ -88,12 +88,21 @@ diff -Naur Botan-1.11.1.orig/src/filters/zlib/zlib.cpp Botan-1.11.1/src/filters/
  
  namespace Botan {
  
+@@ -112,7 +113,7 @@
+    int res = deflateInit2(&(zlib->stream),
+                           level,
+                           Z_DEFLATED,
+-                          (raw_deflate ? -15 : 15),
++                          MAX_WBITS + 16,
+                           8,
+                           Z_DEFAULT_STRATEGY);
+ 
 @@ -215,7 +216,7 @@
     clear();
     zlib = new Zlib_Stream;
  
 -   if(inflateInit2(&(zlib->stream), (raw_deflate ? -15 : 15)) != Z_OK)
-+   if(inflateInit2(&(zlib->stream), (raw_deflate ? -16 : 16)) != Z_OK)
++   if(inflateInit2(&(zlib->stream), (MAX_WBITS + 32)) != Z_OK)
        throw Memory_Exhaustion();
     }
  
@@ -105,7 +114,7 @@ diff -Naur Botan-1.11.1.orig/src/filters/zlib/zlib.cpp Botan-1.11.1/src/filters/
 +
 +         clear();
 +         zlib = new Zlib_Stream;
-+         if(inflateInit2(&(zlib->stream), (raw_deflate ? -15 : 15)) != Z_OK) {
++         if(inflateInit2(&(zlib->stream), (MAX_WBITS + 32)) != Z_OK) {
 +            throw Memory_Exhaustion();
 +         }
  

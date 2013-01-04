@@ -5,7 +5,7 @@ namespace i2pcpp {
 
 	Date::Date(ByteArray::const_iterator &dateItr) : m_value(0)
 	{
-		for(int i = sizeof(unsigned long long); i > 0; i--)
+		for(int i = sizeof(uint64_t); i > 0; i--)
 			m_value = (m_value << 8) + (*(dateItr++));
 	}
 
@@ -13,7 +13,7 @@ namespace i2pcpp {
 	{
 		ByteArray v;
 
-		for(int i = sizeof(unsigned long long); i > 0; i--)
+		for(int i = sizeof(uint64_t); i > 0; i--)
 			v.push_back((m_value >> ((i - 1) * 8)));
 
 		return v;

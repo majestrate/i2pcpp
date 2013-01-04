@@ -14,12 +14,12 @@ namespace i2pcpp {
 		public:
 			Endpoint() {}
 			Endpoint(boost::asio::ip::udp::endpoint const &ep) : m_addr(ep.address()), m_port(ep.port()) {}
-			Endpoint(std::string ip, unsigned short port) : m_addr(boost::asio::ip::address::from_string(ip)), m_port(port) {}
-			Endpoint(ByteArray const &addr, unsigned short port);
+			Endpoint(std::string ip, uint16_t port) : m_addr(boost::asio::ip::address::from_string(ip)), m_port(port) {}
+			Endpoint(ByteArray const &addr, uint16_t port);
 
 			boost::asio::ip::udp::endpoint getUDPEndpoint() const { return boost::asio::ip::udp::endpoint(m_addr, m_port); }
 			std::string getIP() const { return m_addr.to_string(); }
-			unsigned short getPort() const { return m_port; }
+			uint16_t getPort() const { return m_port; }
 			std::string toString() const
 			{
 				return m_addr.to_string() + std::string(":") + boost::lexical_cast<std::string>(m_port);

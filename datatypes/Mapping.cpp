@@ -5,7 +5,7 @@
 namespace i2pcpp {
 	Mapping::Mapping(ByteArray::const_iterator &mapItr)
 	{
-		unsigned short size = *(mapItr++) << 8 | *(mapItr++);
+		uint16_t size = (*(mapItr++) << 8) | *(mapItr++);
 		auto end = mapItr + size;
 
 		while(mapItr != end) {
@@ -54,7 +54,7 @@ namespace i2pcpp {
 			ret.insert(ret.end(), ';');
 		}
 
-		unsigned short size = ret.size();
+		uint16_t size = ret.size();
 		ret.insert(ret.begin(), size);
 		ret.insert(ret.begin(), size << 8);
 

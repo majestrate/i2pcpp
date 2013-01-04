@@ -14,7 +14,7 @@ namespace i2pcpp {
 			ByteArray getBytes() const;
 
 		private:
-			unsigned long long m_value;
+			uint64_t m_value;
 	};
 }
 

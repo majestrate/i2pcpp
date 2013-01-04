@@ -17,7 +17,8 @@ namespace i2pcpp {
 			m_receiver(*this),
 			m_sender(*this),
 			m_handler(*this),
-			m_establisher(*this) {}
+			m_establisher(*this),
+	 		m_messageSender(*this) {}
 
 		void UDPTransport::begin(Endpoint const &ep)
 		{
@@ -29,6 +30,7 @@ namespace i2pcpp {
 			m_sender.start();
 			m_handler.start();
 			m_establisher.start();
+			m_messageSender.start();
 		}
 
 		void UDPTransport::connect(RouterHash const &rh)
@@ -37,8 +39,16 @@ namespace i2pcpp {
 			m_establisher.establish(ri);
 		}
 
-		void UDPTransport::send(RouterHash const &rh, ByteArray const &data)
+		void UDPTransport::send(RouterHash const &rh, I2NP::MessagePtr const &msg)
 		{
+			PeerStatePtr ps = getRemotePeer(rh);
+
+			if(ps) {
+				OutboundMessageStatePtr oms(new OutboundMessageState(ps, msg));
+				m_messageSender.addMessage(oms);
+			} else {
+				// TODO Exception
+			}
 		}
 
 		void UDPTransport::disconnect(RouterHash const &rh)
@@ -49,6 +59,7 @@ namespace i2pcpp {
 		{
 			std::lock_guard<std::mutex> lock(m_remotePeersMutex);
 			m_remotePeers[ps->getEndpoint()] = ps;
+			m_remotePeersByHash[ps->getIdentity().getHash()] = ps;
 		}
 
 		PeerStatePtr UDPTransport::getRemotePeer(Endpoint const &ep)
@@ -59,6 +70,19 @@ namespace i2pcpp {
 
 			auto itr = m_remotePeers.find(ep);
 			if(itr != m_remotePeers.end())
+				ps = itr->second;
+
+			return ps;
+		}
+
+		PeerStatePtr UDPTransport::getRemotePeer(RouterHash const &rh)
+		{
+			std::lock_guard<std::mutex> lock(m_remotePeersMutex);
+
+			PeerStatePtr ps;
+
+			auto itr = m_remotePeersByHash.find(rh);
+			if(itr != m_remotePeersByHash.end())
 				ps = itr->second;
 
 			return ps;
@@ -75,6 +99,7 @@ namespace i2pcpp {
 			m_sender.stop();
 			m_handler.stop();
 			m_establisher.stop();
+			m_messageSender.stop();
 		}
 	}
 }
