@@ -18,28 +18,33 @@ namespace i2pcpp {
 			{
 				m_queue.wait();
 
-				OutboundMessageStatePtr oms = m_queue.pop();
+				PeerStatePtr ps = m_queue.pop();
 
-				if(!oms)
+				if(!ps)
 					continue;
 
-				std::cerr << "MessageSender: got OMS\n";
-				oms->fragment();
+				OutboundMessageStatePtr oms = ps->popOutboundMessageState();
 
-				PeerStatePtr ps = oms->getPeerState();
-				PacketPtr p = pb.buildData(ps, false, oms->getFragments());
+				if(!oms)
+					continue; // This should never happen
 
+				const OutboundMessageState::FragmentPtr fragment = oms->getNextFragment();
+				std::forward_list<OutboundMessageState::FragmentPtr> fragList;
+				fragList.push_front(fragment);
+
+				PacketPtr p = pb.buildData(ps, false, fragList);
 				p->encrypt(ps->getCurrentSessionKey(), ps->getCurrentMacKey());
-
 				m_transport.m_outboundQueue.enqueue(p);
+
+				oms->markFragmentSent(fragment->fragNum);
+
+				if(!oms->allFragmentsSent()) {
+					ps->addOutboundMessageState(oms);
+					m_queue.enqueue(ps);
+				}
 
 				std::cerr << "MessageSender: sent packet of size " << p->getData().size() << " to " << p->getEndpoint().toString() << "\n";
 			}
-		}
-
-		void MessageSender::addMessage(OutboundMessageStatePtr const &oms)
-		{
-			m_queue.enqueue(oms);
 		}
 	}
 }

@@ -18,9 +18,9 @@ namespace i2pcpp {
 				bool isComplete() const;
 
 				std::mutex& getMutex() { return m_mutex; }
-				uint32_t getMsgId() { return m_msgId; }
-				RouterHash& getRouterHash() { return m_routerHash; }
-				unsigned char getNumFragments() { return m_fragments.size(); }
+				uint32_t getMsgId() const { return m_msgId; }
+				const RouterHash& getRouterHash() const { return m_routerHash; }
+				unsigned char getNumFragments() const { return m_fragments.size(); }
 				ByteArray assemble() const;
 
 			private:

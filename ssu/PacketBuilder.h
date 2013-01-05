@@ -17,7 +17,7 @@ namespace i2pcpp {
 
 				PacketPtr buildSessionRequest(EstablishmentStatePtr const &state) const;
 				PacketPtr buildSessionConfirmed(EstablishmentStatePtr const &state) const;
-				PacketPtr buildData(PeerStatePtr const &ps, bool wantReply, std::forward_list<OutboundMessageState::Fragment> const &fragments) const;
+				PacketPtr buildData(PeerStatePtr const &ps, bool wantReply, std::forward_list<OutboundMessageState::FragmentPtr> const &fragments) const;
 				PacketPtr buildSessionDestroyed(PeerStatePtr const &state) const;
 
 			private:

@@ -5,11 +5,14 @@
 #include <memory>
 #include <unordered_map>
 
-#include "InboundMessageState.h"
-
 #include "../datatypes/RouterIdentity.h"
 #include "../datatypes/Endpoint.h"
 #include "../datatypes/SessionKey.h"
+
+#include "../util/LockingQueue.h"
+
+#include "InboundMessageState.h"
+#include "OutboundMessageState.h"
 
 namespace i2pcpp {
 	namespace SSU {
@@ -29,10 +32,18 @@ namespace i2pcpp {
 
 				std::mutex& getMutex() { return m_mutex; }
 				Endpoint getEndpoint() const { return m_endpoint; }
-				const RouterIdentity& getIdentity() { return m_identity; }
+				const RouterIdentity& getIdentity() const { return m_identity; }
 
 				InboundMessageStatePtr getInboundMessageState(const uint32_t msgId);
 				void addInboundMessageState(InboundMessageStatePtr const &ims);
+				void delInboundMessageState(const uint32_t msgId);
+
+				OutboundMessageStatePtr popOutboundMessageState();
+				void addOutboundMessageState(OutboundMessageStatePtr const &oms);
+				bool haveOutboundWaiting() const;
+
+				void pushAck(const uint32_t msgId) { m_ackQueue.enqueue(msgId); }
+				const uint32_t popAck() { return m_ackQueue.pop(); }
 
 			private:
 				Endpoint m_endpoint;
@@ -40,6 +51,8 @@ namespace i2pcpp {
 				bool m_isInbound;
 
 				std::unordered_map<uint32_t, InboundMessageStatePtr> m_inboundMessageStates;
+				LockingQueue<OutboundMessageStatePtr> m_outboundMessageStates;
+				LockingQueue<uint32_t> m_ackQueue;
 
 				SessionKey m_sessionKey;
 				SessionKey m_macKey;

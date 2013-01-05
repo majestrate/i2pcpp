@@ -64,8 +64,11 @@ namespace i2pcpp {
 				if(!fragOK)
 					std::cerr << "InboundMessageFragments: BAD FRAGMENT!\n";
 
-				if(ims->isComplete())
+				if(ims->isComplete()) {
 					m_messageReceiver.addMessage(ims);
+					ps->delInboundMessageState(msgId);
+					ps->pushAck(msgId);
+				}
 
 				std::cerr << "\n";
 			}

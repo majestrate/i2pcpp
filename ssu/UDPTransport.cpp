@@ -44,8 +44,9 @@ namespace i2pcpp {
 			PeerStatePtr ps = getRemotePeer(rh);
 
 			if(ps) {
-				OutboundMessageStatePtr oms(new OutboundMessageState(ps, msg));
-				m_messageSender.addMessage(oms);
+				OutboundMessageStatePtr oms(new OutboundMessageState(msg));
+				ps->addOutboundMessageState(oms);
+				m_messageSender.addWork(ps);
 			} else {
 				// TODO Exception
 			}

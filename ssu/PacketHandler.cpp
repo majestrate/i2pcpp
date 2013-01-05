@@ -1,7 +1,5 @@
 #include "PacketHandler.h"
 
-#include <bitset>
-
 #include "UDPTransport.h"
 #include "InboundMessageFragments.h"
 #include "MessageReceiver.h"
@@ -66,7 +64,7 @@ namespace i2pcpp {
 			switch(ptype) {
 				case Packet::DATA:
 					std::cerr << "PacketHandler[PS]: data received from " << state->getEndpoint().toString() << ":\n";
-					for(auto c: data) std::cerr << std::setw(2) << std::setfill('0') << std::hex << (int)c << std::setw(0) << std::dec;
+					//for(auto c: data) std::cerr << std::setw(2) << std::setfill('0') << std::hex << (int)c << std::setw(0) << std::dec;
 				std::cerr << "\n";
 					m_imf.receiveData(state, dataItr);
 					break;

@@ -17,5 +17,25 @@ namespace i2pcpp {
 		{
 			m_inboundMessageStates[ims->getMsgId()] = ims;
 		}
+
+		void PeerState::delInboundMessageState(const uint32_t msgId)
+		{
+			m_inboundMessageStates.erase(msgId);
+		}
+
+		OutboundMessageStatePtr PeerState::popOutboundMessageState()
+		{
+			return m_outboundMessageStates.pop();
+		}
+
+		void PeerState::addOutboundMessageState(OutboundMessageStatePtr const &oms)
+		{
+			m_outboundMessageStates.enqueue(oms);
+		}
+
+		bool PeerState::haveOutboundWaiting() const
+		{
+			return m_outboundMessageStates.isEmpty();
+		}
 	}
 }

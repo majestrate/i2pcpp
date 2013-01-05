@@ -1,22 +1,22 @@
 #ifndef SSUMESSAGESENDER_H
 #define SSUMESSAGESENDER_H
 
-#include "OutboundMessageState.h"
+#include "../util/LockingQueue.h"
 
 #include "../Thread.h"
 
-#include "../util/LockingQueue.h"
+#include "OutboundMessageState.h"
+#include "PeerState.h"
 
 namespace i2pcpp {
 	namespace SSU {
 		class UDPTransport;
-		typedef LockingQueue<OutboundMessageStatePtr> OutboundMessageQueue;
 
 		class MessageSender : public Thread {
 			public:
 				MessageSender(UDPTransport &transport) : m_transport(transport) {}
 
-				void addMessage(OutboundMessageStatePtr const &oms);
+				void addWork(PeerStatePtr const &ps) { m_queue.enqueue(ps); }
 
 			private:
 				void loop();
@@ -24,7 +24,7 @@ namespace i2pcpp {
 
 				UDPTransport& m_transport;
 
-				OutboundMessageQueue m_queue;
+				LockingQueue<PeerStatePtr> m_queue;
 		};
 	}
 }

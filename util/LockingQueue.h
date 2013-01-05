@@ -22,7 +22,7 @@ namespace i2pcpp {
 				{
 					std::lock_guard<std::mutex> lock(m_queueMutex);
 
-					T ret;
+					T ret = 0;
 
 					if(m_queue.size()) {
 						ret = m_queue.front();
@@ -32,9 +32,17 @@ namespace i2pcpp {
 					return ret;
 				}
 
+				bool isEmpty() const
+				{
+					if(m_finished) return true;
+
+					std::lock_guard<std::mutex> lock(m_queueMutex);
+					return m_queue.empty();
+				}
+
 				void finish() { m_finished = true; m_condition.notify_all(); }
 
-				void wait()
+				void wait() const
 				{
 					int size;
 
@@ -52,10 +60,10 @@ namespace i2pcpp {
 
 			private:
 				std::queue<T> m_queue;
-				std::mutex m_queueMutex;
+				mutable std::mutex m_queueMutex;
 
-				std::condition_variable m_condition;
-				std::mutex m_conditionMutex;
+				mutable std::condition_variable m_condition;
+				mutable std::mutex m_conditionMutex;
 
 				bool m_finished;
 		};

@@ -80,7 +80,7 @@ namespace i2pcpp {
 			return s;
 		}
 
-		PacketPtr PacketBuilder::buildData(PeerStatePtr const &ps, bool wantReply, std::forward_list<OutboundMessageState::Fragment> const &fragments) const
+		PacketPtr PacketBuilder::buildData(PeerStatePtr const &ps, bool wantReply, std::forward_list<OutboundMessageState::FragmentPtr> const &fragments) const
 		{
 			PacketPtr s = buildHeader(ps->getEndpoint(), Packet::PayloadType::DATA << 4);
 
@@ -90,31 +90,51 @@ namespace i2pcpp {
 
 			if(wantReply)
 				dataFlag |= (1 << 2);
+
+			std::vector<uint32_t> toAck;
+			for(int i = 0; i < 8; i++) {
+				uint32_t ack = ps->popAck();
+				if(ack) toAck.push_back(ack);
+			}
+
+/*			if(toAck.size()) {
+				dataFlag |= (1 << 7);
+
+				d.insert(d.end(), toAck.size());
+				for(auto mid: toAck) {
+					d.insert(d.end(), mid >> 24);
+					d.insert(d.end(), mid >> 16);
+					d.insert(d.end(), mid >> 8);
+					d.insert(d.end(), mid);
+					std::cerr << "PacketBuilder: appended ack: " << mid << "\n";
+				}
+			}*/
+
 			d.insert(d.end(), dataFlag);
 
 			d.insert(d.end(), distance(fragments.cbegin(), fragments.cend()));
 
 			for(auto f: fragments) {
-				d.insert(d.end(), f.msgId >> 24);
-				d.insert(d.end(), f.msgId >> 16);
-				d.insert(d.end(), f.msgId >> 8);
-				d.insert(d.end(), f.msgId);
+				d.insert(d.end(), f->msgId >> 24);
+				d.insert(d.end(), f->msgId >> 16);
+				d.insert(d.end(), f->msgId >> 8);
+				d.insert(d.end(), f->msgId);
 
 				uint32_t fragInfo = 0;
 
-				fragInfo |= f.fragNum << 17;
+				fragInfo |= f->fragNum << 17;
 
-				if(f.isLast)
+				if(f->isLast)
 					fragInfo |= (1 << 16);
 
 				// TODO Exception if fragment size > 16383 (maybe)
-				fragInfo |= (f.data.size());
+				fragInfo |= (f->data.size());
 
 				d.insert(d.end(), fragInfo >> 16);
 				d.insert(d.end(), fragInfo >> 8);
 				d.insert(d.end(), fragInfo);
 
-				d.insert(d.end(), f.data.cbegin(), f.data.cend());
+				d.insert(d.end(), f->data.cbegin(), f->data.cend());
 			}
 
 			return s;

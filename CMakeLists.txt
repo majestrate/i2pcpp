@@ -60,7 +60,7 @@ set(SRCS
 	datatypes/SessionKey.cpp
 	)
 
-set(CMAKE_CXX_FLAGS_DEBUG "-ggdb -O0 -Wall")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2 -w")
 
 add_definitions("-std=c++11")

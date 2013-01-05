@@ -32,7 +32,7 @@ int main()
 
 		r.stop();
 
-	} catch (std::runtime_error &e) {
+	} catch (std::exception &e) {
 		std::cerr << "main thread exception: " << e.what() << "\n";
 	}
 
