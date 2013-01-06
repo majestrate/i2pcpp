@@ -6,6 +6,7 @@
 #include "../datatypes/RouterIdentity.h"
 
 #include <iostream>
+#include <iomanip>
 
 namespace i2pcpp {
 	namespace SSU {
@@ -97,9 +98,12 @@ namespace i2pcpp {
 				if(ack) toAck.push_back(ack);
 			}
 
-/*			if(toAck.size()) {
+			if(toAck.size())
 				dataFlag |= (1 << 7);
 
+			d.insert(d.end(), dataFlag);
+
+			if(toAck.size()) {
 				d.insert(d.end(), toAck.size());
 				for(auto mid: toAck) {
 					d.insert(d.end(), mid >> 24);
@@ -108,9 +112,7 @@ namespace i2pcpp {
 					d.insert(d.end(), mid);
 					std::cerr << "PacketBuilder: appended ack: " << mid << "\n";
 				}
-			}*/
-
-			d.insert(d.end(), dataFlag);
+			}
 
 			d.insert(d.end(), distance(fragments.cbegin(), fragments.cend()));
 
@@ -137,6 +139,9 @@ namespace i2pcpp {
 				d.insert(d.end(), f->data.cbegin(), f->data.cend());
 			}
 
+			/*std::cerr << "Sending the following packet:\n";
+			for(auto c: d) std::cerr << std::setw(2) << std::setfill('0') << std::hex << (int)c << std::setw(0) << std::dec;
+			std::cerr << "\n";*/
 			return s;
 		}
 	}

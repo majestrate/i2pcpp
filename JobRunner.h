@@ -1,11 +1,10 @@
 #ifndef JOBRUNNER_H
 #define JOBRUNNER_H
 
-#include "Thread.h"
-
 #include <memory>
 #include <vector>
 
+#include "Thread.h"
 #include "JobQueue.h"
 
 namespace i2pcpp {

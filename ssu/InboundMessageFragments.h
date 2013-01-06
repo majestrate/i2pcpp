@@ -19,7 +19,7 @@ namespace i2pcpp {
 				void receiveData(PeerStatePtr const &ps, ByteArray::const_iterator &dataItr);
 
 			private:
-				// TODO: Decaying bloom filter
+				// TODO Decaying bloom filter
 				MessageReceiver m_messageReceiver;
 		};
 	}

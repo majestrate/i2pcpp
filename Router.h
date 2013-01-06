@@ -10,12 +10,14 @@
 #include "OutboundMessageDispatcher.h"
 #include "JobQueue.h"
 #include "JobRunner.h"
+#include "JobScheduler.h"
 
 namespace i2pcpp {
 	class Router {
 		public:
 			Router(std::string const &dbFile) :
 				m_db(dbFile),
+				m_jobScheduler(m_jobQueue),
 				m_inMsgDispatcher(m_jobQueue),
 				m_ctx(m_db, m_inMsgDispatcher, m_outMsgDispatcher) {}
 
@@ -25,6 +27,7 @@ namespace i2pcpp {
 		private:
 			Database m_db;
 			JobQueue m_jobQueue;
+			JobScheduler m_jobScheduler;
 			InboundMessageDispatcher m_inMsgDispatcher;
 			OutboundMessageDispatcher m_outMsgDispatcher;
 			RouterContext m_ctx;

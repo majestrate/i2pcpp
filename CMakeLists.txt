@@ -16,6 +16,7 @@ set(SRCS
 	Job.cpp
 	JobQueue.cpp
 	JobRunner.cpp
+	JobScheduler.cpp
 	MessageHandler.cpp
 	OutboundMessageDispatcher.cpp
 	Router.cpp
@@ -60,7 +61,7 @@ set(SRCS
 	datatypes/SessionKey.cpp
 	)
 
-set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -Wall")
+set(CMAKE_CXX_FLAGS_DEBUG "-ggdb3 -O0 -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2 -w")
 
 add_definitions("-std=c++11")

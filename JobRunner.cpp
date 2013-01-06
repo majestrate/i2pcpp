@@ -1,6 +1,6 @@
 #include "JobRunner.h"
 
-#include <iostream>
+#include "JobQueue.h"
 
 namespace i2pcpp {
 	void JobRunner::loop()

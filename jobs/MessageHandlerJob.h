@@ -6,12 +6,15 @@
 #include "../i2np/Message.h"
 
 namespace i2pcpp {
+	class RouterContext;
+
 	namespace Jobs {
 		class MessageHandlerJob : public Job {
 			public:
-				MessageHandlerJob(RouterContext &ctx, RouterHash const &from, I2NP::MessagePtr const &msg) : Job(ctx), m_from(from), m_msg(msg) {}
+				MessageHandlerJob(RouterContext &ctx, RouterHash const &from, I2NP::MessagePtr const &msg) : m_ctx(ctx), m_from(from), m_msg(msg) {}
 
 			protected:
+				RouterContext& m_ctx;
 				RouterHash m_from;
 				I2NP::MessagePtr m_msg;
 		};
