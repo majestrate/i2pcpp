@@ -25,6 +25,7 @@ set(SRCS
 	Transport.cpp
 	handlers/DatabaseStore.cpp
 	handlers/DeliveryStatus.cpp
+	i2np/DatabaseLookup.cpp
 	i2np/DatabaseStore.cpp
 	i2np/DeliveryStatus.cpp
 	i2np/Message.cpp

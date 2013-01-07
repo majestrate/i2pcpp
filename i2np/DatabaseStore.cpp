@@ -2,26 +2,6 @@
 
 namespace i2pcpp {
 	namespace I2NP {
-		bool DatabaseStore::parse(ByteArray::const_iterator &dataItr)
-		{
-			copy(dataItr, dataItr + 32, m_key.begin());
-			dataItr += 32;
-
-			m_type = (DataType)*(dataItr++);
-			m_replyToken = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
-
-			if(m_replyToken) {
-				m_replyTunnelId = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
-				copy(dataItr, dataItr + 32, m_replyGateway.begin());
-				dataItr += 32;
-			}
-
-			uint16_t size = (*(dataItr++) << 8) | *(dataItr++);
-			m_data = ByteArray(dataItr, dataItr + size);
-
-			return true;
-		}
-
 		ByteArray DatabaseStore::getBytes() const
 		{
 			ByteArray b;
@@ -43,6 +23,26 @@ namespace i2pcpp {
 			b.insert(b.end(), m_data.cbegin(), m_data.cend());
 
 			return b;
+		}
+
+		bool DatabaseStore::parse(ByteArray::const_iterator &dataItr)
+		{
+			copy(dataItr, dataItr + 32, m_key.begin());
+			dataItr += 32;
+
+			m_type = (DataType)*(dataItr++);
+			m_replyToken = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
+
+			if(m_replyToken) {
+				m_replyTunnelId = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
+				copy(dataItr, dataItr + 32, m_replyGateway.begin());
+				dataItr += 32;
+			}
+
+			uint16_t size = (*(dataItr++) << 8) | *(dataItr++);
+			m_data = ByteArray(dataItr, dataItr + size);
+
+			return true;
 		}
 	}
 }

@@ -22,7 +22,8 @@ namespace i2pcpp {
 			const Botan::DSA_PrivateKey *getSigningKey() const { return m_signingKey; }
 			const Botan::ElGamal_PrivateKey *getEncryptionKey() const { return m_encryptionKey; }
 
-			const RouterIdentity& getMyRouterIdentity() const { return m_routerIdentity; };
+			const RouterIdentity& getMyRouterIdentity() const { return m_routerIdentity; }
+			const RouterHash& getMyRouterHash() const { return m_routerHash; }
 			RouterInfo getRouterInfo(RouterHash const &rh) const;
 			void setRouterInfo(RouterInfo const &info) const;
 
@@ -39,6 +40,7 @@ namespace i2pcpp {
 			Botan::DL_Group m_dsaParameters;
 
 			RouterIdentity m_routerIdentity;
+			RouterHash m_routerHash;
 	};
 }
 

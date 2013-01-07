@@ -27,8 +27,8 @@ namespace i2pcpp {
 				const ByteArray& getData() const { return m_data; }
 
 			protected:
-				bool parse(ByteArray::const_iterator &dataItr);
 				ByteArray getBytes() const;
+				bool parse(ByteArray::const_iterator &dataItr);
 
 			private:
 				std::array<unsigned char, 32> m_key;

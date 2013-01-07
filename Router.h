@@ -24,6 +24,11 @@ namespace i2pcpp {
 			void start();
 			void stop();
 
+			/* These are only temporary and will by used for
+			 * testing and debugging. */
+
+			void databaseLookup(std::string const &to, std::string const &query);
+
 		private:
 			Database m_db;
 			JobQueue m_jobQueue;

@@ -29,7 +29,7 @@ namespace i2pcpp {
 		ByteArray encryptionKeyBytes = Botan::BigInt::encode(encryptionKeyPublic), signingKeyBytes = Botan::BigInt::encode(signingKeyPublic);
 		m_routerIdentity = RouterIdentity(encryptionKeyBytes, signingKeyBytes, Certificate());
 
-		std::cerr << "My router hash: " << m_routerIdentity.getHashEncoded() << "\n";
+		m_routerHash = m_routerIdentity.getHash();
 	}
 
 	RouterInfo RouterContext::getRouterInfo(RouterHash const &rh) const

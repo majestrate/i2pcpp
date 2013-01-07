@@ -3,6 +3,8 @@
 #include <csignal>
 
 #include <botan/botan.h>
+#include <boost/assign/list_of.hpp>
+#include <boost/tokenizer.hpp>
 
 #include "Router.h"
 
@@ -24,8 +26,35 @@ int main()
 
 		r.start();
 
+		enum Command {
+			DB_LOOKUP,
+			QUIT
+		};
+		std::map<std::string, Command> cmd_map = boost::assign::map_list_of("d", DB_LOOKUP)("q", QUIT);
+
 		while(keepRunning) {
-			std::this_thread::sleep_for(std::chrono::seconds(1));
+			std::string str;
+			std::getline(std::cin, str);
+
+			boost::char_separator<char> sep(" ");
+			boost::tokenizer<boost::char_separator<char>> tok(str, sep);
+			auto tokItr = tok.begin();
+
+			std::map<std::string, Command>::const_iterator cmdItr = cmd_map.find(*tokItr);
+			++tokItr;
+
+			if(cmdItr == cmd_map.cend()) continue;
+
+			Command cmd = cmdItr->second;
+
+			switch(cmd) {
+				case DB_LOOKUP:
+					r.databaseLookup(*(tokItr++), *(tokItr++));
+					break;
+				case QUIT:
+					keepRunning = false;
+					break;
+			}
 		}
 
 		std::cerr << "Shutting down...\n";
