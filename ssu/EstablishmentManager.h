@@ -36,7 +36,6 @@ namespace i2pcpp {
 				void sendConfirmed(EstablishmentStatePtr const &state);
 
 				UDPTransport& m_transport;
-				PacketBuilder m_builder;
 
 				LockingQueue<EstablishmentStatePtr> m_workQueue;
 

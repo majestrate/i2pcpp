@@ -38,6 +38,9 @@ namespace i2pcpp {
 				InboundMessageStatePtr getInboundMessageState(const uint32_t msgId) const;
 				void addInboundMessageState(InboundMessageStatePtr const &ims);
 				void delInboundMessageState(const uint32_t msgId);
+				void delInboundMessageState(std::map<uint32_t, InboundMessageStatePtr>::const_iterator itr);
+				std::map<uint32_t, InboundMessageStatePtr>::iterator begin();
+				std::map<uint32_t, InboundMessageStatePtr>::iterator end();
 
 			private:
 				Endpoint m_endpoint;
@@ -58,5 +61,15 @@ namespace i2pcpp {
 		typedef std::shared_ptr<PeerState> PeerStatePtr;
 	}
 }
+
+template<>
+struct std::hash<i2pcpp::SSU::PeerStatePtr> {
+	public:
+		size_t operator()(const i2pcpp::SSU::PeerStatePtr &ps) const
+		{
+			std::hash<i2pcpp::RouterHash> f;
+			return f(ps->getIdentity().getHash());
+		}
+};
 
 #endif

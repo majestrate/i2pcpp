@@ -60,16 +60,13 @@ namespace i2pcpp {
 				if(!ims) {
 					ims = InboundMessageStatePtr(new InboundMessageState(ps->getIdentity().getHash(), msgId));
 					ps->addInboundMessageState(ims);
-					m_transport.m_ackScheduler.addAck(ps, ims);
 				}
 
 				// TODO Should throw an exception on error
 				ims->addFragment(fragNum, fragData, isLast);
 
-				if(ims->allFragmentsReceived()) {
-					ps->delInboundMessageState(ims->getMsgId());
+				if(ims->allFragmentsReceived())
 					m_messageReceiver.addMessage(ims);
-				}
 
 				std::cerr << "\n";
 			}

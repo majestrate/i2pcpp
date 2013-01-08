@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 #include <mutex>
+#include <list>
 
 #include <boost/asio.hpp>
 
@@ -34,7 +35,7 @@ namespace i2pcpp {
 			public:
 				UDPTransport(RouterContext &ctx);
 
-				void begin(Endpoint const &ep);
+				void start(Endpoint const &ep);
 				void connect(RouterHash const &rh);
 				void send(RouterHash const &rh, I2NP::MessagePtr const &msg);
 				void disconnect(RouterHash const &rh);
@@ -52,6 +53,9 @@ namespace i2pcpp {
 				void delRemotePeer(Endpoint const &ep);
 				void delRemotePeer(RouterHash const &rh);
 
+				std::unordered_map<RouterHash, PeerStatePtr>::const_iterator begin() const;
+				std::unordered_map<RouterHash, PeerStatePtr>::const_iterator end() const;
+
 				boost::asio::io_service m_ios;
 				boost::asio::ip::udp::endpoint m_endpoint;
 				boost::asio::ip::udp::socket m_socket;
@@ -68,7 +72,6 @@ namespace i2pcpp {
 
 				std::unordered_map<Endpoint, PeerStatePtr> m_remotePeers;
 				std::unordered_map<RouterHash, PeerStatePtr> m_remotePeersByHash;
-
 				mutable std::mutex m_remotePeersMutex;
 		};
 	}

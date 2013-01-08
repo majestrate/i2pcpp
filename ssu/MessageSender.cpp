@@ -13,8 +13,6 @@ namespace i2pcpp {
 		void MessageSender::loop()
 		{
 			try {
-				PacketBuilder pb;
-
 				while(m_keepRunning)
 				{
 					auto pair = m_queue.wait_and_pop();
@@ -28,7 +26,19 @@ namespace i2pcpp {
 					std::forward_list<OutboundMessageState::FragmentPtr> fragList;
 					fragList.push_front(fragment);
 
-					PacketPtr p = pb.buildData(ps, false, fragList);
+					AckList ackList;
+
+					for(auto itr = ps->begin(); itr != ps->end();) {
+						ackList.push_front(std::make_pair(itr->first, itr->second->getAckStates()));
+						if(itr->second->allFragmentsReceived()) {
+							ps->delInboundMessageState(itr++);
+							continue;
+						}
+
+						++itr;
+					}
+
+					PacketPtr p = PacketBuilder::buildData(ps, false, fragList, ackList);
 					p->encrypt(ps->getCurrentSessionKey(), ps->getCurrentMacKey());
 					m_transport.m_outboundQueue.enqueue(p);
 

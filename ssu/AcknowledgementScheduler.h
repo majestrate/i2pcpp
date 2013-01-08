@@ -1,15 +1,13 @@
 #ifndef SSUACKNOWLEDGEMENTSCHEDULER_H
 #define SSUACKNOWLEDGEMENTSCHEDULER_H
 
-#include <list>
-#include <memory>
-
 #include <boost/asio.hpp>
-#include <boost/bind.hpp>
 
 #include "../Thread.h"
 #include "../util/LockingQueue.h"
 
+#include "InboundMessageState.h"
+#include "OutboundMessageState.h"
 #include "PeerState.h"
 
 namespace i2pcpp {
@@ -21,7 +19,6 @@ namespace i2pcpp {
 			public:
 				AcknowledgementScheduler(UDPTransport &transport) : m_transport(transport) {}
 				
-				void addAck(PeerStatePtr const &ps, InboundMessageStatePtr const &ims);
 				AcknowledgementTimerPtr createInboundTimer(InboundMessageStatePtr ims);
 				AcknowledgementTimerPtr createOutboundTimer(OutboundMessageStatePtr oms);
 				void cancelTimer(AcknowledgementTimerPtr const &t);
@@ -36,7 +33,6 @@ namespace i2pcpp {
 
 				boost::asio::io_service m_ios;
 				UDPTransport& m_transport;
-				std::list<std::pair<PeerStatePtr, InboundMessageStatePtr>> m_ackList;
 		};
 	}
 }

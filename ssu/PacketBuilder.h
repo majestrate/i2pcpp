@@ -14,14 +14,13 @@ namespace i2pcpp {
 	namespace SSU {
 		class PacketBuilder {
 			public:
-
-				PacketPtr buildSessionRequest(EstablishmentStatePtr const &state) const;
-				PacketPtr buildSessionConfirmed(EstablishmentStatePtr const &state) const;
-				PacketPtr buildData(PeerStatePtr const &ps, bool wantReply, std::forward_list<OutboundMessageState::FragmentPtr> const &fragments) const;
-				PacketPtr buildSessionDestroyed(PeerStatePtr const &state) const;
+				static PacketPtr buildSessionRequest(EstablishmentStatePtr const &state);
+				static PacketPtr buildSessionConfirmed(EstablishmentStatePtr const &state);
+				static PacketPtr buildData(PeerStatePtr const &ps, bool wantReply, std::forward_list<OutboundMessageState::FragmentPtr> const &fragments, AckList const &acks);
+				static PacketPtr buildSessionDestroyed(PeerStatePtr const &state);
 
 			private:
-				PacketPtr buildHeader(Endpoint const &ep, unsigned char flag) const;
+				static PacketPtr buildHeader(Endpoint const &ep, unsigned char flag);
 		};
 	}
 }

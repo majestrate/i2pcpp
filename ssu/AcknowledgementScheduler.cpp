@@ -2,7 +2,9 @@
 
 #include <boost/bind.hpp>
 
+#include "UDPTransport.h"
 #include "Packet.h"
+#include "PacketBuilder.h"
 
 namespace i2pcpp {
 	namespace SSU {
@@ -17,16 +19,28 @@ namespace i2pcpp {
 		void AcknowledgementScheduler::flushAckCallback(const boost::system::error_code& e, AcknowledgementTimerPtr &timer)
 		{
 			try {
-				for(auto itr = m_ackList.begin(); itr != m_ackList.end(); ++itr) {
-					PeerStatePtr ps = itr->first;
-					InboundMessageStatePtr ims = itr->second;
-
-					if(ims->allFragmentsAckd())
-						m_ackList.erase(itr++);
-
-					//
+				for(auto& peerPair: m_transport) {
+					AckList ackList;
+					PeerStatePtr ps = peerPair.second;
 
 					std::lock_guard<std::mutex> lock(ps->getMutex());
+
+					for(auto itr = ps->begin(); itr != ps->end();) {
+						ackList.push_front(std::make_pair(itr->first, itr->second->getAckStates()));
+						if(itr->second->allFragmentsReceived()) {
+							ps->delInboundMessageState(itr++);
+							continue;
+						}
+
+						++itr;
+					}
+
+					if(ackList.size()) {
+						std::forward_list<OutboundMessageState::FragmentPtr> emptyFragList;
+						PacketPtr p = PacketBuilder::buildData(ps, false, emptyFragList, ackList);
+						p->encrypt(ps->getCurrentSessionKey(), ps->getCurrentMacKey());
+						m_transport.m_outboundQueue.enqueue(p);
+					}
 				}
 
 				timer->expires_at(timer->expires_at() + boost::posix_time::time_duration(0, 0, 1));
@@ -42,10 +56,6 @@ namespace i2pcpp {
 		{
 		}
 
-		void AcknowledgementScheduler::addAck(PeerStatePtr const &ps, InboundMessageStatePtr const &ims)
-		{
-			m_ackList.push_back(std::make_pair(ps, ims));
-		}
 
 		AcknowledgementTimerPtr AcknowledgementScheduler::createInboundTimer(InboundMessageStatePtr ims)
 		{

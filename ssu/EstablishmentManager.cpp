@@ -69,7 +69,7 @@ namespace i2pcpp {
 
 		void EstablishmentManager::sendRequest(EstablishmentStatePtr const &state)
 		{
-			PacketPtr p = m_builder.buildSessionRequest(state);
+			PacketPtr p = PacketBuilder::buildSessionRequest(state);
 			p->encrypt(state->getSessionKey(), state->getSessionKey());
 			state->requestSent();
 			m_transport.m_outboundQueue.enqueue(p);
@@ -104,7 +104,7 @@ namespace i2pcpp {
 			ps->setCurrentMacKey(state->getMacKey());
 			m_transport.addRemotePeer(ps);
 
-			PacketPtr p = m_builder.buildSessionConfirmed(state);
+			PacketPtr p = PacketBuilder::buildSessionConfirmed(state);
 			p->encrypt(state->getSessionKey(), state->getMacKey());
 			m_transport.m_outboundQueue.enqueue(p);
 

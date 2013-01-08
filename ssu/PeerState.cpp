@@ -23,6 +23,21 @@ namespace i2pcpp {
 			m_inboundMessageStates.erase(msgId);
 		}
 
+		void PeerState::delInboundMessageState(std::map<uint32_t, InboundMessageStatePtr>::const_iterator itr)
+		{
+			m_inboundMessageStates.erase(itr);
+		}
+
+		std::map<uint32_t, InboundMessageStatePtr>::iterator PeerState::begin()
+		{
+			return m_inboundMessageStates.begin();
+		}
+
+		std::map<uint32_t, InboundMessageStatePtr>::iterator PeerState::end()
+		{
+			return m_inboundMessageStates.end();
+		}
+
 		/*OutboundMessageStatePtr PeerState::popOutboundMessageState()
 		{
 			return m_outboundMessageStates.pop();

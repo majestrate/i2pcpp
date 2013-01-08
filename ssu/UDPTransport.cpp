@@ -21,7 +21,7 @@ namespace i2pcpp {
 	 		m_messageSender(*this),
 	 		m_ackScheduler(*this)	{}
 
-		void UDPTransport::begin(Endpoint const &ep)
+		void UDPTransport::start(Endpoint const &ep)
 		{
 			m_endpoint = ep.getUDPEndpoint();
 			m_socket.open(boost::asio::ip::udp::v4());
@@ -47,8 +47,7 @@ namespace i2pcpp {
 
 			if(ps) {
 				OutboundMessageStatePtr oms(new OutboundMessageState(msg));
-//				ps->addOutboundMessageState(oms);
-//				m_messageSender.addWork(ps, oms);
+				m_messageSender.addWork(ps, oms);
 			} else {
 				// TODO Exception
 			}
@@ -111,6 +110,16 @@ namespace i2pcpp {
 				m_remotePeers.erase(itr->second->getEndpoint());
 
 			m_remotePeersByHash.erase(rh);
+		}
+
+		std::unordered_map<RouterHash, PeerStatePtr>::const_iterator UDPTransport::begin() const
+		{
+			return m_remotePeersByHash.cbegin();
+		}
+
+		std::unordered_map<RouterHash, PeerStatePtr>::const_iterator UDPTransport::end() const
+		{
+			return m_remotePeersByHash.cend();
 		}
 
 		void UDPTransport::shutdown()

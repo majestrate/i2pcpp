@@ -10,7 +10,7 @@
 
 namespace i2pcpp {
 	namespace SSU {
-		PacketPtr PacketBuilder::buildHeader(Endpoint const &ep, unsigned char flag) const
+		PacketPtr PacketBuilder::buildHeader(Endpoint const &ep, unsigned char flag)
 		{
 			PacketPtr s(new Packet(ep));
 			ByteArray& data = s->getData();
@@ -26,7 +26,7 @@ namespace i2pcpp {
 			return s;
 		}
 
-		PacketPtr PacketBuilder::buildSessionRequest(EstablishmentStatePtr const &state) const
+		PacketPtr PacketBuilder::buildSessionRequest(EstablishmentStatePtr const &state)
 		{
 			PacketPtr s = buildHeader(state->getTheirEndpoint(), Packet::PayloadType::SESSION_REQUEST << 4);
 
@@ -45,7 +45,7 @@ namespace i2pcpp {
 			return s;
 		}
 
-		PacketPtr PacketBuilder::buildSessionConfirmed(EstablishmentStatePtr const &state) const
+		PacketPtr PacketBuilder::buildSessionConfirmed(EstablishmentStatePtr const &state)
 		{
 			PacketPtr s = buildHeader(state->getTheirEndpoint(), Packet::PayloadType::SESSION_CONFIRMED << 4);
 
@@ -74,14 +74,14 @@ namespace i2pcpp {
 			return s;
 		}
 
-		PacketPtr PacketBuilder::buildSessionDestroyed(PeerStatePtr const &state) const
+		PacketPtr PacketBuilder::buildSessionDestroyed(PeerStatePtr const &state)
 		{
 			PacketPtr s = buildHeader(state->getEndpoint(), Packet::PayloadType::SESSION_DESTROY << 4);
 
 			return s;
 		}
 
-		PacketPtr PacketBuilder::buildData(PeerStatePtr const &ps, bool wantReply, std::forward_list<OutboundMessageState::FragmentPtr> const &fragments) const
+		PacketPtr PacketBuilder::buildData(PeerStatePtr const &ps, bool wantReply, std::forward_list<OutboundMessageState::FragmentPtr> const &fragments, AckList const &acks)
 		{
 			PacketPtr s = buildHeader(ps->getEndpoint(), Packet::PayloadType::DATA << 4);
 
@@ -92,27 +92,61 @@ namespace i2pcpp {
 			if(wantReply)
 				dataFlag |= (1 << 2);
 
-/*			std::vector<uint32_t> toAck;
-			for(int i = 0; i < 8; i++) {
-				uint32_t ack = ps->popAck();
-				if(ack) toAck.push_back(ack);
+			ByteArray ea(1), ba(1);
+			ea[0] = 0; ba[0] = 0;
+
+			if(acks.size()) {
+
+				for(auto& a: acks) {
+					if(a.second.count() == a.second.size()) {
+						ea.insert(ea.end(), a.first >> 24);
+						ea.insert(ea.end(), a.first >> 16);
+						ea.insert(ea.end(), a.first >> 8);
+						ea.insert(ea.end(), a.first);
+						ea[0]++;
+
+						std::cerr << "PacketBuilder: appended explicit ack for msgId " << std::hex << a.first << std::dec << "\n";
+					} else {
+						ba.insert(ba.end(), a.first >> 24);
+						ba.insert(ba.end(), a.first >> 16);
+						ba.insert(ba.end(), a.first >> 8);
+						ba.insert(ba.end(), a.first);
+
+						AckBitfield bf = a.second;
+						size_t steps = ceil(bf.size() / 7);
+						for(int i = 0; i < steps; i++) {
+							unsigned char byte = 0;
+
+							for(int i = 0; i < 7; i++)
+								byte |= bf[i] << i;
+							bf >>= 7;
+
+							if(i < steps - 1)
+								byte |= (1 << 7);
+
+							ba.insert(ba.end(), byte);
+						}
+
+						ba[0]++;
+
+						std::cerr << "PacketBuilder: appended bitfield ack for msgId " << std::hex << a.first << std::dec << "\n";
+					}
+				}
 			}
 
-			if(toAck.size())
-				dataFlag |= (1 << 7);*/
+			if(ea[0])
+				dataFlag |= (1 << 7);
+
+			if(ba[0])
+				dataFlag |= (1 << 6);
 
 			d.insert(d.end(), dataFlag);
 
-/*			if(toAck.size()) {
-				d.insert(d.end(), toAck.size());
-				for(auto mid: toAck) {
-					d.insert(d.end(), mid >> 24);
-					d.insert(d.end(), mid >> 16);
-					d.insert(d.end(), mid >> 8);
-					d.insert(d.end(), mid);
-					std::cerr << "PacketBuilder: appended ack: " << mid << "\n";
-				}
-			}*/
+			if(ea[0])
+				d.insert(d.end(), ea.cbegin(), ea.cend());
+
+			if(ba[0])
+				d.insert(d.end(), ba.cbegin(), ba.cend());
 
 			d.insert(d.end(), distance(fragments.cbegin(), fragments.cend()));
 
@@ -142,6 +176,7 @@ namespace i2pcpp {
 			/*std::cerr << "Sending the following packet:\n";
 			for(auto c: d) std::cerr << std::setw(2) << std::setfill('0') << std::hex << (int)c << std::setw(0) << std::dec;
 			std::cerr << "\n";*/
+
 			return s;
 		}
 	}

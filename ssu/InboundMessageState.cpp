@@ -17,30 +17,18 @@ namespace i2pcpp {
 				m_lastFragment = fragNum;
 			}
 
-			if(m_fragmentAckStates.size() < fragNum)
-				m_fragmentAckStates.resize(fragNum);
+			if(m_fragmentAckStates.size() < fragNum + 1)
+				m_fragmentAckStates.resize(fragNum + 1);
+			m_fragmentAckStates.set(fragNum);
 
 			m_byteTotal += data.size();
-		}
-
-		void InboundMessageState::markFragmentAckd(const unsigned char fragNum)
-		{
-			m_fragmentAckStates.set(fragNum);
 		}
 
 		bool InboundMessageState::allFragmentsReceived() const
 		{
 			if(!m_gotLast) return false;
 
-			for(unsigned char f = 0; f < m_lastFragment; f++)
-				if(m_fragments.count(f) < 1) return false;
-
-			return true;
-		}
-
-		bool InboundMessageState::allFragmentsAckd() const
-		{
-			return (m_fragmentAckStates.count() == m_fragmentAckStates.size());
+			return (m_fragmentAckStates.count() == m_fragmentAckStates.size());;
 		}
 
 		ByteArray InboundMessageState::assemble() const

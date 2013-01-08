@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <map>
-#include <mutex>
+#include <list>
 
 #include <boost/dynamic_bitset.hpp>
 
@@ -12,6 +12,9 @@
 
 namespace i2pcpp {
 	namespace SSU {
+		typedef boost::dynamic_bitset<> AckBitfield;
+		typedef std::list<std::pair<uint32_t, AckBitfield>> AckList;
+
 		class InboundMessageState {
 			public:
 				InboundMessageState(RouterHash const &routerHash, const uint32_t msgId) : m_msgId(msgId), m_routerHash(routerHash), m_gotLast(false), m_byteTotal(0) {}
@@ -23,9 +26,8 @@ namespace i2pcpp {
 				const RouterHash& getRouterHash() const { return m_routerHash; }
 				unsigned char getNumFragments() const { return m_fragments.size(); }
 
-				void markFragmentAckd(const unsigned char fragNum);
+				const AckBitfield& getAckStates() const { return m_fragmentAckStates; }
 				bool allFragmentsReceived() const;
-				bool allFragmentsAckd() const;
 
 			private:
 				uint32_t m_msgId;
@@ -35,7 +37,7 @@ namespace i2pcpp {
 				uint32_t m_byteTotal;
 
 				std::map<unsigned char, ByteArray> m_fragments;
-				boost::dynamic_bitset<> m_fragmentAckStates;
+				AckBitfield m_fragmentAckStates;
 		};
 
 		typedef std::shared_ptr<InboundMessageState> InboundMessageStatePtr;
