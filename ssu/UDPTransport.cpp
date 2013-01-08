@@ -1,5 +1,7 @@
 #include "UDPTransport.h"
 
+#include "../Database.h"
+
 #include "UDPReceiver.h"
 #include "UDPSender.h"
 #include "PacketHandler.h"
@@ -37,7 +39,7 @@ namespace i2pcpp {
 
 		void UDPTransport::connect(RouterHash const &rh)
 		{
-			const RouterInfo&& ri = m_ctx.getRouterInfo(rh);
+			const RouterInfo&& ri = m_ctx.getDatabase().getRouterInfo(rh);
 			m_establisher.establish(ri);
 		}
 

@@ -12,8 +12,8 @@ namespace i2pcpp {
 				Message::Type getType() const { return Message::Type::DELIVERY_STATUS; }
 
 			protected:
-				bool parse(ByteArray::const_iterator &dataItr);
 				ByteArray getBytes() const;
+				bool parse(ByteArray::const_iterator &dataItr);
 
 			private:
 				uint32_t m_msgId;

@@ -4,6 +4,7 @@
 
 #include "ssu/UDPTransport.h"
 #include "handlers/DatabaseStore.h"
+#include "handlers/DatabaseSearchReply.h"
 
 /* TEMPORARY */
 #include "util/Base64.h"
@@ -14,6 +15,7 @@ namespace i2pcpp {
 	void Router::start()
 	{
 		m_inMsgDispatcher.registerHandler(I2NP::Message::Type::DB_STORE, MessageHandlerPtr(new Handlers::DatabaseStore(m_ctx)));
+		m_inMsgDispatcher.registerHandler(I2NP::Message::Type::DB_SEARCH_REPLY, MessageHandlerPtr(new Handlers::DatabaseSearchReply(m_ctx)));
 
 		m_jobRunnerPool.push_back(JobRunnerPtr(new JobRunner(m_jobQueue)));
 		for(auto& jr: m_jobRunnerPool)

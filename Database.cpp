@@ -30,6 +30,20 @@ namespace i2pcpp {
 		} else {} // TODO Exception
 	}
 
+	bool Database::routerExists(RouterHash const &routerHash)
+	{
+		const std::string select = "SELECT COUNT(id) AS count FROM routers WHERE id = ?";
+		sqlite3_stmt *statement;
+
+		if(sqlite3_prepare(m_db, select.c_str(), -1, &statement, NULL) != SQLITE_OK) {} // TODO Exception
+
+		sqlite3_bind_blob(statement, 1, routerHash.data(), routerHash.size(), SQLITE_STATIC);
+
+		int rc = sqlite3_step(statement);
+		if(rc == SQLITE_ROW)
+			return (sqlite3_column_int(statement, 0) != 0);
+	}
+
 	RouterInfo Database::getRouterInfo(std::string const &routerHash)
 	{
 		return getRouterInfo(Base64::decode(routerHash));
@@ -208,7 +222,7 @@ namespace i2pcpp {
 		const ByteArray& sigKey = info.getIdentity().getSigningKey();
 		const ByteArray& cert   = info.getIdentity().getCertificate().getBytes();
 		const ByteArray& pub    = info.getPublished().getBytes();
-		const ByteArray& sig   = info.getSignature();
+		const ByteArray& sig    = info.getSignature();
 
 		std::string insert = "INSERT INTO routers(id, encryption_key, signing_key, certificate, published, signature) VALUES(?, ?, ?, ?, ?, ?)";
 		if((rc = sqlite3_prepare(m_db, insert.c_str(), -1, &statement, NULL)) != SQLITE_OK) { std::cerr << "RC: " << rc << "\n"; } // TODO Exception

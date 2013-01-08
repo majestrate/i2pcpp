@@ -31,14 +31,4 @@ namespace i2pcpp {
 
 		m_routerHash = m_routerIdentity.getHash();
 	}
-
-	RouterInfo RouterContext::getRouterInfo(RouterHash const &rh) const
-	{
-		return m_db.getRouterInfo(rh);
-	}
-
-	void RouterContext::setRouterInfo(RouterInfo const &ri) const
-	{
-		m_db.setRouterInfo(ri);
-	}
 }

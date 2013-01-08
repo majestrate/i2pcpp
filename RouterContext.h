@@ -24,9 +24,8 @@ namespace i2pcpp {
 
 			const RouterIdentity& getMyRouterIdentity() const { return m_routerIdentity; }
 			const RouterHash& getMyRouterHash() const { return m_routerHash; }
-			RouterInfo getRouterInfo(RouterHash const &rh) const;
-			void setRouterInfo(RouterInfo const &info) const;
 
+			Database& getDatabase() const { return m_db; }
 			InboundMessageDispatcher& getInMsgDispatcher() const { return m_inMsgDispatcher; }
 			OutboundMessageDispatcher& getOutMsgDispatcher() const { return m_outMsgDispatcher; }
 

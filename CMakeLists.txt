@@ -23,12 +23,15 @@ set(SRCS
 	RouterContext.cpp
 	Thread.cpp
 	Transport.cpp
+	handlers/DatabaseSearchReply.cpp
 	handlers/DatabaseStore.cpp
 	handlers/DeliveryStatus.cpp
 	i2np/DatabaseLookup.cpp
+	i2np/DatabaseSearchReply.cpp
 	i2np/DatabaseStore.cpp
 	i2np/DeliveryStatus.cpp
 	i2np/Message.cpp
+	jobs/DatabaseSearchReply.cpp
 	jobs/DatabaseStore.cpp
 	jobs/MessageHandlerJob.cpp
 	ssu/AcknowledgementScheduler.cpp

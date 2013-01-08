@@ -2,6 +2,7 @@
 
 #include "DeliveryStatus.h"
 #include "DatabaseStore.h"
+#include "DatabaseSearchReply.h"
 
 #include <iostream>
 #include <iomanip>
@@ -23,6 +24,10 @@ namespace i2pcpp {
 
 				case Type::DB_STORE:
 					m = MessagePtr(new DatabaseStore());
+					break;
+
+				case Type::DB_SEARCH_REPLY:
+					m = MessagePtr(new DatabaseSearchReply());
 					break;
 
 				default:
