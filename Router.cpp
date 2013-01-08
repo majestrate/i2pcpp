@@ -16,13 +16,13 @@ namespace i2pcpp {
 		m_inMsgDispatcher.registerHandler(I2NP::Message::Type::DB_STORE, MessageHandlerPtr(new Handlers::DatabaseStore(m_ctx)));
 
 		m_jobRunnerPool.push_back(JobRunnerPtr(new JobRunner(m_jobQueue)));
-		for(auto jr: m_jobRunnerPool)
+		for(auto& jr: m_jobRunnerPool)
 			jr->start();
 
 		/*JobPtr testJob(new Jobs::TestJob());
 		m_jobScheduler.registerJob(testJob, boost::posix_time::time_duration(0, 0, 1));*/
 
-		m_jobScheduler.start();
+		//m_jobScheduler.start();
 
 		std::cerr << "My router hash: " << m_ctx.getMyRouterIdentity().getHashEncoded() << "\n";
 
@@ -38,7 +38,7 @@ namespace i2pcpp {
 		std::shared_ptr<SSU::UDPTransport> u = std::dynamic_pointer_cast<SSU::UDPTransport>(m_transport);
 		u->shutdown();
 
-		m_jobScheduler.stop();
+		//m_jobScheduler.stop();
 
 		for(auto jr: m_jobRunnerPool)
 			jr->stop();

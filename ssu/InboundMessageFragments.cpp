@@ -7,8 +7,12 @@
 #include <botan/pipe.h>
 #include <botan/filters.h>
 
+#include "UDPTransport.h"
+
 namespace i2pcpp {
 	namespace SSU {
+		InboundMessageFragments::InboundMessageFragments(UDPTransport &transport) : m_transport(transport), m_messageReceiver(transport.m_ctx) {}
+
 		void InboundMessageFragments::receiveData(PeerStatePtr const &ps, ByteArray::const_iterator &dataItr)
 		{
 			std::bitset<8> flag = *(dataItr++);
@@ -56,12 +60,13 @@ namespace i2pcpp {
 				if(!ims) {
 					ims = InboundMessageStatePtr(new InboundMessageState(ps->getIdentity().getHash(), msgId));
 					ps->addInboundMessageState(ims);
+					m_transport.m_ackScheduler.addAck(ps, ims);
 				}
 
 				// TODO Should throw an exception on error
 				ims->addFragment(fragNum, fragData, isLast);
 
-				if(*ims) {
+				if(ims->allFragmentsReceived()) {
 					ps->delInboundMessageState(ims->getMsgId());
 					m_messageReceiver.addMessage(ims);
 				}

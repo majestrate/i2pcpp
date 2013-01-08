@@ -23,9 +23,9 @@ namespace i2pcpp {
 
 	ByteArray RouterIdentity::getBytes() const
 	{
-		ByteArray b, cert;
+		ByteArray b;
 
-		cert = m_certificate.getBytes();
+		const ByteArray&& cert = m_certificate.getBytes();
 
 		b.insert(b.end(), m_encryptionKey.begin(), m_encryptionKey.end());
 		b.insert(b.end(), m_signingKey.begin(), m_signingKey.end());

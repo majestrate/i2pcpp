@@ -222,7 +222,7 @@ namespace i2pcpp {
 		sqlite3_finalize(statement);
 
 		int i = 0;
-		for(auto a: info) {
+		for(auto& a: info) {
 			std::string istr = std::to_string(i);
 			insert = "INSERT INTO router_addresses(router_id, \"index\", cost, expiration, transport) VALUES(?, ?, ?, ?, ?)";
 
@@ -236,7 +236,7 @@ namespace i2pcpp {
 			if((rc = sqlite3_step(statement)) != SQLITE_DONE) { std::cerr << "Insert RC: " << rc << "\n"; } // TODO Exception
 			sqlite3_finalize(statement);
 
-			for(auto o: a.getOptions()) {
+			for(auto& o: a.getOptions()) {
 				insert = "INSERT INTO router_address_options(router_id, \"index\", name, value) VALUES(?, ?, ?, ?)";
 				if((rc = sqlite3_prepare(m_db, insert.c_str(), -1, &statement, NULL)) != SQLITE_OK) {} // TODO Exception
 				sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
@@ -250,7 +250,7 @@ namespace i2pcpp {
 			i++;
 		}
 
-		for(auto o: info.getOptions()) {
+		for(auto& o: info.getOptions()) {
 			insert = "INSERT INTO router_options(router_id, name, value) VALUES(?, ?, ?)";
 			if((rc = sqlite3_prepare(m_db, insert.c_str(), -1, &statement, NULL)) != SQLITE_OK) {} // TODO Exception
 			sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);

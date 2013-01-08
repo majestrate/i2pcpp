@@ -35,7 +35,7 @@ namespace i2pcpp {
 
 	bool RouterInfo::verifySignature(const Botan::DL_Group &dsaParameters) const
 	{
-		ByteArray dsaKeyBytes = m_identity.getSigningKey();
+		const ByteArray&& dsaKeyBytes = m_identity.getSigningKey();
 		Botan::DSA_PublicKey dsaKey(dsaParameters, Botan::BigInt(dsaKeyBytes.data(), dsaKeyBytes.size()));
 		Botan::Pipe sigPipe(new Botan::Hash_Filter("SHA-1"), new Botan::PK_Verifier_Filter(new Botan::PK_Verifier(dsaKey, "Raw"), m_signature.data(), m_signature.size()));
 		sigPipe.start_msg();
@@ -60,36 +60,21 @@ namespace i2pcpp {
 		sigPipe.read(m_signature.data(), 40);
 	}
 
-	ByteArray RouterInfo::calculateHash(ByteArray const &signedBytes) const
-	{
-		Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-256"));
-		hashPipe.start_msg();
-
-		hashPipe.write(signedBytes);
-
-		hashPipe.end_msg();
-
-		ByteArray hash(32);
-		hashPipe.read(hash.data(), 32);
-
-		return hash;
-	}
-
 	ByteArray RouterInfo::getSignedBytes() const
 	{
 		ByteArray b;
 
-		const ByteArray& idBytes = m_identity.getBytes();
-		const ByteArray& pubBytes = m_published.getBytes();
-		const ByteArray& optBytes = m_options.getBytes();
+		const ByteArray&& idBytes = m_identity.getBytes();
+		const ByteArray&& pubBytes = m_published.getBytes();
+		const ByteArray&& optBytes = m_options.getBytes();
 
 		b.insert(b.end(), idBytes.cbegin(), idBytes.cend());
 
 		b.insert(b.end(), pubBytes.cbegin(), pubBytes.cend());
 
 		b.insert(b.end(), m_addresses.size());
-		for(auto a: m_addresses) {
-			const ByteArray& addr = a.getBytes();
+		for(auto& a: m_addresses) {
+			const ByteArray&& addr = a.getBytes();
 			b.insert(b.end(), addr.cbegin(), addr.cend());
 		}
 

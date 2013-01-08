@@ -2,18 +2,17 @@
 
 #include "JobQueue.h"
 
+#include <iostream>
+
 namespace i2pcpp {
 	void JobRunner::loop()
 	{
 		try {
-		while(m_keepRunning) {
-			JobPtr j = m_jobQueue.wait_and_pop();
+			while(m_keepRunning) {
+				JobPtr j = m_jobQueue.wait_and_pop();
 
-			if(!j)
-				continue;
-
-			j->run();
-		}
+				j->run();
+			}
 		} catch(LockingQueueFinished) {}
 	}
 }

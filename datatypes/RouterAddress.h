@@ -16,7 +16,7 @@ namespace i2pcpp {
 			ByteArray getBytes() const;
 			const unsigned char getCost() const { return m_cost; }
 			const Date& getExpiration() const { return m_expiration; }
-			const std::string getTransport() const { return m_transport; }
+			const std::string& getTransport() const { return m_transport; }
 			const Mapping& getOptions() const { return m_options; }
 
 		private:

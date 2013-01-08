@@ -10,15 +10,18 @@
 
 namespace i2pcpp {
 	namespace SSU {
+		class UDPTransport;
+
 		class InboundMessageFragments {
 			public:
-				InboundMessageFragments(RouterContext &ctx) : m_messageReceiver(ctx) {}
+				InboundMessageFragments(UDPTransport &transport);
 
 				void begin() { m_messageReceiver.start(); }
 				void shutdown() { m_messageReceiver.stop(); }
 				void receiveData(PeerStatePtr const &ps, ByteArray::const_iterator &dataItr);
 
 			private:
+				UDPTransport &m_transport;
 				// TODO Decaying bloom filter
 				MessageReceiver m_messageReceiver;
 		};

@@ -9,7 +9,7 @@
 
 namespace i2pcpp {
 	namespace SSU {
-		PacketHandler::PacketHandler(UDPTransport &transport) : m_transport(transport), m_imf(transport.m_ctx) {}
+		PacketHandler::PacketHandler(UDPTransport &transport) : m_transport(transport), m_imf(transport) {}
 
 		void PacketHandler::loop()
 		{

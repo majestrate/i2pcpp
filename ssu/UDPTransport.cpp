@@ -18,7 +18,8 @@ namespace i2pcpp {
 			m_sender(*this),
 			m_handler(*this),
 			m_establisher(*this),
-	 		m_messageSender(*this) {}
+	 		m_messageSender(*this),
+	 		m_ackScheduler(*this)	{}
 
 		void UDPTransport::begin(Endpoint const &ep)
 		{
@@ -31,6 +32,7 @@ namespace i2pcpp {
 			m_handler.start();
 			m_establisher.start();
 			m_messageSender.start();
+			m_ackScheduler.start();
 		}
 
 		void UDPTransport::connect(RouterHash const &rh)
@@ -123,6 +125,7 @@ namespace i2pcpp {
 			m_handler.stop();
 			m_establisher.stop();
 			m_messageSender.stop();
+			m_ackScheduler.stop();
 		}
 	}
 }

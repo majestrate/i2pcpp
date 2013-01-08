@@ -16,6 +16,7 @@
 #include "PeerState.h"
 #include "Packet.h"
 #include "MessageSender.h"
+#include "AcknowledgementScheduler.h"
 
 namespace i2pcpp {
 	namespace SSU {
@@ -27,6 +28,8 @@ namespace i2pcpp {
 			friend class PacketHandler;
 			friend class EstablishmentManager;
 			friend class MessageSender;
+			friend class InboundMessageFragments;
+			friend class AcknowledgementScheduler;
 
 			public:
 				UDPTransport(RouterContext &ctx);
@@ -58,6 +61,7 @@ namespace i2pcpp {
 				PacketHandler m_handler;
 				EstablishmentManager m_establisher;
 				MessageSender m_messageSender;
+				AcknowledgementScheduler m_ackScheduler;
 
 				PacketQueue m_inboundQueue;
 				PacketQueue m_outboundQueue;

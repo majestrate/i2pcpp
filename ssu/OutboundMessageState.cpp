@@ -15,7 +15,7 @@ namespace i2pcpp {
 
 		void OutboundMessageState::fragment()
 		{
-			const ByteArray& data = m_msg->toBytes();
+			const ByteArray&& data = m_msg->toBytes();
 			auto dataItr = data.cbegin();
 			auto end = data.cend();
 

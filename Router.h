@@ -32,11 +32,11 @@ namespace i2pcpp {
 		private:
 			Database m_db;
 			JobQueue m_jobQueue;
+			JobRunnerPool m_jobRunnerPool;
 			JobScheduler m_jobScheduler;
 			InboundMessageDispatcher m_inMsgDispatcher;
 			OutboundMessageDispatcher m_outMsgDispatcher;
 			RouterContext m_ctx;
-			JobRunnerPool m_jobRunnerPool;
 			TransportPtr m_transport;
 	};
 }

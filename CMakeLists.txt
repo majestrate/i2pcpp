@@ -31,6 +31,7 @@ set(SRCS
 	i2np/Message.cpp
 	jobs/DatabaseStore.cpp
 	jobs/MessageHandlerJob.cpp
+	ssu/AcknowledgementScheduler.cpp
 	ssu/EstablishmentManager.cpp
 	ssu/EstablishmentState.cpp
 	ssu/InboundMessageFragments.cpp

@@ -5,6 +5,8 @@
 #include <map>
 #include <mutex>
 
+#include <boost/dynamic_bitset.hpp>
+
 #include "../datatypes/ByteArray.h"
 #include "../datatypes/RouterHash.h"
 
@@ -21,7 +23,9 @@ namespace i2pcpp {
 				const RouterHash& getRouterHash() const { return m_routerHash; }
 				unsigned char getNumFragments() const { return m_fragments.size(); }
 
-				explicit operator bool() const;
+				void markFragmentAckd(const unsigned char fragNum);
+				bool allFragmentsReceived() const;
+				bool allFragmentsAckd() const;
 
 			private:
 				uint32_t m_msgId;
@@ -31,6 +35,7 @@ namespace i2pcpp {
 				uint32_t m_byteTotal;
 
 				std::map<unsigned char, ByteArray> m_fragments;
+				boost::dynamic_bitset<> m_fragmentAckStates;
 		};
 
 		typedef std::shared_ptr<InboundMessageState> InboundMessageStatePtr;

@@ -38,14 +38,20 @@ namespace i2pcpp {
 
 	std::string Mapping::getValue(std::string const &name) const
 	{
-		return m_map.find(name)->second;
+		std::string s;
+
+		auto itr = m_map.find(name);
+		if(itr != m_map.end())
+			s = itr->second;
+
+		return s;
 	}
 
 	ByteArray Mapping::getBytes() const
 	{
 		ByteArray ret;
 
-		for(auto o: m_map) {
+		for(auto& o: m_map) {
 			ret.insert(ret.end(), o.first.size());
 			ret.insert(ret.end(), o.first.begin(), o.first.end());
 			ret.insert(ret.end(), '=');

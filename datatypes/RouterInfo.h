@@ -37,7 +37,6 @@ namespace i2pcpp {
 			const std::vector<RouterAddress>::const_iterator end() const { return m_addresses.cend(); }
 
 		private:
-			ByteArray calculateHash(ByteArray const &signedBytes) const;
 			ByteArray getSignedBytes() const;
 
 			RouterIdentity m_identity;

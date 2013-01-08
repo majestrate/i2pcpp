@@ -51,13 +51,13 @@ namespace i2pcpp {
 			sigPipe.write(myDH.data(), myDH.size());
 			sigPipe.write(m_theirDH.data(), m_theirDH.size());
 
-			const ByteArray& myIP = m_myEndpoint.getRawIP();
+			const ByteArray&& myIP = m_myEndpoint.getRawIP();
 			unsigned short myPort =  m_myEndpoint.getPort();
 			sigPipe.write(myIP.data(), myIP.size());
 			sigPipe.write(myPort >> 8);
 			sigPipe.write(myPort);
 
-			const ByteArray& theirIP = m_theirEndpoint.getRawIP();
+			const ByteArray&& theirIP = m_theirEndpoint.getRawIP();
 			unsigned short theirPort = m_theirEndpoint.getPort();
 			sigPipe.write(theirIP.data(), theirIP.size());
 			sigPipe.write(theirPort >> 8);
@@ -92,7 +92,7 @@ namespace i2pcpp {
 
 			const Botan::DL_Group& group = m_ctx.getDSAParameters();
 
-			ByteArray dsaKeyBytes = m_routerInfo.getIdentity().getSigningKey();
+			const ByteArray&& dsaKeyBytes = m_routerInfo.getIdentity().getSigningKey();
 			Botan::DSA_PublicKey dsaKey(group, Botan::BigInt(dsaKeyBytes.data(), dsaKeyBytes.size()));
 
 			Botan::Pipe sigPipe(new Botan::Hash_Filter("SHA-1"), new Botan::PK_Verifier_Filter(new Botan::PK_Verifier(dsaKey, "Raw"), decryptedSig));
@@ -102,13 +102,13 @@ namespace i2pcpp {
 			sigPipe.write(myDH.data(), myDH.size());
 			sigPipe.write(m_theirDH.data(), m_theirDH.size());
 
-			const ByteArray& myIP = m_myEndpoint.getRawIP();
+			const ByteArray&& myIP = m_myEndpoint.getRawIP();
 			unsigned short myPort =  m_myEndpoint.getPort();
 			sigPipe.write(myIP.data(), myIP.size());
 			sigPipe.write(myPort >> 8);
 			sigPipe.write(myPort);
 
-			const ByteArray& theirIP = m_theirEndpoint.getRawIP();
+			const ByteArray&& theirIP = m_theirEndpoint.getRawIP();
 			unsigned short theirPort = m_theirEndpoint.getPort();
 			sigPipe.write(theirIP.data(), theirIP.size());
 			sigPipe.write(theirPort >> 8);

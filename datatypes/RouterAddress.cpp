@@ -17,8 +17,8 @@ namespace i2pcpp {
 	{
 		ByteArray b;
 
-		const ByteArray& expiration = m_expiration.getBytes();
-		const ByteArray& options = m_options.getBytes();
+		const ByteArray&& expiration = m_expiration.getBytes();
+		const ByteArray&& options = m_options.getBytes();
 
 		b.insert(b.end(), m_cost);
 		b.insert(b.end(), expiration.cbegin(), expiration.cend());
