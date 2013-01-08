@@ -47,7 +47,7 @@ namespace i2pcpp {
 			unsigned char i = 0, size = m_fragmentStates.size();
 			while(i < size && m_fragmentStates.test(i))	i += 2;
 
-			if(i >= size) return NULL;
+			if(i >= size) return OutboundMessageState::FragmentPtr();
 
 			return m_fragments[i / 2];
 		}

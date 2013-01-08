@@ -18,7 +18,7 @@ namespace i2pcpp {
 		class EstablishmentState {
 			public:
 				EstablishmentState(RouterContext &ctx, RouterInfo const &ri, bool isInbound);
-				virtual ~EstablishmentState() { if(m_dhPrivateKey) delete m_dhPrivateKey; }
+				~EstablishmentState() { if(m_dhPrivateKey) delete m_dhPrivateKey; }
 
 				enum State {
 					UNKNOWN,
@@ -33,10 +33,10 @@ namespace i2pcpp {
 					VALIDATION_FAILED,
 				};
 
-				bool isInbound() { return m_isInbound; }
-				State getState() { return m_state; }
-				std::mutex& getMutex() { return m_mutex; }
-				const Endpoint& getTheirEndpoint() { return m_theirEndpoint; }
+				bool isInbound() const { return m_isInbound; }
+				State getState() const { return m_state; }
+				std::mutex& getMutex() const { return m_mutex; }
+				const Endpoint& getTheirEndpoint() const { return m_theirEndpoint; }
 				const RouterContext& getContext() const { return m_ctx; }
 				const RouterIdentity& getIdentity() const { return m_routerInfo.getIdentity(); }
 
@@ -48,7 +48,7 @@ namespace i2pcpp {
 				const SessionKey& getMacKey() const { return m_macKey; }
 				void setMacKey(SessionKey const &mk) { m_macKey = mk; }
 
-				const ByteArray getMyDH() { return ByteArray(m_dhPrivateKey->public_value()); }
+				ByteArray getMyDH() const { return ByteArray(m_dhPrivateKey->public_value()); }
 				void setTheirDH(ByteArray::const_iterator begin, ByteArray::const_iterator end) { m_theirDH = ByteArray(begin, end); }
 				void calculateDHSecret();
 				const ByteArray& getDHSecret() const { return m_dhSecret; }
@@ -59,7 +59,7 @@ namespace i2pcpp {
 				void setSignatureTimestamp(ByteArray::const_iterator ts_begin, ByteArray::const_iterator ts_end) { m_signatureTimestamp = ByteArray(ts_begin, ts_end); }
 				void setSignature(ByteArray::const_iterator sig_begin, ByteArray::const_iterator sig_end) { m_signature = ByteArray(sig_begin, sig_end); }
 
-				const ByteArray calculateConfirmationSignature(const uint32_t signedOn) const;
+				ByteArray calculateConfirmationSignature(const uint32_t signedOn) const;
 				bool verifyCreationSignature() const;
 
 				void requestSent() { m_state = REQUEST_SENT; }
@@ -73,7 +73,7 @@ namespace i2pcpp {
 				void validationFailed() { m_state = VALIDATION_FAILED; }
 
 			private:
-				std::mutex m_mutex;
+				mutable std::mutex m_mutex;
 				RouterContext &m_ctx;
 
 				Botan::DH_PrivateKey *m_dhPrivateKey;

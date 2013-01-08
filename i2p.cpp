@@ -36,6 +36,8 @@ int main()
 			std::string str;
 			std::getline(std::cin, str);
 
+			if(!str.length()) continue;
+
 			boost::char_separator<char> sep(" ");
 			boost::tokenizer<boost::char_separator<char>> tok(str, sep);
 			auto tokItr = tok.begin();

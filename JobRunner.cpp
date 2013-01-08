@@ -5,15 +5,15 @@
 namespace i2pcpp {
 	void JobRunner::loop()
 	{
+		try {
 		while(m_keepRunning) {
-			m_jobQueue.wait();
-
-			JobPtr j = m_jobQueue.pop();
+			JobPtr j = m_jobQueue.wait_and_pop();
 
 			if(!j)
 				continue;
 
 			j->run();
 		}
+		} catch(LockingQueueFinished) {}
 	}
 }

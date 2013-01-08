@@ -16,7 +16,7 @@ namespace i2pcpp {
 			public:
 				MessageSender(UDPTransport &transport) : m_transport(transport) {}
 
-				void addWork(PeerStatePtr const &ps) { m_queue.enqueue(ps); }
+				void addWork(PeerStatePtr const &ps, OutboundMessageStatePtr const &oms) { m_queue.enqueue(std::make_pair(ps, oms)); }
 
 			private:
 				void loop();
@@ -24,7 +24,7 @@ namespace i2pcpp {
 
 				UDPTransport& m_transport;
 
-				LockingQueue<PeerStatePtr> m_queue;
+				LockingQueue<std::pair<PeerStatePtr, OutboundMessageStatePtr>> m_queue;
 		};
 	}
 }

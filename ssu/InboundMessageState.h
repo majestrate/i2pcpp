@@ -14,14 +14,14 @@ namespace i2pcpp {
 			public:
 				InboundMessageState(RouterHash const &routerHash, const uint32_t msgId) : m_msgId(msgId), m_routerHash(routerHash), m_gotLast(false), m_byteTotal(0) {}
 
-				bool addFragment(const unsigned char fragNum, ByteArray const &data, bool isLast);
-				bool isComplete() const;
+				void addFragment(const unsigned char fragNum, ByteArray const &data, bool isLast);
+				ByteArray assemble() const;
 
-				std::mutex& getMutex() { return m_mutex; }
 				uint32_t getMsgId() const { return m_msgId; }
 				const RouterHash& getRouterHash() const { return m_routerHash; }
 				unsigned char getNumFragments() const { return m_fragments.size(); }
-				ByteArray assemble() const;
+
+				explicit operator bool() const;
 
 			private:
 				uint32_t m_msgId;
@@ -31,8 +31,6 @@ namespace i2pcpp {
 				uint32_t m_byteTotal;
 
 				std::map<unsigned char, ByteArray> m_fragments;
-
-				std::mutex m_mutex;
 		};
 
 		typedef std::shared_ptr<InboundMessageState> InboundMessageStatePtr;

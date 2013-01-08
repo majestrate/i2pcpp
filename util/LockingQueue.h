@@ -4,8 +4,11 @@
 #include <queue>
 #include <mutex>
 #include <condition_variable>
+#include <stdexcept>
 
 namespace i2pcpp {
+	class LockingQueueFinished : public std::exception {};
+
 	template<class T>
 		class LockingQueue {
 			public:
@@ -13,21 +16,22 @@ namespace i2pcpp {
 
 				void enqueue(T const &p)
 				{
-					std::lock_guard<std::mutex> lock(m_queueMutex);
+					if(m_finished) return;
+
+					std::unique_lock<std::mutex> lock(m_queueMutex);
 					m_queue.push(p);
+					lock.unlock();
 					m_condition.notify_all();
 				}
 
-				T pop()
+				T wait_and_pop() throw(LockingQueueFinished)
 				{
-					std::lock_guard<std::mutex> lock(m_queueMutex);
+					std::unique_lock<std::mutex> lock(m_queueMutex);
 
-					T ret = 0;
-
-					if(m_queue.size()) {
-						ret = m_queue.front();
-						m_queue.pop();
-					}
+					m_condition.wait(lock, [this](){ return m_finished || !m_queue.empty(); });
+					if(m_finished) throw LockingQueueFinished();
+					T ret = m_queue.front();
+					m_queue.pop();
 
 					return ret;
 				}
@@ -40,32 +44,17 @@ namespace i2pcpp {
 					return m_queue.empty();
 				}
 
-				void finish() { m_finished = true; m_condition.notify_all(); }
-
-				void wait() const
+				void finish()
 				{
-					int size;
-
-					if(m_finished) return;
-
-					m_queueMutex.lock();
-					size = m_queue.size();
-					m_queueMutex.unlock();
-
-					if(!size) {
-						std::unique_lock<std::mutex> lock(m_conditionMutex);
-						m_condition.wait(lock);
-					}
+					m_finished = true;
+					m_condition.notify_all();
 				}
 
 			private:
 				std::queue<T> m_queue;
 				mutable std::mutex m_queueMutex;
-
-				mutable std::condition_variable m_condition;
-				mutable std::mutex m_conditionMutex;
-
-				bool m_finished;
+				std::condition_variable m_condition;
+				std::atomic<bool> m_finished;
 		};
 }
 

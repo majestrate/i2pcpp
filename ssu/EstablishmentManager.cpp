@@ -11,39 +11,37 @@ namespace i2pcpp {
 	namespace SSU {
 		void EstablishmentManager::loop()
 		{
-			while(m_keepRunning) {
-				m_workQueue.wait();
-				EstablishmentStatePtr es = m_workQueue.pop();
+			try {
+				while(m_keepRunning) {
+					EstablishmentStatePtr es = m_workQueue.wait_and_pop();
 
-				if(!es)
-					continue;
+					std::lock_guard<std::mutex> lock(es->getMutex());
 
-				std::lock_guard<std::mutex> lock(es->getMutex());
+					switch(es->getState()) {
+						case EstablishmentState::INTRODUCED:
+							std::cerr << "EstablishmentManager: sending session request to " << es->getTheirEndpoint().toString() << "\n";
+							sendRequest(es);
+							break;
 
-				switch(es->getState()) {
-					case EstablishmentState::INTRODUCED:
-						std::cerr << "EstablishmentManager: sending session request to " << es->getTheirEndpoint().toString() << "\n";
-						sendRequest(es);
-						break;
+						case EstablishmentState::CREATED_RECEIVED:
+							processCreated(es);
+							addWork(es);
+							break;
 
-					case EstablishmentState::CREATED_RECEIVED:
-						processCreated(es);
-						addWork(es);
-						break;
+						case EstablishmentState::CONFIRMED_PARTIALLY:
+							std::cerr << "EstablishmentManager: sending session confirmed to " << es->getTheirEndpoint().toString() << "\n";
+							sendConfirmed(es);
+							addWork(es);
+							break;
 
-					case EstablishmentState::CONFIRMED_PARTIALLY:
-						std::cerr << "EstablishmentManager: sending session confirmed to " << es->getTheirEndpoint().toString() << "\n";
-						sendConfirmed(es);
-						addWork(es);
-						break;
-
-					case EstablishmentState::CONFIRMED_COMPLETELY:
-						m_stateTableMutex.lock();
-						m_stateTable.erase(es->getTheirEndpoint());
-						m_stateTableMutex.unlock();
-						break;
+						case EstablishmentState::CONFIRMED_COMPLETELY:
+							m_stateTableMutex.lock();
+							m_stateTable.erase(es->getTheirEndpoint());
+							m_stateTableMutex.unlock();
+							break;
+					}
 				}
-			}
+			} catch(LockingQueueFinished) {}
 		}
 
 		EstablishmentStatePtr EstablishmentManager::getState(Endpoint const &ep)

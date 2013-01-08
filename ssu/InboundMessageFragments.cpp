@@ -58,16 +58,12 @@ namespace i2pcpp {
 					ps->addInboundMessageState(ims);
 				}
 
-				std::lock_guard<std::mutex> lock(ims->getMutex());
-				bool fragOK = ims->addFragment(fragNum, fragData, isLast);
+				// TODO Should throw an exception on error
+				ims->addFragment(fragNum, fragData, isLast);
 
-				if(!fragOK)
-					std::cerr << "InboundMessageFragments: BAD FRAGMENT!\n";
-
-				if(ims->isComplete()) {
+				if(*ims) {
+					ps->delInboundMessageState(ims->getMsgId());
 					m_messageReceiver.addMessage(ims);
-					ps->delInboundMessageState(msgId);
-					ps->pushAck(msgId);
 				}
 
 				std::cerr << "\n";

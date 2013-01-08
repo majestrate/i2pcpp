@@ -11,8 +11,6 @@ namespace i2pcpp {
 	class RouterContext;
 
 	namespace SSU {
-		typedef LockingQueue<InboundMessageStatePtr> InboundMessageQueue;
-
 		class MessageReceiver : public Thread {
 			public:
 				MessageReceiver(RouterContext &ctx) : m_ctx(ctx) {}
@@ -25,7 +23,7 @@ namespace i2pcpp {
 
 				RouterContext& m_ctx;
 
-				InboundMessageQueue m_queue;
+				LockingQueue<InboundMessageStatePtr> m_queue;
 		};
 	}
 }

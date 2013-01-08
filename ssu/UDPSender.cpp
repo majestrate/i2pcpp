@@ -8,22 +8,20 @@ namespace i2pcpp {
 	namespace SSU {
 		void UDPSender::loop()
 		{
-			PacketQueue& oq = m_transport.m_outboundQueue;
-			boost::asio::ip::udp::socket& s = m_transport.m_socket;
+			try {
+				PacketQueue& oq = m_transport.m_outboundQueue;
+				boost::asio::ip::udp::socket& s = m_transport.m_socket;
 
-			while(m_keepRunning) {
-				oq.wait();
+				while(m_keepRunning) {
+					PacketPtr p = oq.wait_and_pop();
 
-				PacketPtr p = oq.pop();
-				if(!p)
-					continue;
+					ByteArray pdata = p->getData();
+					Endpoint ep = p->getEndpoint();
 
-				ByteArray pdata = p->getData();
-				Endpoint ep = p->getEndpoint();
-
-				if(s.is_open())
-					s.send_to(boost::asio::buffer(pdata.data(), pdata.size()), ep.getUDPEndpoint());
-			}
+					if(s.is_open())
+						s.send_to(boost::asio::buffer(pdata.data(), pdata.size()), ep.getUDPEndpoint());
+				}
+			} catch(LockingQueueFinished) {}
 		}
 	}
 }

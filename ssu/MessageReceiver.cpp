@@ -1,6 +1,5 @@
 #include "MessageReceiver.h"
 
-#include "PacketHandler.h"
 #include "UDPTransport.h"
 
 #include "../InboundMessageDispatcher.h"
@@ -10,31 +9,28 @@ namespace i2pcpp {
 	namespace SSU {
 		void MessageReceiver::loop()
 		{
-			const InboundMessageDispatcher &imd = m_ctx.getInMsgDispatcher();
+			try {
+				const InboundMessageDispatcher &imd = m_ctx.getInMsgDispatcher();
 
-			while(m_keepRunning)
-			{
-				m_queue.wait();
+				while(m_keepRunning)
+				{
+					InboundMessageStatePtr ims = m_queue.wait_and_pop();
 
-				InboundMessageStatePtr ims = m_queue.pop();
+					std::cerr << "MessageReceiver[" << ims->getMsgId() << "]: Received IMS with " << (int)ims->getNumFragments() << " fragments\n";
 
-				if(!ims)
-					continue;
+					const ByteArray&& data = ims->assemble();
 
-				std::cerr << "MessageReceiver[" << ims->getMsgId() << "]: Received IMS with " << (int)ims->getNumFragments() << " fragments\n";
+					if(data.size()) {
+						I2NP::MessagePtr m = I2NP::Message::fromBytes(data);
 
-				const ByteArray& data = ims->assemble();
+						if(m) {
+							std::cerr << "MessageReceiver[" << ims->getMsgId() << "]: This looks like a message of type: " << (int)m->getType() << "\n";
 
-				if(data.size()) {
-					I2NP::MessagePtr m = I2NP::Message::fromBytes(data);
-
-					if(m) {
-						std::cerr << "MessageReceiver[" << ims->getMsgId() << "]: This looks like a message of type: " << (int)m->getType() << "\n";
-
-						imd.receiveMessage(ims->getRouterHash(), m);
+							imd.receiveMessage(ims->getRouterHash(), m);
+						}
 					}
 				}
-			}
+			} catch(LockingQueueFinished) {}
 		}
 
 		void MessageReceiver::addMessage(InboundMessageStatePtr const &ims)

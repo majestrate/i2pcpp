@@ -44,8 +44,10 @@ namespace i2pcpp {
 				void startEstablisher();
 
 				void addRemotePeer(PeerStatePtr const &ps);
-				PeerStatePtr getRemotePeer(Endpoint const &ep);
-				PeerStatePtr getRemotePeer(RouterHash const &rh);
+				PeerStatePtr getRemotePeer(Endpoint const &ep) const;
+				PeerStatePtr getRemotePeer(RouterHash const &rh) const;
+				void delRemotePeer(Endpoint const &ep);
+				void delRemotePeer(RouterHash const &rh);
 
 				boost::asio::io_service m_ios;
 				boost::asio::ip::udp::endpoint m_endpoint;
@@ -63,7 +65,7 @@ namespace i2pcpp {
 				std::unordered_map<Endpoint, PeerStatePtr> m_remotePeers;
 				std::unordered_map<RouterHash, PeerStatePtr> m_remotePeersByHash;
 
-				std::mutex m_remotePeersMutex;
+				mutable std::mutex m_remotePeersMutex;
 		};
 	}
 }

@@ -30,36 +30,29 @@ namespace i2pcpp {
 				SessionKey getNextSessionKey() const { return m_nextSessionKey; }
 				SessionKey getNextMacKey() const { return m_nextMacKey; }
 
-				std::mutex& getMutex() { return m_mutex; }
-				Endpoint getEndpoint() const { return m_endpoint; }
+				std::mutex& getMutex() const { return m_mutex; }
+				const Endpoint& getEndpoint() const { return m_endpoint; }
 				const RouterIdentity& getIdentity() const { return m_identity; }
+				bool getDirection() const { return m_isInbound; }
 
-				InboundMessageStatePtr getInboundMessageState(const uint32_t msgId);
+				InboundMessageStatePtr getInboundMessageState(const uint32_t msgId) const;
 				void addInboundMessageState(InboundMessageStatePtr const &ims);
 				void delInboundMessageState(const uint32_t msgId);
-
-				OutboundMessageStatePtr popOutboundMessageState();
-				void addOutboundMessageState(OutboundMessageStatePtr const &oms);
-				bool haveOutboundWaiting() const;
-
-				void pushAck(const uint32_t msgId) { m_ackQueue.enqueue(msgId); }
-				const uint32_t popAck() { return m_ackQueue.pop(); }
 
 			private:
 				Endpoint m_endpoint;
 				RouterIdentity m_identity;
-				bool m_isInbound;
-
-				std::unordered_map<uint32_t, InboundMessageStatePtr> m_inboundMessageStates;
-				LockingQueue<OutboundMessageStatePtr> m_outboundMessageStates;
-				LockingQueue<uint32_t> m_ackQueue;
 
 				SessionKey m_sessionKey;
 				SessionKey m_macKey;
 				SessionKey m_nextSessionKey;
 				SessionKey m_nextMacKey;
 
-				std::mutex m_mutex;
+				bool m_isInbound;
+
+				std::map<uint32_t, InboundMessageStatePtr> m_inboundMessageStates;
+
+				mutable std::mutex m_mutex;
 		};
 
 		typedef std::shared_ptr<PeerState> PeerStatePtr;

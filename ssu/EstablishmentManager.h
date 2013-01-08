@@ -25,7 +25,7 @@ namespace i2pcpp {
 				EstablishmentStatePtr getState(Endpoint const &ep);
 
 				void establish(RouterInfo const &ri);
-				inline void addWork(EstablishmentStatePtr const &es) { m_workQueue.enqueue(es); }
+				void addWork(EstablishmentStatePtr const &es) { m_workQueue.enqueue(es); }
 
 			private:
 				void loop();

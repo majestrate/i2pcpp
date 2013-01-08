@@ -2,13 +2,13 @@
 
 namespace i2pcpp {
 	namespace SSU {
-		bool InboundMessageState::addFragment(const unsigned char fragNum, ByteArray const &data, bool isLast)
+		void InboundMessageState::addFragment(const unsigned char fragNum, ByteArray const &data, bool isLast)
 		{
 			if(m_gotLast && fragNum > m_lastFragment)
-				return false;
+				return; // TODO Exception
 
 			if(m_fragments.count(fragNum) > 0)
-				return true;
+				return; // TODO Exception
 
 			m_fragments[fragNum] = data;
 
@@ -18,11 +18,9 @@ namespace i2pcpp {
 			}
 
 			m_byteTotal += data.size();
-
-			return true;
 		}
 
-		bool InboundMessageState::isComplete() const
+		InboundMessageState::operator bool() const
 		{
 			if(!m_gotLast) return false;
 
@@ -36,7 +34,7 @@ namespace i2pcpp {
 		{
 			ByteArray dst(m_byteTotal);
 
-			if(!isComplete()) return dst;
+			if(!this) return dst; // TODO Exception
 
 			auto itr = dst.begin();
 			for(auto fp: m_fragments)

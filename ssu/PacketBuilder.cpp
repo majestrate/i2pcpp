@@ -32,7 +32,7 @@ namespace i2pcpp {
 
 			ByteArray& sr = s->getData();
 
-			ByteArray myDH = state->getMyDH();
+			const ByteArray&& myDH = state->getMyDH();
 			sr.insert(sr.end(), myDH.begin(), myDH.end());
 
 			ByteArray ip = state->getTheirEndpoint().getRawIP();
@@ -68,7 +68,7 @@ namespace i2pcpp {
 
 			sc.insert(sc.end(), 9, 0x00);
 
-			ByteArray signature = state->calculateConfirmationSignature(timestamp);
+			const ByteArray&& signature = state->calculateConfirmationSignature(timestamp);
 			sc.insert(sc.end(), signature.begin(), signature.end());
 
 			return s;
@@ -92,18 +92,18 @@ namespace i2pcpp {
 			if(wantReply)
 				dataFlag |= (1 << 2);
 
-			std::vector<uint32_t> toAck;
+/*			std::vector<uint32_t> toAck;
 			for(int i = 0; i < 8; i++) {
 				uint32_t ack = ps->popAck();
 				if(ack) toAck.push_back(ack);
 			}
 
 			if(toAck.size())
-				dataFlag |= (1 << 7);
+				dataFlag |= (1 << 7);*/
 
 			d.insert(d.end(), dataFlag);
 
-			if(toAck.size()) {
+/*			if(toAck.size()) {
 				d.insert(d.end(), toAck.size());
 				for(auto mid: toAck) {
 					d.insert(d.end(), mid >> 24);
@@ -112,7 +112,7 @@ namespace i2pcpp {
 					d.insert(d.end(), mid);
 					std::cerr << "PacketBuilder: appended ack: " << mid << "\n";
 				}
-			}
+			}*/
 
 			d.insert(d.end(), distance(fragments.cbegin(), fragments.cend()));
 

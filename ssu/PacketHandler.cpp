@@ -13,34 +13,31 @@ namespace i2pcpp {
 
 		void PacketHandler::loop()
 		{
-			PacketQueue& pq = m_transport.m_inboundQueue;
-			EstablishmentManager& em = m_transport.m_establisher;
+			try {
+				PacketQueue& pq = m_transport.m_inboundQueue;
+				EstablishmentManager& em = m_transport.m_establisher;
 
-			while(m_keepRunning) {
-				pq.wait();
-				PacketPtr p = pq.pop();
+				while(m_keepRunning) {
+					PacketPtr p = pq.wait_and_pop();
 
-				if(!p)
-					continue;
+					if(p->getData().size() < Packet::MIN_PACKET_LEN)
+						continue;
 
-				if(p->getData().size() < Packet::MIN_PACKET_LEN)
-					continue;
-
-				PeerStatePtr ps = m_transport.getRemotePeer(p->getEndpoint());
-				if(ps)
-					handlePacket(p, ps);
-				else {
-					EstablishmentStatePtr es = em.getState(p->getEndpoint());
-					if(es) {
-						std::lock_guard<std::mutex> lock(es->getMutex());
-						if(es->isInbound()) {
+					PeerStatePtr ps = m_transport.getRemotePeer(p->getEndpoint());
+					if(ps)
+						handlePacket(p, ps);
+					else {
+						EstablishmentStatePtr es = em.getState(p->getEndpoint());
+						if(es) {
+							if(es->isInbound()) {
+							} else
+								handlePacketOutbound(p, es);
+							em.addWork(es);
 						} else
-							handlePacketOutbound(p, es);
-						em.addWork(es);
-					} else
-						std::cerr << "PacketHandler: no PeerState and no ES, dropping packet\n";
+							std::cerr << "PacketHandler: no PeerState and no ES, dropping packet\n";
+					}
 				}
-			}
+			} catch(LockingQueueFinished) {}
 		}
 
 		void PacketHandler::handlePacket(PacketPtr const &packet, PeerStatePtr const &state)
@@ -65,20 +62,22 @@ namespace i2pcpp {
 				case Packet::DATA:
 					std::cerr << "PacketHandler[PS]: data received from " << state->getEndpoint().toString() << ":\n";
 					//for(auto c: data) std::cerr << std::setw(2) << std::setfill('0') << std::hex << (int)c << std::setw(0) << std::dec;
-				//std::cerr << "\n";
+					//std::cerr << "\n";
 					m_imf.receiveData(state, dataItr);
 					break;
 			}
 
 			/* Only temporary */
 			/*PacketBuilder b;
-			PacketPtr sdp = b.buildSessionDestroyed(state);
-			sdp->encrypt(state->getCurrentSessionKey(), state->getCurrentMacKey());
-			m_transport.send(sdp);*/
+				PacketPtr sdp = b.buildSessionDestroyed(state);
+				sdp->encrypt(state->getCurrentSessionKey(), state->getCurrentMacKey());
+				m_transport.send(sdp);*/
 		}
 
 		void PacketHandler::handlePacketOutbound(PacketPtr const &packet, EstablishmentStatePtr const &state)
 		{
+			std::lock_guard<std::mutex> lock(state->getMutex());
+
 			if(!packet->verify(state->getMacKey())) {
 				std::cerr << "PacketHandler[ES]: packet verification failed from " << packet->getEndpoint().toString() << "\n";
 				return;

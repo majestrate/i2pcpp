@@ -35,7 +35,7 @@ namespace i2pcpp {
 
 		void UDPTransport::connect(RouterHash const &rh)
 		{
-			RouterInfo ri = m_ctx.getRouterInfo(rh);
+			const RouterInfo&& ri = m_ctx.getRouterInfo(rh);
 			m_establisher.establish(ri);
 		}
 
@@ -45,8 +45,8 @@ namespace i2pcpp {
 
 			if(ps) {
 				OutboundMessageStatePtr oms(new OutboundMessageState(msg));
-				ps->addOutboundMessageState(oms);
-				m_messageSender.addWork(ps);
+//				ps->addOutboundMessageState(oms);
+//				m_messageSender.addWork(ps, oms);
 			} else {
 				// TODO Exception
 			}
@@ -63,7 +63,7 @@ namespace i2pcpp {
 			m_remotePeersByHash[ps->getIdentity().getHash()] = ps;
 		}
 
-		PeerStatePtr UDPTransport::getRemotePeer(Endpoint const &ep)
+		PeerStatePtr UDPTransport::getRemotePeer(Endpoint const &ep) const
 		{
 			std::lock_guard<std::mutex> lock(m_remotePeersMutex);
 
@@ -76,7 +76,7 @@ namespace i2pcpp {
 			return ps;
 		}
 
-		PeerStatePtr UDPTransport::getRemotePeer(RouterHash const &rh)
+		PeerStatePtr UDPTransport::getRemotePeer(RouterHash const &rh) const
 		{
 			std::lock_guard<std::mutex> lock(m_remotePeersMutex);
 
@@ -87,6 +87,28 @@ namespace i2pcpp {
 				ps = itr->second;
 
 			return ps;
+		}
+
+		void UDPTransport::delRemotePeer(Endpoint const &ep)
+		{
+			std::lock_guard<std::mutex> lock(m_remotePeersMutex);
+
+			auto itr = m_remotePeers.find(ep);
+			if(itr != m_remotePeers.end())
+				m_remotePeersByHash.erase(itr->second->getIdentity().getHash());
+
+			m_remotePeers.erase(ep);
+		}
+
+		void UDPTransport::delRemotePeer(RouterHash const &rh)
+		{
+			std::lock_guard<std::mutex> lock(m_remotePeersMutex);
+
+			auto itr = m_remotePeersByHash.find(rh);
+			if(itr != m_remotePeersByHash.end())
+				m_remotePeers.erase(itr->second->getEndpoint());
+
+			m_remotePeersByHash.erase(rh);
 		}
 
 		void UDPTransport::shutdown()

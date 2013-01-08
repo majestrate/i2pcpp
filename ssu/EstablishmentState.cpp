@@ -11,7 +11,7 @@
 
 namespace i2pcpp {
 	namespace SSU {
-		EstablishmentState::EstablishmentState(RouterContext &ctx, RouterInfo const &ri, bool isInbound) : m_ctx(ctx), m_routerInfo(ri)
+		EstablishmentState::EstablishmentState(RouterContext &ctx, RouterInfo const &ri, bool isInbound) : m_ctx(ctx), m_routerInfo(ri), m_isInbound(isInbound)
 		{
 			Botan::AutoSeeded_RNG rng;
 			Botan::DL_Group shared_domain("modp/ietf/2048");
@@ -26,7 +26,6 @@ namespace i2pcpp {
 			m_theirEndpoint = Endpoint(host, port);
 			m_sessionKey = ri.getIdentity().getHash();
 			m_macKey = m_sessionKey;
-			m_isInbound = isInbound;
 		}
 
 		void EstablishmentState::calculateDHSecret()
@@ -40,7 +39,7 @@ namespace i2pcpp {
 				m_dhSecret.insert(m_dhSecret.begin(), 0x00); // 2's comlpement
 		}
 
-		const ByteArray EstablishmentState::calculateConfirmationSignature(const uint32_t signedOn) const
+		ByteArray EstablishmentState::calculateConfirmationSignature(const uint32_t signedOn) const
 		{
 			Botan::AutoSeeded_RNG rng;
 			const Botan::DSA_PrivateKey *key = m_ctx.getSigningKey();

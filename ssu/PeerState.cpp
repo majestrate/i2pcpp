@@ -2,7 +2,7 @@
 
 namespace i2pcpp {
 	namespace SSU {
-		InboundMessageStatePtr PeerState::getInboundMessageState(const uint32_t msgId)
+		InboundMessageStatePtr PeerState::getInboundMessageState(const uint32_t msgId) const
 		{
 			InboundMessageStatePtr ims;
 
@@ -23,7 +23,7 @@ namespace i2pcpp {
 			m_inboundMessageStates.erase(msgId);
 		}
 
-		OutboundMessageStatePtr PeerState::popOutboundMessageState()
+		/*OutboundMessageStatePtr PeerState::popOutboundMessageState()
 		{
 			return m_outboundMessageStates.pop();
 		}
@@ -36,6 +36,6 @@ namespace i2pcpp {
 		bool PeerState::haveOutboundWaiting() const
 		{
 			return m_outboundMessageStates.isEmpty();
-		}
+		}*/
 	}
 }
