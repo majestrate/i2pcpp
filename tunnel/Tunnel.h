@@ -13,10 +13,12 @@ namespace i2pcpp {
 		public:
 			Tunnel(RouterContext &ctx, std::list<RouterHash> const &hops);
 
+			void build();
+
 		private:
 			RouterContext& m_ctx;
 
-			std::vector<BuildRequestRecord> m_brrs;
+			std::list<BuildRequestRecord> m_records;
 	};
 }
 

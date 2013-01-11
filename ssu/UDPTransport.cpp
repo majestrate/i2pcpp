@@ -39,6 +39,13 @@ namespace i2pcpp {
 
 		UDPTransport::~UDPTransport()
 		{
+			for(auto& pair: m_peers) {
+				PeerStatePtr ps = pair.second;
+				PacketPtr sdp = PacketBuilder::buildSessionDestroyed(ps);
+				sdp->encrypt(ps->getCurrentSessionKey(), ps->getCurrentMacKey());
+				sendPacket(sdp);
+			}
+
 			m_socket.shutdown(boost::asio::ip::udp::socket::shutdown_both);
 			m_ios.stop();
 			m_serviceThread.join();

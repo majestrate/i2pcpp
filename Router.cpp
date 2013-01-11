@@ -5,6 +5,7 @@
 #include "i2np/DatabaseLookup.h"
 #include "i2np/DatabaseStore.h"
 #include "ssu/UDPTransport.h"
+#include "tunnel/Tunnel.h"
 
 namespace i2pcpp {
 	Router::~Router()
@@ -45,7 +46,9 @@ namespace i2pcpp {
 
 	void Router::createTunnel(std::string const &to)
 	{
-		/*std::list<BuildRequestRecord>;
-			I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(hopList));*/
+		std::list<RouterHash> hopList;
+		hopList.push_back(Base64::decode(to));
+		Tunnel t(m_ctx, hopList);
+		t.build();
 	}
 }

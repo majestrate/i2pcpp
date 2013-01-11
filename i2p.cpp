@@ -26,9 +26,10 @@ int main()
 
 		enum Command {
 			DB_LOOKUP,
+			VTB,
 			QUIT
 		};
-		std::map<std::string, Command> cmd_map = boost::assign::map_list_of("d", DB_LOOKUP)("q", QUIT);
+		std::map<std::string, Command> cmd_map = boost::assign::map_list_of("d", DB_LOOKUP)("q", QUIT)("v", VTB);
 
 		while(keepRunning) {
 			std::string str;
@@ -50,6 +51,9 @@ int main()
 			switch(cmd) {
 				case DB_LOOKUP:
 					r.databaseLookup(*(tokItr++), *(tokItr++));
+					break;
+				case VTB:
+					r.createTunnel(*(tokItr++));
 					break;
 				case QUIT:
 					keepRunning = false;

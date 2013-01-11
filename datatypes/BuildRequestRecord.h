@@ -16,7 +16,11 @@ namespace i2pcpp {
 
 			BuildRequestRecord(uint32_t tunnelId, RouterHash const &localIdentity, uint32_t nextTunnelId, RouterHash const &nextIdentity, SessionKey const &tunnelLayerKey, SessionKey const &tunnelIVKey, SessionKey const &replyKey, SessionKey const &replyIV, HopType type, uint32_t requestTime, uint32_t nextMsgId);
 
-			ByteArray getBytes() const;
+			ByteArray getBytes() const { return m_bytes; }
+
+			void encrypt(ByteArray const &encryptionKey);
+
+			const RouterHash& getLocalIdentity() const { return m_localIdentity; }
 
 		private:
 			uint32_t m_tunnelId;
@@ -30,6 +34,8 @@ namespace i2pcpp {
 			unsigned char m_flags;
 			uint32_t m_requestTime;
 			uint32_t m_nextMsgId;
+
+			ByteArray m_bytes;
 	};
 }
 
