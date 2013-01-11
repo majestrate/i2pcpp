@@ -9,10 +9,9 @@
 namespace i2pcpp {
 	namespace SSU {
 		AcknowledgementScheduler::AcknowledgementScheduler(UDPTransport &transport) :
-			boost::asio::io_service::service::service(transport.m_ios),
 			m_transport(transport)
 		{
-			AcknowledgementTimerPtr timer(new boost::asio::deadline_timer(get_io_service(), boost::posix_time::time_duration(0, 0, 1)));
+			AcknowledgementTimerPtr timer(new boost::asio::deadline_timer(m_transport.m_ios, boost::posix_time::time_duration(0, 0, 1)));
 
 			timer->async_wait(boost::bind(&AcknowledgementScheduler::flushAckCallback, this, boost::asio::placeholders::error, timer));
 		}
@@ -58,7 +57,7 @@ namespace i2pcpp {
 
 		AcknowledgementTimerPtr AcknowledgementScheduler::createInboundTimer(InboundMessageStatePtr ims)
 		{
-			AcknowledgementTimerPtr timer(new boost::asio::deadline_timer(get_io_service(), boost::posix_time::time_duration(0, 0, 10)));
+			AcknowledgementTimerPtr timer(new boost::asio::deadline_timer(m_transport.m_ios, boost::posix_time::time_duration(0, 0, 10)));
 
 			timer->async_wait(boost::bind(&AcknowledgementScheduler::inboundCallback, this, boost::asio::placeholders::error, ims));
 
@@ -67,7 +66,7 @@ namespace i2pcpp {
 
 		AcknowledgementTimerPtr AcknowledgementScheduler::createOutboundTimer(OutboundMessageStatePtr oms)
 		{
-			AcknowledgementTimerPtr timer(new boost::asio::deadline_timer(get_io_service(), boost::posix_time::time_duration(0, 0, 10)));
+			AcknowledgementTimerPtr timer(new boost::asio::deadline_timer(m_transport.m_ios, boost::posix_time::time_duration(0, 0, 10)));
 
 			timer->async_wait(boost::bind(&AcknowledgementScheduler::outboundCallback, this, boost::asio::placeholders::error, oms));
 

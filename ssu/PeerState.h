@@ -9,8 +9,6 @@
 #include "../datatypes/Endpoint.h"
 #include "../datatypes/SessionKey.h"
 
-#include "../util/LockingQueue.h"
-
 #include "InboundMessageState.h"
 #include "OutboundMessageState.h"
 

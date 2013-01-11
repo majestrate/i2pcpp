@@ -16,6 +16,7 @@ set(SRCS
 	OutboundMessageDispatcher.cpp
 	Router.cpp
 	RouterContext.cpp
+	Signals.cpp
 	Transport.cpp
 	handlers/DatabaseSearchReply.cpp
 	handlers/DatabaseStore.cpp
@@ -28,6 +29,7 @@ set(SRCS
 	i2np/Message.cpp
 	i2np/VariableTunnelBuild.cpp
 	ssu/AcknowledgementScheduler.cpp
+	#ssu/Dispatcher.cpp
 	ssu/EstablishmentManager.cpp
 	ssu/EstablishmentState.cpp
 	ssu/InboundMessageFragments.cpp
@@ -41,11 +43,12 @@ set(SRCS
 	ssu/Packet.cpp
 	ssu/PacketBuilder.cpp
 	ssu/UDPTransport.cpp
-	#tunnel/Tunnel.cpp
+	tunnel/Tunnel.cpp
 	util/Base64.cpp
+	#util/EventDispatcher.cpp
 	util/I2PHMAC.cpp
 	datatypes/ByteArray.cpp
-	#datatypes/BuildRequestRecord.cpp
+	datatypes/BuildRequestRecord.cpp
 	datatypes/Certificate.cpp
 	datatypes/Datatype.cpp
 	datatypes/Date.cpp

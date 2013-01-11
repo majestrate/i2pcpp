@@ -13,7 +13,6 @@
 namespace i2pcpp {
 	namespace SSU {
 		MessageSender::MessageSender(UDPTransport &transport) :
-			boost::asio::io_service::service::service(transport.m_ios),
 	 		m_transport(transport) {}
 
 		void MessageSender::messageSent(PeerStatePtr &ps, OutboundMessageStatePtr &oms)
@@ -48,7 +47,7 @@ namespace i2pcpp {
 
 		void MessageSender::addMessage(PeerStatePtr const &ps, OutboundMessageStatePtr const &oms)
 		{
-			get_io_service().post(boost::bind(&MessageSender::messageSent, this, ps, oms));
+			m_transport.m_ios.post(boost::bind(&MessageSender::messageSent, this, ps, oms));
 		}
 	}
 }

@@ -7,7 +7,6 @@
 namespace i2pcpp {
 	namespace SSU {
 		EstablishmentManager::EstablishmentManager(UDPTransport &transport) :
-			boost::asio::io_service::service::service(transport.m_ios),
 			m_transport(transport) {}
 
 		void EstablishmentManager::stateChanged(EstablishmentStatePtr const &es)
@@ -33,6 +32,7 @@ namespace i2pcpp {
 					m_stateTableMutex.lock();
 					m_stateTable.erase(es->getTheirEndpoint());
 					m_stateTableMutex.unlock();
+					m_transport.m_ios.post(boost::bind(boost::ref(m_transport.m_establishedSignal), es->getIdentity().getHash()));
 					break;
 			}
 		}
@@ -62,7 +62,7 @@ namespace i2pcpp {
 
 		void EstablishmentManager::addWork(EstablishmentStatePtr const &es)
 		{
-			get_io_service().post(boost::bind(&EstablishmentManager::stateChanged, this, es));
+			m_transport.m_ios.post(boost::bind(&EstablishmentManager::stateChanged, this, es));
 		}
 
 		void EstablishmentManager::sendRequest(EstablishmentStatePtr const &state)

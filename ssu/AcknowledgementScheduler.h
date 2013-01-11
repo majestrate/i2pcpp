@@ -1,8 +1,6 @@
 #ifndef SSUACKNOWLEDGEMENTSCHEDULER_H
 #define SSUACKNOWLEDGEMENTSCHEDULER_H
 
-#include <boost/asio.hpp>
-
 #include "InboundMessageState.h"
 #include "OutboundMessageState.h"
 #include "PeerState.h"
@@ -12,12 +10,10 @@ namespace i2pcpp {
 		class UDPTransport;
 		typedef std::shared_ptr<boost::asio::deadline_timer> AcknowledgementTimerPtr;
 
-		class AcknowledgementScheduler : public boost::asio::io_service::service {
+		class AcknowledgementScheduler {
 			public:
 				AcknowledgementScheduler(UDPTransport &transport);
 
-				void shutdown_service() {}
-				
 				AcknowledgementTimerPtr createInboundTimer(InboundMessageStatePtr ims);
 				AcknowledgementTimerPtr createOutboundTimer(OutboundMessageStatePtr oms);
 				void cancelTimer(AcknowledgementTimerPtr const &t);

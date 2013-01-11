@@ -15,15 +15,13 @@ namespace i2pcpp {
 	namespace SSU {
 		class UDPTransport;
 
-		class EstablishmentManager : public boost::asio::io_service::service {
+		class EstablishmentManager {
 			public:
 				EstablishmentManager(UDPTransport &transport);
 
 				EstablishmentStatePtr getState(Endpoint const &ep) const;
 				void establish(RouterInfo const &ri);
 				void addWork(EstablishmentStatePtr const &es);
-
-				void shutdown_service() {};
 
 			private:
 				void stateChanged(EstablishmentStatePtr const &es);
