@@ -11,7 +11,7 @@
 
 namespace i2pcpp {
 	namespace SSU {
-		InboundMessageFragments::InboundMessageFragments(UDPTransport &transport) : m_transport(transport), m_messageReceiver(transport.m_ctx) {}
+		InboundMessageFragments::InboundMessageFragments(UDPTransport &transport) : m_transport(transport) {}
 
 		void InboundMessageFragments::receiveData(PeerStatePtr const &ps, ByteArray::const_iterator &dataItr)
 		{
@@ -58,7 +58,7 @@ namespace i2pcpp {
 
 				InboundMessageStatePtr ims = ps->getInboundMessageState(msgId);
 				if(!ims) {
-					ims = InboundMessageStatePtr(new InboundMessageState(ps->getIdentity().getHash(), msgId));
+					ims = std::make_shared<InboundMessageState>(ps->getIdentity().getHash(), msgId);
 					ps->addInboundMessageState(ims);
 				}
 
@@ -66,7 +66,7 @@ namespace i2pcpp {
 				ims->addFragment(fragNum, fragData, isLast);
 
 				if(ims->allFragmentsReceived())
-					m_messageReceiver.addMessage(ims);
+					m_transport.m_receiver.addMessage(ims);
 
 				std::cerr << "\n";
 			}

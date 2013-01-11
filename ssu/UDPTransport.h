@@ -1,78 +1,64 @@
 #ifndef SSUUDPTRANSPORT_H
 #define SSUUDPTRANSPORT_H
 
-#include <unordered_map>
-#include <mutex>
-#include <list>
+#include <array>
+#include <thread>
 
 #include <boost/asio.hpp>
 
-#include "../datatypes/Endpoint.h"
 #include "../Transport.h"
+#include "../RouterContext.h"
+#include "../datatypes/Endpoint.h"
 
-#include "UDPReceiver.h"
-#include "UDPSender.h"
+#include "Packet.h"
+#include "PeerStateList.h"
 #include "PacketHandler.h"
 #include "EstablishmentManager.h"
-#include "PeerState.h"
-#include "Packet.h"
+#include "MessageReceiver.h"
 #include "MessageSender.h"
 #include "AcknowledgementScheduler.h"
 
 namespace i2pcpp {
 	namespace SSU {
-		typedef LockingQueue<PacketPtr> PacketQueue;
-
 		class UDPTransport : public Transport {
-			friend class UDPReceiver;
-			friend class UDPSender;
 			friend class PacketHandler;
 			friend class EstablishmentManager;
-			friend class MessageSender;
 			friend class InboundMessageFragments;
+			friend class MessageReceiver;
+			friend class MessageSender;
 			friend class AcknowledgementScheduler;
 
 			public:
 				UDPTransport(RouterContext &ctx);
+				~UDPTransport();
 
 				void start(Endpoint const &ep);
 				void connect(RouterHash const &rh);
 				void send(RouterHash const &rh, I2NP::MessagePtr const &msg);
 				void disconnect(RouterHash const &rh);
-				void shutdown();
 
 			private:
-				void startReceiver();
-				void startSender();
-				void startHandler();
-				void startEstablisher();
-
-				void addRemotePeer(PeerStatePtr const &ps);
-				PeerStatePtr getRemotePeer(Endpoint const &ep) const;
-				PeerStatePtr getRemotePeer(RouterHash const &rh) const;
-				void delRemotePeer(Endpoint const &ep);
-				void delRemotePeer(RouterHash const &rh);
-
-				std::unordered_map<RouterHash, PeerStatePtr>::const_iterator begin() const;
-				std::unordered_map<RouterHash, PeerStatePtr>::const_iterator end() const;
+				void dataReceived(const boost::system::error_code& e, size_t n);
+				void sendPacket(PacketPtr const &p);
+				void dataSent(const boost::system::error_code& e, size_t n, boost::asio::ip::udp::endpoint ep);
 
 				boost::asio::io_service m_ios;
-				boost::asio::ip::udp::endpoint m_endpoint;
 				boost::asio::ip::udp::socket m_socket;
+				boost::asio::ip::udp::endpoint m_endpoint;
+				boost::asio::ip::udp::endpoint m_senderEndpoint;
 
-				UDPReceiver m_receiver;
-				UDPSender m_sender;
-				PacketHandler m_handler;
+				std::thread m_serviceThread;
+
+				static const unsigned int BUFSIZE = 1024;
+				std::array<unsigned char, BUFSIZE> m_receiveBuf;
+
+				PeerStateList m_peers;
+
+				PacketHandler m_packetHandler;
 				EstablishmentManager m_establisher;
-				MessageSender m_messageSender;
+				MessageReceiver m_receiver;
+				MessageSender m_sender;
 				AcknowledgementScheduler m_ackScheduler;
-
-				PacketQueue m_inboundQueue;
-				PacketQueue m_outboundQueue;
-
-				std::unordered_map<Endpoint, PeerStatePtr> m_remotePeers;
-				std::unordered_map<RouterHash, PeerStatePtr> m_remotePeersByHash;
-				mutable std::mutex m_remotePeersMutex;
 		};
 	}
 }

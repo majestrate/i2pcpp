@@ -1,40 +1,47 @@
 #include "UDPTransport.h"
 
-#include "../Database.h"
-
-#include "UDPReceiver.h"
-#include "UDPSender.h"
-#include "PacketHandler.h"
-#include "EstablishmentManager.h"
-
 #include <iostream>
 
-#include "../util/Base64.h"
+#include <boost/bind.hpp>
+
+#include "../Database.h"
 
 namespace i2pcpp {
 	namespace SSU {
 		UDPTransport::UDPTransport(RouterContext &ctx) :
 			Transport(ctx),
 			m_socket(m_ios),
-			m_receiver(*this),
+			m_packetHandler(*this),
+	 		m_establisher(*this),
+	 		m_receiver(*this),
 			m_sender(*this),
-			m_handler(*this),
-			m_establisher(*this),
-	 		m_messageSender(*this),
-	 		m_ackScheduler(*this)	{}
+	 		m_ackScheduler(*this) {}
 
 		void UDPTransport::start(Endpoint const &ep)
 		{
 			m_endpoint = ep.getUDPEndpoint();
-			m_socket.open(boost::asio::ip::udp::v4());
+			m_socket.open(boost::asio::ip::udp::v4()); // TODO Support v6 too
 			m_socket.bind(m_endpoint);
 
-			m_receiver.start();
-			m_sender.start();
-			m_handler.start();
-			m_establisher.start();
-			m_messageSender.start();
-			m_ackScheduler.start();
+			m_socket.async_receive_from(
+					boost::asio::buffer(m_receiveBuf.data(), BUFSIZE),
+					m_senderEndpoint,
+					boost::bind(
+						&UDPTransport::dataReceived,
+						this,
+						boost::asio::placeholders::error,
+						boost::asio::placeholders::bytes_transferred
+						)
+					);
+
+			m_serviceThread = std::thread([&](){m_ios.run();});
+		}
+
+		UDPTransport::~UDPTransport()
+		{
+			m_socket.shutdown(boost::asio::ip::udp::socket::shutdown_both);
+			m_ios.stop();
+			m_serviceThread.join();
 		}
 
 		void UDPTransport::connect(RouterHash const &rh)
@@ -45,11 +52,11 @@ namespace i2pcpp {
 
 		void UDPTransport::send(RouterHash const &rh, I2NP::MessagePtr const &msg)
 		{
-			PeerStatePtr ps = getRemotePeer(rh);
+			PeerStatePtr ps = m_peers.getRemotePeer(rh);
 
 			if(ps) {
 				OutboundMessageStatePtr oms(new OutboundMessageState(msg));
-				m_messageSender.addWork(ps, oms);
+				m_sender.addMessage(ps, oms);
 			} else {
 				// TODO Exception
 			}
@@ -59,84 +66,46 @@ namespace i2pcpp {
 		{
 		}
 
-		void UDPTransport::addRemotePeer(PeerStatePtr const &ps)
+		void UDPTransport::sendPacket(PacketPtr const &p)
 		{
-			std::lock_guard<std::mutex> lock(m_remotePeersMutex);
-			m_remotePeers[ps->getEndpoint()] = ps;
-			m_remotePeersByHash[ps->getIdentity().getHash()] = ps;
+			ByteArray pdata = p->getData();
+			Endpoint ep = p->getEndpoint();
+
+			m_socket.async_send_to(
+					boost::asio::buffer(pdata.data(), pdata.size()),
+					ep.getUDPEndpoint(),
+					boost::bind(
+						&UDPTransport::dataSent,
+						this,
+						boost::asio::placeholders::error,
+						boost::asio::placeholders::bytes_transferred,
+						ep.getUDPEndpoint())
+					);
 		}
 
-		PeerStatePtr UDPTransport::getRemotePeer(Endpoint const &ep) const
+		void UDPTransport::dataReceived(const boost::system::error_code& e, size_t n)
 		{
-			std::lock_guard<std::mutex> lock(m_remotePeersMutex);
+			if(!e && n > 0) {
+				std::cerr << "UDPTransport: received " << n << " bytes from " << m_senderEndpoint << "\n";
+				PacketPtr p(new Packet(Endpoint(m_senderEndpoint), m_receiveBuf.data(), n));
+				m_ios.post(boost::bind(&PacketHandler::packetReceived, &m_packetHandler, p));
 
-			PeerStatePtr ps;
-
-			auto itr = m_remotePeers.find(ep);
-			if(itr != m_remotePeers.end())
-				ps = itr->second;
-
-			return ps;
+				m_socket.async_receive_from(
+						boost::asio::buffer(m_receiveBuf.data(), BUFSIZE),
+						m_senderEndpoint,
+						boost::bind(
+							&UDPTransport::dataReceived,
+							this,
+							boost::asio::placeholders::error,
+							boost::asio::placeholders::bytes_transferred
+							)
+						);
+			}
 		}
 
-		PeerStatePtr UDPTransport::getRemotePeer(RouterHash const &rh) const
+		void UDPTransport::dataSent(const boost::system::error_code& e, size_t n, boost::asio::ip::udp::endpoint ep)
 		{
-			std::lock_guard<std::mutex> lock(m_remotePeersMutex);
-
-			PeerStatePtr ps;
-
-			auto itr = m_remotePeersByHash.find(rh);
-			if(itr != m_remotePeersByHash.end())
-				ps = itr->second;
-
-			return ps;
-		}
-
-		void UDPTransport::delRemotePeer(Endpoint const &ep)
-		{
-			std::lock_guard<std::mutex> lock(m_remotePeersMutex);
-
-			auto itr = m_remotePeers.find(ep);
-			if(itr != m_remotePeers.end())
-				m_remotePeersByHash.erase(itr->second->getIdentity().getHash());
-
-			m_remotePeers.erase(ep);
-		}
-
-		void UDPTransport::delRemotePeer(RouterHash const &rh)
-		{
-			std::lock_guard<std::mutex> lock(m_remotePeersMutex);
-
-			auto itr = m_remotePeersByHash.find(rh);
-			if(itr != m_remotePeersByHash.end())
-				m_remotePeers.erase(itr->second->getEndpoint());
-
-			m_remotePeersByHash.erase(rh);
-		}
-
-		std::unordered_map<RouterHash, PeerStatePtr>::const_iterator UDPTransport::begin() const
-		{
-			return m_remotePeersByHash.cbegin();
-		}
-
-		std::unordered_map<RouterHash, PeerStatePtr>::const_iterator UDPTransport::end() const
-		{
-			return m_remotePeersByHash.cend();
-		}
-
-		void UDPTransport::shutdown()
-		{
-			m_socket.shutdown(boost::asio::ip::udp::socket::shutdown_both);
-
-			m_inboundQueue.finish();
-			m_outboundQueue.finish();
-
-			m_receiver.stop();
-			m_sender.stop();
-			m_handler.stop();
-			m_establisher.stop();
-			m_messageSender.stop();
-			m_ackScheduler.stop();
+			std::cerr << "UDPTransport: sent " << n << " bytes to " << ep << "\n";
 		}
 	}
 }

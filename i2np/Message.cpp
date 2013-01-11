@@ -19,15 +19,15 @@ namespace i2pcpp {
 			switch(mtype)
 			{
 				case Type::DELIVERY_STATUS:
-					m = MessagePtr(new DeliveryStatus());
+					m = std::make_shared<DeliveryStatus>();
 					break;
 
 				case Type::DB_STORE:
-					m = MessagePtr(new DatabaseStore());
+					m = std::make_shared<DatabaseStore>();
 					break;
 
 				case Type::DB_SEARCH_REPLY:
-					m = MessagePtr(new DatabaseSearchReply());
+					m = std::make_shared<DatabaseSearchReply>();
 					break;
 
 				default:

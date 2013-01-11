@@ -1,41 +1,40 @@
 #include "MessageReceiver.h"
 
-#include "UDPTransport.h"
+#include <boost/bind.hpp>
 
 #include "../InboundMessageDispatcher.h"
 #include "../i2np/Message.h"
 
+#include "UDPTransport.h"
+
 namespace i2pcpp {
 	namespace SSU {
-		void MessageReceiver::loop()
+		MessageReceiver::MessageReceiver(UDPTransport &transport) :
+			boost::asio::io_service::service::service(transport.m_ios),
+			m_ctx(transport.m_ctx) {}
+
+		void MessageReceiver::messageReceived(InboundMessageStatePtr const &ims)
 		{
-			try {
-				const InboundMessageDispatcher &imd = m_ctx.getInMsgDispatcher();
+			InboundMessageDispatcher &imd = m_ctx.getInMsgDispatcher();
 
-				while(m_keepRunning)
-				{
-					InboundMessageStatePtr ims = m_queue.wait_and_pop();
+			std::cerr << "MessageReceiver[" << ims->getMsgId() << "]: Received IMS with " << (int)ims->getNumFragments() << " fragments\n";
 
-					std::cerr << "MessageReceiver[" << ims->getMsgId() << "]: Received IMS with " << (int)ims->getNumFragments() << " fragments\n";
+			const ByteArray&& data = ims->assemble();
 
-					const ByteArray&& data = ims->assemble();
+			if(data.size()) {
+				I2NP::MessagePtr m = I2NP::Message::fromBytes(data);
 
-					if(data.size()) {
-						I2NP::MessagePtr m = I2NP::Message::fromBytes(data);
+				if(m) {
+					std::cerr << "MessageReceiver[" << ims->getMsgId() << "]: This looks like a message of type: " << (int)m->getType() << "\n";
 
-						if(m) {
-							std::cerr << "MessageReceiver[" << ims->getMsgId() << "]: This looks like a message of type: " << (int)m->getType() << "\n";
-
-							imd.receiveMessage(ims->getRouterHash(), m);
-						}
-					}
+					imd.receiveMessage(ims->getRouterHash(), m);
 				}
-			} catch(LockingQueueFinished) {}
+			}
 		}
 
 		void MessageReceiver::addMessage(InboundMessageStatePtr const &ims)
 		{
-			m_queue.enqueue(ims);
+			get_io_service().post(boost::bind(&MessageReceiver::messageReceived, this, ims));
 		}
 	}
 }

@@ -35,7 +35,6 @@ namespace i2pcpp {
 
 				bool isInbound() const { return m_isInbound; }
 				State getState() const { return m_state; }
-				std::mutex& getMutex() const { return m_mutex; }
 				const Endpoint& getTheirEndpoint() const { return m_theirEndpoint; }
 				const RouterContext& getContext() const { return m_ctx; }
 				const RouterIdentity& getIdentity() const { return m_routerInfo.getIdentity(); }
@@ -73,7 +72,6 @@ namespace i2pcpp {
 				void validationFailed() { m_state = VALIDATION_FAILED; }
 
 			private:
-				mutable std::mutex m_mutex;
 				RouterContext &m_ctx;
 
 				Botan::DH_PrivateKey *m_dhPrivateKey;

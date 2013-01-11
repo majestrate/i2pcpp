@@ -23,6 +23,9 @@ namespace i2pcpp {
 			b.insert(b.end(), size >> 8);
 			b.insert(b.end(), size);
 
+			for(auto p: m_excludedPeers)
+				b.insert(b.end(), p.cbegin(), p.cend());
+
 			return b;
 		}
 

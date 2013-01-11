@@ -1,49 +1,35 @@
 #include "PacketHandler.h"
 
-#include "UDPTransport.h"
-#include "InboundMessageFragments.h"
-#include "MessageReceiver.h"
-
 #include <iostream>
-#include <iomanip>
+
+#include "UDPTransport.h"
 
 namespace i2pcpp {
 	namespace SSU {
-		PacketHandler::PacketHandler(UDPTransport &transport) : m_transport(transport), m_imf(transport) {}
-
-		void PacketHandler::loop()
+		void PacketHandler::packetReceived(PacketPtr &p)
 		{
-			try {
-				PacketQueue& pq = m_transport.m_inboundQueue;
-				EstablishmentManager& em = m_transport.m_establisher;
+			if(p->getData().size() < Packet::MIN_PACKET_LEN)
+				return;
 
-				while(m_keepRunning) {
-					PacketPtr p = pq.wait_and_pop();
+			PeerStatePtr ps = m_transport.m_peers.getRemotePeer(p->getEndpoint());
 
-					if(p->getData().size() < Packet::MIN_PACKET_LEN)
-						continue;
-
-					PeerStatePtr ps = m_transport.getRemotePeer(p->getEndpoint());
-					if(ps)
-						handlePacket(p, ps);
-					else {
-						EstablishmentStatePtr es = em.getState(p->getEndpoint());
-						if(es) {
-							if(es->isInbound()) {
-							} else
-								handlePacketOutbound(p, es);
-							em.addWork(es);
-						} else
-							std::cerr << "PacketHandler: no PeerState and no ES, dropping packet\n";
-					}
+			if(ps)
+				handlePacket(p, ps);
+			else {
+				EstablishmentStatePtr es = m_transport.m_establisher.getState(p->getEndpoint());
+				if(es) {
+					if(es->isInbound()) {
+					} else
+						handlePacketOutbound(p, es);
+					m_transport.m_establisher.addWork(es);
+				} else {
+					std::cerr << "PacketHandler: no PeerState and no ES, dropping packet\n";
 				}
-			} catch(LockingQueueFinished) {}
+			}
 		}
 
 		void PacketHandler::handlePacket(PacketPtr const &packet, PeerStatePtr const &state)
 		{
-			std::lock_guard<std::mutex> lock(state->getMutex());
-
 			if(!packet->verify(state->getCurrentMacKey())) {
 				std::cerr << "PacketHandler[PS]: packet verification failed from " << packet->getEndpoint().toString() << "\n";
 				return;
@@ -60,24 +46,14 @@ namespace i2pcpp {
 
 			switch(ptype) {
 				case Packet::DATA:
-					std::cerr << "PacketHandler[PS]: data received from " << state->getEndpoint().toString() << ":\n";
-					//for(auto c: data) std::cerr << std::setw(2) << std::setfill('0') << std::hex << (int)c << std::setw(0) << std::dec;
-					//std::cerr << "\n";
+					std::cerr << "PacketHandler[PS]: SSU data packet received from " << state->getEndpoint().toString() << ":\n";
 					m_imf.receiveData(state, dataItr);
 					break;
 			}
-
-			/* Only temporary */
-			/*PacketBuilder b;
-				PacketPtr sdp = b.buildSessionDestroyed(state);
-				sdp->encrypt(state->getCurrentSessionKey(), state->getCurrentMacKey());
-				m_transport.send(sdp);*/
 		}
 
 		void PacketHandler::handlePacketOutbound(PacketPtr const &packet, EstablishmentStatePtr const &state)
 		{
-			std::lock_guard<std::mutex> lock(state->getMutex());
-
 			if(!packet->verify(state->getMacKey())) {
 				std::cerr << "PacketHandler[ES]: packet verification failed from " << packet->getEndpoint().toString() << "\n";
 				return;

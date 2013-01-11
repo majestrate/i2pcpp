@@ -22,8 +22,6 @@ int main()
 
 		i2pcpp::Router r("i2p.db");
 
-		std::signal(SIGINT, &sigint_handler);
-
 		r.start();
 
 		enum Command {
@@ -62,8 +60,7 @@ int main()
 		std::cerr << "Shutting down...\n";
 
 		r.stop();
-
-	} catch (std::exception &e) {
+	} catch (std::runtime_error &e) {
 		std::cerr << "main thread exception: " << e.what() << "\n";
 	}
 

@@ -8,44 +8,43 @@
 
 namespace i2pcpp {
 	namespace SSU {
-		void AcknowledgementScheduler::loop()
+		AcknowledgementScheduler::AcknowledgementScheduler(UDPTransport &transport) :
+			boost::asio::io_service::service::service(transport.m_ios),
+			m_transport(transport)
 		{
-			AcknowledgementTimerPtr timer(new boost::asio::deadline_timer(m_ios, boost::posix_time::time_duration(0, 0, 1)));
-			timer->async_wait(boost::bind(&AcknowledgementScheduler::flushAckCallback, this, boost::asio::placeholders::error, timer));
+			AcknowledgementTimerPtr timer(new boost::asio::deadline_timer(get_io_service(), boost::posix_time::time_duration(0, 0, 1)));
 
-			m_ios.run();
+			timer->async_wait(boost::bind(&AcknowledgementScheduler::flushAckCallback, this, boost::asio::placeholders::error, timer));
 		}
 
 		void AcknowledgementScheduler::flushAckCallback(const boost::system::error_code& e, AcknowledgementTimerPtr &timer)
 		{
-			try {
-				for(auto& peerPair: m_transport) {
-					AckList ackList;
-					PeerStatePtr ps = peerPair.second;
+			for(auto& peerPair: m_transport.m_peers) {
+				AckList ackList;
+				PeerStatePtr ps = peerPair.second;
 
-					std::lock_guard<std::mutex> lock(ps->getMutex());
+				std::lock_guard<std::mutex> lock(ps->getMutex());
 
-					for(auto itr = ps->begin(); itr != ps->end();) {
-						ackList.push_front(std::make_pair(itr->first, itr->second->getAckStates()));
-						if(itr->second->allFragmentsReceived()) {
-							ps->delInboundMessageState(itr++);
-							continue;
-						}
-
-						++itr;
+				for(auto itr = ps->begin(); itr != ps->end();) {
+					ackList.push_front(std::make_pair(itr->first, itr->second->getAckStates()));
+					if(itr->second->allFragmentsReceived()) {
+						ps->delInboundMessageState(itr++);
+						continue;
 					}
 
-					if(ackList.size()) {
-						std::forward_list<OutboundMessageState::FragmentPtr> emptyFragList;
-						PacketPtr p = PacketBuilder::buildData(ps, false, emptyFragList, ackList);
-						p->encrypt(ps->getCurrentSessionKey(), ps->getCurrentMacKey());
-						m_transport.m_outboundQueue.enqueue(p);
-					}
+					++itr;
 				}
 
-				timer->expires_at(timer->expires_at() + boost::posix_time::time_duration(0, 0, 1));
-				timer->async_wait(boost::bind(&AcknowledgementScheduler::flushAckCallback, this, boost::asio::placeholders::error, timer));
-			} catch(LockingQueueFinished) {}
+				if(ackList.size()) {
+					std::forward_list<OutboundMessageState::FragmentPtr> emptyFragList;
+					PacketPtr p = PacketBuilder::buildData(ps, false, emptyFragList, ackList);
+					p->encrypt(ps->getCurrentSessionKey(), ps->getCurrentMacKey());
+					m_transport.sendPacket(p);
+				}
+			}
+
+			timer->expires_at(timer->expires_at() + boost::posix_time::time_duration(0, 0, 1));
+			timer->async_wait(boost::bind(&AcknowledgementScheduler::flushAckCallback, this, boost::asio::placeholders::error, timer));
 		}
 
 		void AcknowledgementScheduler::inboundCallback(const boost::system::error_code& e, InboundMessageStatePtr ims)
@@ -59,7 +58,7 @@ namespace i2pcpp {
 
 		AcknowledgementTimerPtr AcknowledgementScheduler::createInboundTimer(InboundMessageStatePtr ims)
 		{
-			AcknowledgementTimerPtr timer(new boost::asio::deadline_timer(m_ios, boost::posix_time::time_duration(0, 0, 10)));
+			AcknowledgementTimerPtr timer(new boost::asio::deadline_timer(get_io_service(), boost::posix_time::time_duration(0, 0, 10)));
 
 			timer->async_wait(boost::bind(&AcknowledgementScheduler::inboundCallback, this, boost::asio::placeholders::error, ims));
 
@@ -68,7 +67,7 @@ namespace i2pcpp {
 
 		AcknowledgementTimerPtr AcknowledgementScheduler::createOutboundTimer(OutboundMessageStatePtr oms)
 		{
-			AcknowledgementTimerPtr timer(new boost::asio::deadline_timer(m_ios, boost::posix_time::time_duration(0, 0, 10)));
+			AcknowledgementTimerPtr timer(new boost::asio::deadline_timer(get_io_service(), boost::posix_time::time_duration(0, 0, 10)));
 
 			timer->async_wait(boost::bind(&AcknowledgementScheduler::outboundCallback, this, boost::asio::placeholders::error, oms));
 

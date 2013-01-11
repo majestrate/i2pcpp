@@ -1,9 +1,7 @@
 #ifndef SSUMESSAGESENDER_H
 #define SSUMESSAGESENDER_H
 
-#include "../util/LockingQueue.h"
-
-#include "../Thread.h"
+#include <boost/asio.hpp>
 
 #include "OutboundMessageState.h"
 #include "PeerState.h"
@@ -12,19 +10,18 @@ namespace i2pcpp {
 	namespace SSU {
 		class UDPTransport;
 
-		class MessageSender : public Thread {
+		class MessageSender : public boost::asio::io_service::service {
 			public:
-				MessageSender(UDPTransport &transport) : m_transport(transport) {}
+				MessageSender(UDPTransport &transport);
 
-				void addWork(PeerStatePtr const &ps, OutboundMessageStatePtr const &oms) { m_queue.enqueue(std::make_pair(ps, oms)); }
+				void shutdown_service() {}
+
+				void addMessage(PeerStatePtr const &ps, OutboundMessageStatePtr const &oms);
 
 			private:
-				void loop();
-				void stopHook() { m_queue.finish(); }
+				void messageSent(PeerStatePtr &ps, OutboundMessageStatePtr &oms);
 
 				UDPTransport& m_transport;
-
-				LockingQueue<std::pair<PeerStatePtr, OutboundMessageStatePtr>> m_queue;
 		};
 	}
 }

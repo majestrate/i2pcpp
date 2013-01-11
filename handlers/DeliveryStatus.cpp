@@ -9,9 +9,8 @@ namespace i2pcpp {
 			return I2NP::Message::Type::DELIVERY_STATUS;
 		}
 
-		JobPtr DeliveryStatus::createJob(RouterHash const &from, I2NP::MessagePtr const &msg) const
+		void DeliveryStatus::handleMessage(RouterHash const &from, I2NP::MessagePtr const &msg)
 		{
-			return JobPtr();
 		}
 	}
 }

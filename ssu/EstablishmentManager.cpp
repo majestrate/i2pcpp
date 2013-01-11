@@ -1,50 +1,43 @@
 #include "EstablishmentManager.h"
 
+#include <boost/bind.hpp>
+
 #include "UDPTransport.h"
-
-#include "../datatypes/SessionKey.h"
-#include "../util/Base64.h"
-
-#include <thread>
 
 namespace i2pcpp {
 	namespace SSU {
-		void EstablishmentManager::loop()
+		EstablishmentManager::EstablishmentManager(UDPTransport &transport) :
+			boost::asio::io_service::service::service(transport.m_ios),
+			m_transport(transport) {}
+
+		void EstablishmentManager::stateChanged(EstablishmentStatePtr const &es)
 		{
-			try {
-				while(m_keepRunning) {
-					EstablishmentStatePtr es = m_workQueue.wait_and_pop();
+			switch(es->getState()) {
+				case EstablishmentState::INTRODUCED:
+					std::cerr << "EstablishmentManager: sending session request to " << es->getTheirEndpoint().toString() << "\n";
+					sendRequest(es);
+					break;
 
-					std::lock_guard<std::mutex> lock(es->getMutex());
+				case EstablishmentState::CREATED_RECEIVED:
+					processCreated(es);
+					addWork(es);
+					break;
 
-					switch(es->getState()) {
-						case EstablishmentState::INTRODUCED:
-							std::cerr << "EstablishmentManager: sending session request to " << es->getTheirEndpoint().toString() << "\n";
-							sendRequest(es);
-							break;
+				case EstablishmentState::CONFIRMED_PARTIALLY:
+					std::cerr << "EstablishmentManager: sending session confirmed to " << es->getTheirEndpoint().toString() << "\n";
+					sendConfirmed(es);
+					addWork(es);
+					break;
 
-						case EstablishmentState::CREATED_RECEIVED:
-							processCreated(es);
-							addWork(es);
-							break;
-
-						case EstablishmentState::CONFIRMED_PARTIALLY:
-							std::cerr << "EstablishmentManager: sending session confirmed to " << es->getTheirEndpoint().toString() << "\n";
-							sendConfirmed(es);
-							addWork(es);
-							break;
-
-						case EstablishmentState::CONFIRMED_COMPLETELY:
-							m_stateTableMutex.lock();
-							m_stateTable.erase(es->getTheirEndpoint());
-							m_stateTableMutex.unlock();
-							break;
-					}
-				}
-			} catch(LockingQueueFinished) {}
+				case EstablishmentState::CONFIRMED_COMPLETELY:
+					m_stateTableMutex.lock();
+					m_stateTable.erase(es->getTheirEndpoint());
+					m_stateTableMutex.unlock();
+					break;
+			}
 		}
 
-		EstablishmentStatePtr EstablishmentManager::getState(Endpoint const &ep)
+		EstablishmentStatePtr EstablishmentManager::getState(Endpoint const &ep) const
 		{
 			std::lock_guard<std::mutex> lock(m_stateTableMutex);
 
@@ -67,12 +60,17 @@ namespace i2pcpp {
 			addWork(es);
 		}
 
+		void EstablishmentManager::addWork(EstablishmentStatePtr const &es)
+		{
+			get_io_service().post(boost::bind(&EstablishmentManager::stateChanged, this, es));
+		}
+
 		void EstablishmentManager::sendRequest(EstablishmentStatePtr const &state)
 		{
 			PacketPtr p = PacketBuilder::buildSessionRequest(state);
 			p->encrypt(state->getSessionKey(), state->getSessionKey());
 			state->requestSent();
-			m_transport.m_outboundQueue.enqueue(p);
+			m_transport.sendPacket(p);
 		}
 
 		void EstablishmentManager::processCreated(EstablishmentStatePtr const &state)
@@ -102,11 +100,11 @@ namespace i2pcpp {
 			PeerStatePtr ps(new PeerState(ep, state->getIdentity(), false));
 			ps->setCurrentSessionKey(state->getSessionKey());
 			ps->setCurrentMacKey(state->getMacKey());
-			m_transport.addRemotePeer(ps);
+			m_transport.m_peers.addRemotePeer(ps);
 
 			PacketPtr p = PacketBuilder::buildSessionConfirmed(state);
 			p->encrypt(state->getSessionKey(), state->getMacKey());
-			m_transport.m_outboundQueue.enqueue(p);
+			m_transport.sendPacket(p);
 
 			state->confirmedCompletely();
 		}

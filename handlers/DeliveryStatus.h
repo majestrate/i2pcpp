@@ -1,16 +1,16 @@
 #ifndef HANDLERSDELIVERYSTATUS_H
 #define HANDLERSDELIVERYSTATUS_H
 
-#include "../MessageHandler.h"
+#include "Message.h"
 
 namespace i2pcpp {
 	namespace Handlers {
-		class DeliveryStatus : public MessageHandler {
+		class DeliveryStatus : public Message {
 			public:
-				DeliveryStatus(RouterContext &ctx) : MessageHandler(ctx) {}
+				DeliveryStatus(RouterContext &ctx) : Message(ctx) {}
 
 				I2NP::Message::Type getType() const;
-				JobPtr createJob(RouterHash const &from, I2NP::MessagePtr const &msg) const;
+				void handleMessage(RouterHash const &from, I2NP::MessagePtr const &msg);
 		};
 	}
 }

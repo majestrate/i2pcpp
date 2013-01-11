@@ -1,9 +1,9 @@
 #include "OutboundMessageDispatcher.h"
 
 namespace i2pcpp {
-	void OutboundMessageDispatcher::sendMessage(RouterHash const &to, I2NP::MessagePtr const &msg) const
+	void OutboundMessageDispatcher::sendMessage(RouterHash const &to, I2NP::MessagePtr const &msg)
 	{
-		m_transport->send(to, msg);
+		get_io_service().post(std::bind(&Transport::send, m_transport, to, msg));
 	}
 
 	void OutboundMessageDispatcher::registerTransport(TransportPtr const &t)

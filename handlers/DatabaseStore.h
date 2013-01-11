@@ -1,16 +1,19 @@
 #ifndef HANDLERSDATABASESTORE_H
 #define HANDLERSDATABASESTORE_H
 
-#include "../MessageHandler.h"
+#include "Message.h"
 
 namespace i2pcpp {
 	namespace Handlers {
-		class DatabaseStore : public MessageHandler {
+		class DatabaseStore : public Message {
 			public:
-				DatabaseStore(RouterContext &ctx) : MessageHandler(ctx) {}
+				DatabaseStore(RouterContext &ctx) : Message(ctx), m_autoReply(true) {}
 
 				I2NP::Message::Type getType() const;
-				JobPtr createJob(RouterHash const &from, I2NP::MessagePtr const &msg) const;
+				void handleMessage(RouterHash const &from, I2NP::MessagePtr const &msg);
+
+			private:
+				bool m_autoReply;
 		};
 	}
 }

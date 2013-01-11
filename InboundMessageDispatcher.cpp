@@ -1,20 +1,21 @@
 #include "InboundMessageDispatcher.h"
 
+#include <boost/bind.hpp>
+#include <boost/shared_ptr.hpp>
+
 #include <iostream>
 
 namespace i2pcpp {
-	void InboundMessageDispatcher::receiveMessage(RouterHash const &from, I2NP::MessagePtr const &msg) const
+	void InboundMessageDispatcher::receiveMessage(RouterHash const &from, I2NP::MessagePtr const &msg)
 	{
 		I2NP::Message::Type mtype = msg->getType();
-		if(m_msgHandlers.count(mtype) > 0) {
-			JobPtr j = (m_msgHandlers.find(mtype))->second->createJob(from, msg);
-			if(j)
-				m_jobQueue.enqueue(j);
-		}	else
-			std::cerr << "InboundMessageDispatcher: Dropping packet of type " << msg->getType() << " without a handler\n";
+		if(m_msgHandlers.count(mtype) > 0)
+			get_io_service().post(std::bind(&Handlers::Message::handleMessage, m_msgHandlers[mtype], from, msg));
+		else
+			std::cerr << "InboundMessageDispatcher: dropping packet of type " << msg->getType() << " without a handler\n";
 	}
 
-	void InboundMessageDispatcher::registerHandler(I2NP::Message::Type const mtype, MessageHandlerPtr const &handler)
+	void InboundMessageDispatcher::registerHandler(I2NP::Message::Type const mtype, Handlers::MessagePtr const &handler)
 	{
 		std::lock_guard<std::mutex> lock(m_mutex);
 
