@@ -1,30 +1,27 @@
 #ifndef INBOUNDMESSAGEDISPATCHER_H
 #define INBOUNDMESSAGEDISPATCHER_H
 
-#include <mutex>
-#include <map>
-
 #include <boost/asio.hpp>
 
-#include "datatypes/RouterHash.h"
-#include "i2np/Message.h"
-#include "handlers/Message.h"
+#include "handlers/DatabaseStore.h"
+#include "handlers/DatabaseSearchReply.h"
+
+#include "RouterContext.h"
 
 namespace i2pcpp {
-	class InboundMessageDispatcher : public boost::asio::io_service::service {
+	class InboundMessageDispatcher {
 		public:
-			InboundMessageDispatcher(boost::asio::io_service &ios) : boost::asio::io_service::service::service(ios) {}
+			InboundMessageDispatcher(boost::asio::io_service &ios, RouterContext &ctx);
 
-			void shutdown_service() {}
-
-			void receiveMessage(RouterHash const &from, I2NP::MessagePtr const &msg);
-			void registerHandler(I2NP::Message::Type const mtype, Handlers::MessagePtr const &handler);
-			void unregisterHandler(I2NP::Message::Type const mtype);
+			void messageReceived(const RouterHash &from, const ByteArray &data);
+			void connectionEstablished(const RouterHash &rh);
 
 		private:
-			std::map<I2NP::Message::Type, Handlers::MessagePtr> m_msgHandlers;
+			boost::asio::io_service& m_ios;
+			RouterContext& m_ctx;
 
-			std::mutex m_mutex;
+			Handlers::DatabaseStore m_dbStoreHandler;
+			Handlers::DatabaseSearchReply m_dbSearchReplyHandler;
 	};
 }
 

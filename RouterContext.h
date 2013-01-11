@@ -10,13 +10,12 @@
 
 namespace i2pcpp {
 	class Database;
-	class InboundMessageDispatcher;
 	class OutboundMessageDispatcher;
 	class Signals;
 
 	class RouterContext {
 		public:
-			RouterContext(Database &db, InboundMessageDispatcher &imd, OutboundMessageDispatcher &omd, Signals &signals);
+			RouterContext(Database &db, OutboundMessageDispatcher &omd, Signals &signals);
 			~RouterContext() { if(m_signingKey) delete m_signingKey; if(m_encryptionKey) delete m_encryptionKey; }
 
 			const Botan::DL_Group& getDSAParameters() const { return m_dsaParameters; }
@@ -27,13 +26,11 @@ namespace i2pcpp {
 			const RouterHash& getMyRouterHash() const { return m_routerHash; }
 
 			Database& getDatabase() const { return m_db; }
-			InboundMessageDispatcher& getInMsgDispatcher() const { return m_inMsgDispatcher; }
 			OutboundMessageDispatcher& getOutMsgDispatcher() const { return m_outMsgDispatcher; }
 			Signals& getSignals() const { return m_signals; }
 
 		private:
 			Database& m_db;
-			InboundMessageDispatcher& m_inMsgDispatcher;
 			OutboundMessageDispatcher& m_outMsgDispatcher;
 			Signals &m_signals;
 

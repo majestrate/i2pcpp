@@ -7,7 +7,7 @@
 #include "Database.h"
 
 namespace i2pcpp {
-	RouterContext::RouterContext(Database &db, InboundMessageDispatcher &imd, OutboundMessageDispatcher &omd, Signals &signals) : m_db(db), m_inMsgDispatcher(imd), m_outMsgDispatcher(omd), m_signals(signals)
+	RouterContext::RouterContext(Database &db, OutboundMessageDispatcher &omd, Signals &signals) : m_db(db), m_outMsgDispatcher(omd), m_signals(signals)
 	{
 		Botan::AutoSeeded_RNG rng;
 

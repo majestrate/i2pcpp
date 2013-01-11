@@ -29,7 +29,6 @@ set(SRCS
 	i2np/Message.cpp
 	i2np/VariableTunnelBuild.cpp
 	ssu/AcknowledgementScheduler.cpp
-	#ssu/Dispatcher.cpp
 	ssu/EstablishmentManager.cpp
 	ssu/EstablishmentState.cpp
 	ssu/InboundMessageFragments.cpp
@@ -45,7 +44,6 @@ set(SRCS
 	ssu/UDPTransport.cpp
 	tunnel/Tunnel.cpp
 	util/Base64.cpp
-	#util/EventDispatcher.cpp
 	util/I2PHMAC.cpp
 	datatypes/ByteArray.cpp
 	datatypes/BuildRequestRecord.cpp
@@ -69,8 +67,8 @@ add_definitions("-std=c++11")
 add_definitions("-stdlib=libc++")
 
 add_executable(i2p ${SRCS})
-#add_executable(generate_encryption_key tools/generate_encryption_key.cpp)
-#add_executable(generate_signing_key tools/generate_signing_key.cpp)
+add_executable(generate_encryption_key tools/generate_encryption_key.cpp)
+add_executable(generate_signing_key tools/generate_signing_key.cpp)
 
 # Sqlite3
 find_path(SQLITE3_INCLUDE_DIR sqlite3.h PATHS "${SQLITE3_INCLUDE_PREFIX}" NO_DEFAULT_PATH)
@@ -100,11 +98,11 @@ else(BOTAN_LIBRARY_PATH AND BOTAN_INCLUDE_DIR)
 endif(BOTAN_LIBRARY_PATH AND BOTAN_INCLUDE_DIR)
 
 include_directories(BEFORE i2p "${BOTAN_INCLUDE_DIR}")
-#include_directories(BEFORE generate_encryption_key "${BOTAN_INCLUDE_DIR}")
-#include_directories(BEFORE generate_signing_key "${BOTAN_INCLUDE_DIR}")
+include_directories(BEFORE generate_encryption_key "${BOTAN_INCLUDE_DIR}")
+include_directories(BEFORE generate_signing_key "${BOTAN_INCLUDE_DIR}")
 target_link_libraries(i2p "${BOTAN_LIBRARY_PATH}")
-#target_link_libraries(generate_encryption_key "${BOTAN_LIBRARY_PATH}")
-#target_link_libraries(generate_signing_key "${BOTAN_LIBRARY_PATH}")
+target_link_libraries(generate_encryption_key "${BOTAN_LIBRARY_PATH}")
+target_link_libraries(generate_signing_key "${BOTAN_LIBRARY_PATH}")
 
 # Boost
 find_package(Boost 1.52.0 REQUIRED COMPONENTS system)
