@@ -42,7 +42,7 @@ set(SRCS
 	ssu/Packet.cpp
 	ssu/PacketBuilder.cpp
 	ssu/UDPTransport.cpp
-	tunnel/Tunnel.cpp
+	tunnel/InboundTunnel.cpp
 	util/Base64.cpp
 	util/I2PHMAC.cpp
 	datatypes/ByteArray.cpp

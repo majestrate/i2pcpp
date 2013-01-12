@@ -34,7 +34,7 @@ namespace i2pcpp {
 			/* These are only temporary and will by used for
 			 * testing and debugging. */
 			void databaseLookup(std::string const &to, std::string const &query);
-			void createTunnel(std::string const &to);
+			void createTunnel(std::list<std::string> const &hopList);
 
 		private:
 			boost::asio::io_service m_ios;
@@ -47,6 +47,7 @@ namespace i2pcpp {
 			Signals m_signals;
 			RouterContext m_ctx;
 			TransportPtr m_transport;
+			//TunnelRegistry m_tunnels; // TODO will need this eventually
 	};
 }
 

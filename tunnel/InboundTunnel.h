@@ -1,5 +1,5 @@
-#ifndef TUNNEL_H
-#define TUNNEL_H
+#ifndef INBOUNDTUNNEL_H
+#define INBOUNDTUNNEL_H
 
 #include <list>
 #include <vector>
@@ -9,16 +9,17 @@
 #include "../datatypes/BuildRequestRecord.h"
 
 namespace i2pcpp {
-	class Tunnel {
+	class InboundTunnel {
 		public:
-			Tunnel(RouterContext &ctx, std::list<RouterHash> const &hops);
+			InboundTunnel(RouterContext &ctx, std::list<RouterHash> &hops);
 
-			void build();
+			void sendRequest();
 
 		private:
 			RouterContext& m_ctx;
 
 			std::list<BuildRequestRecord> m_records;
+			RouterHash m_inboundGateway;
 	};
 }
 

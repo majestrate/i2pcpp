@@ -48,12 +48,14 @@ int main()
 
 			Command cmd = cmdItr->second;
 
+			std::list<std::string> hopList;
 			switch(cmd) {
 				case DB_LOOKUP:
 					r.databaseLookup(*(tokItr++), *(tokItr++));
 					break;
 				case VTB:
-					r.createTunnel(*(tokItr++));
+					while(tokItr != tok.end()) hopList.push_back(*tokItr++);
+					r.createTunnel(hopList);
 					break;
 				case QUIT:
 					keepRunning = false;

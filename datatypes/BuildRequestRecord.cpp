@@ -85,4 +85,19 @@ namespace i2pcpp {
 
 		copy(m_localIdentity.cbegin(), m_localIdentity.cbegin() + 16, m_bytes.begin());
 	}
+
+	void BuildRequestRecord::decrypt(SessionKey const &iv, SessionKey const &key)
+	{
+		Botan::InitializationVector biv(iv.data(), 16);
+		Botan::SymmetricKey bkey(key.data(), key.size());
+		Botan::Pipe cipherPipe(get_cipher("AES-256/CBC/NoPadding", bkey, biv, Botan::DECRYPTION));
+
+		cipherPipe.process_msg(m_bytes.data(), m_bytes.size());
+
+		size_t decryptedSize = cipherPipe.remaining();
+		ByteArray decryptedBytes(decryptedSize);
+
+		cipherPipe.read(decryptedBytes.data(), decryptedSize);
+		m_bytes = decryptedBytes;
+	}
 }

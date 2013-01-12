@@ -19,8 +19,11 @@ namespace i2pcpp {
 			ByteArray getBytes() const { return m_bytes; }
 
 			void encrypt(ByteArray const &encryptionKey);
+			void decrypt(SessionKey const &iv, SessionKey const &key);
 
 			const RouterHash& getLocalIdentity() const { return m_localIdentity; }
+			const SessionKey& getReplyIV() const { return m_replyIV; }
+			const SessionKey& getReplyKey() const { return m_replyKey; }
 
 		private:
 			uint32_t m_tunnelId;
