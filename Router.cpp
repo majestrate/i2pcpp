@@ -23,7 +23,7 @@ namespace i2pcpp {
 		m_outMsgDispatcher.registerTransport(m_transport);
 
 		std::shared_ptr<SSU::UDPTransport> u = std::dynamic_pointer_cast<SSU::UDPTransport>(m_transport);
-		u->start(Endpoint("127.0.0.1", 27333)); // TODO Config setting
+		u->start(Endpoint(m_db.getConfigValue("ssu_bind_ip"), std::stoi(m_db.getConfigValue("ssu_bind_port"))));
 		u->connect(Base64::decode("zhPja0k1cboGnHbhqO50hNPTVHIRE8b4GMwi7Htey~E="));
 	}
 
