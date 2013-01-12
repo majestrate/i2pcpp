@@ -16,11 +16,9 @@ namespace i2pcpp {
 			Botan::AutoSeeded_RNG rng;
 			Botan::DL_Group shared_domain("modp/ietf/2048");
 
-			//Mapping m = ri.getAddress(0).getOptions();
-			//std::string host = m.getValue("host");
-			std::string host = "127.0.0.1"; // Testing purposes
-			//unsigned short port = stoi(m.getValue("port"));
-			unsigned short port = 28481;
+			Mapping m = ri.getAddress(0).getOptions();
+			std::string host = m.getValue("host");
+			unsigned short port = stoi(m.getValue("port"));
 
 			m_dhPrivateKey = new Botan::DH_PrivateKey(rng, shared_domain);
 			m_theirEndpoint = Endpoint(host, port);

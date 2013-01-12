@@ -5,7 +5,7 @@
 #include <botan/zlib.h>
 
 #include "i2np/DatabaseStore.h"
-
+#include "Database.h"
 #include "OutboundMessageDispatcher.h"
 
 namespace i2pcpp {
@@ -40,9 +40,9 @@ namespace i2pcpp {
 	{
 		Mapping am;
 		am.setValue("caps", "BC");
-		am.setValue("host", "127.0.0.1");
+		am.setValue("host", m_ctx.getDatabase().getConfigValue("ssu_bind_ip"));
 		am.setValue("key", m_ctx.getMyRouterIdentity().getHashEncoded());
-		am.setValue("port", "27333");
+		am.setValue("port", m_ctx.getDatabase().getConfigValue("ssu_bind_port"));
 		RouterAddress a(5, Date(0), "SSU", am);
 
 		Mapping rm;

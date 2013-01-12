@@ -25,11 +25,12 @@ int main()
 		r.start();
 
 		enum Command {
+			CONNECT,
 			DB_LOOKUP,
 			VTB,
 			QUIT
 		};
-		std::map<std::string, Command> cmd_map = boost::assign::map_list_of("d", DB_LOOKUP)("q", QUIT)("v", VTB);
+		std::map<std::string, Command> cmd_map = boost::assign::map_list_of("d", DB_LOOKUP)("q", QUIT)("v", VTB)("c", CONNECT);
 
 		while(keepRunning) {
 			std::string str;
@@ -50,6 +51,9 @@ int main()
 
 			std::list<std::string> hopList;
 			switch(cmd) {
+				case CONNECT:
+					r.connect(*tokItr++);
+					break;
 				case DB_LOOKUP:
 					r.databaseLookup(*(tokItr++), *(tokItr++));
 					break;

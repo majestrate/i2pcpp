@@ -22,14 +22,21 @@ namespace i2pcpp {
 		m_transport->registerEstablishedHandler(boost::bind(&InboundMessageDispatcher::connectionEstablished, m_inMsgDispatcher, _1));
 		m_outMsgDispatcher.registerTransport(m_transport);
 
+		std::cerr << "My router hash: " << m_ctx.getMyRouterIdentity().getHashEncoded() << "\n";
+
 		std::shared_ptr<SSU::UDPTransport> u = std::dynamic_pointer_cast<SSU::UDPTransport>(m_transport);
 		u->start(Endpoint(m_db.getConfigValue("ssu_bind_ip"), std::stoi(m_db.getConfigValue("ssu_bind_port"))));
-		u->connect(Base64::decode("zhPja0k1cboGnHbhqO50hNPTVHIRE8b4GMwi7Htey~E="));
 	}
 
 	void Router::stop()
 	{
 		m_ios.stop();
+	}
+
+	void Router::connect(std::string const &to)
+	{
+		std::shared_ptr<SSU::UDPTransport> u = std::dynamic_pointer_cast<SSU::UDPTransport>(m_transport);
+		u->connect(Base64::decode(to));
 	}
 
 	void Router::databaseLookup(std::string const &to, std::string const &query)

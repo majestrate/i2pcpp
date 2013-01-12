@@ -33,6 +33,7 @@ namespace i2pcpp {
 
 			/* These are only temporary and will by used for
 			 * testing and debugging. */
+			void connect(std::string const &to);
 			void databaseLookup(std::string const &to, std::string const &query);
 			void createTunnel(std::list<std::string> const &hopList);
 
