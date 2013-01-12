@@ -87,7 +87,7 @@ namespace i2pcpp {
 					*nextMsgId++);
 
 			const RouterInfo&& ri = m_ctx.getDatabase().getRouterInfo(*hop++); // TODO Will core dump if hop isn't found.
-			m_records.back().encrypt(ri.getIdentity().getEncryptionKey());
+			m_records.front().encrypt(ri.getIdentity().getEncryptionKey());
 		}
 
 		for(auto f = m_records.begin(); f != m_records.end(); ++f) {

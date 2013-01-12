@@ -40,9 +40,9 @@ namespace i2pcpp {
 	{
 		Mapping am;
 		am.setValue("caps", "BC");
-		am.setValue("host", m_ctx.getDatabase().getConfigValue("ssu_bind_ip"));
+		am.setValue("host", m_ctx.getDatabase().getConfigValue("ssu_external_ip"));
 		am.setValue("key", m_ctx.getMyRouterIdentity().getHashEncoded());
-		am.setValue("port", m_ctx.getDatabase().getConfigValue("ssu_bind_port"));
+		am.setValue("port", m_ctx.getDatabase().getConfigValue("ssu_external_port"));
 		RouterAddress a(5, Date(0), "SSU", am);
 
 		Mapping rm;
