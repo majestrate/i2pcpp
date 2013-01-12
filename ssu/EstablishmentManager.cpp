@@ -17,22 +17,28 @@ namespace i2pcpp {
 					sendRequest(es);
 					break;
 
+				case EstablishmentState::REQUEST_RECEIVED:
+					std::cerr << "EstablishmentManager: sending session created to " << es->getTheirEndpoint().toString() << "\n";
+					sendCreated(es);
+					break;
+
+				case EstablishmentState::CREATED_SENT:
+					break;
+
 				case EstablishmentState::CREATED_RECEIVED:
 					processCreated(es);
-					addWork(es);
 					break;
 
 				case EstablishmentState::CONFIRMED_PARTIALLY:
 					std::cerr << "EstablishmentManager: sending session confirmed to " << es->getTheirEndpoint().toString() << "\n";
 					sendConfirmed(es);
-					addWork(es);
 					break;
 
 				case EstablishmentState::CONFIRMED_COMPLETELY:
 					m_stateTableMutex.lock();
 					m_stateTable.erase(es->getTheirEndpoint());
 					m_stateTableMutex.unlock();
-					m_transport.m_ios.post(boost::bind(boost::ref(m_transport.m_establishedSignal), es->getIdentity().getHash()));
+					m_transport.m_ios.post(boost::bind(boost::ref(m_transport.m_establishedSignal), es->getTheirIdentity().getHash()));
 					break;
 			}
 		}
@@ -50,13 +56,25 @@ namespace i2pcpp {
 			return es;
 		}
 
-		void EstablishmentManager::establish(RouterInfo const &ri)
+		EstablishmentStatePtr EstablishmentManager::establish(Endpoint const &ep, SessionKey const &sk)
 		{
 			std::lock_guard<std::mutex> lock(m_stateTableMutex);
 
-			EstablishmentStatePtr es(new EstablishmentState(m_transport.m_ctx, ri, false));
-			m_stateTable[es->getTheirEndpoint()] = es;
+			EstablishmentStatePtr es(new EstablishmentState(m_transport.m_ctx, ep, sk));
+			m_stateTable[ep] = es;
+
+			return es;
+		}
+
+		void EstablishmentManager::establish(Endpoint const &ep, SessionKey const &sk, RouterIdentity const &ri)
+		{
+			std::lock_guard<std::mutex> lock(m_stateTableMutex);
+
+			EstablishmentStatePtr es(new EstablishmentState(m_transport.m_ctx, ep, sk, ri));
+			m_stateTable[ep] = es;
+
 			es->introduced();
+
 			addWork(es);
 		}
 
@@ -73,12 +91,20 @@ namespace i2pcpp {
 			m_transport.sendPacket(p);
 		}
 
+		void EstablishmentManager::sendCreated(EstablishmentStatePtr const &state)
+		{
+			PacketPtr p = PacketBuilder::buildSessionCreated(state);
+			p->encrypt(state->getSessionKey(), state->getSessionKey());
+			state->createdSent();
+			m_transport.sendPacket(p);
+		}
+
 		void EstablishmentManager::processCreated(EstablishmentStatePtr const &state)
 		{
 			state->calculateDHSecret();
 
 			if(!state->verifyCreationSignature()) {
-				std::cerr << "Signature verification failed!\n";
+				std::cerr << "EstablishmentManager: Signature verification failed!\n";
 				state->validationFailed();
 				return;
 			}
@@ -92,12 +118,13 @@ namespace i2pcpp {
 			state->setMacKey(newMacKey);
 
 			state->confirmedPartially();
+			addWork(state);
 		}
 
 		void EstablishmentManager::sendConfirmed(EstablishmentStatePtr const &state)
 		{
 			Endpoint ep = state->getTheirEndpoint();
-			PeerStatePtr ps(new PeerState(ep, state->getIdentity(), false));
+			PeerStatePtr ps(new PeerState(ep, state->getTheirIdentity(), false));
 			ps->setCurrentSessionKey(state->getSessionKey());
 			ps->setCurrentMacKey(state->getMacKey());
 			m_transport.m_peers.addRemotePeer(ps);
@@ -107,6 +134,7 @@ namespace i2pcpp {
 			m_transport.sendPacket(p);
 
 			state->confirmedCompletely();
+			addWork(state);
 		}
 	}
 }

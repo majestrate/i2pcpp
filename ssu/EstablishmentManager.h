@@ -20,13 +20,15 @@ namespace i2pcpp {
 				EstablishmentManager(UDPTransport &transport);
 
 				EstablishmentStatePtr getState(Endpoint const &ep) const;
-				void establish(RouterInfo const &ri);
+				EstablishmentStatePtr establish(Endpoint const &ep, SessionKey const &sk);
+				void establish(Endpoint const &ep, SessionKey const &sk, RouterIdentity const &ri);
 				void addWork(EstablishmentStatePtr const &es);
 
 			private:
 				void stateChanged(EstablishmentStatePtr const &es);
 
 				void sendRequest(EstablishmentStatePtr const &state);
+				void sendCreated(EstablishmentStatePtr const &state);
 				void processCreated(EstablishmentStatePtr const &state);
 				void sendConfirmed(EstablishmentStatePtr const &state);
 

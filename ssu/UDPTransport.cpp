@@ -4,6 +4,8 @@
 
 #include <boost/bind.hpp>
 
+#include "../datatypes/Mapping.h"
+#include "../util/Base64.h"
 #include "../Database.h"
 
 namespace i2pcpp {
@@ -54,7 +56,8 @@ namespace i2pcpp {
 		void UDPTransport::connect(RouterHash const &rh)
 		{
 			const RouterInfo&& ri = m_ctx.getDatabase().getRouterInfo(rh);
-			m_establisher.establish(ri);
+			Mapping m = ri.getAddress(0).getOptions();
+			m_establisher.establish(Endpoint(m.getValue("host"), stoi(m.getValue("port"))), Base64::decode(m.getValue("key")), ri.getIdentity());
 		}
 
 		void UDPTransport::send(RouterHash const &rh, I2NP::MessagePtr const &msg)

@@ -45,6 +45,40 @@ namespace i2pcpp {
 			return s;
 		}
 
+		PacketPtr PacketBuilder::buildSessionCreated(EstablishmentStatePtr const &state)
+		{
+			PacketPtr s = buildHeader(state->getTheirEndpoint(), Packet::PayloadType::SESSION_CREATED << 4);
+
+			ByteArray& sc = s->getData();
+
+			const ByteArray&& myDH = state->getMyDH();
+			sc.insert(sc.end(), myDH.begin(), myDH.end());
+
+			ByteArray ip = state->getTheirEndpoint().getRawIP();
+			sc.insert(sc.end(), (unsigned char)ip.size());
+			sc.insert(sc.end(), ip.begin(), ip.end());
+			uint16_t port = state->getTheirEndpoint().getPort();
+			sc.insert(sc.end(), (port >> 8));
+			sc.insert(sc.end(), port);
+
+			uint32_t relayTag = state->getRelayTag();
+			sc.insert(sc.end(), relayTag >> 24);
+			sc.insert(sc.end(), relayTag >> 16);
+			sc.insert(sc.end(), relayTag >> 8);
+			sc.insert(sc.end(), relayTag);
+
+			uint32_t timestamp = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+			sc.insert(sc.end(), timestamp >> 24);
+			sc.insert(sc.end(), timestamp >> 16);
+			sc.insert(sc.end(), timestamp >> 8);
+			sc.insert(sc.end(), timestamp);
+
+			const ByteArray&& signature = state->calculateCreationSignature(timestamp);
+			sc.insert(sc.end(), signature.begin(), signature.end());
+
+			return s;
+		}
+
 		PacketPtr PacketBuilder::buildSessionConfirmed(EstablishmentStatePtr const &state)
 		{
 			PacketPtr s = buildHeader(state->getTheirEndpoint(), Packet::PayloadType::SESSION_CONFIRMED << 4);

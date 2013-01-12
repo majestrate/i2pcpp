@@ -9,7 +9,7 @@
 #include "../datatypes/ByteArray.h"
 #include "../datatypes/SessionKey.h"
 #include "../datatypes/Endpoint.h"
-#include "../datatypes/RouterInfo.h"
+#include "../datatypes/RouterIdentity.h"
 
 #include "../RouterContext.h"
 
@@ -17,7 +17,8 @@ namespace i2pcpp {
 	namespace SSU {
 		class EstablishmentState {
 			public:
-				EstablishmentState(RouterContext &ctx, RouterInfo const &ri, bool isInbound);
+				EstablishmentState(RouterContext &ctx, Endpoint const &ep, SessionKey const &sessionKey);
+				EstablishmentState(RouterContext &ctx, Endpoint const &ep, SessionKey const &sessionKey, RouterIdentity const &ri);
 				~EstablishmentState() { if(m_dhPrivateKey) delete m_dhPrivateKey; }
 
 				enum State {
@@ -36,8 +37,8 @@ namespace i2pcpp {
 				bool isInbound() const { return m_isInbound; }
 				State getState() const { return m_state; }
 				const Endpoint& getTheirEndpoint() const { return m_theirEndpoint; }
+				const RouterIdentity& getTheirIdentity() const { return m_theirIdentity; }
 				const RouterContext& getContext() const { return m_ctx; }
-				const RouterIdentity& getIdentity() const { return m_routerInfo.getIdentity(); }
 
 				void setIV(ByteArray::const_iterator iv_begin, ByteArray::const_iterator iv_end) { m_iv = ByteArray(iv_begin, iv_end); }
 
@@ -54,10 +55,15 @@ namespace i2pcpp {
 
 				void setMyEndpoint(Endpoint const &ep) { m_myEndpoint = ep; }
 				void setTheirEndpoint(Endpoint const &ep) { m_theirEndpoint = ep; }
-				void setRelayTag(ByteArray::const_iterator tag_begin, ByteArray::const_iterator tag_end) { m_relayTag = ByteArray(tag_begin, tag_end); }
-				void setSignatureTimestamp(ByteArray::const_iterator ts_begin, ByteArray::const_iterator ts_end) { m_signatureTimestamp = ByteArray(ts_begin, ts_end); }
+
+				void setRelayTag(const uint32_t rt) { m_relayTag = rt; }
+				uint32_t getRelayTag() const { return m_relayTag; }
+
+				void setSignatureTimestamp(const uint32_t ts) { m_signatureTimestamp = ts; }
+
 				void setSignature(ByteArray::const_iterator sig_begin, ByteArray::const_iterator sig_end) { m_signature = ByteArray(sig_begin, sig_end); }
 
+				ByteArray calculateCreationSignature(const uint32_t signedOn) const;
 				ByteArray calculateConfirmationSignature(const uint32_t signedOn) const;
 				bool verifyCreationSignature() const;
 
@@ -86,11 +92,11 @@ namespace i2pcpp {
 
 				SessionKey m_sessionKey;
 				SessionKey m_macKey;
-				RouterInfo m_routerInfo;
+				RouterIdentity m_theirIdentity;
 
 				ByteArray m_iv;
-				ByteArray m_relayTag;
-				ByteArray m_signatureTimestamp;
+				uint32_t m_relayTag;
+				uint32_t m_signatureTimestamp;
 				ByteArray m_signature;
 		};
 

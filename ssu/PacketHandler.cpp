@@ -6,6 +6,11 @@
 
 namespace i2pcpp {
 	namespace SSU {
+		PacketHandler::PacketHandler(UDPTransport &transport) :
+			m_transport(transport),
+			m_inboundKey(transport.m_ctx.getMyRouterIdentity().getHash()),
+			m_imf(transport) {}
+
 		void PacketHandler::packetReceived(PacketPtr &p)
 		{
 			if(p->getData().size() < Packet::MIN_PACKET_LEN)
@@ -21,9 +26,8 @@ namespace i2pcpp {
 					if(es->isInbound()) {
 					} else
 						handlePacketOutbound(p, es);
-					m_transport.m_establisher.addWork(es);
 				} else {
-					std::cerr << "PacketHandler: no PeerState and no ES, dropping packet\n";
+					handleNewPacket(p);
 				}
 			}
 		}
@@ -69,7 +73,7 @@ namespace i2pcpp {
 			unsigned char flag = *(dataItr++);
 			Packet::PayloadType ptype = (Packet::PayloadType)(flag >> 4);
 
-			dataItr += 4; // Need to validate timestamp
+			dataItr += 4; // TODO validate timestamp
 
 			switch(ptype) {
 				case Packet::SESSION_CREATED:
@@ -77,6 +81,53 @@ namespace i2pcpp {
 					handleSessionCreated(dataItr, state);
 					break;
 			}
+		}
+
+		void PacketHandler::handleNewPacket(PacketPtr const &packet)
+		{
+			Endpoint ep = packet->getEndpoint();
+
+			if(!packet->verify(m_inboundKey)) {
+				std::cerr << "PacketHandler[N]: packet verification failed from " << ep.toString() << "\n";
+				return;
+			}
+
+			packet->decrypt(m_inboundKey);
+			ByteArray &data = packet->getData();
+
+			auto dataItr = data.cbegin();
+			unsigned char flag = *(dataItr++);
+			Packet::PayloadType ptype = (Packet::PayloadType)(flag >> 4);
+
+			dataItr += 4; // TODO validate timestamp
+
+			switch(ptype) {
+				case Packet::SESSION_REQUEST:
+					std::cerr << "PacketHandler[N]: received session request from " << ep.toString() << "\n";
+					handleSessionRequest(dataItr, m_transport.m_establisher.establish(ep, m_inboundKey));
+					break;
+			}
+		}
+
+		void PacketHandler::handleSessionRequest(ByteArray::const_iterator &dataItr, EstablishmentStatePtr const &state)
+		{
+			state->setTheirDH(dataItr, dataItr + 256), dataItr += 256;
+
+			unsigned char ipSize = *(dataItr++);
+
+			if(ipSize != 4 && ipSize != 16)
+				return;
+
+			ByteArray ip(dataItr, dataItr + ipSize);
+			dataItr += ipSize;
+			short port = (((*(dataItr++)) << 8) | (*(dataItr++)));
+
+			state->setMyEndpoint(Endpoint(ip, port));
+
+			state->setRelayTag(0); // TODO Relay support
+
+			state->requestReceived();
+			m_transport.m_establisher.addWork(state);
 		}
 
 		void PacketHandler::handleSessionCreated(ByteArray::const_iterator &dataItr, EstablishmentStatePtr const &state)
@@ -93,17 +144,20 @@ namespace i2pcpp {
 
 			ByteArray ip(dataItr, dataItr + ipSize);
 			dataItr += ipSize;
-			short port = (((*(dataItr++)) << 8) | (*(dataItr++)));
+			uint16_t port = (((*(dataItr++)) << 8) | (*(dataItr++)));
 
 			state->setMyEndpoint(Endpoint(ip, port));
 
-			state->setRelayTag(dataItr, dataItr + 4), dataItr += 4;
+			uint32_t relayTag = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
+			state->setRelayTag(relayTag);
 
-			state->setSignatureTimestamp(dataItr, dataItr + 4), dataItr += 4;
+			uint32_t ts = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
+			state->setSignatureTimestamp(ts);
 
 			state->setSignature(dataItr, dataItr + 48);
 
 			state->createdReceived();
+			m_transport.m_establisher.addWork(state);
 		}
 	}
 }
