@@ -26,6 +26,9 @@ namespace i2pcpp {
 
 		std::shared_ptr<SSU::UDPTransport> u = std::dynamic_pointer_cast<SSU::UDPTransport>(m_transport);
 		u->start(Endpoint(m_db.getConfigValue("ssu_bind_ip"), std::stoi(m_db.getConfigValue("ssu_bind_port"))));
+
+		const RouterHash&& ff = m_db.getRandomFloodfill();
+		u->connect(ff);
 	}
 
 	void Router::stop()

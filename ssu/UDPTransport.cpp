@@ -56,8 +56,14 @@ namespace i2pcpp {
 		void UDPTransport::connect(RouterHash const &rh)
 		{
 			const RouterInfo&& ri = m_ctx.getDatabase().getRouterInfo(rh);
-			Mapping m = ri.getAddress(0).getOptions();
-			m_establisher.establish(Endpoint(m.getValue("host"), stoi(m.getValue("port"))), Base64::decode(m.getValue("key")), ri.getIdentity());
+
+			for(auto a: ri) {
+				if(a.getTransport() == "SSU") {
+					const Mapping& m = a.getOptions();
+					m_establisher.establish(Endpoint(m.getValue("host"), stoi(m.getValue("port"))), Base64::decode(m.getValue("key")), ri.getIdentity());
+					break;
+				}
+			}
 		}
 
 		void UDPTransport::send(RouterHash const &rh, I2NP::MessagePtr const &msg)

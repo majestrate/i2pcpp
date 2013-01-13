@@ -45,7 +45,7 @@ namespace i2pcpp {
 			//std::cerr << "RouterInfo RouterAddress[0] host: " << ri.getAddress(0).getOptions().getValue("host") << "\n";
 
 			if(ri.verifySignature(m_ctx.getDSAParameters())) {
-				//m_ctx.getDatabase().setRouterInfo(ri);
+				m_ctx.getDatabase().setRouterInfo(ri);
 				std::cerr << "Added RouterInfo to DB\n";
 				m_ctx.getSignals().invokeRouterInfoSaved(ri.getIdentity().getHash());
 			} else

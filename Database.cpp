@@ -30,6 +30,23 @@ namespace i2pcpp {
 		} else {} // TODO Exception
 	}
 
+	RouterHash Database::getRandomFloodfill()
+	{
+		const std::string select = "SELECT router_id FROM router_options WHERE router_options.name='caps' AND router_options.value LIKE '%f%' ORDER BY RANDOM() LIMIT 1";
+		sqlite3_stmt *statement;
+
+		if(sqlite3_prepare(m_db, select.c_str(), -1, &statement, NULL) != SQLITE_OK) {} // TODO Exception
+
+		int rc = sqlite3_step(statement);
+		if(rc == SQLITE_ROW) {
+			unsigned char *bytes = (unsigned char *)sqlite3_column_blob(statement, 0);
+			int size = sqlite3_column_bytes(statement, 0);
+			RouterHash rh;
+			std::copy(bytes, bytes + size, rh.begin());
+			return rh;
+		} else {} // TODO Exception
+	}
+
 	bool Database::routerExists(RouterHash const &routerHash)
 	{
 		const std::string select = "SELECT COUNT(id) AS count FROM routers WHERE id = ?";
