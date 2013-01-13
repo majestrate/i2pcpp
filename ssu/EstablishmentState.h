@@ -27,6 +27,7 @@ namespace i2pcpp {
 					REQUEST_RECEIVED,
 					CREATED_SENT,
 					CREATED_RECEIVED,
+					CONFIRMED_RECEIVED,
 					CONFIRMED_PARTIALLY,
 					CONFIRMED_COMPLETELY,
 					PENDING_INTRO,
@@ -37,10 +38,16 @@ namespace i2pcpp {
 				bool isInbound() const { return m_isInbound; }
 				State getState() const { return m_state; }
 				const Endpoint& getTheirEndpoint() const { return m_theirEndpoint; }
+				void setTheirIdentity(RouterIdentity const &ri) { m_theirIdentity = ri; }
 				const RouterIdentity& getTheirIdentity() const { return m_theirIdentity; }
 				const RouterContext& getContext() const { return m_ctx; }
 
-				void setIV(ByteArray::const_iterator iv_begin, ByteArray::const_iterator iv_end) { m_iv = ByteArray(iv_begin, iv_end); }
+				void setIV(ByteArray::const_iterator iv_begin, ByteArray::const_iterator iv_end)
+				{
+					ByteArray b(iv_begin, iv_end);
+					m_iv = Botan::InitializationVector(b.data(), b.size());
+				}
+				const Botan::InitializationVector& getIV() const { return m_iv; }
 
 				const SessionKey& getSessionKey() const { return m_sessionKey; }
 				void setSessionKey(SessionKey const &sk) { m_sessionKey = sk; }
@@ -63,14 +70,16 @@ namespace i2pcpp {
 
 				void setSignature(ByteArray::const_iterator sig_begin, ByteArray::const_iterator sig_end) { m_signature = ByteArray(sig_begin, sig_end); }
 
-				ByteArray calculateCreationSignature(const uint32_t signedOn) const;
+				ByteArray calculateCreationSignature(const uint32_t signedOn);
 				ByteArray calculateConfirmationSignature(const uint32_t signedOn) const;
 				bool verifyCreationSignature() const;
+				bool verifyConfirmationSignature() const;
 
 				void requestSent() { m_state = REQUEST_SENT; }
 				void requestReceived() { m_state = REQUEST_RECEIVED; }
 				void createdSent() { m_state = CREATED_SENT; }
 				void createdReceived() { m_state = CREATED_RECEIVED; }
+				void confirmedReceived() { m_state = CONFIRMED_RECEIVED; }
 				void confirmedPartially() { m_state = CONFIRMED_PARTIALLY; }
 				void confirmedCompletely() { m_state = CONFIRMED_COMPLETELY; }
 				void pendingIntro() { m_state = PENDING_INTRO; }
@@ -94,7 +103,7 @@ namespace i2pcpp {
 				SessionKey m_macKey;
 				RouterIdentity m_theirIdentity;
 
-				ByteArray m_iv;
+				Botan::InitializationVector m_iv;
 				uint32_t m_relayTag;
 				uint32_t m_signatureTimestamp;
 				ByteArray m_signature;

@@ -3,6 +3,8 @@
 
 #include <memory>
 
+#include <botan/lookup.h>
+
 #include "../datatypes/Endpoint.h"
 #include "../datatypes/ByteArray.h"
 #include "../datatypes/SessionKey.h"
@@ -18,6 +20,7 @@ namespace i2pcpp {
 				void decrypt(SessionKey const &mk);
 				bool verify(SessionKey const &sk);
 				void encrypt(SessionKey const &sk, SessionKey const &mk);
+				void encrypt(Botan::InitializationVector const &iv, SessionKey const &sk, SessionKey const &mk);
 
 				ByteArray& getData() { return m_data; }
 				Endpoint getEndpoint() { return m_endpoint; }

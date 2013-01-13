@@ -1,6 +1,7 @@
 #include "PacketHandler.h"
 
 #include <iostream>
+#include <iomanip>
 
 #include "UDPTransport.h"
 
@@ -22,13 +23,10 @@ namespace i2pcpp {
 				handlePacket(p, ps);
 			else {
 				EstablishmentStatePtr es = m_transport.m_establisher.getState(p->getEndpoint());
-				if(es) {
-					if(es->isInbound()) {
-					} else
-						handlePacketOutbound(p, es);
-				} else {
+				if(es)
+						handlePacket(p, es);
+				else
 					handleNewPacket(p);
-				}
 			}
 		}
 
@@ -56,7 +54,7 @@ namespace i2pcpp {
 			}
 		}
 
-		void PacketHandler::handlePacketOutbound(PacketPtr const &packet, EstablishmentStatePtr const &state)
+		void PacketHandler::handlePacket(PacketPtr const &packet, EstablishmentStatePtr const &state)
 		{
 			if(!packet->verify(state->getMacKey())) {
 				std::cerr << "PacketHandler[ES]: packet verification failed from " << packet->getEndpoint().toString() << "\n";
@@ -64,7 +62,8 @@ namespace i2pcpp {
 			}
 
 			ByteArray &data = packet->getData();
-			state->setIV(data.begin() + 16, data.begin() + 32);
+			if(!state->isInbound())
+				state->setIV(data.begin() + 16, data.begin() + 32);
 
 			packet->decrypt(state->getSessionKey());
 			data = packet->getData();
@@ -79,6 +78,11 @@ namespace i2pcpp {
 				case Packet::SESSION_CREATED:
 					std::cerr << "PacketHandler[ES]: received session created from " << state->getTheirEndpoint().toString() << "\n";
 					handleSessionCreated(dataItr, state);
+					break;
+
+				case Packet::SESSION_CONFIRMED:
+					std::cerr << "PacketHandler[ES]: received session confirmed from " << state->getTheirEndpoint().toString() << "\n";
+					handleSessionConfirmed(dataItr, data.cend(), state);
 					break;
 			}
 		}
@@ -157,6 +161,27 @@ namespace i2pcpp {
 			state->setSignature(dataItr, dataItr + 48);
 
 			state->createdReceived();
+			m_transport.m_establisher.addWork(state);
+		}
+
+		void PacketHandler::handleSessionConfirmed(ByteArray::const_iterator &dataItr, ByteArray::const_iterator end, EstablishmentStatePtr const &state)
+		{
+			if(state->getState() != EstablishmentState::CREATED_SENT)
+				return;
+
+			unsigned char info = *(dataItr++);
+			uint16_t size = (((*(dataItr++)) << 8) | (*(dataItr++)));
+			(void)info; (void)size; // Stop compiler from complaining
+
+			RouterIdentity ri(dataItr);
+			state->setTheirIdentity(ri);
+
+			uint32_t ts = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
+			state->setSignatureTimestamp(ts);
+
+			state->setSignature(end - 40, end);
+
+			state->confirmedReceived();
 			m_transport.m_establisher.addWork(state);
 		}
 	}

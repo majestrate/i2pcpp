@@ -28,9 +28,11 @@ namespace i2pcpp {
 				void stateChanged(EstablishmentStatePtr const &es);
 
 				void sendRequest(EstablishmentStatePtr const &state);
+				void processRequest(EstablishmentStatePtr const &state);
 				void sendCreated(EstablishmentStatePtr const &state);
 				void processCreated(EstablishmentStatePtr const &state);
 				void sendConfirmed(EstablishmentStatePtr const &state);
+				void processConfirmed(EstablishmentStatePtr const &state);
 
 				UDPTransport &m_transport;
 

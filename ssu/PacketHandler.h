@@ -18,10 +18,11 @@ namespace i2pcpp {
 
 			private:
 				void handlePacket(PacketPtr const &packet, PeerStatePtr const &state);
-				void handlePacketOutbound(PacketPtr const &packet, EstablishmentStatePtr const &state);
+				void handlePacket(PacketPtr const &packet, EstablishmentStatePtr const &state);
 				void handleNewPacket(PacketPtr const &packet);
 				void handleSessionRequest(ByteArray::const_iterator &dataItr, EstablishmentStatePtr const &state);
 				void handleSessionCreated(ByteArray::const_iterator &dataItr, EstablishmentStatePtr const &state);
+				void handleSessionConfirmed(ByteArray::const_iterator &dataItr, ByteArray::const_iterator end, EstablishmentStatePtr const &state);
 
 				UDPTransport& m_transport;
 

@@ -2,7 +2,6 @@
 
 #include <botan/auto_rng.h>
 #include <botan/pipe.h>
-#include <botan/lookup.h>
 #include <botan/md5.h>
 
 #include "../util/I2PHMAC.h"
@@ -60,6 +59,11 @@ namespace i2pcpp {
 			Botan::AutoSeeded_RNG rng;
 			Botan::InitializationVector iv(rng, 16);
 
+			encrypt(iv, sk, mk);
+		}
+
+		void Packet::encrypt(Botan::InitializationVector const &iv, SessionKey const &sk, SessionKey const &mk)
+		{
 			Botan::SymmetricKey sessionKey(sk.data(), sk.size());
 			Botan::SymmetricKey macKey(mk.data(), mk.size());
 			Botan::Pipe cipherPipe(get_cipher("AES-256/CBC/NoPadding", sessionKey, iv, Botan::ENCRYPTION));

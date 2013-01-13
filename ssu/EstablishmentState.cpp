@@ -46,12 +46,19 @@ namespace i2pcpp {
 				m_dhSecret.insert(m_dhSecret.begin(), 0x00); // 2's comlpement
 		}
 
-		ByteArray EstablishmentState::calculateCreationSignature(const uint32_t signedOn) const
+		ByteArray EstablishmentState::calculateCreationSignature(const uint32_t signedOn)
 		{
 			Botan::AutoSeeded_RNG rng;
-			const Botan::DSA_PrivateKey *key = m_ctx.getSigningKey();
 
-			Botan::Pipe sigPipe(new Botan::Hash_Filter("SHA-1"), new Botan::PK_Signer_Filter(new Botan::PK_Signer(*key, "Raw"), rng));
+			const Botan::DSA_PrivateKey *sigKey = m_ctx.getSigningKey();
+
+			Botan::Pipe sigPipe(
+					new Botan::Hash_Filter("SHA-1"),
+					new Botan::PK_Signer_Filter(
+						new Botan::PK_Signer(*sigKey, "Raw"),
+						rng
+					));
+
 			sigPipe.start_msg();
 
 			sigPipe.write(m_theirDH.data(), m_theirDH.size());
@@ -82,10 +89,24 @@ namespace i2pcpp {
 
 			sigPipe.end_msg();
 
-			ByteArray signature(sigPipe.remaining());
-			sigPipe.read(signature.data(), sigPipe.remaining());
+			size_t size = sigPipe.remaining();
+			ByteArray signature(size);
+			sigPipe.read(signature.data(), size);
 
-			return signature;
+			unsigned char padSize = 16 - (size % 16);
+			if(padSize < 16)
+				signature.insert(signature.end(), padSize, padSize);
+
+			Botan::SymmetricKey encKey(m_dhSecret.data(), 32);
+			m_iv = Botan::InitializationVector(rng, 16);
+			Botan::Pipe encPipe(get_cipher("AES-256/CBC/NoPadding", encKey, m_iv, Botan::ENCRYPTION));
+			encPipe.process_msg(signature.data(), signature.size());
+
+			size = encPipe.remaining();
+			ByteArray encSignature(size);
+			encPipe.read(encSignature.data(), size);
+
+			return encSignature;
 		}
 
 		ByteArray EstablishmentState::calculateConfirmationSignature(const uint32_t signedOn) const
@@ -132,9 +153,8 @@ namespace i2pcpp {
 
 		bool EstablishmentState::verifyCreationSignature() const
 		{
-			Botan::InitializationVector iv(m_iv.data(), m_iv.size());
 			Botan::SymmetricKey key(m_dhSecret.data(), 32);
-			Botan::Pipe cipherPipe(get_cipher("AES-256/CBC/NoPadding", key, iv, Botan::DECRYPTION));
+			Botan::Pipe cipherPipe(get_cipher("AES-256/CBC/NoPadding", key, m_iv, Botan::DECRYPTION));
 
 			cipherPipe.process_msg(m_signature.data(), m_signature.size());
 
@@ -166,6 +186,51 @@ namespace i2pcpp {
 			sigPipe.write(theirPort >> 8);
 			sigPipe.write(theirPort);
 
+			sigPipe.write(m_relayTag >> 24);
+			sigPipe.write(m_relayTag >> 16);
+			sigPipe.write(m_relayTag >> 8);
+			sigPipe.write(m_relayTag);
+
+			sigPipe.write(m_signatureTimestamp >> 24);
+			sigPipe.write(m_signatureTimestamp >> 16);
+			sigPipe.write(m_signatureTimestamp >> 8);
+			sigPipe.write(m_signatureTimestamp);
+
+			sigPipe.end_msg();
+
+			unsigned char verified;
+			sigPipe.read(&verified, 1);
+
+			return verified;
+		}
+
+		bool EstablishmentState::verifyConfirmationSignature() const
+		{
+			const Botan::DL_Group& group = m_ctx.getDSAParameters();
+
+			const ByteArray&& dsaKeyBytes = m_theirIdentity.getSigningKey();
+			Botan::DSA_PublicKey dsaKey(group, Botan::BigInt(dsaKeyBytes.data(), dsaKeyBytes.size()));
+
+			Botan::secure_vector<Botan::byte> sig(m_signature.cbegin(), m_signature.cend());
+			Botan::Pipe sigPipe(new Botan::Hash_Filter("SHA-1"), new Botan::PK_Verifier_Filter(new Botan::PK_Verifier(dsaKey, "Raw"), sig));
+			sigPipe.start_msg();
+
+			sigPipe.write(m_theirDH.data(), m_theirDH.size());
+			const ByteArray& myDH(m_dhPrivateKey->public_value());
+			sigPipe.write(myDH.data(), myDH.size());
+
+			const ByteArray&& theirIP = m_theirEndpoint.getRawIP();
+			unsigned short theirPort = m_theirEndpoint.getPort();
+			sigPipe.write(theirIP.data(), theirIP.size());
+			sigPipe.write(theirPort >> 8);
+			sigPipe.write(theirPort);
+
+			const ByteArray&& myIP = m_myEndpoint.getRawIP();
+			unsigned short myPort =  m_myEndpoint.getPort();
+			sigPipe.write(myIP.data(), myIP.size());
+			sigPipe.write(myPort >> 8);
+			sigPipe.write(myPort);
+			
 			sigPipe.write(m_relayTag >> 24);
 			sigPipe.write(m_relayTag >> 16);
 			sigPipe.write(m_relayTag >> 8);
