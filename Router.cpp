@@ -22,6 +22,8 @@ namespace i2pcpp {
 		m_transport->registerEstablishedHandler(boost::bind(&InboundMessageDispatcher::connectionEstablished, m_inMsgDispatcher, _1));
 		m_outMsgDispatcher.registerTransport(m_transport);
 
+		m_signals.registerBuildTunnelRequest(boost::bind(&TunnelManager::handleRequest, m_tunnelManager, _1));
+
 		std::cerr << "My router hash: " << m_ctx.getMyRouterIdentity().getHashEncoded() << "\n";
 
 		std::shared_ptr<SSU::UDPTransport> u = std::dynamic_pointer_cast<SSU::UDPTransport>(m_transport);

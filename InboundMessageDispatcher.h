@@ -5,6 +5,7 @@
 
 #include "handlers/DatabaseStore.h"
 #include "handlers/DatabaseSearchReply.h"
+#include "handlers/VariableTunnelBuild.h"
 
 #include "RouterContext.h"
 
@@ -22,6 +23,7 @@ namespace i2pcpp {
 
 			Handlers::DatabaseStore m_dbStoreHandler;
 			Handlers::DatabaseSearchReply m_dbSearchReplyHandler;
+			Handlers::VariableTunnelBuild m_variableTunnelBuildHandler;
 	};
 }
 

@@ -3,6 +3,7 @@
 #include "DeliveryStatus.h"
 #include "DatabaseStore.h"
 #include "DatabaseSearchReply.h"
+#include "VariableTunnelBuild.h"
 
 #include <iostream>
 #include <iomanip>
@@ -28,6 +29,10 @@ namespace i2pcpp {
 
 				case Type::DB_SEARCH_REPLY:
 					m = std::make_shared<DatabaseSearchReply>();
+					break;
+
+				case Type::VARIABLE_TUNNEL_BUILD:
+					m = std::make_shared<VariableTunnelBuild>();
 					break;
 
 				default:

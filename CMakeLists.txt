@@ -22,6 +22,7 @@ set(SRCS
 	handlers/DatabaseStore.cpp
 	handlers/DeliveryStatus.cpp
 	handlers/Message.cpp
+	handlers/VariableTunnelBuild.cpp
 	i2np/DatabaseLookup.cpp
 	i2np/DatabaseSearchReply.cpp
 	i2np/DatabaseStore.cpp
@@ -43,6 +44,7 @@ set(SRCS
 	ssu/PacketBuilder.cpp
 	ssu/UDPTransport.cpp
 	tunnel/InboundTunnel.cpp
+	tunnel/TunnelManager.cpp
 	util/Base64.cpp
 	util/I2PHMAC.cpp
 	datatypes/ByteArray.cpp

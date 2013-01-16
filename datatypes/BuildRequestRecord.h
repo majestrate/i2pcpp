@@ -1,6 +1,8 @@
 #ifndef BUILDREQUESTRECORD_H
 #define BUILDREQUESTRECORD_H
 
+#include <botan/elgamal.h>
+
 #include "Datatype.h"
 #include "RouterHash.h"
 #include "SessionKey.h"
@@ -15,17 +17,22 @@ namespace i2pcpp {
 			};
 
 			BuildRequestRecord(uint32_t tunnelId, RouterHash const &localIdentity, uint32_t nextTunnelId, RouterHash const &nextIdentity, SessionKey const &tunnelLayerKey, SessionKey const &tunnelIVKey, SessionKey const &replyKey, SessionKey const &replyIV, HopType type, uint32_t requestTime, uint32_t nextMsgId);
+			BuildRequestRecord(ByteArray::const_iterator &dataItr);
 
-			ByteArray getBytes() const { return m_bytes; }
+			ByteArray getBytes() const;
 
 			void encrypt(ByteArray const &encryptionKey);
+			void decrypt(Botan::ElGamal_PrivateKey const *key);
 			void decrypt(SessionKey const &iv, SessionKey const &key);
 
+			const std::array<unsigned char, 16>& getHeader() const { return m_header; }
 			const RouterHash& getLocalIdentity() const { return m_localIdentity; }
 			const SessionKey& getReplyIV() const { return m_replyIV; }
 			const SessionKey& getReplyKey() const { return m_replyKey; }
 
 		private:
+			std::array<unsigned char, 16> m_header;
+
 			uint32_t m_tunnelId;
 			RouterHash m_localIdentity;
 			uint32_t m_nextTunnelId;

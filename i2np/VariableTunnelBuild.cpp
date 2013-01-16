@@ -1,5 +1,7 @@
 #include "VariableTunnelBuild.h"
 
+#include <iostream>
+
 namespace i2pcpp {
 	namespace I2NP {
 		ByteArray VariableTunnelBuild::getBytes() const
@@ -17,7 +19,14 @@ namespace i2pcpp {
 
 		bool VariableTunnelBuild::parse(ByteArray::const_iterator &dataItr)
 		{
-			return false;
+			unsigned char size = *dataItr++;
+
+			std::cout << "size: " << (int)size << "\n";
+
+			for(int i = 0; i < size; i++)
+				m_buildRecords.emplace_back(dataItr);
+
+			return true;
 		}
 	}
 }

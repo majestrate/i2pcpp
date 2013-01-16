@@ -3,7 +3,6 @@
 #include <botan/auto_rng.h>
 #include <botan/pipe.h>
 #include <botan/pk_filts.h>
-#include <botan/elgamal.h>
 #include <botan/lookup.h>
 
 namespace i2pcpp {
@@ -20,7 +19,25 @@ namespace i2pcpp {
 		m_requestTime(requestTime),
 		m_nextMsgId(nextMsgId)
 	{
+		std::copy(m_localIdentity.cbegin(), m_localIdentity.cbegin() + 16, m_header.begin());
 		m_flags |= type;
+	}
+
+	BuildRequestRecord::BuildRequestRecord(ByteArray::const_iterator &dataItr)
+	{
+		std::copy(dataItr, dataItr + 16, m_header.begin()), dataItr += 16;
+		m_bytes.resize(512);
+		std::copy(dataItr, dataItr + 512, m_bytes.begin()), dataItr += 512;
+	}
+
+	ByteArray BuildRequestRecord::getBytes() const
+	{
+		ByteArray b;
+
+		b.insert(b.end(), m_header.cbegin(), m_header.cend());
+		b.insert(b.end(), m_bytes.cbegin(), m_bytes.cend());
+
+		return b;
 	}
 
 	void BuildRequestRecord::encrypt(ByteArray const &encryptionKey)
@@ -80,10 +97,42 @@ namespace i2pcpp {
 		encPipe.end_msg();
 
 		size = encPipe.remaining();
-		m_bytes.resize(16 + size);
-		encPipe.read(m_bytes.data() + 16, size);
+		m_bytes.resize(size);
+		encPipe.read(m_bytes.data(), size);
+	}
 
-		copy(m_localIdentity.cbegin(), m_localIdentity.cbegin() + 16, m_bytes.begin());
+	void BuildRequestRecord::decrypt(Botan::ElGamal_PrivateKey const *key)
+	{
+		Botan::DL_Group group("modp/ietf/2048");
+		Botan::Pipe decPipe(new Botan::PK_Decryptor_Filter(new Botan::PK_Decryptor_EME(*key, "Raw")));
+
+		decPipe.start_msg();
+		decPipe.write(m_bytes.data(), m_bytes.size());
+		decPipe.end_msg();
+
+		size_t size = decPipe.remaining();
+		m_bytes.resize(size);
+		decPipe.read(m_bytes.data(), size);
+
+		auto dataItr = m_bytes.cbegin();
+
+		m_tunnelId = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
+
+		copy(dataItr, dataItr + 32, m_localIdentity.begin()), dataItr += 32;
+
+		m_nextTunnelId = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
+
+		copy(dataItr, dataItr + 32, m_nextIdentity.begin()), dataItr += 32;
+
+		copy(dataItr, dataItr + 32, m_tunnelLayerKey.begin()), dataItr += 32;
+		copy(dataItr, dataItr + 32, m_tunnelIVKey.begin()), dataItr += 32;
+		copy(dataItr, dataItr + 32, m_replyKey.begin()), dataItr += 32;
+		copy(dataItr, dataItr + 32, m_replyIV.begin()), dataItr += 32;
+
+		m_flags = *(dataItr)++;
+
+		m_requestTime = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
+		m_nextMsgId = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
 	}
 
 	void BuildRequestRecord::decrypt(SessionKey const &iv, SessionKey const &key)

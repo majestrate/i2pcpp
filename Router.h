@@ -9,6 +9,8 @@
 #include "handlers/DatabaseStore.h"
 #include "handlers/DatabaseSearchReply.h"
 
+#include "tunnel/TunnelManager.h"
+
 #include "Database.h"
 #include "InboundMessageDispatcher.h"
 #include "OutboundMessageDispatcher.h"
@@ -21,10 +23,11 @@ namespace i2pcpp {
 			Router(std::string const &dbFile) :
 				m_work(m_ios),
 				m_db(dbFile),
+				m_ctx(m_db, m_outMsgDispatcher, m_signals),
 				m_inMsgDispatcher(m_ios, m_ctx),
 				m_outMsgDispatcher(m_ios),
 				m_signals(m_ios),
-				m_ctx(m_db, m_outMsgDispatcher, m_signals) {}
+				m_tunnelManager(m_ctx) {}
 
 			~Router();
 
@@ -43,12 +46,12 @@ namespace i2pcpp {
 			std::thread m_serviceThread;
 
 			Database m_db;
+			RouterContext m_ctx;
 			InboundMessageDispatcher m_inMsgDispatcher;
 			OutboundMessageDispatcher m_outMsgDispatcher;
 			Signals m_signals;
-			RouterContext m_ctx;
 			TransportPtr m_transport;
-			//TunnelRegistry m_tunnels; // TODO will need this eventually
+			TunnelManager m_tunnelManager;
 	};
 }
 

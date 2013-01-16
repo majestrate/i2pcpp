@@ -16,6 +16,8 @@ namespace i2pcpp {
 
 				Message::Type getType() const { return Message::Type::VARIABLE_TUNNEL_BUILD; }
 
+				const std::list<BuildRequestRecord>& getRecords() const { return m_buildRecords; }
+
 			protected:
 				ByteArray getBytes() const;
 				bool parse(ByteArray::const_iterator &dataItr);

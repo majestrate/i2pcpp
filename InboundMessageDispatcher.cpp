@@ -13,7 +13,8 @@ namespace i2pcpp {
 		m_ios(ios),
 		m_ctx(ctx),
 		m_dbStoreHandler(ctx),
-		m_dbSearchReplyHandler(ctx) {}
+		m_dbSearchReplyHandler(ctx),
+		m_variableTunnelBuildHandler(ctx) {}
 
 	void InboundMessageDispatcher::messageReceived(const RouterHash &from, const ByteArray &data)
 	{
@@ -27,6 +28,10 @@ namespace i2pcpp {
 
 				case I2NP::Message::Type::DB_SEARCH_REPLY:
 					m_ios.post(boost::bind(&Handlers::Message::handleMessage, m_dbSearchReplyHandler, from, m));
+					break;
+
+				case I2NP::Message::Type::VARIABLE_TUNNEL_BUILD:
+					m_ios.post(boost::bind(&Handlers::Message::handleMessage, m_variableTunnelBuildHandler, from, m));
 					break;
 
 				default:
