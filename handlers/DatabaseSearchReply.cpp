@@ -3,7 +3,6 @@
 #include "../util/Base64.h"
 #include "../i2np/DatabaseSearchReply.h"
 #include "../i2np/DatabaseLookup.h"
-#include "../ssu/PacketBuilder.h"
 #include "../OutboundMessageDispatcher.h"
 #include "../Database.h"
 
@@ -18,7 +17,7 @@ namespace i2pcpp {
 		{
 			std::shared_ptr<I2NP::DatabaseSearchReply> dsr = std::dynamic_pointer_cast<I2NP::DatabaseSearchReply>(msg);
 
-			std::cerr << "Received DatabaseSearchReply message from " << Base64::encode(ByteArray(from.cbegin(), from.cend())) << "\n";
+			std::cerr << "Received DatabaseSearchReply message from " << from << "\n";
 
 			for(auto h: dsr->getHashes()) {
 				if(!m_ctx.getDatabase().routerExists(h)) {

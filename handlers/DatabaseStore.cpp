@@ -20,7 +20,7 @@ namespace i2pcpp {
 		{
 			std::shared_ptr<I2NP::DatabaseStore> dsm = std::dynamic_pointer_cast<I2NP::DatabaseStore>(msg);
 
-			std::cerr << "Received DatabaseStore message from " << Base64::encode(ByteArray(from.cbegin(), from.cend())) << "\n";
+			std::cerr << "Received DatabaseStore message from " << from << "\n";
 			std::cerr << "DatabaseStore message reply token: " << dsm->getReplyToken() << "\n";
 
 			Botan::Pipe ungzPipe(new Botan::Zlib_Decompression);

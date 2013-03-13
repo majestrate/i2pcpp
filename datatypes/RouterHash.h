@@ -4,6 +4,9 @@
 #include <array>
 #include <string>
 #include <functional>
+#include <iostream>
+
+#include "../util/Base64.h"
 
 #include "ByteArray.h"
 
@@ -14,6 +17,8 @@ namespace i2pcpp {
 			RouterHash(ByteArray const &b) { std::copy(b.cbegin(), b.cbegin() + 32, begin()); }
 	};
 }
+
+std::ostream& operator<<(std::ostream &s, i2pcpp::RouterHash const &rh);
 
 template<>
 struct std::hash<i2pcpp::RouterHash> {

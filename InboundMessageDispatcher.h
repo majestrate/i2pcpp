@@ -3,6 +3,7 @@
 
 #include <boost/asio.hpp>
 
+#include "handlers/DeliveryStatus.h"
 #include "handlers/DatabaseStore.h"
 #include "handlers/DatabaseSearchReply.h"
 #include "handlers/VariableTunnelBuild.h"
@@ -21,6 +22,7 @@ namespace i2pcpp {
 			boost::asio::io_service& m_ios;
 			RouterContext& m_ctx;
 
+			Handlers::DeliveryStatus m_deliveryStatusHandler;
 			Handlers::DatabaseStore m_dbStoreHandler;
 			Handlers::DatabaseSearchReply m_dbSearchReplyHandler;
 			Handlers::VariableTunnelBuild m_variableTunnelBuildHandler;

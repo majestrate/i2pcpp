@@ -16,7 +16,7 @@ namespace i2pcpp {
 		{
 			std::shared_ptr<I2NP::VariableTunnelBuild> vtb = std::dynamic_pointer_cast<I2NP::VariableTunnelBuild>(msg);
 
-			std::cerr << "Received VariableTunnelBuild message from " << Base64::encode(ByteArray(from.cbegin(), from.cend())) << "\n";
+			std::cerr << "Received VariableTunnelBuild message from " << from << "\n";
 
 			m_ctx.getSignals().invokeBuildTunnelRequest(vtb->getRecords());
 		}
