@@ -29,6 +29,9 @@ namespace i2pcpp {
 					m_ios.post(boost::bind(&Handlers::Message::handleMessage, m_dbSearchReplyHandler, from, m));
 					break;
 
+/*				case I2NP::Message::Type::TUNNEL_GATEWAY:
+					break;*/
+
 				case I2NP::Message::Type::VARIABLE_TUNNEL_BUILD:
 					m_ios.post(boost::bind(&Handlers::Message::handleMessage, m_variableTunnelBuildHandler, from, m));
 					break;

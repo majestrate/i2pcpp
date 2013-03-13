@@ -4,7 +4,6 @@
 #include <botan/zlib.h>
 
 #include "../Database.h"
-#include "../util/Base64.h"
 #include "../i2np/DatabaseStore.h"
 #include "../OutboundMessageDispatcher.h"
 #include "../Signals.h"

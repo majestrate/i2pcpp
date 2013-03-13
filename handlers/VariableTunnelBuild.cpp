@@ -3,7 +3,6 @@
 #include "../i2np/VariableTunnelBuild.h"
 #include "../OutboundMessageDispatcher.h"
 #include "../Signals.h"
-#include "../util/Base64.h"
 
 namespace i2pcpp {
 	namespace Handlers {

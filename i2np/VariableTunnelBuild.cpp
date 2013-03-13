@@ -21,8 +21,6 @@ namespace i2pcpp {
 		{
 			unsigned char size = *dataItr++;
 
-			std::cout << "size: " << (int)size << "\n";
-
 			for(int i = 0; i < size; i++)
 				m_buildRecords.emplace_back(dataItr);
 

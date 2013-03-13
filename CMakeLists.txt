@@ -22,12 +22,14 @@ set(SRCS
 	handlers/DatabaseStore.cpp
 	handlers/DeliveryStatus.cpp
 	handlers/Message.cpp
+	handlers/TunnelGateway.cpp
 	handlers/VariableTunnelBuild.cpp
 	i2np/DatabaseLookup.cpp
 	i2np/DatabaseSearchReply.cpp
 	i2np/DatabaseStore.cpp
 	i2np/DeliveryStatus.cpp
 	i2np/Message.cpp
+	i2np/TunnelGateway.cpp
 	i2np/VariableTunnelBuild.cpp
 	ssu/AcknowledgementScheduler.cpp
 	ssu/EstablishmentManager.cpp

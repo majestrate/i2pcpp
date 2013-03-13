@@ -61,7 +61,7 @@ namespace i2pcpp {
 		b.insert(b.end(), m_tunnelLayerKey.cbegin(), m_tunnelLayerKey.cend());
 		b.insert(b.end(), m_tunnelIVKey.cbegin(), m_tunnelIVKey.cend());
 		b.insert(b.end(), m_replyKey.cbegin(), m_replyKey.cend());
-		b.insert(b.end(), m_replyIV.cbegin(), m_replyIV.cend());
+		b.insert(b.end(), m_replyIV.cbegin(), m_replyIV.cbegin() + 16);
 
 		b.insert(b.end(), m_flags);
 
@@ -74,6 +74,8 @@ namespace i2pcpp {
 		b.insert(b.end(), m_nextMsgId >> 16);
 		b.insert(b.end(), m_nextMsgId >> 8);
 		b.insert(b.end(), m_nextMsgId);
+
+		b.insert(b.end(), 29, 0x00); // TODO Random padding
 
 		Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-256"));
 		hashPipe.start_msg();

@@ -36,6 +36,7 @@ namespace i2pcpp {
 					break;
 
 				default:
+					std::cerr << "Attempt to parse message with unknown type: " << mtype << "\n";
 					return MessagePtr();
 			}
 

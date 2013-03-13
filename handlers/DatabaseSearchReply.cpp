@@ -1,6 +1,5 @@
 #include "DatabaseSearchReply.h"
 
-#include "../util/Base64.h"
 #include "../i2np/DatabaseSearchReply.h"
 #include "../i2np/DatabaseLookup.h"
 #include "../OutboundMessageDispatcher.h"

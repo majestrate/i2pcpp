@@ -52,6 +52,9 @@ namespace i2pcpp {
 			nextMsgIds.push_back(x);
 		}
 
+		for(auto x: tunnelIds)
+			std::cerr << "TunnelID: " << x << "\n";
+
 		auto hop = hops.cbegin();
 		auto tunnelId = tunnelIds.cbegin();
 		auto tunnelLayerKey = tunnelLayerKeys.cbegin();
@@ -76,8 +79,8 @@ namespace i2pcpp {
 			m_records.emplace_front(	// We're adding to the front so future
 					*tunnelId,						// iterations begin with the IBGW.
 					*hop,
-					*prev(tunnelId++),	// This is why we needed to skip the first
-					*prev(hop),					// hop and tunnel Id.
+					*prev(tunnelId++),
+					*prev(hop),
 					*tunnelLayerKey++,
 					*tunnelIVKey++,
 					*replyKey++,
@@ -90,6 +93,8 @@ namespace i2pcpp {
 			m_records.front().encrypt(ri.getIdentity().getEncryptionKey());
 		}
 
+		// This iteratively decrypts the records which
+		// were asymmetrically encrypted above.
 		for(auto f = m_records.begin(); f != m_records.end(); ++f) {
 			std::list<BuildRequestRecord>::reverse_iterator r(f);
 			for(; r != m_records.rend(); ++r)
