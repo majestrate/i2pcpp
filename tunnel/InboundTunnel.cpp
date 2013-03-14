@@ -78,7 +78,7 @@ namespace i2pcpp {
 
 		for(int i = 0; i < numHops; i++) {
 			BuildRequestRecord::HopType htype;
-			if(!i) {
+			if(i == (numHops - 1)) {
 				htype = BuildRequestRecord::HopType::INBOUND_GW;
 				m_inboundGateway = *hop;
 			} else
