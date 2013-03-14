@@ -52,9 +52,6 @@ namespace i2pcpp {
 			nextMsgIds.push_back(x);
 		}
 
-		for(auto x: tunnelIds)
-			std::cerr << "TunnelID: " << x << "\n";
-
 		auto hop = hops.cbegin();
 		auto tunnelId = tunnelIds.cbegin();
 		auto tunnelLayerKey = tunnelLayerKeys.cbegin();
@@ -63,14 +60,25 @@ namespace i2pcpp {
 		auto replyIV = replyIVs.cbegin();
 		auto nextMsgId = nextMsgIds.cbegin();
 
-		++hop; ++tunnelId;	// Skip the first hop and tunnelId, because
-												// it represents our own hop. It was added above.
+		m_records.emplace_front(
+				*tunnelId++,
+				*hop++,
+				0,
+				RouterHash(),
+				SessionKey(),
+				SessionKey(),
+				SessionKey(),
+				SessionKey(),
+				BuildRequestRecord::HopType::PARTICIPANT,
+				0,
+				0);
+		m_records.front().encrypt(m_ctx.getMyRouterIdentity().getEncryptionKey());
 
 		uint32_t hoursSinceEpoch = std::chrono::duration_cast<std::chrono::hours>(std::chrono::system_clock::now().time_since_epoch()).count();
 
 		for(int i = 0; i < numHops; i++) {
 			BuildRequestRecord::HopType htype;
-			if(i == (numHops - 1)) {
+			if(!i) {
 				htype = BuildRequestRecord::HopType::INBOUND_GW;
 				m_inboundGateway = *hop;
 			} else

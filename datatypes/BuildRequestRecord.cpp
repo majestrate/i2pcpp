@@ -19,7 +19,6 @@ namespace i2pcpp {
 		m_requestTime(requestTime),
 		m_nextMsgId(nextMsgId)
 	{
-		std::copy(m_localIdentity.cbegin(), m_localIdentity.cbegin() + 16, m_header.begin());
 		m_flags |= type;
 	}
 
@@ -32,12 +31,7 @@ namespace i2pcpp {
 
 	ByteArray BuildRequestRecord::getBytes() const
 	{
-		ByteArray b;
-
-		b.insert(b.end(), m_header.cbegin(), m_header.cend());
-		b.insert(b.end(), m_bytes.cbegin(), m_bytes.cend());
-
-		return b;
+		return m_bytes;
 	}
 
 	void BuildRequestRecord::encrypt(ByteArray const &encryptionKey)
@@ -99,8 +93,9 @@ namespace i2pcpp {
 		encPipe.end_msg();
 
 		size = encPipe.remaining();
-		m_bytes.resize(size);
-		encPipe.read(m_bytes.data(), size);
+		m_bytes.resize(size + 16);
+		encPipe.read(m_bytes.data() + 16, size);
+		std::copy(m_localIdentity.cbegin(), m_localIdentity.cbegin() + 16, m_bytes.begin());
 	}
 
 	void BuildRequestRecord::decrypt(Botan::ElGamal_PrivateKey const *key)
@@ -129,7 +124,7 @@ namespace i2pcpp {
 		copy(dataItr, dataItr + 32, m_tunnelLayerKey.begin()), dataItr += 32;
 		copy(dataItr, dataItr + 32, m_tunnelIVKey.begin()), dataItr += 32;
 		copy(dataItr, dataItr + 32, m_replyKey.begin()), dataItr += 32;
-		copy(dataItr, dataItr + 32, m_replyIV.begin()), dataItr += 32;
+		copy(dataItr, dataItr + 16, m_replyIV.begin()), dataItr += 16;
 
 		m_flags = *(dataItr)++;
 
@@ -143,7 +138,8 @@ namespace i2pcpp {
 		Botan::SymmetricKey bkey(key.data(), key.size());
 		Botan::Pipe cipherPipe(get_cipher("AES-256/CBC/NoPadding", bkey, biv, Botan::DECRYPTION));
 
-		cipherPipe.process_msg(m_bytes.data(), m_bytes.size());
+		ByteArray&& record = getBytes();
+		cipherPipe.process_msg(record.data(), record.size());
 
 		size_t decryptedSize = cipherPipe.remaining();
 		ByteArray decryptedBytes(decryptedSize);

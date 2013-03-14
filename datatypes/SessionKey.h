@@ -16,4 +16,6 @@ namespace i2pcpp {
 	};
 }
 
+std::ostream& operator<<(std::ostream &s, i2pcpp::SessionKey const &sk);
+
 #endif

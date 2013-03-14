@@ -7,3 +7,9 @@ namespace i2pcpp {
 		return *this;
 	}
 }
+
+std::ostream& operator<<(std::ostream &s, i2pcpp::SessionKey const &sk)
+{
+	s << i2pcpp::Base64::encode(i2pcpp::ByteArray(sk.cbegin(), sk.cend()));
+	return s;
+}
