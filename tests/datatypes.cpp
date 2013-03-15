@@ -46,4 +46,12 @@ TEST(Datatypes, Certificate) {
 
 	Certificate c3(good_data_itr, good_data.cend());
 	ASSERT_EQ(c3.serialize(), ByteArray(good_data.cbegin(), good_data.cbegin() + 0x13));
+
+	ByteArray bad_data1 = { 0x05, 0x00, 0x00 };
+	auto bad_data1_itr = bad_data1.cbegin();
+	ASSERT_THROW(Certificate(bad_data1_itr, bad_data1.cend()), FormattingError);
+
+	ByteArray bad_data2 = { 0x01, 0xDE, 0xAD, 0xBE, 0xEF };
+	auto bad_data2_itr = bad_data2.cbegin();
+	ASSERT_THROW(Certificate(bad_data2_itr, bad_data2.cend()), FormattingError);
 }

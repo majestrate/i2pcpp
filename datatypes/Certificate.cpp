@@ -13,6 +13,7 @@ namespace i2pcpp {
 		if(m_type < 0 || m_type > 4) throw FormattingError();
 	
 		uint16_t size = (*(begin++) << 8) | *(begin++);
+		if((end - begin) < size) throw FormattingError();
 		m_payload.resize(size);
 		copy(begin, begin + size, m_payload.begin()), begin += size;
 	}
