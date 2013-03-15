@@ -6,7 +6,6 @@
 namespace i2pcpp {
 	class Datatype {
 		public:
-			Datatype();
 			virtual ByteArray serialize() const = 0;
 	};
 }

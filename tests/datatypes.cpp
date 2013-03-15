@@ -4,6 +4,7 @@
 
 #include "../datatypes/Date.h"
 #include "../datatypes/Certificate.h"
+#include "../datatypes/Mapping.h"
 
 TEST(Datatypes, Date) {
 	using namespace i2pcpp;
@@ -54,4 +55,42 @@ TEST(Datatypes, Certificate) {
 	ByteArray bad_data2 = { 0x01, 0xDE, 0xAD, 0xBE, 0xEF };
 	auto bad_data2_itr = bad_data2.cbegin();
 	ASSERT_THROW(Certificate(bad_data2_itr, bad_data2.cend()), FormattingError);
+}
+
+TEST(Datatypes, Mapping) {
+	using namespace i2pcpp;
+
+	Mapping m1;
+	m1.setValue("hello", "world");
+	m1.setValue("foo", "bar");
+
+	ByteArray m1_serialized = m1.serialize();
+	ByteArray expected_data = { 0x00, 0x18, 0x03, 'f', 'o', 'o', '=', 0x03, 'b', 'a', 'r', ';', 0x05, 'h', 'e', 'l', 'l', 'o', '=', 0x05, 'w', 'o', 'r', 'l', 'd', ';' };
+
+	ASSERT_EQ(m1_serialized, expected_data);
+
+	auto m1_itr = m1_serialized.cbegin();
+	Mapping m2(m1_itr, m1_serialized.cend());
+	ASSERT_EQ(m2.getValue("hello"), std::string("world"));
+	ASSERT_EQ(m2.getValue("foo"), std::string("bar"));
+
+	m2.deleteValue("foo");
+	ASSERT_EQ(m2.getValue("foo"), std::string());
+
+	ByteArray bad = expected_data;
+	bad[0] = 0xFF;
+	bad[1] = 0xFF;
+	auto bad_itr = bad.cbegin();
+	ASSERT_THROW(Mapping(bad_itr, bad.cend()), FormattingError);
+
+	bad = expected_data;
+	bad[2] = 0x04;
+	bad_itr = bad.cbegin();
+	ASSERT_THROW(Mapping(bad_itr, bad.cend()), FormattingError);
+
+
+	bad = expected_data;
+	bad[7] = 0x04;
+	bad_itr = bad.cbegin();
+	ASSERT_THROW(Mapping(bad_itr, bad.cend()), FormattingError);
 }

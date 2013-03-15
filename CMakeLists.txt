@@ -15,6 +15,7 @@ set(SRCS
 	datatypes/Datatype.cpp
 	datatypes/Date.cpp
 	datatypes/Endpoint.cpp
+	datatypes/Mapping.cpp
 	datatypes/RouterHash.cpp
 	exceptions/FormattingError.cpp
 	)
