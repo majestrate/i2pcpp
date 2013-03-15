@@ -5,6 +5,9 @@
 #include "../datatypes/Date.h"
 #include "../datatypes/Certificate.h"
 #include "../datatypes/Mapping.h"
+#include "../datatypes/RouterIdentity.h"
+
+#include "routerInfo.cpp"
 
 TEST(Datatypes, Date) {
 	using namespace i2pcpp;
@@ -88,9 +91,24 @@ TEST(Datatypes, Mapping) {
 	bad_itr = bad.cbegin();
 	ASSERT_THROW(Mapping(bad_itr, bad.cend()), FormattingError);
 
-
 	bad = expected_data;
 	bad[7] = 0x04;
 	bad_itr = bad.cbegin();
 	ASSERT_THROW(Mapping(bad_itr, bad.cend()), FormattingError);
+}
+
+TEST(Datatypes, RouterIdentity) {
+	using namespace i2pcpp;
+
+	auto sample = sample_routerInfo.cbegin();
+	RouterIdentity r1(sample, sample_routerInfo.cend());
+	ASSERT_EQ(r1.getHashEncoded(), "1pp0rQV7hK~XsLib8o8AHX74kWHmRjDsmDqF7aigZD0=");
+
+	ASSERT_EQ(r1.serialize(), ByteArray(sample_routerInfo.cbegin(), sample_routerInfo.cbegin() + 387));
+
+	sample = sample_routerInfo.cbegin();
+	ASSERT_THROW(RouterIdentity(sample, sample + 32), FormattingError);
+
+	sample = sample_routerInfo.cbegin();
+	ASSERT_THROW(RouterIdentity(sample, sample + 384), FormattingError);
 }
