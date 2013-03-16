@@ -20,7 +20,9 @@ set(SRCS
 	datatypes/RouterHash.cpp
 	datatypes/RouterIdentity.cpp
 	datatypes/RouterInfo.cpp
+	datatypes/SessionKey.cpp
 	exceptions/FormattingError.cpp
+	util/Base64.cpp
 	)
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g -O0 -Wall -std=c++11 -stdlib=libc++")
@@ -62,7 +64,7 @@ if(GTEST_LIBRARY_PATH AND GTEST_INCLUDE_DIR)
 	include_directories("${GTEST_INCLUDE_DIR}")
 	set(GTEST_LINK_STUFF "${GTEST_LIBRARY_PATH}" "${GTEST_MAIN_LIBRARY_PATH}" "${CMAKE_THREAD_LIBS_INIT}" "${Boost_SYSTEM_LIBRARIES}" "${BOTAN_LIBRARY_PATH}")
 
-	add_executable(testi2p tests/datatypes.cpp ${SRCS})
+	add_executable(testi2p tests/testi2p.cpp ${SRCS})
 	target_link_libraries(testi2p ${GTEST_LINK_STUFF})
 	add_test(
 		NAME testi2p
