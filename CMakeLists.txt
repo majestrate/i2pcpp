@@ -19,6 +19,7 @@ set(SRCS
 	datatypes/RouterAddress.cpp
 	datatypes/RouterHash.cpp
 	datatypes/RouterIdentity.cpp
+	datatypes/RouterInfo.cpp
 	exceptions/FormattingError.cpp
 	)
 

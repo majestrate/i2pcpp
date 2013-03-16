@@ -7,6 +7,7 @@
 #include "../datatypes/Mapping.h"
 #include "../datatypes/RouterIdentity.h"
 #include "../datatypes/RouterAddress.h"
+#include "../datatypes/RouterInfo.h"
 
 #include "routerInfo.cpp"
 
@@ -122,4 +123,19 @@ TEST(Datatypes, RouterAddress) {
 
 	sample = sample_routerInfo.cbegin() + 256 + 128 + 3 + 8 + 1;
 	ASSERT_EQ(r1.serialize(), ByteArray(sample, sample + 48));
+}
+
+// This test could be a lot more comprehensive.
+TEST(Datatypes, RouterInfo) {
+	using namespace i2pcpp;
+
+	auto sample = sample_routerInfo.cbegin();
+	RouterInfo r1(sample, sample_routerInfo.cend());
+
+	ASSERT_EQ(r1.serialize(), sample_routerInfo);
+
+	ASSERT_TRUE(r1.verifySignature(group));
+
+	ASSERT_EQ(r1.getOptions().getValue("netdb.knownLeaseSets"), "37");
+	ASSERT_EQ(r1.getOptions().getValue("caps"), "OfR");
 }
