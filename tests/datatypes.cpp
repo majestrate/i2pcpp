@@ -6,6 +6,7 @@
 #include "../datatypes/Certificate.h"
 #include "../datatypes/Mapping.h"
 #include "../datatypes/RouterIdentity.h"
+#include "../datatypes/RouterAddress.h"
 
 #include "routerInfo.cpp"
 
@@ -104,11 +105,21 @@ TEST(Datatypes, RouterIdentity) {
 	RouterIdentity r1(sample, sample_routerInfo.cend());
 	ASSERT_EQ(r1.getHashEncoded(), "1pp0rQV7hK~XsLib8o8AHX74kWHmRjDsmDqF7aigZD0=");
 
-	ASSERT_EQ(r1.serialize(), ByteArray(sample_routerInfo.cbegin(), sample_routerInfo.cbegin() + 387));
+	ASSERT_EQ(r1.serialize(), ByteArray(sample_routerInfo.cbegin(), sample_routerInfo.cbegin() + 256 + 128 + 3));
 
 	sample = sample_routerInfo.cbegin();
 	ASSERT_THROW(RouterIdentity(sample, sample + 32), FormattingError);
 
 	sample = sample_routerInfo.cbegin();
 	ASSERT_THROW(RouterIdentity(sample, sample + 384), FormattingError);
+}
+
+TEST(Datatypes, RouterAddress) {
+	using namespace i2pcpp;
+
+	auto sample = sample_routerInfo.cbegin() + 256 + 128 + 3 + 8 + 1;
+	RouterAddress r1(sample, sample_routerInfo.cend());
+
+	sample = sample_routerInfo.cbegin() + 256 + 128 + 3 + 8 + 1;
+	ASSERT_EQ(r1.serialize(), ByteArray(sample, sample + 48));
 }
