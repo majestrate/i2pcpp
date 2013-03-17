@@ -1,7 +1,10 @@
 #include "gtest/gtest.h"
 
+#include <boost/asio.hpp>
+
 #include "../exceptions/FormattingError.h"
 
+#include "../datatypes/Endpoint.h"
 #include "../datatypes/Date.h"
 #include "../datatypes/Certificate.h"
 #include "../datatypes/Mapping.h"
@@ -11,7 +14,27 @@
 
 #include "../util/Base64.h"
 
+#include "../transport/ssu/UDPTransport.h"
+
 #include "routerInfo.cpp"
+
+#define SSU_TEST_IP "127.0.0.1"
+#define SSU_TEST_PORT 55555
+#define SSU_TEST_BAD_IP "127.0.0.2"
+
+// TODO Not comprehensive.
+TEST(Datatypes, Endpoint) {
+	using namespace i2pcpp;
+
+	Endpoint e1("127.0.0.1", 1234);
+	Endpoint e2("127.0.0.1", 1234);
+	Endpoint e3("127.0.0.1", 1235);
+
+	ASSERT_EQ(e1, e2);
+	ASSERT_FALSE(e2 == e3);
+
+	ASSERT_EQ(boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 1234), e1.getUDPEndpoint());
+}
 
 TEST(Datatypes, Date) {
 	using namespace i2pcpp;
@@ -78,11 +101,11 @@ TEST(Datatypes, Mapping) {
 
 	auto m1_itr = m1_serialized.cbegin();
 	Mapping m2(m1_itr, m1_serialized.cend());
-	ASSERT_EQ(m2.getValue("hello"), std::string("world"));
-	ASSERT_EQ(m2.getValue("foo"), std::string("bar"));
+	ASSERT_EQ(m2.getValue("hello"), "world");
+	ASSERT_EQ(m2.getValue("foo"), "bar");
 
 	m2.deleteValue("foo");
-	ASSERT_EQ(m2.getValue("foo"), std::string());
+	ASSERT_EQ(m2.getValue("foo"), "");
 
 	ByteArray bad = expected_data;
 	bad[0] = 0xFF;
@@ -127,7 +150,7 @@ TEST(Datatypes, RouterAddress) {
 	ASSERT_EQ(r1.serialize(), ByteArray(sample, sample + 48));
 }
 
-// This test could be a lot more comprehensive.
+// TODO Not comprehensive.
 TEST(Datatypes, RouterInfo) {
 	using namespace i2pcpp;
 
@@ -149,4 +172,13 @@ TEST(Utils, Base64) {
 
 	ASSERT_EQ(Base64::encode(test), "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=");
 	ASSERT_EQ(Base64::decode("AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="), test);
+}
+
+TEST(UDPTransport, start) {
+	using namespace i2pcpp;
+	using namespace i2pcpp::SSU;
+
+	UDPTransport t;
+	t.start(Endpoint(SSU_TEST_IP, SSU_TEST_PORT));
+	ASSERT_THROW(t.start(Endpoint(SSU_TEST_BAD_IP, SSU_TEST_PORT)), boost::system::system_error);
 }

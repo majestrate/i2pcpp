@@ -22,6 +22,8 @@ set(SRCS
 	datatypes/RouterInfo.cpp
 	datatypes/SessionKey.cpp
 	exceptions/FormattingError.cpp
+	transport/ssu/UDPTransport.cpp
+	transport/Transport.cpp
 	util/Base64.cpp
 	)
 
@@ -46,7 +48,7 @@ include_directories(BEFORE i2p "${BOTAN_INCLUDE_DIR}")
 target_link_libraries(i2p "${BOTAN_LIBRARY_PATH}")
 
 # Boost
-find_package(Boost 1.52.0 REQUIRED COMPONENTS system)
+find_package(Boost 1.53.0 REQUIRED COMPONENTS system)
 include_directories(BEFORE i2p "${Boost_INCLUDE_DIRS}")
 target_link_libraries(i2p "${Boost_SYSTEM_LIBRARIES}")
 
