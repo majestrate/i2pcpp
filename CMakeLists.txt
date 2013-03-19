@@ -49,13 +49,14 @@ else(BOTAN_LIBRARY_PATH AND BOTAN_INCLUDE_DIR)
 	message(FATAL_ERROR "Botan 1.11 not found")
 endif(BOTAN_LIBRARY_PATH AND BOTAN_INCLUDE_DIR)
 
-include_directories(BEFORE i2p "${BOTAN_INCLUDE_DIR}")
-target_link_libraries(i2p "${BOTAN_LIBRARY_PATH}")
+include_directories(BEFORE i2p ${BOTAN_INCLUDE_DIR})
+target_link_libraries(i2p ${BOTAN_LIBRARY_PATH})
 
 # Boost
-find_package(Boost 1.53.0 REQUIRED COMPONENTS system)
-include_directories(BEFORE i2p "${Boost_INCLUDE_DIRS}")
-target_link_libraries(i2p "${Boost_SYSTEM_LIBRARIES}")
+find_package(Boost 1.53.0 REQUIRED COMPONENTS system thread filesystem chrono date_time log)
+include_directories(BEFORE i2p ${Boost_INCLUDE_DIR})
+target_link_libraries(i2p ${Boost_LIBRARIES})
+add_definitions(-DBOOST_ALL_DYN_LINK)
 
 # Googletest
 find_path(GTEST_INCLUDE_DIR gtest/gtest.h PATHS "${GTEST_INCLUDE_PREFIX}" NO_DEFAULT_PATH)
@@ -69,7 +70,7 @@ if(GTEST_LIBRARY_PATH AND GTEST_INCLUDE_DIR)
 
 	find_package(Threads)
 	include_directories("${GTEST_INCLUDE_DIR}")
-	set(GTEST_LINK_STUFF "${GTEST_LIBRARY_PATH}" "${GTEST_MAIN_LIBRARY_PATH}" "${CMAKE_THREAD_LIBS_INIT}" "${Boost_SYSTEM_LIBRARIES}" "${BOTAN_LIBRARY_PATH}")
+	set(GTEST_LINK_STUFF "${GTEST_LIBRARY_PATH}" "${GTEST_MAIN_LIBRARY_PATH}" "${CMAKE_THREAD_LIBS_INIT}" "${Boost_LIBRARIES}" "${BOTAN_LIBRARY_PATH}")
 
 	add_executable(testi2p tests/testi2p.cpp ${SRCS})
 	target_link_libraries(testi2p ${GTEST_LINK_STUFF})

@@ -1,10 +1,12 @@
 #include "UDPTransport.h"
 
 #include <boost/exception/all.hpp>
+#include <boost/log/trivial.hpp>
 
 namespace i2pcpp {
 	UDPTransport::UDPTransport() :
-		m_socket(m_ios)
+		m_socket(m_ios),
+		m_packetHandler(*this)
 	{
 	}
 
@@ -89,7 +91,7 @@ namespace i2pcpp {
 	void UDPTransport::dataReceived(const boost::system::error_code& e, size_t n)
 	{
 		if(!e && n > 0) {
-			std::cerr << "UDPTransport: received " << n << " bytes from " << m_senderEndpoint << "\n";
+			BOOST_LOG_TRIVIAL(debug) << "UDPTransport: received " << n << " bytes from " << m_senderEndpoint;
 			
 			auto p = std::make_shared<SSU::Packet>(Endpoint(m_senderEndpoint), m_receiveBuf.data(), n);
 			m_ios.post(boost::bind(&SSU::PacketHandler::packetReceived, &m_packetHandler, p, m_peers.getRemotePeer(m_senderEndpoint)));
@@ -109,6 +111,6 @@ namespace i2pcpp {
 
 	void UDPTransport::dataSent(const boost::system::error_code& e, size_t n, boost::asio::ip::udp::endpoint ep)
 	{
-		std::cerr << "UDPTransport: sent " << n << " bytes to " << ep << "\n";
+		BOOST_LOG_TRIVIAL(debug) << "UDPTransport: sent " << n << " bytes to " << ep;
 	}
 }

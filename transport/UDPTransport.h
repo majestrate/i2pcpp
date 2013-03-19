@@ -13,6 +13,8 @@
 
 namespace i2pcpp {
 	class UDPTransport : public Transport {
+		friend class SSU::PacketHandler;
+
 		public:
 			UDPTransport();
 			~UDPTransport();
