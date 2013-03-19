@@ -16,8 +16,8 @@ namespace i2pcpp {
 				Packet(Endpoint const &endpoint);
 				Packet(Endpoint const &endpoint, const unsigned char *data, size_t length);
 
-				void decrypt(SessionKey const &mk);
-				bool verify(SessionKey const &sk);
+				void decrypt(SessionKey const &sk);
+				bool verify(SessionKey const &mk);
 				void encrypt(SessionKey const &sk, SessionKey const &mk);
 				void encrypt(Botan::InitializationVector const &iv, SessionKey const &sk, SessionKey const &mk);
 
