@@ -22,9 +22,11 @@ set(SRCS
 	datatypes/RouterInfo.cpp
 	datatypes/SessionKey.cpp
 	exceptions/FormattingError.cpp
+	transport/ssu/Packet.cpp
 	transport/ssu/UDPTransport.cpp
 	transport/Transport.cpp
 	util/Base64.cpp
+	util/I2PHMAC.cpp
 	)
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g -O0 -Wall -std=c++11 -stdlib=libc++")

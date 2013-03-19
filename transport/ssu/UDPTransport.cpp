@@ -24,11 +24,25 @@ namespace i2pcpp {
 
 				m_socket.bind(ep.getUDPEndpoint());
 
+				m_socket.async_receive_from(
+					boost::asio::buffer(m_receiveBuf.data(), m_receiveBuf.size()),
+					m_senderEndpoint,
+					boost::bind(
+						&UDPTransport::dataReceived,
+						this,
+						boost::asio::placeholders::error,
+						boost::asio::placeholders::bytes_transferred
+						)
+				);
+
 				m_serviceThread = std::thread([&](){
-					try {
-						while(1) { m_ios.run(); break; }
-					} catch(std::exception &e) {
-						// TODO Handle exception
+					while(1) {
+						try {
+							m_ios.run();
+							break;
+						} catch(std::exception &e) {
+							// TODO Handle exception
+						}
 					}
 				});
 			} catch(boost::system::system_error &e) {
@@ -53,6 +67,31 @@ namespace i2pcpp {
 		{
 			m_ios.stop();
 			if(m_serviceThread.joinable()) m_serviceThread.join();
+		}
+
+		void UDPTransport::dataReceived(const boost::system::error_code& e, size_t n)
+		{
+			if(!e && n > 0) {
+				std::cerr << "UDPTransport: received " << n << " bytes from " << m_senderEndpoint << "\n";
+				//PacketPtr p(new Packet(Endpoint(m_senderEndpoint), m_receiveBuf.data(), n));
+				//m_ios.post(boost::bind(&PacketHandler::packetReceived, &m_packetHandler, p));
+
+				m_socket.async_receive_from(
+					boost::asio::buffer(m_receiveBuf.data(), m_receiveBuf.size()),
+					m_senderEndpoint,
+					boost::bind(
+						&UDPTransport::dataReceived,
+						this,
+						boost::asio::placeholders::error,
+						boost::asio::placeholders::bytes_transferred
+					)
+				);
+			}
+		}
+
+		void UDPTransport::dataSent(const boost::system::error_code& e, size_t n, boost::asio::ip::udp::endpoint ep)
+		{
+			std::cerr << "UDPTransport: sent " << n << " bytes to " << ep << "\n";
 		}
 	}
 }

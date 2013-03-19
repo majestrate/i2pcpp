@@ -15,6 +15,9 @@
 #include "../util/Base64.h"
 
 #include "../transport/ssu/UDPTransport.h"
+#include "../transport/ssu/Packet.h"
+
+#include <fstream>
 
 #include "routerInfo.cpp"
 
@@ -165,6 +168,13 @@ TEST(Datatypes, RouterInfo) {
 	ASSERT_EQ(r1.getOptions().getValue("caps"), "OfR");
 }
 
+TEST(Datatypes, SessionKey) {
+	using namespace i2pcpp;
+
+	ByteArray sk_bytes = { 0x00 };
+	//ASSERT_THROW(SessionKey(sk_bytes), std::logic_error);
+}
+
 TEST(Utils, Base64) {
 	using namespace i2pcpp;
 
@@ -181,4 +191,12 @@ TEST(UDPTransport, start) {
 	UDPTransport t;
 	t.start(Endpoint(SSU_TEST_IP, SSU_TEST_PORT));
 	ASSERT_THROW(t.start(Endpoint(SSU_TEST_BAD_IP, SSU_TEST_PORT)), boost::system::system_error);
+}
+
+TEST(Packet, encrypt) {
+	using namespace i2pcpp;
+	using namespace i2pcpp::SSU;
+
+	Packet p(Endpoint("127.0.0.1", 12345), (unsigned char *)"test data", 10);
+	//p.encrypt(sk, sk);
 }

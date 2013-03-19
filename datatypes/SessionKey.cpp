@@ -11,6 +11,7 @@ namespace i2pcpp {
 
 	SessionKey::SessionKey(ByteArray const &b)
 	{
+		if(b.size() < 32) throw std::logic_error("Invalid argument");
 		copy(b.cbegin(), b.cbegin() + 32, begin());
 	}
 
