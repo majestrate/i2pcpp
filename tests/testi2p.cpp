@@ -14,7 +14,7 @@
 
 #include "../util/Base64.h"
 
-#include "../transport/ssu/UDPTransport.h"
+#include "../transport/UDPTransport.h"
 #include "../transport/ssu/Packet.h"
 
 #include <fstream>
@@ -190,7 +190,6 @@ TEST(Utils, Base64) {
 
 TEST(UDPTransport, start) {
 	using namespace i2pcpp;
-	using namespace i2pcpp::SSU;
 
 	UDPTransport t;
 	t.start(Endpoint(SSU_TEST_IP, SSU_TEST_PORT));

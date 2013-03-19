@@ -23,8 +23,11 @@ set(SRCS
 	datatypes/SessionKey.cpp
 	exceptions/FormattingError.cpp
 	transport/ssu/Packet.cpp
-	transport/ssu/UDPTransport.cpp
+	transport/ssu/PacketHandler.cpp
+	transport/ssu/PeerState.cpp
+	transport/ssu/PeerStateList.cpp
 	transport/Transport.cpp
+	transport/UDPTransport.cpp
 	util/Base64.cpp
 	util/I2PHMAC.cpp
 	)
