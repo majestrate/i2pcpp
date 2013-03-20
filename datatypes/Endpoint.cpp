@@ -59,10 +59,10 @@ namespace i2pcpp {
 	{
 		return m_addr == rhs.m_addr && m_port == rhs.m_port;
 	}
-}
 
-std::ostream& operator<<(std::ostream &s, i2pcpp::Endpoint const &ep)
-{
-	s << ep.getIP() << ":" << boost::lexical_cast<std::string>(ep.getPort());
-	return s;
+	std::ostream& operator<<(std::ostream &s, Endpoint const ep)
+	{
+		s << ep.getIP() << ":" << boost::lexical_cast<std::string>(ep.getPort());
+		return s;
+	}
 }

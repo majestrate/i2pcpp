@@ -12,12 +12,15 @@
 #include <boost/log/attributes/clock.hpp>
 #include <boost/log/attributes/current_thread_id.hpp>
 #include <boost/log/attributes/named_scope.hpp>
+#include <boost/log/attributes/scoped_attribute.hpp>
 #include <boost/log/support/exception.hpp>
 #include <boost/log/expressions/message.hpp>
 #include <boost/log/expressions/formatters/named_scope.hpp>
 #include <boost/log/expressions/formatters/stream.hpp>
 #include <boost/log/expressions/formatters/date_time.hpp>
 #include <boost/log/support/date_time.hpp>
+
+#define I2P_LOG_EP(logger, var) BOOST_LOG_SCOPED_LOGGER_ATTR(logger, "Endpoint", boost::log::attributes::constant<Endpoint>(var))
 
 namespace i2pcpp {
 	enum severity_level

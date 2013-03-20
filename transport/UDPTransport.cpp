@@ -3,8 +3,9 @@
 #include <boost/exception/all.hpp>
 
 namespace i2pcpp {
-	UDPTransport::UDPTransport() :
+	UDPTransport::UDPTransport(SessionKey const &sk) :
 		m_socket(m_ios),
+		m_inboundKey(sk),
 		m_packetHandler(*this),
 		m_log(boost::log::keywords::channel = "SSU")
 	{
@@ -112,5 +113,15 @@ namespace i2pcpp {
 	void UDPTransport::dataSent(const boost::system::error_code& e, size_t n, boost::asio::ip::udp::endpoint ep)
 	{
 		BOOST_LOG_SEV(m_log, debug) << "sent " << n << " bytes to " << ep;
+	}
+
+	i2p_logger_mt& UDPTransport::getLogger()
+	{
+		return m_log;
+	}
+
+	const SessionKey& UDPTransport::getInboundKey()
+	{
+		return m_inboundKey;
 	}
 }

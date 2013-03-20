@@ -9,8 +9,12 @@ namespace i2pcpp {
 
 		void PacketHandler::packetReceived(PacketPtr &p, PeerStatePtr &ps)
 		{
-			if(p->getData().size() < Packet::MIN_PACKET_LEN)
+			I2P_LOG_EP(m_transport.getLogger(), p->getEndpoint());
+
+			if(p->getData().size() < Packet::MIN_PACKET_LEN) {
+				BOOST_LOG_SEV(m_transport.getLogger(), debug) << "dropping short packet";
 				return;
+			}
 
 			if(ps) {
 				// ...
@@ -21,6 +25,12 @@ namespace i2pcpp {
 
 		void PacketHandler::handleNewPacket(PacketPtr &p)
 		{
+			Endpoint ep = p->getEndpoint();
+
+			if(!p->verify(m_transport.getInboundKey())) {
+				BOOST_LOG_SEV(m_transport.getLogger(), debug) << "dropping new packet with invalid key";
+				return;
+			}
 		}
 	}
 }

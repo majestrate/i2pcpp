@@ -28,9 +28,9 @@ namespace i2pcpp {
 			boost::asio::ip::address m_addr;
 			unsigned short m_port;
 	};
-}
 
-std::ostream& operator<<(std::ostream &s, i2pcpp::Endpoint const &ep);
+	std::ostream& operator<<(std::ostream &s, Endpoint const ep);
+}
 
 template<>
 struct std::hash<i2pcpp::Endpoint> {

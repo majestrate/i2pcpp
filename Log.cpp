@@ -1,5 +1,7 @@
 #include "Log.h"
 
+#include "datatypes/Endpoint.h"
+
 namespace i2pcpp {
 	std::ostream& operator<< (std::ostream& strm, severity_level level)
 	{
@@ -45,6 +47,13 @@ namespace i2pcpp {
 				<< expr::attr<std::string>("Channel")
 				<< '/'
 				<< expr::attr<severity_level>("Severity")
+				<< expr::if_(expr::has_attr<Endpoint>("Endpoint"))
+					[
+						expr::stream
+						<< " ["
+						<< expr::attr<Endpoint>("Endpoint")
+						<< "]"
+					]
 				<< ": "
 				<< expr::message
 			);

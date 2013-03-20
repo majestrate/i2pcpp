@@ -5,6 +5,8 @@
 
 #include <boost/asio.hpp>
 
+#include "../datatypes/SessionKey.h"
+
 #include "../Log.h"
 
 #include "Transport.h"
@@ -18,7 +20,7 @@ namespace i2pcpp {
 		friend class SSU::PacketHandler;
 
 		public:
-			UDPTransport();
+			UDPTransport(SessionKey const &sk);
 			~UDPTransport();
 
 			void start(Endpoint const &ep);
@@ -32,6 +34,9 @@ namespace i2pcpp {
 			void dataReceived(const boost::system::error_code& e, size_t n);
 			void dataSent(const boost::system::error_code& e, size_t n, boost::asio::ip::udp::endpoint ep);
 
+			i2p_logger_mt& getLogger();
+			const SessionKey& getInboundKey();
+
 			boost::asio::io_service m_ios;
 			boost::asio::ip::udp::socket m_socket;
 			boost::asio::ip::udp::endpoint m_senderEndpoint;
@@ -41,6 +46,7 @@ namespace i2pcpp {
 			std::array<unsigned char, 1024> m_receiveBuf;
 
 			SSU::PeerStateList m_peers;
+			SessionKey m_inboundKey;
 
 			SSU::PacketHandler m_packetHandler;
 

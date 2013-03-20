@@ -191,7 +191,7 @@ TEST(Utils, Base64) {
 TEST(UDPTransport, start) {
 	using namespace i2pcpp;
 
-	UDPTransport t;
+	UDPTransport t(SessionKey(Base64::decode("A6DVqs4yCV1s9QalgeB28iiV6341qm88Gblf3-c1SVg=")));
 	t.start(Endpoint(SSU_TEST_IP, SSU_TEST_PORT));
 	ASSERT_THROW(t.start(Endpoint(SSU_TEST_BAD_IP, SSU_TEST_PORT)), boost::system::system_error);
 }
