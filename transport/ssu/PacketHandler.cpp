@@ -9,7 +9,18 @@ namespace i2pcpp {
 
 		void PacketHandler::packetReceived(PacketPtr &p, PeerStatePtr &ps)
 		{
-			m_transport.sendPacket(p);
+			if(p->getData().size() < Packet::MIN_PACKET_LEN)
+				return;
+
+			if(ps) {
+				// ...
+			} else {
+				handleNewPacket(p);
+			}
+		}
+
+		void PacketHandler::handleNewPacket(PacketPtr &p)
+		{
 		}
 	}
 }

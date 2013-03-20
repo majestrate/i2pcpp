@@ -15,6 +15,8 @@ namespace i2pcpp {
 				void packetReceived(PacketPtr &p, PeerStatePtr &ps);
 
 			private:
+				void handleNewPacket(PacketPtr &p);
+
 				UDPTransport& m_transport;
 		};
 	}

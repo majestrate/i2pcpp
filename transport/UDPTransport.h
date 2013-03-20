@@ -5,6 +5,8 @@
 
 #include <boost/asio.hpp>
 
+#include "../Log.h"
+
 #include "Transport.h"
 
 #include "ssu/Packet.h"
@@ -41,6 +43,8 @@ namespace i2pcpp {
 			SSU::PeerStateList m_peers;
 
 			SSU::PacketHandler m_packetHandler;
+
+			i2p_logger_mt m_log;
 	};
 }
 
