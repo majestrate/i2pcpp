@@ -23,6 +23,7 @@ set(SRCS
 	datatypes/RouterInfo.cpp
 	datatypes/SessionKey.cpp
 	exceptions/FormattingError.cpp
+	transport/ssu/EstablishmentManager.cpp
 	transport/ssu/Packet.cpp
 	transport/ssu/PacketHandler.cpp
 	transport/ssu/PeerState.cpp

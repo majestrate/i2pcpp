@@ -3,10 +3,10 @@
 #include <boost/exception/all.hpp>
 
 namespace i2pcpp {
-	UDPTransport::UDPTransport(SessionKey const &sk) :
+	UDPTransport::UDPTransport(SessionKey const &sk, Botan::DL_Group const &group, Botan::DSA_PrivateKey const &privKey) :
 		m_socket(m_ios),
-		m_inboundKey(sk),
-		m_packetHandler(*this),
+		m_packetHandler(*this, sk),
+		m_establishmentManager(*this, group, privKey),
 		m_log(boost::log::keywords::channel = "SSU")
 	{
 	}
@@ -53,7 +53,7 @@ namespace i2pcpp {
 		}
 	}
 
-	void UDPTransport::connect(RouterHash const &rh, Endpoint const &ep)
+	void UDPTransport::connect(RouterInfo const &ri)
 	{
 	}
 
@@ -118,10 +118,5 @@ namespace i2pcpp {
 	i2p_logger_mt& UDPTransport::getLogger()
 	{
 		return m_log;
-	}
-
-	const SessionKey& UDPTransport::getInboundKey()
-	{
-		return m_inboundKey;
 	}
 }

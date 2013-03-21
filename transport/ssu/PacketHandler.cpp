@@ -4,8 +4,9 @@
 
 namespace i2pcpp {
 	namespace SSU {
-		PacketHandler::PacketHandler(UDPTransport &transport) :
-			m_transport(transport) {}
+		PacketHandler::PacketHandler(UDPTransport &transport, SessionKey const &sk) :
+			m_transport(transport),
+			m_inboundKey(sk) {}
 
 		void PacketHandler::packetReceived(PacketPtr &p, PeerStatePtr &ps)
 		{
@@ -27,9 +28,27 @@ namespace i2pcpp {
 		{
 			Endpoint ep = p->getEndpoint();
 
-			if(!p->verify(m_transport.getInboundKey())) {
+			if(!p->verify(m_inboundKey)) {
 				BOOST_LOG_SEV(m_transport.getLogger(), debug) << "dropping new packet with invalid key";
 				return;
+			}
+
+			p->decrypt(m_inboundKey);
+			ByteArray &data = p->getData();
+
+			auto dataItr = data.cbegin();
+			unsigned char flag = *(dataItr++);
+			Packet::PayloadType ptype = (Packet::PayloadType)(flag >> 4);
+
+			dataItr += 4; // TODO validate timestamp
+
+			switch(ptype) {
+				case Packet::SESSION_REQUEST:
+					BOOST_LOG_SEV(m_transport.getLogger(), debug) << "received session request";
+					// handleSessionRequest
+					break;
+				default:
+					BOOST_LOG_SEV(m_transport.getLogger(), debug) << "dropping new packet";
 			}
 		}
 	}

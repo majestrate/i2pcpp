@@ -10,7 +10,7 @@ namespace i2pcpp {
 	namespace SSU {
 		class PacketHandler {
 			public:
-				PacketHandler(UDPTransport &transport);
+				PacketHandler(UDPTransport &transport, SessionKey const &sk);
 
 				void packetReceived(PacketPtr &p, PeerStatePtr &ps);
 
@@ -18,6 +18,8 @@ namespace i2pcpp {
 				void handleNewPacket(PacketPtr &p);
 
 				UDPTransport& m_transport;
+
+				SessionKey m_inboundKey;
 		};
 	}
 }

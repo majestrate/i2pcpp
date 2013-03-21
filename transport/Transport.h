@@ -5,6 +5,7 @@
 
 #include "../datatypes/Endpoint.h"
 #include "../datatypes/RouterHash.h"
+#include "../datatypes/RouterInfo.h"
 
 namespace i2pcpp {
 	class Transport {
@@ -12,7 +13,7 @@ namespace i2pcpp {
 			typedef boost::signals2::signal<void(const RouterHash&)> EstablishedSignal;
 			typedef boost::signals2::signal<void(const RouterHash&, const ByteArray&)> ReceivedSignal;
 
-			virtual void connect(RouterHash const &rh, Endpoint const &ep) = 0;
+			virtual void connect(RouterInfo const &ri) = 0;
 			virtual void send(RouterHash const &rh, ByteArray const &msg) = 0;
 			virtual void disconnect(RouterHash const &rh) = 0;
 
