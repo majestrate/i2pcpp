@@ -22,7 +22,7 @@ namespace i2pcpp {
 				void encrypt(Botan::InitializationVector const &iv, SessionKey const &sk, SessionKey const &mk);
 
 				ByteArray& getData();
-				Endpoint getEndpoint();
+				Endpoint getEndpoint() const;
 
 				enum PayloadType {
 					SESSION_REQUEST = 0,

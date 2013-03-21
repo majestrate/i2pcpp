@@ -105,7 +105,7 @@ namespace i2pcpp {
 			return m_data;
 		}
 
-		Endpoint Packet::getEndpoint()
+		Endpoint Packet::getEndpoint() const
 		{
 			return m_endpoint;
 		}

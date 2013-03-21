@@ -2,6 +2,8 @@
 
 #include <boost/asio.hpp>
 
+#include <botan/botan.h>
+
 #include "../exceptions/FormattingError.h"
 
 #include "../datatypes/Endpoint.h"
@@ -191,7 +193,10 @@ TEST(Utils, Base64) {
 TEST(UDPTransport, start) {
 	using namespace i2pcpp;
 
-	UDPTransport t(SessionKey(Base64::decode("A6DVqs4yCV1s9QalgeB28iiV6341qm88Gblf3-c1SVg=")));
+	Botan::LibraryInitializer init;
+	Botan::AutoSeeded_RNG rng;
+	Botan::DSA_PrivateKey key(rng, group);
+	UDPTransport t(SessionKey(Base64::decode("A6DVqs4yCV1s9QalgeB28iiV6341qm88Gblf3-c1SVg=")), group, key);
 	t.start(Endpoint(SSU_TEST_IP, SSU_TEST_PORT));
 	ASSERT_THROW(t.start(Endpoint(SSU_TEST_BAD_IP, SSU_TEST_PORT)), boost::system::system_error);
 }

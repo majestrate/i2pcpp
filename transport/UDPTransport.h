@@ -44,10 +44,9 @@ namespace i2pcpp {
 			boost::asio::io_service m_ios;
 			boost::asio::ip::udp::socket m_socket;
 			boost::asio::ip::udp::endpoint m_senderEndpoint;
+			std::array<unsigned char, 1024> m_receiveBuf;
 
 			std::thread m_serviceThread;
-
-			std::array<unsigned char, 1024> m_receiveBuf;
 
 			SSU::PeerStateList m_peers;
 
