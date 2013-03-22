@@ -3,6 +3,7 @@
 
 #include "Packet.h"
 #include "PeerState.h"
+#include "EstablishmentState.h"
 
 namespace i2pcpp {
 	class UDPTransport;
@@ -16,6 +17,8 @@ namespace i2pcpp {
 
 			private:
 				void handleNewPacket(PacketPtr &p);
+
+				void handleSessionRequest(ByteArrayConstItr &begin, ByteArrayConstItr end, EstablishmentStatePtr const &state);
 
 				UDPTransport& m_transport;
 

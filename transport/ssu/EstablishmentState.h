@@ -56,12 +56,13 @@ namespace i2pcpp {
 				uint32_t getRelayTag() const;
 				void setRelayTag(const uint32_t rt);
 
-				void setTheirIdentity(RouterIdentity const &ri);
 				const RouterIdentity& getTheirIdentity() const;
+				void setTheirIdentity(RouterIdentity const &ri);
 
 				const RouterIdentity& getMyIdentity() const;
 
 				ByteArray getMyDH() const;
+				void setTheirDH(ByteArrayConstItr dh_begin, ByteArrayConstItr dh_end);
 
 				void setSignatureTimestamp(const uint32_t ts);
 

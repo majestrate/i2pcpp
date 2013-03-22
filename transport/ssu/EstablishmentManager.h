@@ -16,8 +16,8 @@ namespace i2pcpp {
 			public:
 				EstablishmentManager(UDPTransport &transport, Botan::DSA_PrivateKey const &privKey, RouterIdentity const &ri);
 
-				EstablishmentStatePtr createState(Endpoint const &ep, SessionKey const &sk);
-				void createState(Endpoint const &ep, SessionKey const &sk, RouterIdentity const &ri);
+				EstablishmentStatePtr createState(Endpoint const &ep);
+				void createState(Endpoint const &ep, RouterIdentity const &ri);
 
 				void post(EstablishmentStatePtr const &es);
 				void stateChanged(EstablishmentStatePtr const &es);

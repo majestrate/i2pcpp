@@ -13,7 +13,7 @@ namespace i2pcpp {
 			m_privKey(privKey),
 			m_identity(ri) {}
 
-		EstablishmentStatePtr EstablishmentManager::createState(Endpoint const &ep, SessionKey const &sk)
+		EstablishmentStatePtr EstablishmentManager::createState(Endpoint const &ep)
 		{
 			std::lock_guard<std::mutex> lock(m_stateTableMutex);
 
@@ -23,7 +23,7 @@ namespace i2pcpp {
 			return es;
 		}
 
-		void EstablishmentManager::createState(Endpoint const &ep, SessionKey const &sk, RouterIdentity const &ri)
+		void EstablishmentManager::createState(Endpoint const &ep, RouterIdentity const &ri)
 		{
 			std::lock_guard<std::mutex> lock(m_stateTableMutex);
 
@@ -40,6 +40,13 @@ namespace i2pcpp {
 
 		void EstablishmentManager::stateChanged(EstablishmentStatePtr const &es)
 		{
+			I2P_LOG_EP(m_transport.getLogger(), es->getTheirEndpoint());
+
+			switch(es->getState())
+			{
+				case EstablishmentState::REQUEST_SENT:
+					BOOST_LOG_SEV(m_transport.getLogger(), debug) << "sent session request";
+			}
 		}
 
 		void EstablishmentManager::sendRequest(EstablishmentStatePtr const &state)

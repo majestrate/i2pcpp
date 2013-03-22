@@ -11,6 +11,7 @@ set(PACKAGE_STRING "${PACKAGE_NAME} ${PACKAGE_VERSION}")
 
 set(SRCS
 	Log.cpp
+	Router.cpp
 	datatypes/Certificate.cpp
 	datatypes/ByteArray.cpp
 	datatypes/Datatype.cpp

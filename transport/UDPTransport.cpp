@@ -53,6 +53,14 @@ namespace i2pcpp {
 
 	void UDPTransport::connect(RouterInfo const &ri)
 	{
+		// TODO Try all the addresses if it times out
+		for(auto a: ri) {
+			if(a.getTransport() == "SSU") {
+				const Mapping& m = a.getOptions();
+				m_establishmentManager.createState(Endpoint(m.getValue("host"), stoi(m.getValue("port"))), ri.getIdentity());
+				break;
+			}
+		}
 	}
 
 	void UDPTransport::send(RouterHash const &rh, ByteArray const &msg)
@@ -111,6 +119,11 @@ namespace i2pcpp {
 	void UDPTransport::dataSent(const boost::system::error_code& e, size_t n, boost::asio::ip::udp::endpoint ep)
 	{
 		BOOST_LOG_SEV(m_log, debug) << "sent " << n << " bytes to " << ep;
+	}
+
+	SSU::EstablishmentManager& UDPTransport::getEstablisher()
+	{
+		return m_establishmentManager;
 	}
 
 	i2p_logger_mt& UDPTransport::getLogger()

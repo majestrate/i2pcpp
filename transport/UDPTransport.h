@@ -39,6 +39,8 @@ namespace i2pcpp {
 			template<typename CompletionHandler>
 			void post(CompletionHandler ch) { m_ios.post(ch); }
 
+			SSU::EstablishmentManager& getEstablisher();
+
 			i2p_logger_mt& getLogger();
 
 			boost::asio::io_service m_ios;

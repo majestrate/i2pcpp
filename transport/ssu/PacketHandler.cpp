@@ -37,6 +37,8 @@ namespace i2pcpp {
 			ByteArray &data = p->getData();
 
 			auto dataItr = data.cbegin();
+			auto end = data.cend();
+
 			unsigned char flag = *(dataItr++);
 			Packet::PayloadType ptype = (Packet::PayloadType)(flag >> 4);
 
@@ -45,11 +47,32 @@ namespace i2pcpp {
 			switch(ptype) {
 				case Packet::SESSION_REQUEST:
 					BOOST_LOG_SEV(m_transport.getLogger(), debug) << "received session request";
-					// handleSessionRequest
+					handleSessionRequest(dataItr, end, m_transport.getEstablisher().createState(ep));
 					break;
 				default:
 					BOOST_LOG_SEV(m_transport.getLogger(), debug) << "dropping new packet";
 			}
+		}
+
+		void PacketHandler::handleSessionRequest(ByteArrayConstItr &begin, ByteArrayConstItr end, EstablishmentStatePtr const &state)
+		{
+			state->setTheirDH(begin, begin + 256), begin += 256;
+
+			unsigned char ipSize = *(begin++);
+
+			if(ipSize != 4 && ipSize != 16)
+				return;
+
+			ByteArray ip(begin, begin + ipSize);
+			begin += ipSize;
+			short port = (((*(begin++)) << 8) | (*(begin++)));
+
+			state->setMyEndpoint(Endpoint(ip, port));
+
+			state->setRelayTag(0); // TODO Relay support
+
+			state->setState(EstablishmentState::REQUEST_RECEIVED);
+			m_transport.getEstablisher().post(state);
 		}
 	}
 }

@@ -103,14 +103,14 @@ namespace i2pcpp {
 			m_relayTag = rt;
 		}
 
-		void EstablishmentState::setTheirIdentity(RouterIdentity const &ri)
-		{
-			m_theirIdentity = ri;
-		}
-
 		const RouterIdentity& EstablishmentState::getTheirIdentity() const
 		{
 			return m_theirIdentity;
+		}
+
+		void EstablishmentState::setTheirIdentity(RouterIdentity const &ri)
+		{
+			m_theirIdentity = ri;
 		}
 
 		const RouterIdentity& EstablishmentState::getMyIdentity() const
@@ -121,6 +121,11 @@ namespace i2pcpp {
 		ByteArray EstablishmentState::getMyDH() const
 		{
 			return ByteArray(m_dhKey->public_value());
+		}
+
+		void EstablishmentState::setTheirDH(ByteArrayConstItr dh_begin, ByteArrayConstItr dh_end)
+		{
+			m_theirDH = ByteArray(dh_begin, dh_end);
 		}
 
 		void EstablishmentState::setSignatureTimestamp(const uint32_t ts)
