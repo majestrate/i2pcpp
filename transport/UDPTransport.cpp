@@ -101,7 +101,7 @@ namespace i2pcpp {
 			BOOST_LOG_SEV(m_log, debug) << "received " << n << " bytes from " << m_senderEndpoint;
 			
 			auto p = std::make_shared<SSU::Packet>(Endpoint(m_senderEndpoint), m_receiveBuf.data(), n);
-			m_ios.post(boost::bind(&SSU::PacketHandler::packetReceived, &m_packetHandler, p, m_peers.getRemotePeer(m_senderEndpoint)));
+			m_ios.post(boost::bind(&SSU::PacketHandler::packetReceived, &m_packetHandler, p));
 
 			m_socket.async_receive_from(
 					boost::asio::buffer(m_receiveBuf.data(), m_receiveBuf.size()),

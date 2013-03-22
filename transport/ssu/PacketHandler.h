@@ -13,12 +13,15 @@ namespace i2pcpp {
 			public:
 				PacketHandler(UDPTransport &transport, SessionKey const &sk);
 
-				void packetReceived(PacketPtr &p, PeerStatePtr &ps);
+				void packetReceived(PacketPtr &p);
 
 			private:
-				void handleNewPacket(PacketPtr &p);
+				void handlePacket(PacketPtr const &packet, EstablishmentStatePtr const &state);
+				void handlePacket(PacketPtr &p);
 
 				void handleSessionRequest(ByteArrayConstItr &begin, ByteArrayConstItr end, EstablishmentStatePtr const &state);
+				void handleSessionCreated(ByteArrayConstItr &begin, ByteArrayConstItr end, EstablishmentStatePtr const &state);
+				void handleSessionConfirmed(ByteArrayConstItr &begin, ByteArrayConstItr end, EstablishmentStatePtr const &state);
 
 				UDPTransport& m_transport;
 
