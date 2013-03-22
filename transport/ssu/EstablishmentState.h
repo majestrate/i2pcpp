@@ -16,8 +16,8 @@ namespace i2pcpp {
 	namespace SSU {
 		class EstablishmentState {
 			public:
-				EstablishmentState(Botan::DL_Group const &group, Botan::DSA_PrivateKey const &dsaKey, Endpoint const &ep, SessionKey const &sk);
-				EstablishmentState(Botan::DL_Group const &group, Botan::DSA_PrivateKey const &dsaKey, Endpoint const &ep, SessionKey const &sk, RouterIdentity const &ri);
+				EstablishmentState(Botan::DSA_PrivateKey const &dsaKey, RouterIdentity const &myIdentity, Endpoint const &ep);
+				EstablishmentState(Botan::DSA_PrivateKey const &dsaKey, RouterIdentity const &myIdentity, Endpoint const &ep, RouterIdentity const &theirIdentity);
 				EstablishmentState(EstablishmentState const &state) = delete;
 				~EstablishmentState();
 
@@ -37,25 +37,67 @@ namespace i2pcpp {
 				};
 
 				Direction getDirection() const;
+
 				State getState() const;
 				void setState(State state);
+
 				Botan::InitializationVector getIV() const;
+				void setIV(ByteArrayConstItr iv_begin, ByteArrayConstItr iv_end);
+
+				const SessionKey& getSessionKey() const;
+				void setSessionKey(SessionKey const &sk);
+
+				const SessionKey& getMacKey() const;
+				void setMacKey(SessionKey const &mk);
+
+				const Endpoint& getTheirEndpoint() const;
+				void setMyEndpoint(Endpoint const &ep);
+
+				uint32_t getRelayTag() const;
+				void setRelayTag(const uint32_t rt);
+
+				void setTheirIdentity(RouterIdentity const &ri);
+				const RouterIdentity& getTheirIdentity() const;
+
+				const RouterIdentity& getMyIdentity() const;
+
+				ByteArray getMyDH() const;
+
+				void setSignatureTimestamp(const uint32_t ts);
+
+				void setSignature(ByteArrayConstItr sig_begin, ByteArrayConstItr sig_end);
+
+				ByteArray calculateCreationSignature(const uint32_t signedOn);
+				ByteArray calculateConfirmationSignature(const uint32_t signedOn) const;
+				bool verifyCreationSignature() const;
+				bool verifyConfirmationSignature() const;
 
 			private:
-				const Botan::DL_Group& m_group;
-				const Botan::DSA_PrivateKey& m_dsaKey;
-
+				State m_state = UNKNOWN;
 				Direction m_direction;
+
+				static const Botan::BigInt p;
+				static const Botan::BigInt q;
+				static const Botan::BigInt g;
+				static const Botan::DL_Group m_group;
+
+				const Botan::DSA_PrivateKey& m_dsaKey;
+				const RouterIdentity& m_myIdentity;
+				Endpoint m_myEndpoint;
+
+				Botan::InitializationVector m_iv;
 				Botan::DH_PrivateKey *m_dhKey;
+				ByteArray m_dhSecret;
+				SessionKey m_sessionKey;
+				SessionKey m_macKey;
 
 				RouterIdentity m_theirIdentity;
 				Endpoint m_theirEndpoint;
 				ByteArray m_theirDH;
 
-				Botan::InitializationVector m_iv;
-				ByteArray m_dhSecret;
-
-				State m_state = UNKNOWN;
+				uint32_t m_relayTag;
+				uint32_t m_signatureTimestamp;
+				ByteArray m_signature;
 		};
 
 		typedef std::shared_ptr<EstablishmentState> EstablishmentStatePtr;

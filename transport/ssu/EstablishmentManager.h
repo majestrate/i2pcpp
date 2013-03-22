@@ -14,7 +14,7 @@ namespace i2pcpp {
 	namespace SSU {
 		class EstablishmentManager {
 			public:
-				EstablishmentManager(UDPTransport &transport, Botan::DL_Group const &group, Botan::DSA_PrivateKey const &privKey);
+				EstablishmentManager(UDPTransport &transport, Botan::DSA_PrivateKey const &privKey, RouterIdentity const &ri);
 
 				EstablishmentStatePtr createState(Endpoint const &ep, SessionKey const &sk);
 				void createState(Endpoint const &ep, SessionKey const &sk, RouterIdentity const &ri);
@@ -23,10 +23,12 @@ namespace i2pcpp {
 				void stateChanged(EstablishmentStatePtr const &es);
 
 			private:
+				void sendRequest(EstablishmentStatePtr const &state);
+
 				UDPTransport &m_transport;
 
-				Botan::DL_Group m_group;
 				Botan::DSA_PrivateKey m_privKey;
+				RouterIdentity m_identity;
 
 				std::unordered_map<Endpoint, EstablishmentStatePtr> m_stateTable;
 				mutable std::mutex m_stateTableMutex;

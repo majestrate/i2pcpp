@@ -26,6 +26,7 @@ set(SRCS
 	transport/ssu/EstablishmentManager.cpp
 	transport/ssu/EstablishmentState.cpp
 	transport/ssu/Packet.cpp
+	transport/ssu/PacketBuilder.cpp
 	transport/ssu/PacketHandler.cpp
 	transport/ssu/PeerState.cpp
 	transport/ssu/PeerStateList.cpp

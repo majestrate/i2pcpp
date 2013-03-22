@@ -5,7 +5,7 @@
 
 #include <boost/asio.hpp>
 
-#include "../datatypes/SessionKey.h"
+#include "../datatypes/RouterIdentity.h"
 
 #include "../Log.h"
 
@@ -22,7 +22,7 @@ namespace i2pcpp {
 		friend class SSU::EstablishmentManager;
 
 		public:
-			UDPTransport(SessionKey const &sk, Botan::DL_Group const &group, Botan::DSA_PrivateKey const &privKey);
+			UDPTransport(Botan::DSA_PrivateKey const &privKey, RouterIdentity const &ri);
 			~UDPTransport();
 
 			void start(Endpoint const &ep);

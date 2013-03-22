@@ -12,9 +12,8 @@
 namespace i2pcpp {
 	class Endpoint {
 		public:
-			Endpoint() = delete;
 			Endpoint(boost::asio::ip::udp::endpoint const &ep);
-			Endpoint(std::string ip, uint16_t port);
+			Endpoint(std::string ip = "127.0.0.1", uint16_t port = 0);
 			Endpoint(ByteArray const &addr, uint16_t port);
 
 			boost::asio::ip::udp::endpoint getUDPEndpoint() const;
