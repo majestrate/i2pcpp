@@ -24,6 +24,7 @@ namespace i2pcpp {
 
 			private:
 				void sendRequest(EstablishmentStatePtr const &state);
+				void processRequest(EstablishmentStatePtr const &state);
 
 				UDPTransport &m_transport;
 

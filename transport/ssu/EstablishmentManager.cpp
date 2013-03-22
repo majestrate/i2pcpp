@@ -48,6 +48,12 @@ namespace i2pcpp {
 			{
 				case EstablishmentState::REQUEST_SENT:
 					BOOST_LOG_SEV(m_transport.getLogger(), debug) << "sent session request";
+					break;
+
+				case EstablishmentState::REQUEST_RECEIVED:
+					BOOST_LOG_SEV(m_transport.getLogger(), debug) << "received session request";
+					processRequest(es);
+					break;
 			}
 		}
 
@@ -56,6 +62,26 @@ namespace i2pcpp {
 			PacketPtr p = PacketBuilder::buildSessionRequest(state);
 			p->encrypt(state->getSessionKey(), state->getMacKey());
 			state->setState(EstablishmentState::REQUEST_SENT);
+			m_transport.sendPacket(p);
+		}
+
+		void EstablishmentManager::processRequest(EstablishmentStatePtr const &state)
+		{
+			state->calculateDHSecret();
+
+			PacketPtr p = PacketBuilder::buildSessionCreated(state);
+			p->encrypt(state->getIV(), state->getSessionKey(), state->getMacKey());
+
+			const ByteArray& dhSecret = state->getDHSecret();
+			SessionKey newKey(dhSecret), newMacKey;
+
+			state->setSessionKey(newKey);
+
+			copy(dhSecret.begin() + 32, dhSecret.begin() + 32 + 32, newMacKey.begin());
+			state->setMacKey(newMacKey);
+
+			state->setState(EstablishmentState::CREATED_SENT);
+
 			m_transport.sendPacket(p);
 		}
 	}

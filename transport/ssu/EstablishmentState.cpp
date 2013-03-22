@@ -29,6 +29,7 @@ namespace i2pcpp {
 		{
 			m_direction = EstablishmentState::OUTBOUND;
 			m_theirIdentity = theirIdentity;
+			m_sessionKey = m_macKey = theirIdentity.getHash();
 		}
 
 		EstablishmentState::~EstablishmentState()
@@ -147,7 +148,7 @@ namespace i2pcpp {
 					new Botan::PK_Signer_Filter(
 						new Botan::PK_Signer(m_dsaKey, "Raw"),
 						rng
-					));
+						));
 
 			sigPipe.start_msg();
 
@@ -197,7 +198,7 @@ namespace i2pcpp {
 			encPipe.read(encSignature.data(), size);
 
 			return encSignature;
-}
+		}
 
 		ByteArray EstablishmentState::calculateConfirmationSignature(const uint32_t signedOn) const
 		{
@@ -315,7 +316,7 @@ namespace i2pcpp {
 			sigPipe.write(myIP.data(), myIP.size());
 			sigPipe.write(myPort >> 8);
 			sigPipe.write(myPort);
-			
+
 			sigPipe.write(m_relayTag >> 24);
 			sigPipe.write(m_relayTag >> 16);
 			sigPipe.write(m_relayTag >> 8);
@@ -332,6 +333,23 @@ namespace i2pcpp {
 			sigPipe.read(&verified, 1);
 
 			return verified;
+		}
+
+		void EstablishmentState::calculateDHSecret()
+		{
+			Botan::DH_KA_Operation keyop(*m_dhKey);
+			Botan::SymmetricKey secret = keyop.agree(m_theirDH.data(), m_theirDH.size());
+
+			m_dhSecret.resize(secret.length());
+			copy(secret.begin(), secret.end(), m_dhSecret.begin());
+			if(m_dhSecret[0] & 0x80)
+				m_dhSecret.insert(m_dhSecret.begin(), 0x00); // 2's comlpement
+
+		}
+
+		const ByteArray& EstablishmentState::getDHSecret() const
+		{
+			return m_dhSecret;
 		}
 	}
 }

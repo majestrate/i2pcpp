@@ -73,6 +73,9 @@ namespace i2pcpp {
 				bool verifyCreationSignature() const;
 				bool verifyConfirmationSignature() const;
 
+				void calculateDHSecret();
+				const ByteArray& getDHSecret() const;
+
 			private:
 				State m_state = UNKNOWN;
 				Direction m_direction;

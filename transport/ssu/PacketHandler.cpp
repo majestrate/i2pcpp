@@ -46,9 +46,9 @@ namespace i2pcpp {
 
 			switch(ptype) {
 				case Packet::SESSION_REQUEST:
-					BOOST_LOG_SEV(m_transport.getLogger(), debug) << "received session request";
 					handleSessionRequest(dataItr, end, m_transport.getEstablisher().createState(ep));
 					break;
+
 				default:
 					BOOST_LOG_SEV(m_transport.getLogger(), debug) << "dropping new packet";
 			}
