@@ -30,6 +30,8 @@ namespace i2pcpp {
 			EstablishmentStatePtr es(new EstablishmentState(m_privKey, m_identity, ep, ri));
 			m_stateTable[ep] = es;
 
+			sendRequest(es);
+
 			post(es);
 		}
 

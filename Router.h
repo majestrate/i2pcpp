@@ -6,6 +6,9 @@
 
 #include <boost/asio.hpp>
 
+#include <botan/elgamal.h>
+
+#include "Log.h"
 #include "Database.h"
 
 #include "transport/Transport.h"
@@ -20,6 +23,8 @@ namespace i2pcpp {
 			void start();
 			void stop();
 
+			void connect(std::string const &to);
+
 			ByteArray getRouterInfo();
 			void importRouterInfo(ByteArray const &info);
 
@@ -28,8 +33,14 @@ namespace i2pcpp {
 			boost::asio::io_service::work m_work;
 			std::thread m_serviceThread;
 
+			Botan::ElGamal_PrivateKey *m_encryptionKey;
+			Botan::DSA_PrivateKey *m_signingKey;
+			RouterIdentity m_identity;
+
 			Database m_db;
 			TransportPtr m_transport;
+
+			i2p_logger_mt m_log;
 	};
 }
 

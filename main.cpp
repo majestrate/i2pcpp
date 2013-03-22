@@ -61,7 +61,7 @@ int main()
 		std::list<std::string> hopList;
 		switch(cmd) {
 			case CONNECT:
-				//r.connect(*tokItr++);
+				r.connect(*tokItr++);
 				break;
 
 			case DB_LOOKUP:
