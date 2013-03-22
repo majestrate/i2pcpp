@@ -10,6 +10,7 @@ set(PACKAGE_NAME i2pcpp)
 set(PACKAGE_STRING "${PACKAGE_NAME} ${PACKAGE_VERSION}")
 
 set(SRCS
+	Database.cpp
 	Log.cpp
 	Router.cpp
 	datatypes/Certificate.cpp
@@ -24,6 +25,8 @@ set(SRCS
 	datatypes/RouterInfo.cpp
 	datatypes/SessionKey.cpp
 	exceptions/FormattingError.cpp
+	exceptions/RecordNotFound.cpp
+	exceptions/StatementPrepareError.cpp
 	transport/ssu/EstablishmentManager.cpp
 	transport/ssu/EstablishmentState.cpp
 	transport/ssu/Packet.cpp
@@ -41,6 +44,22 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g -O0 -Wall -std=c++11 -stdlib=li
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O2 -w -std=c++11 -stdlib=libc++")
 
 add_executable(i2p main.cpp ${SRCS})
+
+# Sqlite3
+find_path(SQLITE3_INCLUDE_DIR sqlite3.h PATHS "${SQLITE3_INCLUDE_PREFIX}" NO_DEFAULT_PATH)
+find_path(SQLITE3_INCLUDE_DIR sqlite3.h)
+find_library(SQLITE3_LIBRARY_PATH sqlite3 PATHS "${SQLITE3_LIBRARY_PREFIX}" NO_DEFAULT_PATH)
+find_library(SQLITE3_LIBRARY_PATH sqlite3)
+
+if(SQLITE3_LIBRARY_PATH AND SQLITE3_INCLUDE_DIR)
+	message(STATUS "Found sqlite3: ${SQLITE3_LIBRARY_PATH}")
+else(SQLITE3_LIBRARY_PATH AND SQLITE3_INCLUDE_DIR)
+	message(FATAL_ERROR "Sqlite3 not found")
+endif(SQLITE3_LIBRARY_PATH AND SQLITE3_INCLUDE_DIR)
+
+include_directories(BEFORE i2p "${SQLITE3_INCLUDE_DIR}")
+target_link_libraries(i2p "${SQLITE3_LIBRARY_PATH}")
+
 
 # Botan
 find_path(BOTAN_INCLUDE_DIR botan/botan.h PATHS "${BOTAN_INCLUDE_PREFIX}" NO_DEFAULT_PATH)
@@ -82,9 +101,9 @@ if(GTEST_LIBRARY_PATH AND GTEST_INCLUDE_DIR)
 	add_test(
 		NAME testi2p
 		COMMAND testi2p
-	)
+		)
 
-  # ...
+	# ...
 else(GTEST_LIBRARY_PATH AND GTEST_INCLUDE_DIR)
 	message(STATUS "Google Testing Framework not found... not building tests")
 endif(GTEST_LIBRARY_PATH AND GTEST_INCLUDE_DIR)
