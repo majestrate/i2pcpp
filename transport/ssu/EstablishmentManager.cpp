@@ -142,10 +142,10 @@ namespace i2pcpp {
 			state->setMacKey(newMacKey);
 
 			Endpoint ep = state->getTheirEndpoint();
-			/*PeerStatePtr ps(new PeerState(ep, state->getTheirIdentity(), false)); TODO!!
-				ps->setCurrentSessionKey(state->getSessionKey());
-				ps->setCurrentMacKey(state->getMacKey());
-				m_transport.m_peers.addRemotePeer(ps); TODO!!*/
+			PeerStatePtr ps(new PeerState(ep, state->getTheirIdentity()));
+			ps->setCurrentSessionKey(state->getSessionKey());
+			ps->setCurrentMacKey(state->getMacKey());
+			m_transport.m_peers.addRemotePeer(ps);
 
 			PacketPtr p = PacketBuilder::buildSessionConfirmed(state);
 			p->encrypt(state->getSessionKey(), state->getMacKey());
@@ -166,10 +166,10 @@ namespace i2pcpp {
 				BOOST_LOG_SEV(m_transport.getLogger(), debug) << "confirmation signature verification succeeded";
 
 			Endpoint ep = state->getTheirEndpoint();
-			/*PeerStatePtr ps(new PeerState(ep, state->getTheirIdentity(), true));
-				ps->setCurrentSessionKey(state->getSessionKey());
-				ps->setCurrentMacKey(state->getMacKey());
-				m_transport.m_peers.addRemotePeer(ps); TODO!! */
+			PeerStatePtr ps(new PeerState(ep, state->getTheirIdentity()));
+			ps->setCurrentSessionKey(state->getSessionKey());
+			ps->setCurrentMacKey(state->getMacKey());
+			m_transport.m_peers.addRemotePeer(ps);
 
 			m_stateTableMutex.lock();
 			m_stateTable.erase(state->getTheirEndpoint());
