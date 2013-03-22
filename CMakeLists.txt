@@ -44,6 +44,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g -O0 -Wall -std=c++11 -stdlib=li
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O2 -w -std=c++11 -stdlib=libc++")
 
 add_executable(i2p main.cpp ${SRCS})
+add_executable(generate_keys tools/generate_keys.cpp)
 
 # Sqlite3
 find_path(SQLITE3_INCLUDE_DIR sqlite3.h PATHS "${SQLITE3_INCLUDE_PREFIX}" NO_DEFAULT_PATH)
@@ -60,7 +61,6 @@ endif(SQLITE3_LIBRARY_PATH AND SQLITE3_INCLUDE_DIR)
 include_directories(BEFORE i2p "${SQLITE3_INCLUDE_DIR}")
 target_link_libraries(i2p "${SQLITE3_LIBRARY_PATH}")
 
-
 # Botan
 find_path(BOTAN_INCLUDE_DIR botan/botan.h PATHS "${BOTAN_INCLUDE_PREFIX}" NO_DEFAULT_PATH)
 find_path(BOTAN_INCLUDE_DIR botan/botan.h)
@@ -75,6 +75,9 @@ endif(BOTAN_LIBRARY_PATH AND BOTAN_INCLUDE_DIR)
 
 include_directories(BEFORE i2p ${BOTAN_INCLUDE_DIR})
 target_link_libraries(i2p ${BOTAN_LIBRARY_PATH})
+
+include_directories(BEFORE generate_keys ${BOTAN_INCLUDE_DIR})
+target_link_libraries(generate_keys ${BOTAN_LIBRARY_PATH})
 
 # Boost
 find_package(Boost 1.53.0 REQUIRED COMPONENTS system thread filesystem chrono date_time log)

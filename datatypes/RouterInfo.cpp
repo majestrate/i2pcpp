@@ -10,7 +10,7 @@
 namespace i2pcpp {
 	RouterInfo::RouterInfo() {}
 
-	RouterInfo::RouterInfo(RouterIdentity const &identity, Date const &published, Mapping const &options, ByteArray const &signature = ByteArray(40)) :
+	RouterInfo::RouterInfo(RouterIdentity const &identity, Date const &published, Mapping const &options, ByteArray const &signature) :
 		m_identity(identity),
 		m_published(published),
 		m_options(options),

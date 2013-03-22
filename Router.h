@@ -6,6 +6,8 @@
 
 #include <boost/asio.hpp>
 
+#include "Database.h"
+
 #include "transport/Transport.h"
 
 namespace i2pcpp {
@@ -18,11 +20,14 @@ namespace i2pcpp {
 			void start();
 			void stop();
 
+			ByteArray getRouterInfo();
+
 		private:
 			boost::asio::io_service m_ios;
 			boost::asio::io_service::work m_work;
 			std::thread m_serviceThread;
 
+			Database m_db;
 			TransportPtr m_transport;
 	};
 }

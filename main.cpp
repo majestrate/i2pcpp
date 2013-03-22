@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <map>
 
 #include <botan/botan.h>
@@ -14,6 +15,12 @@ bool keepRunning = true;
 void sigint_handler(int sig)
 {
 	keepRunning = false;
+}
+
+void write_info(const std::string file, i2pcpp::ByteArray const &info)
+{
+	std::ofstream out(file, std::ios::out | std::ios::binary);
+	out.write((char *)info.data(), info.size());
 }
 
 int main()
@@ -32,9 +39,10 @@ int main()
 		CONNECT,
 		DB_LOOKUP,
 		BUILD_INBOUND,
+		EXPORT_INFO,
 		QUIT
 	};
-	std::map<std::string, Command> cmd_map = boost::assign::map_list_of("lookup", DB_LOOKUP)("quit", QUIT)("inbound", BUILD_INBOUND)("connect", CONNECT);
+	std::map<std::string, Command> cmd_map = boost::assign::map_list_of("lookup", DB_LOOKUP)("quit", QUIT)("inbound", BUILD_INBOUND)("connect", CONNECT)("export", EXPORT_INFO);
 
 	while(keepRunning) {
 		std::string str;
@@ -58,12 +66,18 @@ int main()
 			case CONNECT:
 				//r.connect(*tokItr++);
 				break;
+
 			case DB_LOOKUP:
 				//r.databaseLookup(*(tokItr++), *(tokItr++));
 				break;
+
 			case BUILD_INBOUND:
 				while(tokItr != tok.end()) hopList.push_back(*tokItr++);
 				//r.createTunnel(hopList);
+				break;
+
+			case EXPORT_INFO:
+				write_info(*tokItr++, r.getRouterInfo());
 				break;
 			case QUIT:
 				keepRunning = false;
