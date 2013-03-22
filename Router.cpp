@@ -68,4 +68,10 @@ namespace i2pcpp {
 
 		return myInfo.serialize();
 	}
+
+	void Router::importRouterInfo(ByteArray const &info)
+	{
+		auto begin = info.cbegin();
+		m_db.setRouterInfo(RouterInfo(begin, info.cend()));
+	}
 }

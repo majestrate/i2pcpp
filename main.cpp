@@ -17,12 +17,6 @@ void sigint_handler(int sig)
 	keepRunning = false;
 }
 
-void write_info(const std::string file, i2pcpp::ByteArray const &info)
-{
-	std::ofstream out(file, std::ios::out | std::ios::binary);
-	out.write((char *)info.data(), info.size());
-}
-
 int main()
 {
 	using namespace i2pcpp;
@@ -40,9 +34,10 @@ int main()
 		DB_LOOKUP,
 		BUILD_INBOUND,
 		EXPORT_INFO,
+		IMPORT_INFO,
 		QUIT
 	};
-	std::map<std::string, Command> cmd_map = boost::assign::map_list_of("lookup", DB_LOOKUP)("quit", QUIT)("inbound", BUILD_INBOUND)("connect", CONNECT)("export", EXPORT_INFO);
+	std::map<std::string, Command> cmd_map = boost::assign::map_list_of("lookup", DB_LOOKUP)("quit", QUIT)("inbound", BUILD_INBOUND)("connect", CONNECT)("export", EXPORT_INFO)("import", IMPORT_INFO);
 
 	while(keepRunning) {
 		std::string str;
@@ -61,6 +56,8 @@ int main()
 
 		Command cmd = cmdItr->second;
 
+		ByteArray info;
+		std::fstream f;
 		std::list<std::string> hopList;
 		switch(cmd) {
 			case CONNECT:
@@ -77,8 +74,19 @@ int main()
 				break;
 
 			case EXPORT_INFO:
-				write_info(*tokItr++, r.getRouterInfo());
+				f.open(*tokItr++, std::ios::out | std::ios::binary);
+				info = r.getRouterInfo();
+				f.write((char *)info.data(), info.size());
+				f.close();
 				break;
+
+			case IMPORT_INFO:
+				f.open(*tokItr++, std::ios::in | std::ios::binary);
+				info = i2pcpp::ByteArray((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
+				f.close();
+				r.importRouterInfo(info);
+				break;
+
 			case QUIT:
 				keepRunning = false;
 				break;

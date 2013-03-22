@@ -21,6 +21,7 @@ namespace i2pcpp {
 			void stop();
 
 			ByteArray getRouterInfo();
+			void importRouterInfo(ByteArray const &info);
 
 		private:
 			boost::asio::io_service m_ios;
