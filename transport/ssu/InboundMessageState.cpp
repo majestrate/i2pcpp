@@ -2,11 +2,9 @@
 
 namespace i2pcpp {
 	namespace SSU {
-		InboundMessageState::InboundMessageState(RouterHash const &routerHash, const uint32_t msgId) :
-			m_msgId(msgId),
-			m_routerHash(routerHash),
-			m_gotLast(false),
-			m_byteTotal(0) {}
+		InboundMessageState::InboundMessageState(RouterHash const &rh, const uint32_t msgId) :
+			m_routerHash(rh),
+			m_msgId(msgId) {}
 
 		void InboundMessageState::addFragment(const unsigned char fragNum, ByteArray const &data, bool isLast)
 		{
@@ -34,8 +32,6 @@ namespace i2pcpp {
 		{
 			ByteArray dst(m_byteTotal);
 
-			if(!this) return dst; // TODO Exception
-
 			auto itr = dst.begin();
 			for(auto fp: m_fragments)
 			{
@@ -51,17 +47,17 @@ namespace i2pcpp {
 		{
 			if(!m_gotLast) return false;
 
-			return (m_fragmentAckStates.count() == m_fragmentAckStates.size());;
+			return (m_fragmentAckStates.count() == m_fragmentAckStates.size());
+		}
+
+		RouterHash InboundMessageState::getRouterHash() const
+		{
+			return m_routerHash;
 		}
 
 		uint32_t InboundMessageState::getMsgId() const
 		{
 			return m_msgId;
-		}
-
-		const RouterHash& InboundMessageState::getRouterHash() const
-		{
-			return m_routerHash;
 		}
 
 		unsigned char InboundMessageState::getNumFragments() const

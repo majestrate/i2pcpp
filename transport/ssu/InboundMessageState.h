@@ -7,7 +7,6 @@
 
 #include <boost/dynamic_bitset.hpp>
 
-#include "../../datatypes/ByteArray.h"
 #include "../../datatypes/RouterHash.h"
 
 namespace i2pcpp {
@@ -17,24 +16,24 @@ namespace i2pcpp {
 
 		class InboundMessageState {
 			public:
-				InboundMessageState(RouterHash const &routerHash, const uint32_t msgId);
+				InboundMessageState(RouterHash const &rh, const uint32_t msgId);
 
 				void addFragment(const unsigned char fragNum, ByteArray const &data, bool isLast);
 				ByteArray assemble() const;
-
-				uint32_t getMsgId() const;
-				const RouterHash& getRouterHash() const;
-				unsigned char getNumFragments() const;
-
-				const AckBitfield& getAckStates() const;
 				bool allFragmentsReceived() const;
 
+				RouterHash getRouterHash() const;
+				uint32_t getMsgId() const;
+				unsigned char getNumFragments() const;
+				const AckBitfield& getAckStates() const;
+
 			private:
-				uint32_t m_msgId;
 				RouterHash m_routerHash;
-				bool m_gotLast;
+
+				uint32_t m_msgId;
+				bool m_gotLast = false;
 				unsigned char m_lastFragment;
-				uint32_t m_byteTotal;
+				uint32_t m_byteTotal = 0;
 
 				std::map<unsigned char, ByteArray> m_fragments;
 				AckBitfield m_fragmentAckStates;

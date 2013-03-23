@@ -1,6 +1,7 @@
 #include "Log.h"
 
 #include "datatypes/Endpoint.h"
+#include "datatypes/RouterHash.h"
 
 namespace i2pcpp {
 	std::ostream& operator<< (std::ostream& strm, severity_level level)
@@ -54,6 +55,13 @@ namespace i2pcpp {
 					]
 				<< '/'
 				<< expr::attr<severity_level>("Severity")
+				<< expr::if_(expr::has_attr<Endpoint>("RouterHash"))
+					[
+						expr::stream
+						<< " ["
+						<< expr::attr<RouterHash>("RouterHash")
+						<< "]"
+					]
 				<< expr::if_(expr::has_attr<Endpoint>("Endpoint"))
 					[
 						expr::stream

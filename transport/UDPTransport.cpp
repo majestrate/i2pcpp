@@ -7,6 +7,7 @@ namespace i2pcpp {
 		m_socket(m_ios),
 		m_packetHandler(*this, ri.getHash()),
 		m_establishmentManager(*this, privKey, ri),
+		m_ackScheduler(*this),
 		m_log(boost::log::keywords::channel = "SSU") {}
 
 	UDPTransport::~UDPTransport()

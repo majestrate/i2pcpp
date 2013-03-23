@@ -27,6 +27,7 @@ set(SRCS
 	exceptions/FormattingError.cpp
 	exceptions/RecordNotFound.cpp
 	exceptions/StatementPrepareError.cpp
+	transport/ssu/AcknowledgementScheduler.cpp
 	transport/ssu/EstablishmentManager.cpp
 	transport/ssu/EstablishmentState.cpp
 	transport/ssu/InboundMessageFragments.cpp

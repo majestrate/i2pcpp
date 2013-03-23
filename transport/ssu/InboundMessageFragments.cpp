@@ -54,8 +54,9 @@ namespace i2pcpp {
 				BOOST_LOG_SEV(m_transport.getLogger(), debug) << "fragment[" << i << "] size: " << fragSize;
 
 				ByteArray fragData(begin, begin + fragSize);
-				BOOST_LOG_SEV(m_transport.getLogger(), debug) << "fragment[" << i << "] data: " << std::string(fragData.cbegin(), fragData.cend());;
+				BOOST_LOG_SEV(m_transport.getLogger(), debug) << "fragment[" << i << "] data: " << std::string(fragData.cbegin(), fragData.cend());
 
+				std::lock_guard<std::mutex> lock(ps->getMutex());
 				InboundMessageStatePtr ims = ps->getInboundMessageState(msgId);
 				if(!ims) {
 					ims = std::make_shared<InboundMessageState>(ps->getIdentity().getHash(), msgId);
@@ -65,8 +66,11 @@ namespace i2pcpp {
 				// TODO Should throw an exception on error
 				ims->addFragment(fragNum, fragData, isLast);
 
-				/*if(ims->allFragmentsReceived())
-					m_transport.m_receiver.addMessage(ims);*/
+				if(ims->allFragmentsReceived()) {
+					const ByteArray data = ims->assemble();
+					if(data.size())
+						m_transport.post(boost::bind(boost::ref(m_transport.m_receivedSignal), ims->getRouterHash(), data));
+				}
 			}
 		}
 	}

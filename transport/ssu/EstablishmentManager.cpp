@@ -40,6 +40,7 @@ namespace i2pcpp {
 
 		void EstablishmentManager::stateChanged(EstablishmentStatePtr const &es)
 		{
+			I2P_LOG_TAG(m_transport.getLogger(), "EM");
 			I2P_LOG_EP(m_transport.getLogger(), es->getTheirEndpoint());
 
 			switch(es->getState())
@@ -142,7 +143,7 @@ namespace i2pcpp {
 			state->setMacKey(newMacKey);
 
 			Endpoint ep = state->getTheirEndpoint();
-			PeerStatePtr ps(new PeerState(ep, state->getTheirIdentity()));
+			PeerStatePtr ps(new PeerState(m_transport.m_ios, ep, state->getTheirIdentity()));
 			ps->setCurrentSessionKey(state->getSessionKey());
 			ps->setCurrentMacKey(state->getMacKey());
 			m_transport.m_peers.addRemotePeer(ps);
@@ -166,7 +167,7 @@ namespace i2pcpp {
 				BOOST_LOG_SEV(m_transport.getLogger(), debug) << "confirmation signature verification succeeded";
 
 			Endpoint ep = state->getTheirEndpoint();
-			PeerStatePtr ps(new PeerState(ep, state->getTheirIdentity()));
+			PeerStatePtr ps(new PeerState(m_transport.m_ios, ep, state->getTheirIdentity()));
 			ps->setCurrentSessionKey(state->getSessionKey());
 			ps->setCurrentMacKey(state->getMacKey());
 			m_transport.m_peers.addRemotePeer(ps);
