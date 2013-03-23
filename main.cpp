@@ -35,9 +35,10 @@ int main()
 		BUILD_INBOUND,
 		EXPORT_INFO,
 		IMPORT_INFO,
+		SEND,
 		QUIT
 	};
-	std::map<std::string, Command> cmd_map = boost::assign::map_list_of("lookup", DB_LOOKUP)("quit", QUIT)("inbound", BUILD_INBOUND)("connect", CONNECT)("export", EXPORT_INFO)("import", IMPORT_INFO);
+	std::map<std::string, Command> cmd_map = boost::assign::map_list_of("lookup", DB_LOOKUP)("quit", QUIT)("inbound", BUILD_INBOUND)("connect", CONNECT)("export", EXPORT_INFO)("import", IMPORT_INFO)("send", SEND);
 
 	while(keepRunning) {
 		std::string str;
@@ -59,6 +60,8 @@ int main()
 		ByteArray info;
 		std::fstream f;
 		std::list<std::string> hopList;
+		std::string s;
+
 		switch(cmd) {
 			case CONNECT:
 				r.connect(*tokItr++);
@@ -85,6 +88,10 @@ int main()
 				info = i2pcpp::ByteArray((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
 				f.close();
 				r.importRouterInfo(info);
+				break;
+
+			case SEND:
+				r.sendRawData(*tokItr++, *tokItr++);
 				break;
 
 			case QUIT:

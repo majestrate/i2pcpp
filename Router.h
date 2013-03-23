@@ -10,6 +10,7 @@
 
 #include "Log.h"
 #include "Database.h"
+#include "InboundMessageDispatcher.h"
 
 #include "transport/Transport.h"
 
@@ -28,6 +29,8 @@ namespace i2pcpp {
 			ByteArray getRouterInfo();
 			void importRouterInfo(ByteArray const &info);
 
+			void sendRawData(std::string const &dst, std::string const &data);
+
 		private:
 			boost::asio::io_service m_ios;
 			boost::asio::io_service::work m_work;
@@ -39,6 +42,8 @@ namespace i2pcpp {
 
 			Database m_db;
 			TransportPtr m_transport;
+
+			InboundMessageDispatcher m_inMsgDispatcher;
 
 			i2p_logger_mt m_log;
 	};

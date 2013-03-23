@@ -202,10 +202,6 @@ namespace i2pcpp {
 				d.insert(d.end(), f->data.cbegin(), f->data.cend());
 			}
 
-			std::cerr << "Sending the following packet:\n";
-			for(auto c: d) std::cerr << std::setw(2) << std::setfill('0') << std::hex << (int)c << std::setw(0) << std::dec;
-			std::cerr << "\n";
-
 			return s;
 		}
 	}

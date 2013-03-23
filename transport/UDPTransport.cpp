@@ -2,6 +2,10 @@
 
 #include <boost/exception/all.hpp>
 
+#include "ssu/PeerState.h"
+#include "ssu/OutboundMessageState.h"
+#include "ssu/PacketBuilder.h"
+
 namespace i2pcpp {
 	UDPTransport::UDPTransport(Botan::DSA_PrivateKey const &privKey, RouterIdentity const &ri) :
 		m_socket(m_ios),
@@ -64,8 +68,24 @@ namespace i2pcpp {
 		}
 	}
 
-	void UDPTransport::send(RouterHash const &rh, ByteArray const &msg)
+	void UDPTransport::send(RouterHash const &rh, ByteArray const &data)
 	{
+		using namespace SSU;
+
+		PeerStatePtr ps = m_peers.getRemotePeer(rh);
+
+		if(ps) {
+			OutboundMessageStatePtr oms(new SSU::OutboundMessageState(data));
+
+			std::forward_list<OutboundMessageState::FragmentPtr> fragList;
+			fragList.push_front(oms->getNextFragment());
+
+			PacketPtr p = PacketBuilder::buildData(ps, false, fragList, AckList());
+			p->encrypt(ps->getCurrentSessionKey(), ps->getCurrentMacKey());
+			sendPacket(p);
+		} else {
+			// TODO Exception
+		}
 	}
 
 	void UDPTransport::disconnect(RouterHash const &rh)

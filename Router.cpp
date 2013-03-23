@@ -8,6 +8,7 @@ namespace i2pcpp {
 	Router::Router(std::string const &dbFile) :
 		m_work(m_ios),
 		m_db(dbFile),
+		m_inMsgDispatcher(m_ios),
 		m_log(boost::log::keywords::channel = "Router")
 	{
 		Botan::AutoSeeded_RNG rng;
@@ -40,6 +41,9 @@ namespace i2pcpp {
 		m_serviceThread = std::thread([&](){m_ios.run();});
 
 		m_transport = TransportPtr(new UDPTransport(*m_signingKey, m_identity));
+
+		m_transport->registerReceivedHandler(boost::bind(&InboundMessageDispatcher::messageReceived, m_inMsgDispatcher, _1, _2));
+		m_transport->registerEstablishedHandler(boost::bind(&InboundMessageDispatcher::connectionEstablished, m_inMsgDispatcher, _1));
 
 		std::shared_ptr<UDPTransport> u = std::dynamic_pointer_cast<UDPTransport>(m_transport);
 		u->start(Endpoint(m_db.getConfigValue("ssu_bind_ip"), std::stoi(m_db.getConfigValue("ssu_bind_port"))));
@@ -83,5 +87,13 @@ namespace i2pcpp {
 	{
 		auto begin = info.cbegin();
 		m_db.setRouterInfo(RouterInfo(begin, info.cend()));
+	}
+
+	void Router::sendRawData(std::string const &dst, std::string const &data)
+	{
+		ByteArray dataBytes(data.cbegin(), data.cend());
+
+		std::shared_ptr<UDPTransport> u = std::dynamic_pointer_cast<UDPTransport>(m_transport);
+		u->send(Base64::decode(dst), dataBytes);
 	}
 }

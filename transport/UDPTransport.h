@@ -30,7 +30,7 @@ namespace i2pcpp {
 
 			void start(Endpoint const &ep);
 			void connect(RouterInfo const &ri);
-			void send(RouterHash const &rh, ByteArray const &msg);
+			void send(RouterHash const &rh, ByteArray const &data);
 			void disconnect(RouterHash const &rh);
 			void shutdown();
 
