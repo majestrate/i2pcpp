@@ -7,6 +7,8 @@
 #include "Packet.h"
 #include "PacketBuilder.h"
 #include "PeerState.h"
+#include "InboundMessageState.h"
+#include "OutboundMessageState.h"
 
 namespace i2pcpp {
 	namespace SSU {
@@ -36,12 +38,12 @@ namespace i2pcpp {
 					++itr;
 				}
 
-/*				if(ackList.size()) {
+				if(ackList.size()) {
 					std::forward_list<OutboundMessageState::FragmentPtr> emptyFragList;
 					PacketPtr p = PacketBuilder::buildData(ps, false, emptyFragList, ackList);
 					p->encrypt(ps->getCurrentSessionKey(), ps->getCurrentMacKey());
 					m_transport.sendPacket(p);
-				}*/
+				}
 			}
 
 			timer->expires_at(timer->expires_at() + boost::posix_time::time_duration(0, 0, 1));

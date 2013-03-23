@@ -16,7 +16,7 @@
 
 #include "../util/Base64.h"
 
-#include "../transport/UDPTransport.h"
+//#include "../transport/UDPTransport.h"
 #include "../transport/ssu/Packet.h"
 
 #include <fstream>
@@ -190,7 +190,8 @@ TEST(Utils, Base64) {
 	ASSERT_EQ(Base64::decode("AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="), test);
 }
 
-TEST(UDPTransport, start) {
+// TODO
+/*TEST(UDPTransport, start) {
 	using namespace i2pcpp;
 
 	Botan::LibraryInitializer init;
@@ -199,7 +200,7 @@ TEST(UDPTransport, start) {
 	UDPTransport t(SessionKey(Base64::decode("A6DVqs4yCV1s9QalgeB28iiV6341qm88Gblf3-c1SVg=")), group, key);
 	t.start(Endpoint(SSU_TEST_IP, SSU_TEST_PORT));
 	ASSERT_THROW(t.start(Endpoint(SSU_TEST_BAD_IP, SSU_TEST_PORT)), boost::system::system_error);
-}
+}*/
 
 TEST(Packet, encrypt) {
 	using namespace i2pcpp;

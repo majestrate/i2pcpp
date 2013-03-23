@@ -3,8 +3,6 @@
 
 #include <boost/asio.hpp>
 
-#include "InboundMessageState.h"
-
 namespace i2pcpp {
 	class UDPTransport;
 

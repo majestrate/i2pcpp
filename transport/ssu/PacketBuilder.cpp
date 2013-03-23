@@ -114,7 +114,7 @@ namespace i2pcpp {
 			return s;
 		}
 
-		/*PacketPtr PacketBuilder::buildData(PeerStatePtr const &ps, bool wantReply, std::forward_list<OutboundMessageState::FragmentPtr> const &fragments, AckList const &acks)
+		PacketPtr PacketBuilder::buildData(PeerStatePtr const &ps, bool wantReply, std::forward_list<OutboundMessageState::FragmentPtr> const &fragments, AckList const &acks)
 		{
 			PacketPtr s = buildHeader(ps->getEndpoint(), Packet::PayloadType::DATA << 4);
 
@@ -207,6 +207,6 @@ namespace i2pcpp {
 			std::cerr << "\n";
 
 			return s;
-		}*/
+		}
 	}
 }

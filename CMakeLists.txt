@@ -32,6 +32,7 @@ set(SRCS
 	transport/ssu/EstablishmentState.cpp
 	transport/ssu/InboundMessageFragments.cpp
 	transport/ssu/InboundMessageState.cpp
+	transport/ssu/OutboundMessageState.cpp
 	transport/ssu/Packet.cpp
 	transport/ssu/PacketBuilder.cpp
 	transport/ssu/PacketHandler.cpp
@@ -39,6 +40,25 @@ set(SRCS
 	transport/ssu/PeerStateList.cpp
 	transport/Transport.cpp
 	transport/UDPTransport.cpp
+	util/Base64.cpp
+	util/I2PHMAC.cpp
+	)
+
+set(TEST_SRCS
+	datatypes/Certificate.cpp
+	datatypes/ByteArray.cpp
+	datatypes/Datatype.cpp
+	datatypes/Date.cpp
+	datatypes/Endpoint.cpp
+	datatypes/Mapping.cpp
+	datatypes/RouterAddress.cpp
+	datatypes/RouterHash.cpp
+	datatypes/RouterIdentity.cpp
+	datatypes/RouterInfo.cpp
+	datatypes/SessionKey.cpp
+	exceptions/FormattingError.cpp
+	tests/testi2p.cpp
+	transport/ssu/Packet.cpp
 	util/Base64.cpp
 	util/I2PHMAC.cpp
 	)
@@ -102,14 +122,12 @@ if(GTEST_LIBRARY_PATH AND GTEST_INCLUDE_DIR)
 	include_directories("${GTEST_INCLUDE_DIR}")
 	set(GTEST_LINK_STUFF "${GTEST_LIBRARY_PATH}" "${GTEST_MAIN_LIBRARY_PATH}" "${CMAKE_THREAD_LIBS_INIT}" "${Boost_LIBRARIES}" "${BOTAN_LIBRARY_PATH}")
 
-	add_executable(testi2p tests/testi2p.cpp ${SRCS})
+	add_executable(testi2p ${TEST_SRCS})
 	target_link_libraries(testi2p ${GTEST_LINK_STUFF})
 	add_test(
 		NAME testi2p
 		COMMAND testi2p
 		)
-
-	# ...
 else(GTEST_LIBRARY_PATH AND GTEST_INCLUDE_DIR)
 	message(STATUS "Google Testing Framework not found... not building tests")
 endif(GTEST_LIBRARY_PATH AND GTEST_INCLUDE_DIR)
