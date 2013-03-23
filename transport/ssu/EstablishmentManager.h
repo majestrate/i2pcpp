@@ -29,7 +29,6 @@ namespace i2pcpp {
 				void processCreated(EstablishmentStatePtr const &state);
 				void processConfirmed(EstablishmentStatePtr const &state);
 
-
 				UDPTransport &m_transport;
 
 				Botan::DSA_PrivateKey m_privKey;

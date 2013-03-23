@@ -29,6 +29,8 @@ set(SRCS
 	exceptions/StatementPrepareError.cpp
 	transport/ssu/EstablishmentManager.cpp
 	transport/ssu/EstablishmentState.cpp
+	transport/ssu/InboundMessageFragments.cpp
+	transport/ssu/InboundMessageState.cpp
 	transport/ssu/Packet.cpp
 	transport/ssu/PacketBuilder.cpp
 	transport/ssu/PacketHandler.cpp

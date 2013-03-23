@@ -4,6 +4,7 @@
 #include "Packet.h"
 #include "PeerState.h"
 #include "EstablishmentState.h"
+#include "InboundMessageFragments.h"
 
 namespace i2pcpp {
 	class UDPTransport;
@@ -16,6 +17,7 @@ namespace i2pcpp {
 				void packetReceived(PacketPtr &p);
 
 			private:
+				void handlePacket(PacketPtr const &packet, PeerStatePtr const &state);
 				void handlePacket(PacketPtr const &packet, EstablishmentStatePtr const &state);
 				void handlePacket(PacketPtr &p);
 
@@ -26,6 +28,8 @@ namespace i2pcpp {
 				UDPTransport& m_transport;
 
 				SessionKey m_inboundKey;
+
+				InboundMessageFragments m_imf;
 		};
 	}
 }

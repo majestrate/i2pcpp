@@ -6,7 +6,8 @@ namespace i2pcpp {
 	namespace SSU {
 		PacketHandler::PacketHandler(UDPTransport &transport, SessionKey const &sk) :
 			m_transport(transport),
-			m_inboundKey(sk) {}
+			m_inboundKey(sk),
+			m_imf(transport) {}
 
 		void PacketHandler::packetReceived(PacketPtr &p)
 		{
@@ -19,13 +20,37 @@ namespace i2pcpp {
 
 			PeerStatePtr ps = m_transport.m_peers.getRemotePeer(p->getEndpoint());
 			if(ps) {
-				// ...
+				handlePacket(p, ps);
 			} else {
 				EstablishmentStatePtr es = m_transport.getEstablisher().getState(p->getEndpoint());
 				if(es)
 					handlePacket(p, es);
 				else
 					handlePacket(p);
+			}
+		}
+
+		void PacketHandler::handlePacket(PacketPtr const &packet, PeerStatePtr const &state)
+		{
+			if(!packet->verify(state->getCurrentMacKey())) {
+				BOOST_LOG_SEV(m_transport.getLogger(), error) << "packet verification failed";
+				return;
+			}
+
+			packet->decrypt(state->getCurrentSessionKey());
+			ByteArray &data = packet->getData();
+
+			auto dataItr = data.cbegin();
+			unsigned char flag = *(dataItr++);
+			Packet::PayloadType ptype = (Packet::PayloadType)(flag >> 4);
+
+			dataItr += 4; // TODO validate timestamp
+
+			switch(ptype) {
+				case Packet::DATA:
+					BOOST_LOG_SEV(m_transport.getLogger(), debug) << "data packet received";
+					m_imf.receiveData(state, dataItr, data.cend());
+					break;
 			}
 		}
 

@@ -5,11 +5,18 @@
 #include "../../datatypes/Endpoint.h"
 #include "../../datatypes/SessionKey.h"
 
+#include "InboundMessageState.h"
+
 namespace i2pcpp {
 	namespace SSU {
 		class PeerState {
 			public:
 				PeerState(Endpoint const &ep, RouterIdentity const &ri);
+
+				InboundMessageStatePtr getInboundMessageState(const uint32_t msgId) const;
+				void addInboundMessageState(InboundMessageStatePtr const &ims);
+				void delInboundMessageState(const uint32_t msgId);
+				void delInboundMessageState(std::map<uint32_t, InboundMessageStatePtr>::const_iterator itr);
 
 				SessionKey getCurrentSessionKey() const;
 				SessionKey getCurrentMacKey() const;
@@ -32,6 +39,8 @@ namespace i2pcpp {
 				SessionKey m_macKey;
 				SessionKey m_nextSessionKey;
 				SessionKey m_nextMacKey;
+
+				std::map<uint32_t, InboundMessageStatePtr> m_inboundMessageStates;
 
 				mutable std::mutex m_mutex;
 		};

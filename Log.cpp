@@ -45,6 +45,13 @@ namespace i2pcpp {
 				<< expr::attr<attrs::current_thread_id::value_type>("ThreadID")
 				<< ' '
 				<< expr::attr<std::string>("Channel")
+				<< expr::if_(expr::has_attr<std::string>("Scope"))
+					[
+						expr::stream
+						<< "("
+						<< expr::attr<std::string>("Scope")
+						<< ")"
+					]
 				<< '/'
 				<< expr::attr<severity_level>("Severity")
 				<< expr::if_(expr::has_attr<Endpoint>("Endpoint"))
@@ -60,8 +67,5 @@ namespace i2pcpp {
 
 		boost::log::core::get()->add_global_attribute("ThreadID", attrs::current_thread_id());
 		boost::log::core::get()->add_global_attribute("Timestamp", attrs::local_clock());
-
-		// TODO Figure out how to format scopes properly
-		boost::log::core::get()->add_global_attribute("Scope", attrs::named_scope());
 	}
 }

@@ -20,6 +20,7 @@ namespace i2pcpp {
 	class UDPTransport : public Transport {
 		friend class SSU::PacketHandler;
 		friend class SSU::EstablishmentManager;
+		friend class SSU::InboundMessageFragments;
 
 		public:
 			UDPTransport(Botan::DSA_PrivateKey const &privKey, RouterIdentity const &ri);

@@ -7,6 +7,9 @@ namespace i2pcpp {
 	typedef std::vector<unsigned char> ByteArray;
 	typedef ByteArray::iterator ByteArrayItr;
 	typedef ByteArray::const_iterator ByteArrayConstItr;
+
+	std::ostream& operator<<(std::ostream &s, ByteArray const &data);
 }
+
 
 #endif

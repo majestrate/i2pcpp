@@ -22,6 +22,8 @@
 
 #define I2P_LOG_EP(logger, var) BOOST_LOG_SCOPED_LOGGER_ATTR(logger, "Endpoint", boost::log::attributes::constant<Endpoint>(var))
 
+#define I2P_LOG_TAG(logger, name) BOOST_LOG_SCOPED_LOGGER_TAG(logger, "Scope", name)
+
 namespace i2pcpp {
 	enum severity_level
 	{
