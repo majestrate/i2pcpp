@@ -114,7 +114,7 @@ namespace i2pcpp {
 			return s;
 		}
 
-		PacketPtr PacketBuilder::buildData(PeerStatePtr const &ps, bool wantReply, std::forward_list<OutboundMessageState::FragmentPtr> const &fragments, AckList const &acks)
+		PacketPtr PacketBuilder::buildData(PeerStatePtr const &ps, bool wantReply, std::forward_list<OutboundMessageState::FragmentPtr> const &fragments, CompleteAckList const &completeAcks, PartialAckList const &incompleteAcks)
 		{
 			PacketPtr s = buildHeader(ps->getEndpoint(), Packet::PayloadType::DATA << 4);
 
@@ -128,39 +128,12 @@ namespace i2pcpp {
 			ByteArray ea(1), ba(1);
 			ea[0] = 0; ba[0] = 0;
 
-			if(acks.size()) {
-
-				for(auto& a: acks) {
-					if(a.second.count() == a.second.size()) {
-						ea.insert(ea.end(), a.first >> 24);
-						ea.insert(ea.end(), a.first >> 16);
-						ea.insert(ea.end(), a.first >> 8);
-						ea.insert(ea.end(), a.first);
-						ea[0]++;
-					} else {
-						ba.insert(ba.end(), a.first >> 24);
-						ba.insert(ba.end(), a.first >> 16);
-						ba.insert(ba.end(), a.first >> 8);
-						ba.insert(ba.end(), a.first);
-
-						AckBitfield bf = a.second;
-						size_t steps = ceil(bf.size() / 7);
-						for(int i = 0; i < steps; i++) {
-							unsigned char byte = 0;
-
-							for(int i = 0; i < 7; i++)
-								byte |= bf[i] << i;
-							bf >>= 7;
-
-							if(i < steps - 1)
-								byte |= (1 << 7);
-
-							ba.insert(ba.end(), byte);
-						}
-
-						ba[0]++;
-					}
-				}
+			for(auto& m: completeAcks) {
+				ea.insert(ea.end(), m >> 24);
+				ea.insert(ea.end(), m >> 16);
+				ea.insert(ea.end(), m >> 8);
+				ea.insert(ea.end(), m);
+				ea[0]++;
 			}
 
 			if(ea[0])

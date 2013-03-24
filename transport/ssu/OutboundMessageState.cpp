@@ -34,7 +34,7 @@ namespace i2pcpp {
 				dataItr += step;
 			}
 
-			m_fragmentStates.resize(m_fragments.size() * 2);
+			m_states.resize(m_fragments.size());
 		}
 
 		const OutboundMessageState::FragmentPtr OutboundMessageState::getNextFragment()
@@ -42,12 +42,10 @@ namespace i2pcpp {
 			if(!m_fragments.size())
 				fragment();
 
-			unsigned char i = 0, size = m_fragmentStates.size();
-			while(i < size && m_fragmentStates.test(i))	i += 2;
+			unsigned char nextFrag = m_states.getNextA();
+			if(nextFrag >= m_fragments.size()) return OutboundMessageState::FragmentPtr();
 
-			if(i >= size) return OutboundMessageState::FragmentPtr();
-
-			return m_fragments[i / 2];
+			return m_fragments[nextFrag];
 		}
 
 		const OutboundMessageState::FragmentPtr OutboundMessageState::getFragment(const unsigned char fragNum) const
@@ -57,28 +55,22 @@ namespace i2pcpp {
 
 		void OutboundMessageState::markFragmentSent(const unsigned char fragNum)
 		{
-			m_fragmentStates[fragNum * 2] = 1;
+			m_states.markA(fragNum);
 		}
 
-		void OutboundMessageState::markFragmentReceived(const unsigned char fragNum)
+		void OutboundMessageState::markFragmentAckd(const unsigned char fragNum)
 		{
-			m_fragmentStates[(fragNum * 2) + 1] = 1;
+			m_states.markB(fragNum);
 		}
 
 		bool OutboundMessageState::allFragmentsSent() const
 		{
-			unsigned char i = 0, size = m_fragmentStates.size();
-			while(i < size && m_fragmentStates.test(i)) i += 2;
-
-			return (i >= size);
+			return m_states.allA();
 		}
 
-		bool OutboundMessageState::allFragmentsReceived() const
+		bool OutboundMessageState::allFragmentsAckd() const
 		{
-			unsigned char i = 1, size = m_fragmentStates.size();
-			while(i < size && m_fragmentStates.test(i)) i += 2;
-
-			return (i >= size);
+			return m_states.allB();
 		}
 	}
 }

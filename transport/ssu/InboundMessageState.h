@@ -5,27 +5,24 @@
 #include <map>
 #include <list>
 
-#include <boost/dynamic_bitset.hpp>
-
 #include "../../datatypes/RouterHash.h"
+
+#include "../../util/DoubleBitfield.h"
 
 namespace i2pcpp {
 	namespace SSU {
-		typedef boost::dynamic_bitset<> AckBitfield;
-		typedef std::list<std::pair<uint32_t, AckBitfield>> AckList;
-
 		class InboundMessageState {
 			public:
 				InboundMessageState(RouterHash const &rh, const uint32_t msgId);
 
 				void addFragment(const unsigned char fragNum, ByteArray const &data, bool isLast);
 				ByteArray assemble() const;
-				bool allFragmentsReceived() const;
 
 				RouterHash getRouterHash() const;
 				uint32_t getMsgId() const;
-				unsigned char getNumFragments() const;
-				const AckBitfield& getAckStates() const;
+
+				bool allFragmentsReceived() const;
+				std::vector<bool> getAckStates() const;
 
 			private:
 				RouterHash m_routerHash;
@@ -36,7 +33,8 @@ namespace i2pcpp {
 				uint32_t m_byteTotal = 0;
 
 				std::map<unsigned char, ByteArray> m_fragments;
-				AckBitfield m_fragmentAckStates;
+				
+				DoubleBitfield m_states;
 		};
 
 		typedef std::shared_ptr<InboundMessageState> InboundMessageStatePtr;

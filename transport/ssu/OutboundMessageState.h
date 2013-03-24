@@ -5,9 +5,9 @@
 #include <forward_list>
 #include <memory>
 
-#include <boost/dynamic_bitset.hpp>
-
 #include "../../datatypes/ByteArray.h"
+
+#include "../../util/DoubleBitfield.h"
 
 namespace i2pcpp {
 	namespace SSU {
@@ -25,10 +25,10 @@ namespace i2pcpp {
 
 				const FragmentPtr getNextFragment();
 				const FragmentPtr getFragment(const unsigned char fragNum) const;
-				void markFragmentSent(unsigned char fragNum);
-				void markFragmentReceived(unsigned char fragNum);
+				void markFragmentSent(const unsigned char fragNum);
+				void markFragmentAckd(const unsigned char fragNum);
 				bool allFragmentsSent() const;
-				bool allFragmentsReceived() const;
+				bool allFragmentsAckd() const;
 
 			private:
 				void fragment();
@@ -37,10 +37,7 @@ namespace i2pcpp {
 				ByteArray m_data;
 				std::vector<FragmentPtr> m_fragments;
 
-				/* Bit 1 = data received (acknowledged)
-				 * Bit 0 = data sent (not yet acknowledged)
-				 */
-				boost::dynamic_bitset<> m_fragmentStates;
+				DoubleBitfield m_states;
 		};
 
 		typedef std::shared_ptr<OutboundMessageState> OutboundMessageStatePtr;

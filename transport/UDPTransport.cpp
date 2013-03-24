@@ -77,12 +77,17 @@ namespace i2pcpp {
 		if(ps) {
 			OutboundMessageStatePtr oms(new SSU::OutboundMessageState(data));
 
-			std::forward_list<OutboundMessageState::FragmentPtr> fragList;
-			fragList.push_front(oms->getNextFragment());
+			OutboundMessageState::FragmentPtr frag;
+			while((frag = oms->getNextFragment())) {
+				std::forward_list<OutboundMessageState::FragmentPtr> fragList;
+				fragList.push_front(frag);
 
-			PacketPtr p = PacketBuilder::buildData(ps, false, fragList, AckList());
-			p->encrypt(ps->getCurrentSessionKey(), ps->getCurrentMacKey());
-			sendPacket(p);
+				oms->markFragmentSent(frag->msgId);
+
+				PacketPtr p = PacketBuilder::buildData(ps, false, fragList, CompleteAckList(), PartialAckList());
+				p->encrypt(ps->getCurrentSessionKey(), ps->getCurrentMacKey());
+				sendPacket(p);
+			}
 		} else {
 			// TODO Exception
 		}

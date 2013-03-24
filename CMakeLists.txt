@@ -42,6 +42,7 @@ set(SRCS
 	transport/Transport.cpp
 	transport/UDPTransport.cpp
 	util/Base64.cpp
+	util/DoubleBitfield.cpp
 	util/I2PHMAC.cpp
 	)
 

@@ -23,24 +23,27 @@ namespace i2pcpp {
 		void AcknowledgementScheduler::flushAckCallback(const boost::system::error_code& e, AcknowledgementTimerPtr &timer)
 		{
 			for(auto& peerPair: m_transport.m_peers) {
-				AckList ackList;
 				PeerStatePtr ps = peerPair.second;
 
 				std::lock_guard<std::mutex> lock(ps->getMutex());
 
+				CompleteAckList completeAckList;
+				PartialAckList partialAckList;
 				for(auto itr = ps->begin(); itr != ps->end();) {
-					ackList.push_front(std::make_pair(itr->first, itr->second->getAckStates()));
 					if(itr->second->allFragmentsReceived()) {
+						completeAckList.push_back(itr->first);
 						ps->delInboundMessageState(itr++);
 						continue;
 					}
 
+					partialAckList[itr->first] = itr->second->getAckStates();
+
 					++itr;
 				}
 
-				if(ackList.size()) {
+				if(completeAckList.size() || partialAckList.size()) {
 					std::forward_list<OutboundMessageState::FragmentPtr> emptyFragList;
-					PacketPtr p = PacketBuilder::buildData(ps, false, emptyFragList, ackList);
+					PacketPtr p = PacketBuilder::buildData(ps, false, emptyFragList, completeAckList, partialAckList);
 					p->encrypt(ps->getCurrentSessionKey(), ps->getCurrentMacKey());
 					m_transport.sendPacket(p);
 				}
