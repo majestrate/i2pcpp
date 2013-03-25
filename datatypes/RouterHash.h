@@ -16,9 +16,9 @@ namespace i2pcpp {
 
 			operator ByteArray() const;
 	};
-}
 
-std::ostream& operator<<(std::ostream &s, i2pcpp::RouterHash const &rh);
+	std::ostream& operator<<(std::ostream &s, RouterHash const &rh);
+}
 
 template<>
 struct std::hash<i2pcpp::RouterHash> {

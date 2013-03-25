@@ -2,6 +2,8 @@
 
 #include <botan/auto_rng.h>
 
+#include "../../Log.h"
+
 namespace i2pcpp {
 	namespace SSU {
 		OutboundMessageState::OutboundMessageState(ByteArray const &data) :
@@ -42,23 +44,23 @@ namespace i2pcpp {
 			if(!m_fragments.size())
 				fragment();
 
-			unsigned char nextFrag = m_states.getNextA();
+			uint8_t nextFrag = m_states.getNextA();
 			if(nextFrag >= m_fragments.size()) return OutboundMessageState::FragmentPtr();
 
 			return m_fragments[nextFrag];
 		}
 
-		const OutboundMessageState::FragmentPtr OutboundMessageState::getFragment(const unsigned char fragNum) const
+		const OutboundMessageState::FragmentPtr OutboundMessageState::getFragment(const uint8_t fragNum) const
 		{
 			return m_fragments[fragNum];
 		}
 
-		void OutboundMessageState::markFragmentSent(const unsigned char fragNum)
+		void OutboundMessageState::markFragmentSent(const uint8_t fragNum)
 		{
 			m_states.markA(fragNum);
 		}
 
-		void OutboundMessageState::markFragmentAckd(const unsigned char fragNum)
+		void OutboundMessageState::markFragmentAckd(const uint8_t fragNum)
 		{
 			m_states.markB(fragNum);
 		}

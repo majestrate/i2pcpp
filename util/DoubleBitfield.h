@@ -9,14 +9,14 @@ namespace i2pcpp {
 			size_t size() const;
 			void resize(const size_t newSize);
 
-			void markA(const unsigned char fragNum);
-			void markB(const unsigned char fragNum);
+			void markA(const uint8_t fragNum);
+			void markB(const uint8_t fragNum);
 
 			bool allA() const;
 			bool allB() const;
 
-			unsigned char getNextA() const;
-			unsigned char getNextB() const;
+			uint8_t getNextA() const;
+			uint8_t getNextB() const;
 
 			std::vector<bool> getA() const;
 			std::vector<bool> getB() const;

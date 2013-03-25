@@ -65,6 +65,7 @@ namespace i2pcpp {
 
 				case EstablishmentState::CONFIRMED_SENT:
 					BOOST_LOG_SEV(m_transport.getLogger(), debug) << "sent session confirmed";
+					m_transport.post(boost::bind(boost::ref(m_transport.m_establishedSignal), es->getTheirIdentity().getHash()));
 					break;
 
 				case EstablishmentState::CONFIRMED_RECEIVED:
@@ -159,6 +160,8 @@ namespace i2pcpp {
 
 		void EstablishmentManager::processConfirmed(EstablishmentStatePtr const &state)
 		{
+			I2P_LOG_RH(m_transport.getLogger(), state->getTheirIdentity().getHash());
+
 			if(!state->verifyConfirmationSignature()) {
 				BOOST_LOG_SEV(m_transport.getLogger(), error) << "confirmation signature verification failed";
 				state->setState(EstablishmentState::FAILURE);

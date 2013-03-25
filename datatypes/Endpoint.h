@@ -28,7 +28,7 @@ namespace i2pcpp {
 			unsigned short m_port;
 	};
 
-	std::ostream& operator<<(std::ostream &s, Endpoint const ep);
+	std::ostream& operator<<(std::ostream &s, Endpoint const &ep);
 }
 
 template<>

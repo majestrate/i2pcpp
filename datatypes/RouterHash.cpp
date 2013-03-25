@@ -1,5 +1,7 @@
 #include "RouterHash.h"
 
+#include "../util/Base64.h"
+
 namespace i2pcpp {
 	RouterHash::RouterHash() :
 		std::array<unsigned char, 32>() {}
@@ -13,10 +15,10 @@ namespace i2pcpp {
 	{
 		return ByteArray(cbegin(), cend());
 	}
-}
 
-std::ostream& operator<<(std::ostream &s, i2pcpp::RouterHash const &rh)
-{
-	s << i2pcpp::ByteArray(rh.cbegin(), rh.cend());
-	return s;
+	std::ostream& operator<<(std::ostream &s, RouterHash const &rh)
+	{
+		s << Base64::encode(rh);
+		return s;
+	}
 }

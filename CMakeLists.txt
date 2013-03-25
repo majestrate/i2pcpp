@@ -62,6 +62,7 @@ set(TEST_SRCS
 	tests/testi2p.cpp
 	transport/ssu/Packet.cpp
 	util/Base64.cpp
+	util/DoubleBitfield.cpp
 	util/I2PHMAC.cpp
 	)
 

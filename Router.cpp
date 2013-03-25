@@ -56,7 +56,6 @@ namespace i2pcpp {
 
 	void Router::connect(std::string const &to)
 	{
-		BOOST_LOG_SEV(m_log, debug) << "connecting to " << to;
 		RouterInfo ri = m_db.getRouterInfo(Base64::decode(to));
 		std::shared_ptr<UDPTransport> u = std::dynamic_pointer_cast<UDPTransport>(m_transport);
 		u->connect(ri);

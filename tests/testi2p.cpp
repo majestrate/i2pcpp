@@ -15,6 +15,7 @@
 #include "../datatypes/RouterInfo.h"
 
 #include "../util/Base64.h"
+#include "../util/DoubleBitfield.h"
 
 //#include "../transport/UDPTransport.h"
 #include "../transport/ssu/Packet.h"
@@ -188,6 +189,25 @@ TEST(Utils, Base64) {
 
 	ASSERT_EQ(Base64::encode(test), "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=");
 	ASSERT_EQ(Base64::decode("AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="), test);
+}
+
+// TODO Expand
+TEST(Utils, DoubleBitfield) {
+	using namespace i2pcpp;
+
+	DoubleBitfield d;
+	d.resize(1);
+	d.markA(0);
+	d.resize(2);
+	d.markA(1);
+	d.resize(3);
+	d.markA(2);
+	d.resize(4);
+	d.markA(3);
+	d.resize(5);
+	d.markA(4);
+	d.resize(6);
+	d.markA(5);
 }
 
 // TODO

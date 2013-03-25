@@ -62,7 +62,15 @@ namespace i2pcpp {
 		for(auto a: ri) {
 			if(a.getTransport() == "SSU") {
 				const Mapping& m = a.getOptions();
-				m_establishmentManager.createState(Endpoint(m.getValue("host"), stoi(m.getValue("port"))), ri.getIdentity());
+				Endpoint ep(m.getValue("host"), stoi(m.getValue("port")));
+				RouterIdentity id = ri.getIdentity();
+
+				m_establishmentManager.createState(ep, id);
+
+				I2P_LOG_EP(m_log, ep);
+				I2P_LOG_RH(m_log, id.getHash());
+				BOOST_LOG_SEV(m_log, debug) << "attempting to establish session";
+
 				break;
 			}
 		}
@@ -82,7 +90,7 @@ namespace i2pcpp {
 				std::forward_list<OutboundMessageState::FragmentPtr> fragList;
 				fragList.push_front(frag);
 
-				oms->markFragmentSent(frag->msgId);
+				oms->markFragmentSent(frag->fragNum);
 
 				PacketPtr p = PacketBuilder::buildData(ps, false, fragList, CompleteAckList(), PartialAckList());
 				p->encrypt(ps->getCurrentSessionKey(), ps->getCurrentMacKey());

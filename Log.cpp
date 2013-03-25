@@ -55,7 +55,7 @@ namespace i2pcpp {
 					]
 				<< '/'
 				<< expr::attr<severity_level>("Severity")
-				<< expr::if_(expr::has_attr<Endpoint>("RouterHash"))
+				<< expr::if_(expr::has_attr<RouterHash>("RouterHash"))
 					[
 						expr::stream
 						<< " ["

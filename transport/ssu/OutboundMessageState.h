@@ -24,9 +24,9 @@ namespace i2pcpp {
 				OutboundMessageState(ByteArray const &data);
 
 				const FragmentPtr getNextFragment();
-				const FragmentPtr getFragment(const unsigned char fragNum) const;
-				void markFragmentSent(const unsigned char fragNum);
-				void markFragmentAckd(const unsigned char fragNum);
+				const FragmentPtr getFragment(const uint8_t fragNum) const;
+				void markFragmentSent(const uint8_t fragNum);
+				void markFragmentAckd(const uint8_t fragNum);
 				bool allFragmentsSent() const;
 				bool allFragmentsAckd() const;
 

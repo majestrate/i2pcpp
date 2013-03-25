@@ -3,7 +3,7 @@
 namespace i2pcpp {
 	size_t DoubleBitfield::size() const
 	{
-		return m_field.size();
+		return m_field.size() / 2;
 	}
 
 	void DoubleBitfield::resize(const size_t newSize)
@@ -11,19 +11,19 @@ namespace i2pcpp {
 		m_field.resize(newSize * 2);
 	}
 
-	void DoubleBitfield::markA(const unsigned char fragNum)
+	void DoubleBitfield::markA(const uint8_t fragNum)
 	{
 		m_field[fragNum * 2] = 1;
 	}
 
-	void DoubleBitfield::markB(const unsigned char fragNum)
+	void DoubleBitfield::markB(const uint8_t fragNum)
 	{
 		m_field[(fragNum * 2) + 1] = 1;
 	}
 
 	bool DoubleBitfield::allA() const
 	{
-		unsigned char i = 0;
+		uint8_t i = 0;
 		size_t size = m_field.size();
 
 		while(i < size) {
@@ -37,7 +37,7 @@ namespace i2pcpp {
 
 	bool DoubleBitfield::allB() const
 	{
-		unsigned char i = 1;
+		uint8_t i = 1;
 		size_t size = m_field.size();
 
 		while(i < size) {
@@ -49,17 +49,17 @@ namespace i2pcpp {
 		return true;
 	}
 
-	unsigned char DoubleBitfield::getNextA() const
+	uint8_t DoubleBitfield::getNextA() const
 	{
-		unsigned char i = 0, size = m_field.size();
+		uint8_t i = 0, size = m_field.size();
 		while(i < size && m_field.test(i)) i += 2;
 
 		return i / 2;
 	}
 
-	unsigned char DoubleBitfield::getNextB() const
+	uint8_t DoubleBitfield::getNextB() const
 	{
-		unsigned char i = 1, size = m_field.size();
+		uint8_t i = 1, size = m_field.size();
 		while(i < size && m_field.test(i)) i += 2;
 
 		return i / 2;
@@ -69,21 +69,25 @@ namespace i2pcpp {
 	{
 		std::vector<bool> v;
 
-		unsigned char i = 0, size = m_field.size();
+		uint8_t i = 0, size = m_field.size();
 		while(i < size) {
 			v.push_back(m_field.test(i));
 			i += 2;
 		}
+
+		return v;
 	}
 
 	std::vector<bool> DoubleBitfield::getB() const
 	{
 		std::vector<bool> v;
 
-		unsigned char i = 1, size = m_field.size();
+		uint8_t i = 1, size = m_field.size();
 		while(i < size) {
 			v.push_back(m_field.test(i));
 			i += 2;
 		}
+
+		return v;
 	}
 }
