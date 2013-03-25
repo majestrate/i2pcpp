@@ -29,6 +29,8 @@ namespace i2pcpp {
 
 			m_socket.bind(ep.getUDPEndpoint());
 
+			BOOST_LOG_SEV(m_log, info) << "listening on " << ep;
+
 			m_socket.async_receive_from(
 					boost::asio::buffer(m_receiveBuf.data(), m_receiveBuf.size()),
 					m_senderEndpoint,

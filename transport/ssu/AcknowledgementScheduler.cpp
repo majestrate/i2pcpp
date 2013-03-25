@@ -36,7 +36,17 @@ namespace i2pcpp {
 						continue;
 					}
 
-					partialAckList[itr->first] = itr->second->getAckStates();
+					bool anyPending = false;
+					std::vector<bool> pending = itr->second->getPendingAcks();
+					for(int i = 0; i < pending.size(); i++) {
+						if(pending[i]) {
+							anyPending = true;
+							itr->second->markFragmentAckd(i);
+						}
+					}
+
+					if(anyPending)
+						partialAckList[itr->first] = pending;
 
 					++itr;
 				}

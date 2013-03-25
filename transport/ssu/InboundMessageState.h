@@ -22,7 +22,8 @@ namespace i2pcpp {
 				uint32_t getMsgId() const;
 
 				bool allFragmentsReceived() const;
-				std::vector<bool> getAckStates() const;
+				std::vector<bool> getPendingAcks() const;
+				void markFragmentAckd(uint8_t fragNum);
 
 			private:
 				RouterHash m_routerHash;

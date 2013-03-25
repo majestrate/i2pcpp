@@ -2,8 +2,12 @@
 
 #include <boost/bind.hpp>
 
+#include "../../Log.h"
+
 namespace i2pcpp {
 	namespace SSU {
+		i2p_logger_mt PeerState::m_log(boost::log::keywords::channel = "PeerState");
+
 		PeerState::PeerState(boost::asio::io_service &ios, Endpoint const &ep, RouterIdentity const &ri) :
 			m_ios(ios),
 			m_endpoint(ep),
@@ -26,7 +30,7 @@ namespace i2pcpp {
 
 			m_inboundMessageStates[msgId] = ims;
 
-			std::shared_ptr<boost::asio::deadline_timer> timer(new boost::asio::deadline_timer(m_ios, boost::posix_time::time_duration(0, 0, 10)));
+			std::shared_ptr<boost::asio::deadline_timer> timer(new boost::asio::deadline_timer(m_ios, boost::posix_time::time_duration(0, 0, 5)));
 
 			timer->async_wait(boost::bind(&PeerState::inboundTimerCallback, this, boost::asio::placeholders::error, msgId));
 
@@ -38,13 +42,24 @@ namespace i2pcpp {
 			m_inboundMessageStates.erase(msgId);
 
 			std::shared_ptr<boost::asio::deadline_timer> timer = m_inboundTimers[msgId];
-			if(timer)
+			if(timer) {
+				BOOST_LOG_SEV(m_log, debug) << "canceling IMS timer";
 				timer->cancel();
+				m_inboundTimers.erase(msgId);
+			}
 		}
 
 		void PeerState::delInboundMessageState(std::map<uint32_t, InboundMessageStatePtr>::const_iterator itr)
 		{
 			m_inboundMessageStates.erase(itr);
+
+			uint32_t msgId = itr->second->getMsgId();
+			std::shared_ptr<boost::asio::deadline_timer> timer = m_inboundTimers[msgId];
+			if(timer) {
+				BOOST_LOG_SEV(m_log, debug) << "canceling IMS timer";
+				timer->cancel();
+				m_inboundTimers.erase(msgId);
+			}
 		}
 
 		void PeerState::inboundTimerCallback(const boost::system::error_code& e, const uint32_t msgId)
@@ -52,8 +67,9 @@ namespace i2pcpp {
 			std::lock_guard<std::mutex> lock(m_mutex);
 
 			if(!e) {
-				// TODO Log when this happens?
-				delInboundMessageState(msgId);
+				BOOST_LOG_SEV(m_log, debug) << "removing IMS due to timeout";
+				m_inboundMessageStates.erase(msgId);
+				m_inboundTimers.erase(msgId);
 			}
 		}
 

@@ -7,6 +7,8 @@
 #include "../../datatypes/Endpoint.h"
 #include "../../datatypes/SessionKey.h"
 
+#include "../../Log.h"
+
 #include "InboundMessageState.h"
 
 namespace i2pcpp {
@@ -55,6 +57,8 @@ namespace i2pcpp {
 				std::map<uint32_t, std::shared_ptr<boost::asio::deadline_timer>> m_inboundTimers;
 
 				mutable std::mutex m_mutex;
+
+				static i2p_logger_mt m_log;
 		};
 
 		typedef std::shared_ptr<PeerState> PeerStatePtr;

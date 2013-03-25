@@ -61,9 +61,22 @@ namespace i2pcpp {
 			return m_states.allA();
 		}
 
-		std::vector<bool> InboundMessageState::getAckStates() const
+		std::vector<bool> InboundMessageState::getPendingAcks() const
 		{
-			return m_states.getB();
+			std::vector<bool> recv = m_states.getA();
+			std::vector<bool> ackd = m_states.getB();
+
+			std::vector<bool> pending;
+
+			for(int i = 0; i < m_states.size(); i++)
+				pending.push_back(recv[i] && !ackd[i]);
+
+			return pending;
+		}
+
+		void InboundMessageState::markFragmentAckd(uint8_t fragNum)
+		{
+			m_states.markB(fragNum);
 		}
 	}
 }
