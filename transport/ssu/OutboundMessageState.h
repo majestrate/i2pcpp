@@ -2,29 +2,22 @@
 #define SSUOUTBOUNDMESSAGESTATE_H
 
 #include <vector>
-#include <forward_list>
 #include <memory>
+
+#include <boost/dynamic_bitset.hpp>
 
 #include "../../datatypes/ByteArray.h"
 
-#include "../../util/DoubleBitfield.h"
+#include "PacketBuilder.h"
 
 namespace i2pcpp {
 	namespace SSU {
 		class OutboundMessageState {
 			public:
-				struct Fragment {
-					uint32_t msgId;
-					bool isLast;
-					uint8_t fragNum;
-					ByteArray data;
-				};
-				typedef std::shared_ptr<Fragment> FragmentPtr;
-
 				OutboundMessageState(ByteArray const &data);
 
-				const FragmentPtr getNextFragment();
-				const FragmentPtr getFragment(const uint8_t fragNum) const;
+				const PacketBuilder::FragmentPtr getNextFragment();
+				const PacketBuilder::FragmentPtr getFragment(const uint8_t fragNum) const;
 				void markFragmentSent(const uint8_t fragNum);
 				void markFragmentAckd(const uint8_t fragNum);
 				bool allFragmentsSent() const;
@@ -35,9 +28,12 @@ namespace i2pcpp {
 
 				uint32_t m_msgId;
 				ByteArray m_data;
-				std::vector<FragmentPtr> m_fragments;
+				std::vector<PacketBuilder::FragmentPtr> m_fragments;
 
-				DoubleBitfield m_states;
+				/* Bit 1 = received (acknowledged)
+				 * Bit 0 = sent (not yet acknowledged)
+				 */
+				boost::dynamic_bitset<> m_fragmentStates;
 		};
 
 		typedef std::shared_ptr<OutboundMessageState> OutboundMessageStatePtr;

@@ -17,7 +17,7 @@ namespace i2pcpp {
 		{
 			std::lock_guard<std::mutex> lock(m_stateTableMutex);
 
-			EstablishmentStatePtr es(new EstablishmentState(m_privKey, m_identity, ep));
+			auto es = std::make_shared<EstablishmentState>(m_privKey, m_identity, ep);
 			m_stateTable[ep] = es;
 
 			return es;
@@ -27,7 +27,7 @@ namespace i2pcpp {
 		{
 			std::lock_guard<std::mutex> lock(m_stateTableMutex);
 
-			EstablishmentStatePtr es(new EstablishmentState(m_privKey, m_identity, ep, ri));
+			auto es = std::make_shared<EstablishmentState>(m_privKey, m_identity, ep, ri);
 			m_stateTable[ep] = es;
 
 			sendRequest(es);
@@ -144,7 +144,7 @@ namespace i2pcpp {
 			state->setMacKey(newMacKey);
 
 			Endpoint ep = state->getTheirEndpoint();
-			PeerStatePtr ps(new PeerState(m_transport.m_ios, ep, state->getTheirIdentity()));
+			auto ps = std::make_shared<PeerState>(m_transport.m_ios, ep, state->getTheirIdentity());
 			ps->setCurrentSessionKey(state->getSessionKey());
 			ps->setCurrentMacKey(state->getMacKey());
 			m_transport.m_peers.addRemotePeer(ps);
@@ -170,7 +170,7 @@ namespace i2pcpp {
 				BOOST_LOG_SEV(m_transport.getLogger(), debug) << "confirmation signature verification succeeded";
 
 			Endpoint ep = state->getTheirEndpoint();
-			PeerStatePtr ps(new PeerState(m_transport.m_ios, ep, state->getTheirIdentity()));
+			auto ps = std::make_shared<PeerState>(m_transport.m_ios, ep, state->getTheirIdentity());
 			ps->setCurrentSessionKey(state->getSessionKey());
 			ps->setCurrentMacKey(state->getMacKey());
 			m_transport.m_peers.addRemotePeer(ps);

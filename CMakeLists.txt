@@ -33,6 +33,7 @@ set(SRCS
 	transport/ssu/EstablishmentState.cpp
 	transport/ssu/InboundMessageFragments.cpp
 	transport/ssu/InboundMessageState.cpp
+	transport/ssu/OutboundMessageFragments.cpp
 	transport/ssu/OutboundMessageState.cpp
 	transport/ssu/Packet.cpp
 	transport/ssu/PacketBuilder.cpp
@@ -42,7 +43,6 @@ set(SRCS
 	transport/Transport.cpp
 	transport/UDPTransport.cpp
 	util/Base64.cpp
-	util/DoubleBitfield.cpp
 	util/I2PHMAC.cpp
 	)
 
@@ -62,7 +62,6 @@ set(TEST_SRCS
 	tests/testi2p.cpp
 	transport/ssu/Packet.cpp
 	util/Base64.cpp
-	util/DoubleBitfield.cpp
 	util/I2PHMAC.cpp
 	)
 

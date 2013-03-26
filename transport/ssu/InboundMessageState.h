@@ -7,8 +7,6 @@
 
 #include "../../datatypes/RouterHash.h"
 
-#include "../../util/DoubleBitfield.h"
-
 namespace i2pcpp {
 	namespace SSU {
 		class InboundMessageState {
@@ -22,20 +20,17 @@ namespace i2pcpp {
 				uint32_t getMsgId() const;
 
 				bool allFragmentsReceived() const;
-				std::vector<bool> getPendingAcks() const;
-				void markFragmentAckd(uint8_t fragNum);
+				std::vector<bool> getFragmentsReceived() const;
 
 			private:
 				RouterHash m_routerHash;
 
 				uint32_t m_msgId;
 				bool m_gotLast = false;
-				unsigned char m_lastFragment;
+				uint8_t m_lastFragment;
 				uint32_t m_byteTotal = 0;
 
-				std::map<unsigned char, ByteArray> m_fragments;
-				
-				DoubleBitfield m_states;
+				std::vector<ByteArrayPtr> m_fragments;
 		};
 
 		typedef std::shared_ptr<InboundMessageState> InboundMessageStatePtr;

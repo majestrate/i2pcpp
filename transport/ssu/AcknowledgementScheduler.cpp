@@ -33,27 +33,15 @@ namespace i2pcpp {
 					if(itr->second->allFragmentsReceived()) {
 						completeAckList.push_back(itr->first);
 						ps->delInboundMessageState(itr++);
-						continue;
+					} else {
+						partialAckList[itr->first] = itr->second->getFragmentsReceived();
+						++itr;
 					}
-
-					bool anyPending = false;
-					std::vector<bool> pending = itr->second->getPendingAcks();
-					for(int i = 0; i < pending.size(); i++) {
-						if(pending[i]) {
-							anyPending = true;
-							itr->second->markFragmentAckd(i);
-						}
-					}
-
-					if(anyPending)
-						partialAckList[itr->first] = pending;
-
-					++itr;
 				}
 
 				if(completeAckList.size() || partialAckList.size()) {
-					std::forward_list<OutboundMessageState::FragmentPtr> emptyFragList;
-					PacketPtr p = PacketBuilder::buildData(ps, false, emptyFragList, completeAckList, partialAckList);
+					std::vector<PacketBuilder::FragmentPtr> emptyFragList;
+					PacketPtr p = PacketBuilder::buildData(ps, false, completeAckList, partialAckList, emptyFragList);
 					p->encrypt(ps->getCurrentSessionKey(), ps->getCurrentMacKey());
 					m_transport.sendPacket(p);
 				}

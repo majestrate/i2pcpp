@@ -7,11 +7,13 @@
 #include <iostream>
 #include <iomanip>
 
+#include "../../Log.h"
+
 namespace i2pcpp {
 	namespace SSU {
 		PacketPtr PacketBuilder::buildHeader(Endpoint const &ep, unsigned char flag)
 		{
-			PacketPtr s(new Packet(ep));
+			auto s = std::make_shared<Packet>(ep);
 			ByteArray& data = s->getData();
 
 			data.insert(data.begin(), flag);
@@ -114,7 +116,7 @@ namespace i2pcpp {
 			return s;
 		}
 
-		PacketPtr PacketBuilder::buildData(PeerStatePtr const &ps, bool wantReply, std::forward_list<OutboundMessageState::FragmentPtr> const &fragments, CompleteAckList const &completeAcks, PartialAckList const &incompleteAcks)
+		PacketPtr PacketBuilder::buildData(PeerStatePtr const &ps, bool wantReply, CompleteAckList const &completeAcks, PartialAckList const &incompleteAcks, std::vector<PacketBuilder::FragmentPtr> const &fragments)
 		{
 			PacketPtr s = buildHeader(ps->getEndpoint(), Packet::PayloadType::DATA << 4);
 
@@ -128,12 +130,34 @@ namespace i2pcpp {
 			ByteArray ea(1), ba(1);
 			ea[0] = 0; ba[0] = 0;
 
-			for(auto& m: completeAcks) {
+			for(auto m: completeAcks) {
 				ea.insert(ea.end(), m >> 24);
 				ea.insert(ea.end(), m >> 16);
 				ea.insert(ea.end(), m >> 8);
 				ea.insert(ea.end(), m);
 				ea[0]++;
+			}
+
+			for(auto m: incompleteAcks) {
+				ba.insert(ba.end(), m.first >> 24);
+				ba.insert(ba.end(), m.first >> 16);
+				ba.insert(ba.end(), m.first >> 8);
+				ba.insert(ba.end(), m.first);
+
+				size_t steps = ceil(m.second.size() / 7.0);
+				for(int i = 0; i < steps; i++) {
+					unsigned char byte = 0;
+
+					for(int j = 0; j < 7; j++)
+						byte |= (m.second[(i * 7) + j] << j);
+
+					if(i < steps - 1)
+						byte |= (1 << 7);
+
+					ba.insert(ba.end(), byte);
+				}
+
+				ba[0]++;
 			}
 
 			if(ea[0])

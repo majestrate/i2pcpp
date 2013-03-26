@@ -9,21 +9,21 @@ namespace i2pcpp {
 		void InboundMessageState::addFragment(const unsigned char fragNum, ByteArray const &data, bool isLast)
 		{
 			if(m_gotLast && fragNum > m_lastFragment)
-				return; // TODO Exception
+				return; // TODO Exception -- trying to give us a fragment greater than last
 
-			if(m_fragments.count(fragNum) > 0)
-				return; // TODO Exception
-
-			m_fragments[fragNum] = data;
+			if(fragNum < m_fragments.size() && m_fragments[fragNum])
+				return; // TODO Exception -- already got thsi fragment
 
 			if(isLast) {
 				m_gotLast = true;
 				m_lastFragment = fragNum;
 			}
 
-			if(m_states.size() < fragNum + 1)
-				m_states.resize(fragNum + 1);
-			m_states.markA(fragNum);
+			if(m_fragments.size() < fragNum + 1)
+				m_fragments.resize(fragNum + 1);
+
+			auto f = std::make_shared<ByteArray>(data);
+			m_fragments[fragNum] = f;
 
 			m_byteTotal += data.size();
 		}
@@ -35,14 +35,14 @@ namespace i2pcpp {
 			auto itr = dst.begin();
 			for(auto fp: m_fragments)
 			{
-				ByteArray f = fp.second;
-				copy(f.cbegin(), f.cend(), itr);
-				itr += f.size();
+				if(fp) {
+					copy(fp->cbegin(), fp->cend(), itr);
+					itr += fp->size();
+				}
 			}
 
 			return dst;
 		}
-
 
 		RouterHash InboundMessageState::getRouterHash() const
 		{
@@ -58,25 +58,21 @@ namespace i2pcpp {
 		{
 			if(!m_gotLast) return false;
 
-			return m_states.allA();
+			for(auto f: m_fragments)
+				if(!f)
+					return false;
+
+			return true;
 		}
 
-		std::vector<bool> InboundMessageState::getPendingAcks() const
+		std::vector<bool> InboundMessageState::getFragmentsReceived() const
 		{
-			std::vector<bool> recv = m_states.getA();
-			std::vector<bool> ackd = m_states.getB();
+			std::vector<bool> v(m_fragments.size());
 
-			std::vector<bool> pending;
+			for(int i = 0; i < m_fragments.size(); i++)
+				v[i] = (m_fragments[i] != ByteArrayPtr());
 
-			for(int i = 0; i < m_states.size(); i++)
-				pending.push_back(recv[i] && !ackd[i]);
-
-			return pending;
-		}
-
-		void InboundMessageState::markFragmentAckd(uint8_t fragNum)
-		{
-			m_states.markB(fragNum);
+			return v;
 		}
 	}
 }

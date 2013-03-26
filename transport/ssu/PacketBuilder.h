@@ -1,12 +1,9 @@
 #ifndef SSUPACKETBUILDER_H
 #define SSUPACKETBUILDER_H
 
-#include <forward_list>
-
 #include "Packet.h"
 #include "EstablishmentState.h"
 #include "PeerState.h"
-#include "OutboundMessageState.h"
 
 #include "../../datatypes/Endpoint.h"
 
@@ -17,10 +14,18 @@ namespace i2pcpp {
 
 		class PacketBuilder {
 			public:
+				struct Fragment {
+					uint32_t msgId;
+					bool isLast;
+					uint8_t fragNum;
+					ByteArray data;
+				};
+				typedef std::shared_ptr<Fragment> FragmentPtr;
+
 				static PacketPtr buildSessionRequest(EstablishmentStatePtr const &state);
 				static PacketPtr buildSessionCreated(EstablishmentStatePtr const &state);
 				static PacketPtr buildSessionConfirmed(EstablishmentStatePtr const &state);
-				static PacketPtr buildData(PeerStatePtr const &ps, bool wantReply, std::forward_list<OutboundMessageState::FragmentPtr> const &fragments, CompleteAckList const &completeAcks, PartialAckList const &incompleteAcks);
+				static PacketPtr buildData(PeerStatePtr const &ps, bool wantReply, CompleteAckList const &completeAcks, PartialAckList const &incompleteAcks, std::vector<FragmentPtr> const &fragments);
 				static PacketPtr buildSessionDestroyed(PeerStatePtr const &state);
 
 			private:

@@ -5,6 +5,7 @@
 
 namespace i2pcpp {
 	typedef std::vector<unsigned char> ByteArray;
+	typedef std::shared_ptr<ByteArray> ByteArrayPtr;
 	typedef ByteArray::iterator ByteArrayItr;
 	typedef ByteArray::const_iterator ByteArrayConstItr;
 

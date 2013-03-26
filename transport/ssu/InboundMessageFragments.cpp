@@ -5,6 +5,8 @@
 #include <botan/pipe.h>
 #include <botan/filters.h>
 
+#include "../../exceptions/FormattingError.h"
+
 #include "../UDPTransport.h"
 
 #include "InboundMessageState.h"
@@ -18,6 +20,7 @@ namespace i2pcpp {
 		{
 			I2P_LOG_TAG(m_transport.getLogger(), "IMF");
 
+			if((end - begin) < 1) throw FormattingError();
 			std::bitset<8> flag = *(begin++);
 
 			if(flag[7]) {
@@ -35,10 +38,12 @@ namespace i2pcpp {
 				}	
 			}
 
+			if((end - begin) < 1) throw FormattingError();
 			unsigned char numFragments = *(begin++);
 			BOOST_LOG_SEV(m_transport.getLogger(), debug) << "number of fragments: " << std::to_string(numFragments);
 
 			for(int i = 0; i < numFragments; i++) {
+				if((end - begin) < 7) throw FormattingError();
 				uint32_t msgId = (*(begin++) << 24) | (*(begin++) << 16) | (*(begin++) << 8) | *(begin++);
 				BOOST_LOG_SEV(m_transport.getLogger(), debug) << "fragment[" << i << "] message id: " << std::hex << msgId << std::dec;
 
@@ -53,6 +58,7 @@ namespace i2pcpp {
 				uint16_t fragSize = fragInfo & ((1 << 14) - 1);
 				BOOST_LOG_SEV(m_transport.getLogger(), debug) << "fragment[" << i << "] size: " << fragSize;
 
+				if((end - begin) < fragSize) throw FormattingError();
 				ByteArray fragData(begin, begin + fragSize);
 				BOOST_LOG_SEV(m_transport.getLogger(), debug) << "fragment[" << i << "] data: " << std::string(fragData.cbegin(), fragData.cend());
 

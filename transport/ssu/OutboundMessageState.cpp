@@ -25,7 +25,7 @@ namespace i2pcpp {
 			while(dataItr < end) {
 				step = std::min((size_t)(end - dataItr), (size_t)512);
 
-				FragmentPtr f(new Fragment());
+				auto f = std::make_shared<PacketBuilder::Fragment>();
 				f->msgId = m_msgId;
 				f->fragNum = i++;
 				f->isLast = (step < 512);
@@ -36,43 +36,51 @@ namespace i2pcpp {
 				dataItr += step;
 			}
 
-			m_states.resize(m_fragments.size());
+			m_fragmentStates.resize(m_fragments.size() * 2);
 		}
 
-		const OutboundMessageState::FragmentPtr OutboundMessageState::getNextFragment()
+		const PacketBuilder::FragmentPtr OutboundMessageState::getNextFragment()
 		{
 			if(!m_fragments.size())
 				fragment();
 
-			uint8_t nextFrag = m_states.getNextA();
-			if(nextFrag >= m_fragments.size()) return OutboundMessageState::FragmentPtr();
+			unsigned char i = 0, size = m_fragmentStates.size();
+			while(i < size && m_fragmentStates.test(i)) i += 2;
 
-			return m_fragments[nextFrag];
+			if(i >= size) return PacketBuilder::FragmentPtr();
+
+			return m_fragments[i / 2];
 		}
 
-		const OutboundMessageState::FragmentPtr OutboundMessageState::getFragment(const uint8_t fragNum) const
+		const PacketBuilder::FragmentPtr OutboundMessageState::getFragment(const uint8_t fragNum) const
 		{
 			return m_fragments[fragNum];
 		}
 
 		void OutboundMessageState::markFragmentSent(const uint8_t fragNum)
 		{
-			m_states.markA(fragNum);
+			m_fragmentStates[fragNum * 2] = 1;
 		}
 
 		void OutboundMessageState::markFragmentAckd(const uint8_t fragNum)
 		{
-			m_states.markB(fragNum);
+			m_fragmentStates[(fragNum * 2) + 1] = 1;
 		}
 
 		bool OutboundMessageState::allFragmentsSent() const
 		{
-			return m_states.allA();
+			unsigned char i = 0, size = m_fragmentStates.size();
+			while(i < size && m_fragmentStates.test(i)) i += 2;
+
+			return (i >= size);
 		}
 
 		bool OutboundMessageState::allFragmentsAckd() const
 		{
-			return m_states.allB();
+			unsigned char i = 1, size = m_fragmentStates.size();
+			while(i < size && m_fragmentStates.test(i)) i += 2;
+
+			return (i >= size);
 		}
 	}
 }
