@@ -10,7 +10,11 @@ namespace i2pcpp {
 	void InboundMessageDispatcher::messageReceived(RouterHash from, ByteArray data)
 	{
 		I2P_LOG_RH(m_log, from);
-		BOOST_LOG_SEV(m_log, debug) << "received data: " << std::string(data.cbegin(), data.cend());
+
+		std::stringstream s;
+		s << std::setw(2) << std::setfill('0') << std::hex;
+		for(auto c: data) s << (int)c;
+		BOOST_LOG_SEV(m_log, debug) << "received data: " << s.str();
 	}
 
 	void InboundMessageDispatcher::connectionEstablished(RouterHash rh)

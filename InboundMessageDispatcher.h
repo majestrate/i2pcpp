@@ -5,6 +5,11 @@
 
 #include "datatypes/RouterHash.h"
 
+/*#include "handlers/DeliveryStatus.h"
+#include "handlers/DatabaseStore.h"
+#include "handlers/DatabaseSearchReply.h"
+#include "handlers/VariableTunnelBuild.h"*/
+
 #include "Log.h"
 
 namespace i2pcpp {
@@ -17,6 +22,11 @@ namespace i2pcpp {
 
 		private:
 			boost::asio::io_service& m_ios;
+
+			/*Handlers::DeliveryStatus m_deliveryStatusHandler;
+			Handlers::DatabaseStore m_dbStoreHandler;
+			Handlers::DatabaseSearchReply m_dbSearchReplyHandler;
+			Handlers::VariableTunnelBuild m_variableTunnelBuildHandler;*/
 
 			i2p_logger_mt m_log;
 	};

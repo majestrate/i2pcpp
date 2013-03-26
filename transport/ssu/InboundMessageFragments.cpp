@@ -66,7 +66,10 @@ namespace i2pcpp {
 
 				if((end - begin) < fragSize) throw FormattingError();
 				ByteArray fragData(begin, begin + fragSize);
-				BOOST_LOG_SEV(m_transport.getLogger(), debug) << "fragment[" << i << "] data: " << std::string(fragData.cbegin(), fragData.cend());
+				std::stringstream s;
+				s << std::setw(2) << std::setfill('0') << std::hex;
+				for(auto c: fragData) s << (int)c;
+				BOOST_LOG_SEV(m_transport.getLogger(), debug) << "fragment[" << i << "] data: " << s.str();
 
 				std::lock_guard<std::mutex> lock(ps->getMutex());
 				InboundMessageStatePtr ims = ps->getInboundMessageState(msgId);
