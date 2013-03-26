@@ -12,6 +12,7 @@ namespace i2pcpp {
 		m_packetHandler(*this, ri.getHash()),
 		m_establishmentManager(*this, privKey, ri),
 		m_ackScheduler(*this),
+		m_omf(*this),
 		m_log(boost::log::keywords::channel = "SSU") {}
 
 	UDPTransport::~UDPTransport()
@@ -85,19 +86,7 @@ namespace i2pcpp {
 		PeerStatePtr ps = m_peers.getRemotePeer(rh);
 
 		if(ps) {
-			OutboundMessageStatePtr oms(new SSU::OutboundMessageState(data));
-
-			PacketBuilder::FragmentPtr frag;
-			while((frag = oms->getNextFragment())) {
-				std::vector<PacketBuilder::FragmentPtr> fragList;
-				fragList.push_back(frag);
-
-				oms->markFragmentSent(frag->fragNum);
-
-				PacketPtr p = PacketBuilder::buildData(ps, false, CompleteAckList(), PartialAckList(), fragList);
-				p->encrypt(ps->getCurrentSessionKey(), ps->getCurrentMacKey());
-				sendPacket(p);
-			}
+			m_omf.sendData(ps, data);
 		} else {
 			// TODO Exception
 		}

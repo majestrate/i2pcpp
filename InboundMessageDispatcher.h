@@ -12,8 +12,8 @@ namespace i2pcpp {
 		public:
 			InboundMessageDispatcher(boost::asio::io_service &ios);
 
-			void messageReceived(const RouterHash &from, const ByteArray &data);
-			void connectionEstablished(const RouterHash &rh);
+			void messageReceived(RouterHash from, ByteArray data);
+			void connectionEstablished(RouterHash rh);
 
 		private:
 			boost::asio::io_service& m_ios;

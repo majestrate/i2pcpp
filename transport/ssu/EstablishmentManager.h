@@ -20,7 +20,7 @@ namespace i2pcpp {
 				void createState(Endpoint const &ep, RouterIdentity const &ri);
 
 				void post(EstablishmentStatePtr const &es);
-				void stateChanged(EstablishmentStatePtr const &es);
+				void stateChanged(EstablishmentStatePtr es);
 				EstablishmentStatePtr getState(Endpoint const &ep) const;
 
 			private:

@@ -38,7 +38,7 @@ namespace i2pcpp {
 			m_transport.post(boost::bind(&EstablishmentManager::stateChanged, this, es));
 		}
 
-		void EstablishmentManager::stateChanged(EstablishmentStatePtr const &es)
+		void EstablishmentManager::stateChanged(EstablishmentStatePtr es)
 		{
 			I2P_LOG_TAG(m_transport.getLogger(), "EM");
 			I2P_LOG_EP(m_transport.getLogger(), es->getTheirEndpoint());

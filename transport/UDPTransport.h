@@ -16,6 +16,7 @@
 #include "ssu/PeerStateList.h"
 #include "ssu/EstablishmentManager.h"
 #include "ssu/AcknowledgementScheduler.h"
+#include "ssu/OutboundMessageFragments.h"
 
 namespace i2pcpp {
 	class UDPTransport : public Transport {
@@ -23,6 +24,7 @@ namespace i2pcpp {
 		friend class SSU::EstablishmentManager;
 		friend class SSU::InboundMessageFragments;
 		friend class SSU::AcknowledgementScheduler;
+		friend class SSU::OutboundMessageFragments;
 
 		public:
 			UDPTransport(Botan::DSA_PrivateKey const &privKey, RouterIdentity const &ri);
@@ -58,6 +60,7 @@ namespace i2pcpp {
 			SSU::PacketHandler m_packetHandler;
 			SSU::EstablishmentManager m_establishmentManager;
 			SSU::AcknowledgementScheduler m_ackScheduler;
+			SSU::OutboundMessageFragments m_omf;
 
 			i2p_logger_mt m_log;
 	};
