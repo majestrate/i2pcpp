@@ -73,6 +73,53 @@ namespace i2pcpp {
 			}
 		}
 
+		OutboundMessageStatePtr PeerState::getOutboundMessageState(const uint32_t msgId) const
+		{
+			OutboundMessageStatePtr oms;
+
+			auto itr = m_outboundMessageStates.find(msgId);
+			if(itr != m_outboundMessageStates.end())
+				oms = itr->second;
+
+			return oms;
+		}
+
+		void PeerState::addOutboundMessageState(OutboundMessageStatePtr const &oms)
+		{
+			uint32_t msgId = oms->getMsgId();
+
+			m_outboundMessageStates[msgId] = oms;
+
+			std::shared_ptr<boost::asio::deadline_timer> timer(new boost::asio::deadline_timer(m_ios, boost::posix_time::time_duration(0, 0, 5)));
+
+			timer->async_wait(boost::bind(&PeerState::outboundTimerCallback, this, boost::asio::placeholders::error, msgId));
+
+			m_outboundTimers[msgId] = timer;
+		}
+
+		void PeerState::delOutboundMessageState(const uint32_t msgId)
+		{
+			m_outboundMessageStates.erase(msgId);
+
+			std::shared_ptr<boost::asio::deadline_timer> timer = m_outboundTimers[msgId];
+			if(timer) {
+				BOOST_LOG_SEV(m_log, debug) << "canceling OMS timer";
+				timer->cancel();
+				m_outboundTimers.erase(msgId);
+			}
+		}
+
+		void PeerState::outboundTimerCallback(const boost::system::error_code& e, const uint32_t msgId)
+		{
+			std::lock_guard<std::mutex> lock(m_mutex);
+
+			if(!e) {
+				BOOST_LOG_SEV(m_log, debug) << "removing OMS due to timeout";
+				m_outboundMessageStates.erase(msgId);
+				m_outboundTimers.erase(msgId);
+			}
+		}
+
 		SessionKey PeerState::getCurrentSessionKey() const
 		{
 			return m_sessionKey;

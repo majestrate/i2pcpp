@@ -23,6 +23,8 @@ namespace i2pcpp {
 				bool allFragmentsSent() const;
 				bool allFragmentsAckd() const;
 
+				uint32_t getMsgId() const;
+
 			private:
 				void fragment();
 

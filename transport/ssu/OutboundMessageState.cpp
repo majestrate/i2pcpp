@@ -82,5 +82,10 @@ namespace i2pcpp {
 
 			return (i >= size);
 		}
+
+		uint32_t OutboundMessageState::getMsgId() const
+		{
+			return m_msgId;
+		}
 	}
 }

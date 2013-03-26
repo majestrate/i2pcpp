@@ -3,10 +3,6 @@
 #include <chrono>
 
 #include "../../datatypes/RouterIdentity.h"
-
-#include <iostream>
-#include <iomanip>
-
 #include "../../Log.h"
 
 namespace i2pcpp {
@@ -109,16 +105,9 @@ namespace i2pcpp {
 			return s;
 		}
 
-		PacketPtr PacketBuilder::buildSessionDestroyed(PeerStatePtr const &state)
+		PacketPtr PacketBuilder::buildData(Endpoint const &ep, bool wantReply, CompleteAckList const &completeAcks, PartialAckList const &incompleteAcks, std::vector<PacketBuilder::FragmentPtr> const &fragments)
 		{
-			PacketPtr s = buildHeader(state->getEndpoint(), Packet::PayloadType::SESSION_DESTROY << 4);
-
-			return s;
-		}
-
-		PacketPtr PacketBuilder::buildData(PeerStatePtr const &ps, bool wantReply, CompleteAckList const &completeAcks, PartialAckList const &incompleteAcks, std::vector<PacketBuilder::FragmentPtr> const &fragments)
-		{
-			PacketPtr s = buildHeader(ps->getEndpoint(), Packet::PayloadType::DATA << 4);
+			PacketPtr s = buildHeader(ep, Packet::PayloadType::DATA << 4);
 
 			ByteArray& d = s->getData();
 
@@ -198,6 +187,13 @@ namespace i2pcpp {
 
 				d.insert(d.end(), f->data.cbegin(), f->data.cend());
 			}
+
+			return s;
+		}
+
+		PacketPtr PacketBuilder::buildSessionDestroyed(Endpoint const &ep)
+		{
+			PacketPtr s = buildHeader(ep, Packet::PayloadType::SESSION_DESTROY << 4);
 
 			return s;
 		}

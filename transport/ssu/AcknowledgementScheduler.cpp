@@ -41,7 +41,7 @@ namespace i2pcpp {
 
 				if(completeAckList.size() || partialAckList.size()) {
 					std::vector<PacketBuilder::FragmentPtr> emptyFragList;
-					PacketPtr p = PacketBuilder::buildData(ps, false, completeAckList, partialAckList, emptyFragList);
+					PacketPtr p = PacketBuilder::buildData(ps->getEndpoint(), false, completeAckList, partialAckList, emptyFragList);
 					p->encrypt(ps->getCurrentSessionKey(), ps->getCurrentMacKey());
 					m_transport.sendPacket(p);
 				}

@@ -10,6 +10,7 @@
 #include "../../Log.h"
 
 #include "InboundMessageState.h"
+#include "OutboundMessageState.h"
 
 namespace i2pcpp {
 	namespace SSU {
@@ -23,6 +24,12 @@ namespace i2pcpp {
 				void delInboundMessageState(std::map<uint32_t, InboundMessageStatePtr>::const_iterator itr);
 
 				void inboundTimerCallback(const boost::system::error_code& e, const uint32_t msgId);
+
+				OutboundMessageStatePtr getOutboundMessageState(const uint32_t msgId) const;
+				void addOutboundMessageState(OutboundMessageStatePtr const &oms);
+				void delOutboundMessageState(const uint32_t msgId);
+
+				void outboundTimerCallback(const boost::system::error_code& e, const uint32_t msgId);
 
 				SessionKey getCurrentSessionKey() const;
 				SessionKey getCurrentMacKey() const;
@@ -55,6 +62,9 @@ namespace i2pcpp {
 
 				std::map<uint32_t, InboundMessageStatePtr> m_inboundMessageStates;
 				std::map<uint32_t, std::shared_ptr<boost::asio::deadline_timer>> m_inboundTimers;
+
+				std::map<uint32_t, OutboundMessageStatePtr> m_outboundMessageStates;
+				std::map<uint32_t, std::shared_ptr<boost::asio::deadline_timer>> m_outboundTimers;
 
 				mutable std::mutex m_mutex;
 

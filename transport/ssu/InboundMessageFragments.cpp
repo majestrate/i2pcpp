@@ -25,15 +25,21 @@ namespace i2pcpp {
 
 			if(flag[7]) {
 				// TODO
+				if((end - begin) < 1) throw FormattingError();
 				unsigned char numAcks = *(begin++);
-				while(numAcks--) { begin += 4; }
+				if((end - begin) < (numAcks * 4)) throw FormattingError();
+
+				while(numAcks--) {
+					uint32_t msgId = (*(begin++) << 24) | (*(begin++) << 16) | (*(begin++) << 8) | *(begin++);
+					ps->delOutboundMessageState(msgId);
+				}
 			}
 
 			if(flag[6]) {
 				// TODO
 				unsigned char numFields = *(begin++);
 				while(numFields--) {
-					begin += 4;
+					uint32_t msgId = (*(begin++) << 24) | (*(begin++) << 16) | (*(begin++) << 8) | *(begin++);
 					while(*(begin++) & 0x80);
 				}	
 			}

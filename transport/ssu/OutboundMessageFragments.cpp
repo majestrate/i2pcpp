@@ -11,6 +11,8 @@ namespace i2pcpp {
 		{
 			auto oms = std::make_shared<OutboundMessageState>(data);
 
+			ps->addOutboundMessageState(oms);
+
 			m_transport.post(boost::bind(&OutboundMessageFragments::sendDataCallback, this, ps, oms));
 		}
 
@@ -21,7 +23,7 @@ namespace i2pcpp {
 
 			oms->markFragmentSent(fragList[0]->fragNum);
 
-			PacketPtr p = PacketBuilder::buildData(ps, false, CompleteAckList(), PartialAckList(), fragList);
+			PacketPtr p = PacketBuilder::buildData(ps->getEndpoint(), false, CompleteAckList(), PartialAckList(), fragList);
 			p->encrypt(ps->getCurrentSessionKey(), ps->getCurrentMacKey());
 			m_transport.sendPacket(p);
 

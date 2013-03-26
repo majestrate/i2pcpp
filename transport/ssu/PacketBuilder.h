@@ -3,7 +3,6 @@
 
 #include "Packet.h"
 #include "EstablishmentState.h"
-#include "PeerState.h"
 
 #include "../../datatypes/Endpoint.h"
 
@@ -25,8 +24,8 @@ namespace i2pcpp {
 				static PacketPtr buildSessionRequest(EstablishmentStatePtr const &state);
 				static PacketPtr buildSessionCreated(EstablishmentStatePtr const &state);
 				static PacketPtr buildSessionConfirmed(EstablishmentStatePtr const &state);
-				static PacketPtr buildData(PeerStatePtr const &ps, bool wantReply, CompleteAckList const &completeAcks, PartialAckList const &incompleteAcks, std::vector<FragmentPtr> const &fragments);
-				static PacketPtr buildSessionDestroyed(PeerStatePtr const &state);
+				static PacketPtr buildData(Endpoint const &ep, bool wantReply, CompleteAckList const &completeAcks, PartialAckList const &incompleteAcks, std::vector<FragmentPtr> const &fragments);
+				static PacketPtr buildSessionDestroyed(Endpoint const &ep);
 
 			private:
 				static PacketPtr buildHeader(Endpoint const &ep, unsigned char flag);
