@@ -65,7 +65,7 @@ namespace i2pcpp {
 
 				case EstablishmentState::CONFIRMED_SENT:
 					BOOST_LOG_SEV(m_transport.getLogger(), debug) << "sent session confirmed";
-					m_transport.post(boost::bind(boost::ref(m_transport.m_establishedSignal), es->getTheirIdentity().getHash()));
+					m_transport.post(boost::bind(boost::ref(m_transport.m_establishedSignal), es->getTheirIdentity().getHash(), (es->getDirection() == EstablishmentState::INBOUND)));
 					break;
 
 				case EstablishmentState::CONFIRMED_RECEIVED:
@@ -178,7 +178,7 @@ namespace i2pcpp {
 			m_stateTableMutex.lock();
 			m_stateTable.erase(state->getTheirEndpoint());
 			m_stateTableMutex.unlock();
-			m_transport.post(boost::bind(boost::ref(m_transport.m_establishedSignal), state->getTheirIdentity().getHash()));
+			m_transport.post(boost::bind(boost::ref(m_transport.m_establishedSignal), state->getTheirIdentity().getHash(), (state->getDirection() == EstablishmentState::INBOUND)));
 		}
 	}
 }

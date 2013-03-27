@@ -20,7 +20,7 @@ namespace i2pcpp {
 
 		TransportPtr t = TransportPtr(new UDPTransport(*m_ctx.getSigningKey(), m_ctx.getIdentity()));
 		t->registerReceivedHandler(boost::bind(&InboundMessageDispatcher::messageReceived, m_ctx.getInMsgDisp(), _1, _2));
-		t->registerEstablishedHandler(boost::bind(&InboundMessageDispatcher::connectionEstablished, m_ctx.getInMsgDisp(), _1));
+		t->registerEstablishedHandler(boost::bind(&InboundMessageDispatcher::connectionEstablished, m_ctx.getInMsgDisp(), _1, _2));
 		m_ctx.getOutMsgDisp().registerTransport(t);
 
 		std::shared_ptr<UDPTransport> u = std::dynamic_pointer_cast<UDPTransport>(t);

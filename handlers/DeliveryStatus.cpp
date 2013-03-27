@@ -4,8 +4,8 @@
 #include <botan/zlib.h>
 
 #include "../i2np/DatabaseStore.h"
-#include "../Database.h"
-#include "../OutboundMessageDispatcher.h"
+
+#include "../RouterContext.h"
 
 namespace i2pcpp {
 	namespace Handlers {
@@ -21,7 +21,7 @@ namespace i2pcpp {
 			Mapping am;
 			am.setValue("caps", "BC");
 			am.setValue("host", m_ctx.getDatabase().getConfigValue("ssu_external_ip"));
-			am.setValue("key", m_ctx.getMyRouterIdentity().getHashEncoded());
+			am.setValue("key", m_ctx.getIdentity().getHashEncoded());
 			am.setValue("port", m_ctx.getDatabase().getConfigValue("ssu_external_port"));
 			RouterAddress a(5, Date(0), "SSU", am);
 
@@ -36,7 +36,7 @@ namespace i2pcpp {
 
 			Botan::Pipe gzPipe(new Botan::Zlib_Compression);
 			gzPipe.start_msg();
-			gzPipe.write(myInfo.getBytes());
+			gzPipe.write(myInfo.serialize());
 			gzPipe.end_msg();
 
 			unsigned int size = gzPipe.remaining();
@@ -44,7 +44,7 @@ namespace i2pcpp {
 			gzPipe.read(gzInfoBytes.data(), size);
 
 			auto mydsm = std::make_shared<I2NP::DatabaseStore>(myInfo.getIdentity().getHash(), I2NP::DatabaseStore::DataType::ROUTER_INFO, 0, gzInfoBytes);
-			m_ctx.getOutMsgDispatcher().sendMessage(from, mydsm);
+			m_ctx.getOutMsgDisp().sendMessage(from, mydsm);
 		}
 	}
 }

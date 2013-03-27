@@ -10,7 +10,7 @@
 namespace i2pcpp {
 	class Transport {
 		public:
-			typedef boost::signals2::signal<void(const RouterHash)> EstablishedSignal;
+			typedef boost::signals2::signal<void(const RouterHash, bool)> EstablishedSignal;
 			typedef boost::signals2::signal<void(const RouterHash, const ByteArray)> ReceivedSignal;
 
 			virtual void connect(RouterInfo const &ri) = 0;

@@ -2,8 +2,8 @@
 
 #include "../i2np/DatabaseSearchReply.h"
 #include "../i2np/DatabaseLookup.h"
-#include "../OutboundMessageDispatcher.h"
-#include "../Database.h"
+
+#include "../RouterContext.h"
 
 namespace i2pcpp {
 	namespace Handlers {
@@ -20,8 +20,8 @@ namespace i2pcpp {
 
 			for(auto h: dsr->getHashes()) {
 				if(!m_ctx.getDatabase().routerExists(h)) {
-					I2NP::MessagePtr dbl(new I2NP::DatabaseLookup(h, m_ctx.getMyRouterHash(), 0));
-					m_ctx.getOutMsgDispatcher().sendMessage(from, dbl);
+					I2NP::MessagePtr dbl(new I2NP::DatabaseLookup(h, m_ctx.getIdentity().getHash(), 0));
+					m_ctx.getOutMsgDisp().sendMessage(from, dbl);
 				}
 			}
 		}

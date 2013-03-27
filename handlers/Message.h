@@ -6,9 +6,9 @@
 #include "../i2np/Message.h"
 #include "../datatypes/RouterHash.h"
 
-#include "../RouterContext.h"
-
 namespace i2pcpp {
+	class RouterContext;
+
 	namespace Handlers {
 		class Message {
 			public:

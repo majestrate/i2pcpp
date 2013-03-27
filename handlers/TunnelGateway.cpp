@@ -1,8 +1,6 @@
 #include "TunnelGateway.h"
 
 #include "../i2np/TunnelGateway.h"
-#include "../OutboundMessageDispatcher.h"
-#include "../Signals.h"
 
 namespace i2pcpp {
 	namespace Handlers {
@@ -15,7 +13,7 @@ namespace i2pcpp {
 		{
 			std::shared_ptr<I2NP::TunnelGateway> tg = std::dynamic_pointer_cast<I2NP::TunnelGateway>(msg);
 
-			std::cerr << "Received TunnelGateway message from " << from << " for tunnel " << tg->getTunnelId() << "\n";
+			//std::cerr << "Received TunnelGateway message from " << from << " for tunnel " << tg->getTunnelId() << "\n";
 		}
 	}
 }
