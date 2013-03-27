@@ -18,7 +18,7 @@ namespace i2pcpp {
 
 			b.insert(b.end(), m_buildRecords.size());
 			for(auto& r: m_buildRecords) {
-				const ByteArray&& recordBytes = r.getBytes();
+				const ByteArray recordBytes = r.serialize();
 				b.insert(b.end(), recordBytes.cbegin(), recordBytes.cend());
 			}
 
@@ -27,10 +27,10 @@ namespace i2pcpp {
 
 		bool VariableTunnelBuild::parse(ByteArrayConstItr &begin, ByteArrayConstItr end)
 		{
-			unsigned char size = *dataItr++;
+			unsigned char size = *begin++;
 
 			for(int i = 0; i < size; i++)
-				m_buildRecords.emplace_back(begin);
+				m_buildRecords.emplace_back(begin, end);
 
 			return true;
 		}

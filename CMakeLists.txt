@@ -37,14 +37,14 @@ set(SRCS
 	handlers/DeliveryStatus.cpp
 	handlers/Message.cpp
 	handlers/TunnelGateway.cpp
-	#handlers/VariableTunnelBuild.cpp
+	handlers/VariableTunnelBuild.cpp
 	i2np/DatabaseLookup.cpp
 	i2np/DatabaseSearchReply.cpp
 	i2np/DatabaseStore.cpp
 	i2np/DeliveryStatus.cpp
 	i2np/Message.cpp
 	i2np/TunnelGateway.cpp
-	#i2np/VariableTunnelBuild.cpp
+	i2np/VariableTunnelBuild.cpp
 	transport/ssu/AcknowledgementScheduler.cpp
 	transport/ssu/EstablishmentManager.cpp
 	transport/ssu/EstablishmentState.cpp
@@ -59,6 +59,8 @@ set(SRCS
 	transport/ssu/PeerStateList.cpp
 	transport/Transport.cpp
 	transport/UDPTransport.cpp
+	tunnel/TunnelManager.cpp
+	tunnel/TunnelState.cpp
 	util/Base64.cpp
 	util/I2PHMAC.cpp
 	)

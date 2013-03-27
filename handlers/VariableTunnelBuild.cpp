@@ -2,6 +2,7 @@
 
 #include "../i2np/VariableTunnelBuild.h"
 #include "../Signals.h"
+#include "../RouterContext.h"
 
 namespace i2pcpp {
 	namespace Handlers {
