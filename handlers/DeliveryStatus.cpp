@@ -9,6 +9,9 @@
 
 namespace i2pcpp {
 	namespace Handlers {
+		DeliveryStatus::DeliveryStatus(RouterContext &ctx) :
+			Message(ctx) {}
+
 		I2NP::Message::Type DeliveryStatus::getType() const
 		{
 			return I2NP::Message::Type::DELIVERY_STATUS;

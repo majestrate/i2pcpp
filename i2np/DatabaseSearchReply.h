@@ -11,13 +11,13 @@ namespace i2pcpp {
 	namespace I2NP {
 		class DatabaseSearchReply : public Message {
 			public:
-				DatabaseSearchReply() {}
+				DatabaseSearchReply();
 
-				Message::Type getType() const { return Message::Type::DB_SEARCH_REPLY; }
+				Message::Type getType() const;
 
-				const std::array<unsigned char, 32>& getKey() const { return m_key; }
-				const std::list<RouterHash>& getHashes() const { return m_hashes; }
-				const RouterHash& getFrom() const { return m_from; }
+				const std::array<unsigned char, 32>& getKey() const;
+				const std::list<RouterHash>& getHashes() const;
+				const RouterHash& getFrom() const;
 
 			protected:
 				ByteArray getBytes() const;

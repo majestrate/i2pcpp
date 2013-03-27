@@ -7,6 +7,9 @@
 
 namespace i2pcpp {
 	namespace Handlers {
+		DatabaseSearchReply::DatabaseSearchReply(RouterContext &ctx) :
+			Message(ctx) {}
+
 		I2NP::Message::Type DatabaseSearchReply::getType() const
 		{
 			return I2NP::Message::Type::DB_SEARCH_REPLY;
@@ -16,7 +19,8 @@ namespace i2pcpp {
 		{
 			std::shared_ptr<I2NP::DatabaseSearchReply> dsr = std::dynamic_pointer_cast<I2NP::DatabaseSearchReply>(msg);
 
-			std::cerr << "Received DatabaseSearchReply message from " << from << "\n";
+			I2P_LOG_RH(m_ctx.getLogger(), from);
+			BOOST_LOG_SEV(m_ctx.getLogger(), debug) << "received DatabaseSearchReply message";
 
 			for(auto h: dsr->getHashes()) {
 				if(!m_ctx.getDatabase().routerExists(h)) {

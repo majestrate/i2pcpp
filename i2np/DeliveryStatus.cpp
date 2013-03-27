@@ -4,6 +4,11 @@ namespace i2pcpp {
 	namespace I2NP {
 		DeliveryStatus::DeliveryStatus() {}
 
+		Message::Type DeliveryStatus::getType() const
+		{
+			return Message::Type::DELIVERY_STATUS;
+		}
+
 		DeliveryStatus::DeliveryStatus(uint32_t msgId, Date timestamp) :
 			m_msgId(msgId),
 			m_timestamp(timestamp) {}

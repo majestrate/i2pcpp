@@ -11,10 +11,10 @@ namespace i2pcpp {
 	namespace I2NP {
 		class VariableTunnelBuild : public Message {
 			public:
-				VariableTunnelBuild() {}
-				VariableTunnelBuild(std::list<BuildRequestRecord> const &buildRecords) : m_buildRecords(buildRecords) {}
+				VariableTunnelBuild();
+				VariableTunnelBuild(std::list<BuildRequestRecord> const &buildRecords);
 
-				Message::Type getType() const { return Message::Type::VARIABLE_TUNNEL_BUILD; }
+				Message::Type getType() const;
 
 				const std::list<BuildRequestRecord>& getRecords() const { return m_buildRecords; }
 

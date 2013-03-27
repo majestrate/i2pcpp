@@ -2,6 +2,16 @@
 
 namespace i2pcpp {
 	namespace I2NP {
+		VariableTunnelBuild::VariableTunnelBuild() {}
+
+		VariableTunnelBuild::VariableTunnelBuild(std::list<BuildRequestRecord> const &buildRecords) :
+			m_buildRecords(buildRecords) {}
+
+		Message::Type VariableTunnelBuild::getType() const
+		{
+			return Message::Type::VARIABLE_TUNNEL_BUILD;
+		}
+
 		ByteArray VariableTunnelBuild::getBytes() const
 		{
 			ByteArray b;

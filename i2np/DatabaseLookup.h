@@ -11,10 +11,10 @@ namespace i2pcpp {
 	namespace I2NP {
 		class DatabaseLookup : public Message {
 			public:
-				DatabaseLookup() {}
-				DatabaseLookup(std::array<unsigned char, 32> const &key, RouterHash const &from, uint32_t sendReplyTo, std::list<RouterHash> excludedPeers = std::list<RouterHash>()) : m_key(key), m_from(from), m_sendReplyTo(sendReplyTo), m_excludedPeers(excludedPeers) {}
+				DatabaseLookup();
+				DatabaseLookup(std::array<unsigned char, 32> const &key, RouterHash const &from, uint32_t sendReplyTo, std::list<RouterHash> excludedPeers = std::list<RouterHash>());
 
-				Message::Type getType() const { return Message::Type::DB_LOOKUP; }
+				Message::Type getType() const;
 
 			protected:
 				ByteArray getBytes() const;

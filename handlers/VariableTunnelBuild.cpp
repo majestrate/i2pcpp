@@ -5,6 +5,9 @@
 
 namespace i2pcpp {
 	namespace Handlers {
+		VariableTunnelBuild::VariableTunnelBuild(RouterContext &ctx) :
+			Message(ctx) {}
+
 		I2NP::Message::Type VariableTunnelBuild::getType() const
 		{
 			return I2NP::Message::Type::VARIABLE_TUNNEL_BUILD;
@@ -14,7 +17,8 @@ namespace i2pcpp {
 		{
 			std::shared_ptr<I2NP::VariableTunnelBuild> vtb = std::dynamic_pointer_cast<I2NP::VariableTunnelBuild>(msg);
 
-			std::cerr << "Received VariableTunnelBuild message from " << from << "\n";
+			I2P_LOG_RH(m_ctx.getLogger(), from);
+			BOOST_LOG_SEV(m_ctx.getLogger(), debug) << "received VariableTunnelBuild message";
 
 			m_ctx.getSignals().invokeBuildTunnelRequest(vtb->getRecords());
 		}

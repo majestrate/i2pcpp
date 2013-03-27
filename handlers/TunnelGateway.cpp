@@ -2,8 +2,13 @@
 
 #include "../i2np/TunnelGateway.h"
 
+#include "../RouterContext.h"
+
 namespace i2pcpp {
 	namespace Handlers {
+		TunnelGateway::TunnelGateway(RouterContext &ctx) :
+			Message(ctx) {}
+
 		I2NP::Message::Type TunnelGateway::getType() const
 		{
 			return I2NP::Message::Type::TUNNEL_GATEWAY;
@@ -13,7 +18,8 @@ namespace i2pcpp {
 		{
 			std::shared_ptr<I2NP::TunnelGateway> tg = std::dynamic_pointer_cast<I2NP::TunnelGateway>(msg);
 
-			//std::cerr << "Received TunnelGateway message from " << from << " for tunnel " << tg->getTunnelId() << "\n";
+			I2P_LOG_RH(m_ctx.getLogger(), from);
+			BOOST_LOG_SEV(m_ctx.getLogger(), debug) << "received TunnelGateway message";
 		}
 	}
 }

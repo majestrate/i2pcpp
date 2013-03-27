@@ -11,6 +11,7 @@
 #include "Database.h"
 #include "InboundMessageDispatcher.h"
 #include "OutboundMessageDispatcher.h"
+#include "Signals.h"
 #include "Log.h"
 
 namespace i2pcpp {
@@ -27,6 +28,8 @@ namespace i2pcpp {
 
 			InboundMessageDispatcher& getInMsgDisp();
 			OutboundMessageDispatcher& getOutMsgDisp();
+
+			Signals& getSignals();
 
 			const Botan::DL_Group& getDSAParameters() const;
 
@@ -46,6 +49,8 @@ namespace i2pcpp {
 
 			InboundMessageDispatcher m_inMsgDispatcher;
 			OutboundMessageDispatcher m_outMsgDispatcher;
+
+			Signals m_signals;
 
 			i2p_logger_mt m_log;
 	};

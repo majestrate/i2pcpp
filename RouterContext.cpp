@@ -11,6 +11,7 @@ namespace i2pcpp {
 	RouterContext::RouterContext(std::string const &dbFile, boost::asio::io_service &ios) :
 		m_db(dbFile),
 		m_inMsgDispatcher(ios, *this),
+		m_signals(ios),
 		m_log(boost::log::keywords::channel = "Router")
 	{
 		Botan::AutoSeeded_RNG rng;
@@ -52,6 +53,11 @@ namespace i2pcpp {
 		return m_identity;
 	}
 
+	Database& RouterContext::getDatabase()
+	{
+		return m_db;
+	}
+
 	InboundMessageDispatcher& RouterContext::getInMsgDisp()
 	{
 		return m_inMsgDispatcher;
@@ -62,9 +68,9 @@ namespace i2pcpp {
 		return m_outMsgDispatcher;
 	}
 
-	Database& RouterContext::getDatabase()
+	Signals& RouterContext::getSignals()
 	{
-		return m_db;
+		return m_signals;
 	}
 
 	const Botan::DL_Group& RouterContext::getDSAParameters() const

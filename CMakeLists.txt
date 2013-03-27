@@ -16,8 +16,10 @@ set(SRCS
 	OutboundMessageDispatcher.cpp
 	Router.cpp
 	RouterContext.cpp
+	Signals.cpp
 	datatypes/Certificate.cpp
 	datatypes/ByteArray.cpp
+	datatypes/BuildRequestRecord.cpp
 	datatypes/Datatype.cpp
 	datatypes/Date.cpp
 	datatypes/Endpoint.cpp

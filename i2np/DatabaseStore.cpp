@@ -2,6 +2,35 @@
 
 namespace i2pcpp {
 	namespace I2NP {
+		DatabaseStore::DatabaseStore() {}
+
+		DatabaseStore::DatabaseStore(std::array<unsigned char, 32> const &key, DataType type, uint32_t replyToken, ByteArray const &data) :
+			Message(),
+			m_key(key),
+			m_type(type),
+			m_replyToken(replyToken),
+			m_data(data) {}
+
+		Message::Type DatabaseStore::getType() const
+		{
+			return Message::Type::DB_STORE;
+		}
+
+		DatabaseStore::DataType DatabaseStore::getDataType() const
+		{
+			return m_type;
+		}
+
+		uint32_t DatabaseStore::getReplyToken() const
+		{
+			return m_replyToken;
+		}
+
+		const ByteArray& DatabaseStore::getData() const
+		{
+			return m_data;
+		}
+
 		ByteArray DatabaseStore::getBytes() const
 		{
 			ByteArray b;

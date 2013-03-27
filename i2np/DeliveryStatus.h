@@ -12,7 +12,7 @@ namespace i2pcpp {
 				DeliveryStatus();
 				DeliveryStatus(uint32_t msgId, Date timestamp);
 
-				Message::Type getType() const { return Message::Type::DELIVERY_STATUS; }
+				Message::Type getType() const;
 
 			protected:
 				ByteArray getBytes() const;

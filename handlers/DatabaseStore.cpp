@@ -9,6 +9,9 @@
 
 namespace i2pcpp {
 	namespace Handlers {
+		DatabaseStore::DatabaseStore(RouterContext &ctx) :
+			Message(ctx) {}
+
 		I2NP::Message::Type DatabaseStore::getType() const
 		{
 			return I2NP::Message::Type::DB_STORE;
@@ -18,8 +21,8 @@ namespace i2pcpp {
 		{
 			std::shared_ptr<I2NP::DatabaseStore> dsm = std::dynamic_pointer_cast<I2NP::DatabaseStore>(msg);
 
-			/*std::cerr << "Received DatabaseStore message from " << from << "\n";
-			std::cerr << "DatabaseStore message reply token: " << dsm->getReplyToken() << "\n";*/
+			I2P_LOG_RH(m_ctx.getLogger(), from);
+			BOOST_LOG_SEV(m_ctx.getLogger(), debug) << "received DatabaseStore message";
 
 			Botan::Pipe ungzPipe(new Botan::Zlib_Decompression);
 
@@ -41,14 +44,12 @@ namespace i2pcpp {
 			auto begin = inflatedData.cbegin();
 			RouterInfo ri(begin, inflatedData.cend());
 
-			//std::cerr << "RouterInfo RouterAddress[0] host: " << ri.getAddress(0).getOptions().getValue("host") << "\n";
-
 			if(ri.verifySignature(m_ctx.getDSAParameters())) {
 				m_ctx.getDatabase().setRouterInfo(ri);
-				//std::cerr << "Added RouterInfo to DB\n";
-				//m_ctx.getSignals().invokeRouterInfoSaved(ri.getIdentity().getHash());
+				BOOST_LOG_SEV(m_ctx.getLogger(), debug) << "added RouterInfo to DB";
+				m_ctx.getSignals().invokeRouterInfoSaved(ri.getIdentity().getHash());
 			} else {
-				//std::cerr << "RouterInfo verification failed\n";
+				BOOST_LOG_SEV(m_ctx.getLogger(), error) << "RouterInfo verification failed";
 			}
 		}
 	}
