@@ -7,17 +7,17 @@ namespace i2pcpp {
 			return ByteArray();
 		}
 
-		bool DatabaseSearchReply::parse(ByteArray::const_iterator &dataItr)
+		bool DatabaseSearchReply::parse(ByteArrayConstItr &begin, ByteArrayConstItr end)
 		{
-			copy(dataItr, dataItr + 32, m_key.begin()), dataItr += 32;
+			copy(begin, begin + 32, m_key.begin()), begin += 32;
 
-			unsigned char size = *(dataItr++);
+			unsigned char size = *(begin++);
 			while(size--) {
 				m_hashes.emplace_back();
-				copy(dataItr, dataItr + 32, m_hashes.back().begin()), dataItr += 32;
+				copy(begin, begin + 32, m_hashes.back().begin()), begin += 32;
 			}
 
-			copy(dataItr, dataItr + 32, m_from.begin()), dataItr += 32;
+			copy(begin, begin + 32, m_from.begin()), begin += 32;
 
 			return true;
 		}

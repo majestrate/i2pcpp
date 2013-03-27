@@ -6,10 +6,10 @@ namespace i2pcpp {
 		{
 		}
 
-		bool DeliveryStatus::parse(ByteArray::const_iterator &dataItr)
+		bool DeliveryStatus::parse(ByteArrayConstItr &begin, ByteArrayConstItr end)
 		{
-			m_msgId = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
-			m_timestamp = Date(dataItr);
+			m_msgId = (*(begin++) << 24) | (*(begin++) << 16) | (*(begin++) << 8) | *(begin++);
+			m_timestamp = Date(begin, end);
 
 			return true;
 		}

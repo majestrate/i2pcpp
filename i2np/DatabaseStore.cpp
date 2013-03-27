@@ -25,22 +25,22 @@ namespace i2pcpp {
 			return b;
 		}
 
-		bool DatabaseStore::parse(ByteArray::const_iterator &dataItr)
+		bool DatabaseStore::parse(ByteArrayConstItr &begin, ByteArrayConstItr end)
 		{
-			copy(dataItr, dataItr + 32, m_key.begin());
-			dataItr += 32;
+			copy(begin, begin + 32, m_key.begin());
+			begin += 32;
 
-			m_type = (DataType)*(dataItr++);
-			m_replyToken = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
+			m_type = (DataType)*(begin++);
+			m_replyToken = (*(begin++) << 24) | (*(begin++) << 16) | (*(begin++) << 8) | *(begin++);
 
 			if(m_replyToken) {
-				m_replyTunnelId = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
-				copy(dataItr, dataItr + 32, m_replyGateway.begin());
-				dataItr += 32;
+				m_replyTunnelId = (*(begin++) << 24) | (*(begin++) << 16) | (*(begin++) << 8) | *(begin++);
+				copy(begin, begin + 32, m_replyGateway.begin());
+				begin += 32;
 			}
 
-			uint16_t size = (*(dataItr++) << 8) | *(dataItr++);
-			m_data = ByteArray(dataItr, dataItr + size);
+			uint16_t size = (*(begin++) << 8) | *(begin++);
+			m_data = ByteArray(begin, begin + size);
 
 			return true;
 		}

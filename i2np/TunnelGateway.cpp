@@ -1,7 +1,5 @@
 #include "TunnelGateway.h"
 
-#include <iostream>
-
 namespace i2pcpp {
 	namespace I2NP {
 		ByteArray TunnelGateway::getBytes() const
@@ -22,7 +20,7 @@ namespace i2pcpp {
 			return b;
 		}
 
-		bool TunnelGateway::parse(ByteArray::const_iterator &dataItr)
+		bool TunnelGateway::parse(ByteArrayConstItr &begin, ByteArrayConstItr end)
 		{
 			return true;
 		}

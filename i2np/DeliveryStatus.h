@@ -13,7 +13,7 @@ namespace i2pcpp {
 
 			protected:
 				ByteArray getBytes() const;
-				bool parse(ByteArray::const_iterator &dataItr);
+				bool parse(ByteArrayConstItr &begin, ByteArrayConstItr end);
 
 			private:
 				uint32_t m_msgId;

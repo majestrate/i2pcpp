@@ -34,7 +34,7 @@ namespace i2pcpp {
 			protected:
 				Message() {}
 				virtual ByteArray getBytes() const = 0;
-				virtual bool parse(ByteArray::const_iterator &dataItr) = 0;
+				virtual bool parse(ByteArrayConstItr &begin, ByteArrayConstItr end) = 0;
 
 				uint32_t m_expiration;
 		};

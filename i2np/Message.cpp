@@ -1,12 +1,9 @@
 #include "Message.h"
 
-/*#include "DeliveryStatus.h"
+#include "DeliveryStatus.h"
 #include "DatabaseStore.h"
 #include "DatabaseSearchReply.h"
-#include "VariableTunnelBuild.h"*/
-
-#include <iostream>
-#include <iomanip>
+//#include "VariableTunnelBuild.h"
 
 namespace i2pcpp {
 	namespace I2NP {
@@ -19,7 +16,7 @@ namespace i2pcpp {
 
 			switch(mtype)
 			{
-/*				case Type::DELIVERY_STATUS:
+				case Type::DELIVERY_STATUS:
 					m = std::make_shared<DeliveryStatus>();
 					break;
 
@@ -31,7 +28,7 @@ namespace i2pcpp {
 					m = std::make_shared<DatabaseSearchReply>();
 					break;
 
-				case Type::VARIABLE_TUNNEL_BUILD:
+/*				case Type::VARIABLE_TUNNEL_BUILD:
 					m = std::make_shared<VariableTunnelBuild>();
 					break;*/
 
@@ -41,7 +38,7 @@ namespace i2pcpp {
 
 			m->m_expiration = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
 
-			if(m->parse(dataItr))
+			if(m->parse(dataItr, data.cend()))
 				return m;
 			else
 				return MessagePtr();

@@ -2,8 +2,6 @@
 
 #include "xor_buf.h"
 
-#include <iostream>
-
 namespace i2pcpp {
 	void I2PHMAC::add_data(const Botan::byte input[], size_t length)
 	{

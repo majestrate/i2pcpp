@@ -29,7 +29,7 @@ namespace i2pcpp {
 			return b;
 		}
 
-		bool DatabaseLookup::parse(ByteArray::const_iterator &dataItr)
+		bool DatabaseLookup::parse(ByteArrayConstItr &begin, ByteArrayConstItr end)
 		{
 			return false;
 		}

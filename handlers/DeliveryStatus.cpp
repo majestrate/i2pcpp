@@ -7,8 +7,6 @@
 #include "../Database.h"
 #include "../OutboundMessageDispatcher.h"
 
-#include <iostream>
-
 namespace i2pcpp {
 	namespace Handlers {
 		I2NP::Message::Type DeliveryStatus::getType() const
@@ -18,7 +16,8 @@ namespace i2pcpp {
 
 		void DeliveryStatus::handleMessage(RouterHash const &from, I2NP::MessagePtr const &msg)
 		{
-			std::cerr << "Received DeliveryStatus message from " << from << ". Sending DatabaseStore message.\n";
+			I2P_LOG_RH(m_ctx.getLogger(), from);
+			BOOST_LOG_SEV(m_ctx.getLogger(), debug) << "received DeliveryStatus message, replying with DatabaseStore message";
 			Mapping am;
 			am.setValue("caps", "BC");
 			am.setValue("host", m_ctx.getDatabase().getConfigValue("ssu_external_ip"));
@@ -31,7 +30,7 @@ namespace i2pcpp {
 			rm.setValue("netId", "2");
 			rm.setValue("router.version", "0.9.5");
 			rm.setValue("stat_uptime", "90m");
-			RouterInfo myInfo(m_ctx.getMyRouterIdentity(), Date(), rm);
+			RouterInfo myInfo(m_ctx.getIdentity(), Date(), rm);
 			myInfo.addAddress(a);
 			myInfo.sign(m_ctx.getSigningKey());
 
