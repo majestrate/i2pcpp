@@ -13,7 +13,9 @@ set(SRCS
 	Database.cpp
 	InboundMessageDispatcher.cpp
 	Log.cpp
+	OutboundMessageDispatcher.cpp
 	Router.cpp
+	RouterContext.cpp
 	datatypes/Certificate.cpp
 	datatypes/ByteArray.cpp
 	datatypes/Datatype.cpp
@@ -38,7 +40,7 @@ set(SRCS
 	#i2np/DatabaseSearchReply.cpp
 	#i2np/DatabaseStore.cpp
 	#i2np/DeliveryStatus.cpp
-	#i2np/Message.cpp
+	i2np/Message.cpp
 	#i2np/TunnelGateway.cpp
 	#i2np/VariableTunnelBuild.cpp
 	transport/ssu/AcknowledgementScheduler.cpp

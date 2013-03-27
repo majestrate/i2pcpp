@@ -1,9 +1,9 @@
 #include "Message.h"
 
-#include "DeliveryStatus.h"
+/*#include "DeliveryStatus.h"
 #include "DatabaseStore.h"
 #include "DatabaseSearchReply.h"
-#include "VariableTunnelBuild.h"
+#include "VariableTunnelBuild.h"*/
 
 #include <iostream>
 #include <iomanip>
@@ -19,7 +19,7 @@ namespace i2pcpp {
 
 			switch(mtype)
 			{
-				case Type::DELIVERY_STATUS:
+/*				case Type::DELIVERY_STATUS:
 					m = std::make_shared<DeliveryStatus>();
 					break;
 
@@ -33,10 +33,9 @@ namespace i2pcpp {
 
 				case Type::VARIABLE_TUNNEL_BUILD:
 					m = std::make_shared<VariableTunnelBuild>();
-					break;
+					break;*/
 
 				default:
-					std::cerr << "Attempt to parse message with unknown type: " << mtype << "\n";
 					return MessagePtr();
 			}
 

@@ -1,18 +1,14 @@
 #ifndef ROUTER_H
 #define ROUTER_H
 
+#include <boost/asio.hpp>
+
 #include <string>
 #include <thread>
 
-#include <boost/asio.hpp>
+#include "datatypes/ByteArray.h"
 
-#include <botan/elgamal.h>
-
-#include "Log.h"
-#include "Database.h"
-#include "InboundMessageDispatcher.h"
-
-#include "transport/Transport.h"
+#include "RouterContext.h"
 
 namespace i2pcpp {
 	class Router {
@@ -36,16 +32,7 @@ namespace i2pcpp {
 			boost::asio::io_service::work m_work;
 			std::thread m_serviceThread;
 
-			Botan::ElGamal_PrivateKey *m_encryptionKey;
-			Botan::DSA_PrivateKey *m_signingKey;
-			RouterIdentity m_identity;
-
-			Database m_db;
-			TransportPtr m_transport;
-
-			InboundMessageDispatcher m_inMsgDispatcher;
-
-			i2p_logger_mt m_log;
+			RouterContext m_ctx;
 	};
 }
 
