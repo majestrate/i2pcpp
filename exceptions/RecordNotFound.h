@@ -6,7 +6,7 @@
 namespace i2pcpp {
 	class RecordNotFound : public std::runtime_error {
 		public:
-			RecordNotFound();
+			RecordNotFound(std::string const &s);
 	};
 }
 

@@ -32,13 +32,13 @@ int main()
 	enum Command {
 		CONNECT,
 		DB_LOOKUP,
-		BUILD_INBOUND,
 		EXPORT_INFO,
 		IMPORT_INFO,
 		SEND,
+		BUILD_INBOUND,
 		QUIT
 	};
-	std::map<std::string, Command> cmd_map = boost::assign::map_list_of("lookup", DB_LOOKUP)("quit", QUIT)("inbound", BUILD_INBOUND)("connect", CONNECT)("export", EXPORT_INFO)("import", IMPORT_INFO)("send", SEND);
+	std::map<std::string, Command> cmd_map = boost::assign::map_list_of("lookup", DB_LOOKUP)("quit", QUIT)("connect", CONNECT)("export", EXPORT_INFO)("import", IMPORT_INFO)("send", SEND)("ibt", BUILD_INBOUND);
 
 	while(keepRunning) {
 		std::string str;
@@ -71,11 +71,6 @@ int main()
 				//r.databaseLookup(*(tokItr++), *(tokItr++));
 				break;
 
-			case BUILD_INBOUND:
-				while(tokItr != tok.end()) hopList.push_back(*tokItr++);
-				//r.createTunnel(hopList);
-				break;
-
 			case EXPORT_INFO:
 				f.open(*tokItr++, std::ios::out | std::ios::binary);
 				info = r.getRouterInfo();
@@ -92,6 +87,10 @@ int main()
 
 			case SEND:
 				r.sendRawData(*tokItr++, *tokItr++);
+				break;
+
+			case BUILD_INBOUND:
+				r.createTunnel(true);
 				break;
 
 			case QUIT:

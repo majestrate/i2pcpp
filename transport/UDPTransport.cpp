@@ -98,6 +98,12 @@ namespace i2pcpp {
 
 	void UDPTransport::shutdown()
 	{
+		for(auto& pair: m_peers) {
+			SSU::PacketPtr sdp = SSU::PacketBuilder::buildSessionDestroyed(pair.second->getEndpoint());
+			sdp->encrypt(pair.second->getCurrentSessionKey(), pair.second->getCurrentMacKey());
+			sendPacket(sdp);
+		}
+
 		m_ios.stop();
 		if(m_serviceThread.joinable()) m_serviceThread.join();
 	}

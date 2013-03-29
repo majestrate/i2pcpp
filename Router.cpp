@@ -7,7 +7,8 @@
 namespace i2pcpp {
 	Router::Router(std::string const &dbFile) :
 		m_work(m_ios),
-		m_ctx(dbFile, m_ios) {}
+		m_ctx(dbFile, m_ios),
+		m_tunnelManager(m_ctx) {}
 
 	Router::~Router()
 	{
@@ -22,6 +23,8 @@ namespace i2pcpp {
 		t->registerReceivedHandler(boost::bind(&InboundMessageDispatcher::messageReceived, m_ctx.getInMsgDisp(), _1, _2));
 		t->registerEstablishedHandler(boost::bind(&InboundMessageDispatcher::connectionEstablished, m_ctx.getInMsgDisp(), _1, _2));
 		m_ctx.getOutMsgDisp().registerTransport(t);
+
+		m_ctx.getSignals().registerBuildTunnelRequest(boost::bind(&TunnelManager::handleRequest, m_tunnelManager, _1));
 
 		std::shared_ptr<UDPTransport> u = std::dynamic_pointer_cast<UDPTransport>(t);
 		u->start(Endpoint(m_ctx.getDatabase().getConfigValue("ssu_bind_ip"), std::stoi(m_ctx.getDatabase().getConfigValue("ssu_bind_port"))));
@@ -70,5 +73,10 @@ namespace i2pcpp {
 		ByteArray dataBytes(data.cbegin(), data.cend());
 
 		m_ctx.getOutMsgDisp().getTransport()->send(Base64::decode(dst), dataBytes);
+	}
+
+	void Router::createTunnel(bool inbound)
+	{
+		m_tunnelManager.createTunnel(inbound);
 	}
 }

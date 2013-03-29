@@ -39,19 +39,18 @@ namespace i2pcpp {
 
 		void PeerState::delInboundMessageState(const uint32_t msgId)
 		{
-			m_inboundMessageStates.erase(msgId);
-
 			std::shared_ptr<boost::asio::deadline_timer> timer = m_inboundTimers[msgId];
 			if(timer) {
 				BOOST_LOG_SEV(m_log, debug) << "canceling IMS timer";
 				timer->cancel();
 				m_inboundTimers.erase(msgId);
 			}
+
+			m_inboundMessageStates.erase(msgId);
 		}
 
 		void PeerState::delInboundMessageState(std::map<uint32_t, InboundMessageStatePtr>::const_iterator itr)
 		{
-			m_inboundMessageStates.erase(itr);
 
 			uint32_t msgId = itr->second->getMsgId();
 			std::shared_ptr<boost::asio::deadline_timer> timer = m_inboundTimers[msgId];
@@ -60,6 +59,8 @@ namespace i2pcpp {
 				timer->cancel();
 				m_inboundTimers.erase(msgId);
 			}
+
+			m_inboundMessageStates.erase(itr);
 		}
 
 		void PeerState::inboundTimerCallback(const boost::system::error_code& e, const uint32_t msgId)
@@ -99,14 +100,14 @@ namespace i2pcpp {
 
 		void PeerState::delOutboundMessageState(const uint32_t msgId)
 		{
-			m_outboundMessageStates.erase(msgId);
-
 			std::shared_ptr<boost::asio::deadline_timer> timer = m_outboundTimers[msgId];
 			if(timer) {
 				BOOST_LOG_SEV(m_log, debug) << "canceling OMS timer";
 				timer->cancel();
 				m_outboundTimers.erase(msgId);
 			}
+
+			m_outboundMessageStates.erase(msgId);
 		}
 
 		void PeerState::outboundTimerCallback(const boost::system::error_code& e, const uint32_t msgId)

@@ -8,7 +8,7 @@
 #include "handlers/DeliveryStatus.h"
 #include "handlers/DatabaseStore.h"
 #include "handlers/DatabaseSearchReply.h"
-//#include "handlers/VariableTunnelBuild.h"
+#include "handlers/VariableTunnelBuild.h"
 
 #include "Log.h"
 
@@ -27,7 +27,7 @@ namespace i2pcpp {
 			Handlers::DeliveryStatus m_deliveryStatusHandler;
 			Handlers::DatabaseStore m_dbStoreHandler;
 			Handlers::DatabaseSearchReply m_dbSearchReplyHandler;
-			//Handlers::VariableTunnelBuild m_variableTunnelBuildHandler;
+			Handlers::VariableTunnelBuild m_variableTunnelBuildHandler;
 
 			i2p_logger_mt m_log;
 	};

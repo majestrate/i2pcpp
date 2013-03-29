@@ -13,8 +13,10 @@ namespace i2pcpp {
 		public:
 			RouterHash();
 			RouterHash(ByteArray const &b);
+			RouterHash(std::string const &s);
 
 			operator ByteArray() const;
+			operator std::string() const;
 	};
 
 	std::ostream& operator<<(std::ostream &s, RouterHash const &rh);

@@ -31,7 +31,7 @@ namespace i2pcpp {
 			sqlite3_finalize(statement);
 			return ret;
 		} else
-			throw RecordNotFound();
+			throw RecordNotFound(name);
 	}
 
 	RouterHash Database::getRandomFloodfill()
@@ -49,7 +49,7 @@ namespace i2pcpp {
 			std::copy(bytes, bytes + size, rh.begin());
 			return rh;
 		} else
-			throw RecordNotFound();
+			throw RecordNotFound("random floodfill");
 	}
 
 	bool Database::routerExists(RouterHash const &routerHash)
@@ -115,7 +115,8 @@ namespace i2pcpp {
 			copy(bytes, bytes + size, signature.begin());
 
 			sqlite3_finalize(statement);
-		}
+		} else
+			throw RecordNotFound(std::string(routerHash));
 
 		Mapping router_options;
 

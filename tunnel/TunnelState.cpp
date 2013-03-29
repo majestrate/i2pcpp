@@ -3,60 +3,92 @@
 #include <botan/auto_rng.h>
 
 #include "../datatypes/RouterInfo.h"
-#include "../i2np/VariableTunnelBuild.h"
 
 #include "../RouterContext.h"
 
 namespace i2pcpp {
-	TunnelState::TunnelState(RouterContext &ctx, std::list<RouterHash> &hops) :
-		m_ctx(ctx)
+	TunnelState::TunnelState(RouterContext &ctx, std::list<RouterHash> const &hops, TunnelState::Direction d) :
+		m_ctx(ctx),
+		m_direction(d),
+		m_hops(hops)
 	{
 		Botan::AutoSeeded_RNG rng;
 
-		std::vector<uint32_t> tunnelIds;
-		std::vector<SessionKey> tunnelLayerKeys;
-		std::vector<SessionKey> tunnelIVKeys;
-		std::vector<SessionKey> replyKeys;
-		std::vector<SessionKey> replyIVs;
-		std::vector<uint32_t> nextMsgIds;
+		size_t numHops = m_hops.size();
 
-		size_t numHops = hops.size();
-
-		hops.emplace_front(m_ctx.getIdentity().getHash());
+		m_hops.emplace_front(m_ctx.getIdentity().getHash());
 
 		uint32_t x;
 
 		rng.randomize((unsigned char *)&x, sizeof(uint32_t));
-		tunnelIds.push_back(x);
+		m_tunnelIds.push_back(x);
 
 		for(int i = 0; i < numHops; i++) {
 			rng.randomize((unsigned char *)&x, sizeof(uint32_t));
-			tunnelIds.push_back(x);
+			m_tunnelIds.push_back(x);
 
-			tunnelLayerKeys.emplace_back();
-			rng.randomize(tunnelLayerKeys.back().data(), tunnelLayerKeys.back().size());
+			m_tunnelLayerKeys.emplace_back();
+			rng.randomize(m_tunnelLayerKeys.back().data(), m_tunnelLayerKeys.back().size());
 
-			tunnelIVKeys.emplace_back();
-			rng.randomize(tunnelIVKeys.back().data(), tunnelIVKeys.back().size());
+			m_tunnelIVKeys.emplace_back();
+			rng.randomize(m_tunnelIVKeys.back().data(), m_tunnelIVKeys.back().size());
 
-			replyKeys.emplace_back();
-			rng.randomize(replyKeys.back().data(), replyKeys.back().size());
+			m_replyKeys.emplace_back();
+			rng.randomize(m_replyKeys.back().data(), m_replyKeys.back().size());
 
-			replyIVs.emplace_back();
-			rng.randomize(replyIVs.back().data(), replyIVs.back().size());
+			m_replyIVs.emplace_back();
+			rng.randomize(m_replyIVs.back().data(), m_replyIVs.back().size());
 
 			rng.randomize((unsigned char *)&x, sizeof(uint32_t));
-			nextMsgIds.push_back(x);
+			m_nextMsgIds.push_back(x);
 		}
 
-		auto hop = hops.cbegin();
-		auto tunnelId = tunnelIds.cbegin();
-		auto tunnelLayerKey = tunnelLayerKeys.cbegin();
-		auto tunnelIVKey = tunnelIVKeys.cbegin();
-		auto replyKey = replyKeys.cbegin();
-		auto replyIV = replyIVs.cbegin();
-		auto nextMsgId = nextMsgIds.cbegin();
+		switch(d) {
+			case TunnelState::INBOUND:
+				buildInboundRequest();
+				break;
 
+			case TunnelState::OUTBOUND:
+				buildOutboundRequest();
+				break;
+		}
+	}
+
+	const std::list<BuildRequestRecord>& TunnelState::getRequest() const
+	{
+		return m_records;
+	}
+
+	uint32_t TunnelState::getTunnelId() const
+	{
+		return m_tunnelId;
+	}
+
+	const RouterHash& TunnelState::getTerminalHop() const
+	{
+		return m_terminalHop;
+	}
+
+	TunnelState::Direction TunnelState::getDirection() const
+	{
+		return m_direction;
+	}
+
+	void TunnelState::buildInboundRequest()
+	{
+		auto hop = m_hops.cbegin();
+		auto tunnelId = m_tunnelIds.cbegin();
+		auto tunnelLayerKey = m_tunnelLayerKeys.cbegin();
+		auto tunnelIVKey = m_tunnelIVKeys.cbegin();
+		auto replyKey = m_replyKeys.cbegin();
+		auto replyIV = m_replyIVs.cbegin();
+		auto nextMsgId = m_nextMsgIds.cbegin();
+
+		size_t numHops = m_hops.size();
+
+		m_records.clear();
+
+		m_tunnelId = *tunnelId;
 		m_records.emplace_front(
 				*tunnelId++,
 				*hop++,
@@ -73,11 +105,11 @@ namespace i2pcpp {
 
 		uint32_t hoursSinceEpoch = std::chrono::duration_cast<std::chrono::hours>(std::chrono::system_clock::now().time_since_epoch()).count();
 
-		for(int i = 0; i < numHops; i++) {
+		for(int i = 0; i < numHops - 1; i++) {
 			BuildRequestRecord::HopType htype;
-			if(i == (numHops - 1)) {
+			if(i == (numHops - 2)) {
 				htype = BuildRequestRecord::HopType::INBOUND_GW;
-				m_inboundGateway = *hop;
+				m_terminalHop = *hop;
 			} else
 				htype = BuildRequestRecord::HopType::PARTICIPANT;
 
@@ -94,7 +126,7 @@ namespace i2pcpp {
 					hoursSinceEpoch,
 					*nextMsgId++);
 
-			const RouterInfo&& ri = m_ctx.getDatabase().getRouterInfo(*hop++); // TODO Will core dump if hop isn't found.
+			const RouterInfo ri = m_ctx.getDatabase().getRouterInfo(*hop++); // TODO Will core dump if hop isn't found.
 			m_records.front().encrypt(ri.getIdentity().getEncryptionKey());
 		}
 
@@ -107,9 +139,7 @@ namespace i2pcpp {
 		}
 	}
 
-	void TunnelState::sendRequest()
+	void TunnelState::buildOutboundRequest()
 	{
-		I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(m_records));
-		m_ctx.getOutMsgDisp().sendMessage(m_inboundGateway, vtb);
 	}
 }

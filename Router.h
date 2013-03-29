@@ -10,6 +10,8 @@
 
 #include "RouterContext.h"
 
+#include "tunnel/TunnelManager.h"
+
 namespace i2pcpp {
 	class Router {
 		public:
@@ -26,6 +28,7 @@ namespace i2pcpp {
 			void importRouterInfo(ByteArray const &info);
 
 			void sendRawData(std::string const &dst, std::string const &data);
+			void createTunnel(bool inbound);
 
 		private:
 			boost::asio::io_service m_ios;
@@ -33,6 +36,7 @@ namespace i2pcpp {
 			std::thread m_serviceThread;
 
 			RouterContext m_ctx;
+			TunnelManager m_tunnelManager;
 	};
 }
 
