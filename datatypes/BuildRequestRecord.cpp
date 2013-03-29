@@ -113,6 +113,10 @@ namespace i2pcpp {
 
 		auto dataItr = m_bytes.cbegin();
 
+		dataItr++; // Non zero byte
+		ByteArray hash(dataItr, dataItr + 32);
+		dataItr += 32;
+
 		m_tunnelId = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
 
 		copy(dataItr, dataItr + 32, m_localIdentity.begin()), dataItr += 32;
@@ -166,5 +170,10 @@ namespace i2pcpp {
 	const SessionKey& BuildRequestRecord::getReplyKey() const
 	{
 		return m_replyKey;
+	}
+
+	uint32_t BuildRequestRecord::getTunnelId() const
+	{
+		return m_tunnelId;
 	}
 }

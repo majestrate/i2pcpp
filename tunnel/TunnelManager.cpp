@@ -14,6 +14,8 @@ namespace i2pcpp {
 		std::list<RouterHash> l = { std::string("DNJIjfMurt2-qg3kgBJJ4ShMq~WUJpMUW9Mh11LXo8A="), std::string("BMmZ54ID2g~ls3vaKqxNftEYZ9AtSXv8Mz4uKuy4PIk="), std::string("MwnGsCcpXZE2KOKUQbCHnqQqChyn2BcKvzyXX5s1XBw=") };
 		TunnelState::Direction d = (inbound) ? TunnelState::INBOUND : TunnelState::OUTBOUND;
 		TunnelStatePtr t = std::make_shared<TunnelState>(m_ctx, l, d);
+
+		std::lock_guard<std::mutex> lock(m_tunnelsMutex);
 		m_tunnels[t->getTunnelId()] = t;
 
 		I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(t->getRequest()));
@@ -31,6 +33,16 @@ namespace i2pcpp {
 				BOOST_LOG_SEV(m_log, debug) << "found BRR with our identity";
 				BuildRequestRecord myRecord = r;
 				myRecord.decrypt(m_ctx.getEncryptionKey());
+
+				std::lock_guard<std::mutex> lock(m_tunnelsMutex);
+				auto itr = m_tunnels.find(myRecord.getTunnelId());
+				if(itr != m_tunnels.end()) {
+					TunnelStatePtr ts = itr->second;
+
+					BOOST_LOG_SEV(m_log, debug) << "found TunnelState with matching tunnel ID";
+				} else {
+					BOOST_LOG_SEV(m_log, error) << "TunnelState with matching tunnel ID not found";
+				}
 			}
 		}
 	}

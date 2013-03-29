@@ -25,6 +25,8 @@ namespace i2pcpp {
 
 			std::map<uint32_t, TunnelStatePtr> m_tunnels;
 
+			mutable std::mutex m_tunnelsMutex;
+
 			i2p_logger_mt m_log;
 	};
 }

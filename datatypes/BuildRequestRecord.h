@@ -29,6 +29,7 @@ namespace i2pcpp {
 			const RouterHash& getLocalIdentity() const;
 			const SessionKey& getReplyIV() const;
 			const SessionKey& getReplyKey() const;
+			uint32_t getTunnelId() const;
 
 		private:
 			std::array<unsigned char, 16> m_header;

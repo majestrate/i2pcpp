@@ -24,7 +24,7 @@ namespace i2pcpp {
 		t->registerEstablishedHandler(boost::bind(&InboundMessageDispatcher::connectionEstablished, m_ctx.getInMsgDisp(), _1, _2));
 		m_ctx.getOutMsgDisp().registerTransport(t);
 
-		m_ctx.getSignals().registerBuildTunnelRequest(boost::bind(&TunnelManager::handleRequest, m_tunnelManager, _1));
+		m_ctx.getSignals().registerBuildTunnelRequest(boost::bind(&TunnelManager::handleRequest, boost::ref(m_tunnelManager), _1));
 
 		std::shared_ptr<UDPTransport> u = std::dynamic_pointer_cast<UDPTransport>(t);
 		u->start(Endpoint(m_ctx.getDatabase().getConfigValue("ssu_bind_ip"), std::stoi(m_ctx.getDatabase().getConfigValue("ssu_bind_port"))));
