@@ -176,4 +176,14 @@ namespace i2pcpp {
 	{
 		return m_tunnelId;
 	}
+
+	BuildRequestRecord::operator BuildResponseRecord() const
+	{
+		ByteArray bytes = m_bytes;
+		bytes.insert(bytes.begin(), m_header.cbegin(), m_header.cend());
+
+		auto begin = bytes.cbegin();
+
+		return BuildResponseRecord(begin, bytes.cend());
+	}
 }

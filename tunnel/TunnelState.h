@@ -6,6 +6,7 @@
 
 #include "../datatypes/RouterHash.h"
 #include "../datatypes/BuildRequestRecord.h"
+#include "../datatypes/BuildResponseRecord.h"
 
 namespace i2pcpp {
 	class RouterContext;
@@ -17,6 +18,12 @@ namespace i2pcpp {
 				OUTBOUND
 			};
 
+			enum State {
+				REQUEST_SENT,
+				OPERATIONAL,
+				FAILURE
+			};
+
 			TunnelState(RouterContext &ctx, std::list<RouterHash> const &hops, Direction d);
 
 			const std::list<BuildRequestRecord>& getRequest() const;
@@ -24,12 +31,17 @@ namespace i2pcpp {
 			const RouterHash& getTerminalHop() const;
 			Direction getDirection() const;
 
+			State getState() const;
+
+			void parseResponseRecords(std::list<BuildResponseRecord> &records);
+
 		private:
 			void buildInboundRequest();
 			void buildOutboundRequest();
 
 			RouterContext& m_ctx;
 			Direction m_direction;
+			State m_state = State::REQUEST_SENT;
 
 			std::vector<uint32_t> m_tunnelIds;
 			std::vector<SessionKey> m_tunnelLayerKeys;

@@ -6,6 +6,7 @@
 #include "Datatype.h"
 #include "RouterHash.h"
 #include "SessionKey.h"
+#include "BuildResponseRecord.h"
 
 namespace i2pcpp {
 	class BuildRequestRecord : public Datatype {
@@ -30,6 +31,8 @@ namespace i2pcpp {
 			const SessionKey& getReplyIV() const;
 			const SessionKey& getReplyKey() const;
 			uint32_t getTunnelId() const;
+
+			operator BuildResponseRecord() const;
 
 		private:
 			std::array<unsigned char, 16> m_header;

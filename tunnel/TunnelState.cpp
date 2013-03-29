@@ -74,6 +74,33 @@ namespace i2pcpp {
 		return m_direction;
 	}
 
+	TunnelState::State TunnelState::getState() const
+	{
+		return m_state;
+	}
+
+	void TunnelState::parseResponseRecords(std::list<BuildResponseRecord> &records)
+	{
+		auto k = m_records.rbegin();
+		k++;
+
+		auto r = records.rbegin();
+		r++;
+
+		for(; k != m_records.rend(); ++k, ++r) {
+			for(auto x = r; x != records.rend(); ++x)
+				x->decrypt(k->getReplyIV(), k->getReplyKey());
+		}
+
+		records.pop_back();
+		for(auto& resp: records) {
+			if(resp.getReply() != BuildResponseRecord::SUCCESS) {
+				m_state = TunnelState::FAILURE;
+				break;
+			}
+		}
+	}
+
 	void TunnelState::buildInboundRequest()
 	{
 		auto hop = m_hops.cbegin();

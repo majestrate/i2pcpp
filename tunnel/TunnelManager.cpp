@@ -40,8 +40,24 @@ namespace i2pcpp {
 					TunnelStatePtr ts = itr->second;
 
 					BOOST_LOG_SEV(m_log, debug) << "found TunnelState with matching tunnel ID";
+
+					std::list<BuildResponseRecord> responses(records.cbegin(), records.cend());
+					ts->parseResponseRecords(responses);
+
+					switch(ts->getState()) {
+						case TunnelState::OPERATIONAL:
+							BOOST_LOG_SEV(m_log, debug) << "tunnel built successfully";
+							break;
+
+						case TunnelState::FAILURE:
+							BOOST_LOG_SEV(m_log, debug) << "tunnel build failed";
+							break;
+
+						default:
+							break;
+					}
 				} else {
-					BOOST_LOG_SEV(m_log, error) << "TunnelState with matching tunnel ID not found";
+					BOOST_LOG_SEV(m_log, debug) << "TunnelState with matching tunnel ID not found";
 				}
 			}
 		}

@@ -20,6 +20,7 @@ set(SRCS
 	datatypes/Certificate.cpp
 	datatypes/ByteArray.cpp
 	datatypes/BuildRequestRecord.cpp
+	datatypes/BuildResponseRecord.cpp
 	datatypes/Datatype.cpp
 	datatypes/Date.cpp
 	datatypes/Endpoint.cpp
