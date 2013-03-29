@@ -23,8 +23,7 @@ namespace i2pcpp {
 		I2P_LOG_RH(m_log, from);
 
 		std::stringstream s;
-		s << std::setw(2) << std::setfill('0') << std::hex;
-		for(auto c: data) s << (int)c;
+		for(auto c: data) s << std::setw(2) << std::setfill('0') << std::hex << (int)c;
 		BOOST_LOG_SEV(m_log, debug) << "received data: " << s.str();
 
 		I2NP::MessagePtr m = I2NP::Message::fromBytes(data);

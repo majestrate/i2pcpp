@@ -3,7 +3,7 @@
 #include "DeliveryStatus.h"
 #include "DatabaseStore.h"
 #include "DatabaseSearchReply.h"
-//#include "VariableTunnelBuild.h"
+#include "VariableTunnelBuild.h"
 
 namespace i2pcpp {
 	namespace I2NP {
@@ -28,9 +28,9 @@ namespace i2pcpp {
 					m = std::make_shared<DatabaseSearchReply>();
 					break;
 
-/*				case Type::VARIABLE_TUNNEL_BUILD:
+				case Type::VARIABLE_TUNNEL_BUILD:
 					m = std::make_shared<VariableTunnelBuild>();
-					break;*/
+					break;
 
 				default:
 					return MessagePtr();
