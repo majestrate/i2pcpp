@@ -17,6 +17,7 @@ namespace i2pcpp {
 				OutboundMessageState(ByteArray const &data);
 
 				const PacketBuilder::FragmentPtr getNextFragment();
+				const PacketBuilder::FragmentPtr getNextUnackdFragment() const;
 				const PacketBuilder::FragmentPtr getFragment(const uint8_t fragNum) const;
 				void markFragmentSent(const uint8_t fragNum);
 				void markFragmentAckd(const uint8_t fragNum);
@@ -24,6 +25,8 @@ namespace i2pcpp {
 				bool allFragmentsAckd() const;
 
 				uint32_t getMsgId() const;
+				void incrementTries();
+				uint8_t getTries() const;
 
 			private:
 				void fragment();
@@ -31,6 +34,7 @@ namespace i2pcpp {
 				uint32_t m_msgId;
 				ByteArray m_data;
 				std::vector<PacketBuilder::FragmentPtr> m_fragments;
+				uint8_t m_tries = 0;
 
 				/* Bit 1 = received (acknowledged)
 				 * Bit 0 = sent (not yet acknowledged)

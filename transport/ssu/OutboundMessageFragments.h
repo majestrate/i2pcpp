@@ -8,12 +8,17 @@ namespace i2pcpp {
 	class UDPTransport;
 
 	namespace SSU {
+		typedef std::shared_ptr<boost::asio::deadline_timer> FragmentTimerPtr;
+
 		class OutboundMessageFragments {
 			public:
 				OutboundMessageFragments(UDPTransport &transport);
 
 				void sendData(PeerStatePtr const &ps, ByteArray const &data);
-				void sendDataCallback(PeerStatePtr ps, OutboundMessageStatePtr oms);
+
+			private:
+				void sendDataCallback(PeerStatePtr ps, uint32_t msgId);
+				void fragmentTimerCallback(PeerStatePtr ps, uint32_t msgId, FragmentTimerPtr timer);
 
 			private:
 				UDPTransport &m_transport;

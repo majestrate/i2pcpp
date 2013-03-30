@@ -52,6 +52,16 @@ namespace i2pcpp {
 			return m_fragments[i / 2];
 		}
 
+		const PacketBuilder::FragmentPtr OutboundMessageState::getNextUnackdFragment() const
+		{
+			unsigned char i = 1, size = m_fragmentStates.size();
+			while(i < size && m_fragmentStates.test(i)) i += 2;
+
+			if(i >= size) return PacketBuilder::FragmentPtr();
+
+			return m_fragments[i / 2];
+		}
+
 		const PacketBuilder::FragmentPtr OutboundMessageState::getFragment(const uint8_t fragNum) const
 		{
 			return m_fragments[fragNum];
@@ -86,6 +96,16 @@ namespace i2pcpp {
 		uint32_t OutboundMessageState::getMsgId() const
 		{
 			return m_msgId;
+		}
+
+		void OutboundMessageState::incrementTries()
+		{
+			m_tries++;
+		}
+
+		uint8_t OutboundMessageState::getTries() const
+		{
+			return m_tries;
 		}
 	}
 }

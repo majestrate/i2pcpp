@@ -168,5 +168,67 @@ namespace i2pcpp {
 
 	void TunnelState::buildOutboundRequest()
 	{
-	}
+		auto hop = m_hops.cbegin();
+		auto tunnelId = m_tunnelIds.cbegin();
+		auto tunnelLayerKey = m_tunnelLayerKeys.cbegin();
+		auto tunnelIVKey = m_tunnelIVKeys.cbegin();
+		auto replyKey = m_replyKeys.cbegin();
+		auto replyIV = m_replyIVs.cbegin();
+		auto nextMsgId = m_nextMsgIds.cbegin();
+
+		size_t numHops = m_hops.size();
+
+		m_records.clear();
+
+		m_tunnelId = *tunnelId;
+		m_records.emplace_front(
+				*tunnelId++,
+				*hop++,
+				0,
+				RouterHash(),
+				SessionKey(),
+				SessionKey(),
+				SessionKey(),
+				SessionKey(),
+				BuildRequestRecord::HopType::PARTICIPANT,
+				0,
+				0);
+		m_records.front().encrypt(m_ctx.getIdentity().getEncryptionKey());
+
+		uint32_t hoursSinceEpoch = std::chrono::duration_cast<std::chrono::hours>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+		for(int i = 0; i < numHops - 1; i++) {
+			BuildRequestRecord::HopType htype;
+			if(!i)
+				htype = BuildRequestRecord::HopType::OUTBOUND_EP;
+			else {
+				htype = BuildRequestRecord::HopType::PARTICIPANT;
+				if(i == (numHops - 2)) m_terminalHop = *hop;
+			}
+
+			m_records.emplace_front(
+					*tunnelId,
+					*hop,
+					*prev(tunnelId++),
+					*prev(hop),
+					*tunnelLayerKey++,
+					*tunnelIVKey++,
+					*replyKey++,
+					*replyIV++,
+					htype,
+					hoursSinceEpoch,
+					*nextMsgId++);
+
+			const RouterInfo ri = m_ctx.getDatabase().getRouterInfo(*hop++); // TODO Will core dump if hop isn't found.
+			m_records.front().encrypt(ri.getIdentity().getEncryptionKey());
+		}
+
+		// This iteratively decrypts the records which
+		// were asymmetrically encrypted above.
+		for(auto f = m_records.begin(); f != m_records.end(); ++f) {
+			std::list<BuildRequestRecord>::reverse_iterator r(f);
+			for(; r != m_records.rend(); ++r)
+				f->decrypt(r->getReplyIV(), r->getReplyKey());
+		}
+}
 }

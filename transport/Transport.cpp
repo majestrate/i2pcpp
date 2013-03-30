@@ -10,4 +10,14 @@ namespace i2pcpp {
 	{
 		return m_receivedSignal.connect(rh);
 	}
+
+	boost::signals2::connection Transport::registerFailureSignal(FailureSignal::slot_type const &fs)
+	{
+		return m_failureSignal.connect(fs);
+	}
+
+	boost::signals2::connection Transport::registerDisconnectedSignal(DisconnectedSignal::slot_type const &ds)
+	{
+		return m_disconnectedSignal.connect(ds);
+	}
 }

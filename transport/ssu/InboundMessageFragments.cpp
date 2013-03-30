@@ -31,6 +31,7 @@ namespace i2pcpp {
 
 				while(numAcks--) {
 					uint32_t msgId = (*(begin++) << 24) | (*(begin++) << 16) | (*(begin++) << 8) | *(begin++);
+					std::lock_guard<std::mutex> lock(ps->getMutex());
 					ps->delOutboundMessageState(msgId);
 				}
 			}
