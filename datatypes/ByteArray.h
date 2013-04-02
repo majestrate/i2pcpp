@@ -1,6 +1,7 @@
 #ifndef BYTEARRAY_H
 #define BYTEARRAY_H
 
+#include <memory>
 #include <vector>
 
 namespace i2pcpp {
