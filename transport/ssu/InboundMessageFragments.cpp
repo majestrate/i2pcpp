@@ -1,6 +1,7 @@
 #include "InboundMessageFragments.h"
 
 #include <string>
+#include <bitset>
 
 #include <botan/pipe.h>
 #include <botan/filters.h>
