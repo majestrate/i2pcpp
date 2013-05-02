@@ -31,8 +31,16 @@ namespace i2pcpp {
 	std::ostream& operator<<(std::ostream &s, Endpoint const &ep);
 }
 
-template<>
-struct std::hash<i2pcpp::Endpoint> {
+
+#ifdef USE_CLANG
+template <>
+struct std::hash<i2pcpp::Endpoint>
+#else
+namespace std { 
+template <>
+struct hash<i2pcpp::Endpoint> 
+#endif
+{
 	public:
 		size_t operator()(const i2pcpp::Endpoint &ep) const
 		{
@@ -40,6 +48,11 @@ struct std::hash<i2pcpp::Endpoint> {
 			return f(ep.getIP() + ":" + boost::lexical_cast<std::string>(ep.getPort()));
 		}
 };
+#ifndef USE_CLANG
+}
+#endif
+
+#ifdef USE_CLANG
 
 template<>
 struct std::equal_to<i2pcpp::Endpoint> {
@@ -49,5 +62,5 @@ struct std::equal_to<i2pcpp::Endpoint> {
 			return lhs == rhs;
 		}
 };
-
+#endif
 #endif

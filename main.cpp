@@ -9,6 +9,7 @@
 
 #include "Log.h"
 #include "Router.h"
+#include "DatabaseImporter.h"
 
 bool keepRunning = true;
 
@@ -27,8 +28,8 @@ int main()
 	Botan::LibraryInitializer init("thread_safe=true");
 
 	i2pcpp::Router r("i2p.db");
+	i2pcpp::DatabaseImporter::importDir(r,"netdb");
 	r.start();
-
 	enum Command {
 		CONNECT,
 		DB_LOOKUP,

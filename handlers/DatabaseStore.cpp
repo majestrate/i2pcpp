@@ -24,7 +24,7 @@ namespace i2pcpp {
 			I2P_LOG_RH(m_ctx.getLogger(), from);
 			BOOST_LOG_SEV(m_ctx.getLogger(), debug) << "received DatabaseStore message";
 
-			Botan::Pipe ungzPipe(new Botan::Zlib_Decompression);
+			Botan::Pipe ungzPipe(new Botan::Zlib_Decompression); // memory leak?
 
 			switch(dsm->getDataType()) {
 				case I2NP::DatabaseStore::DataType::ROUTER_INFO:

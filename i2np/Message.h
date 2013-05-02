@@ -2,7 +2,7 @@
 #define I2NPMESSAGE_H
 
 #include <memory>
-
+#include <cstdint>
 #include "../datatypes/ByteArray.h"
 
 namespace i2pcpp {

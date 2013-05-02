@@ -9,6 +9,7 @@
 #include "ByteArray.h"
 
 namespace i2pcpp {
+
 	class RouterHash : public std::array<unsigned char, 32> {
 		public:
 			RouterHash();
@@ -21,9 +22,15 @@ namespace i2pcpp {
 
 	std::ostream& operator<<(std::ostream &s, RouterHash const &rh);
 }
-
-template<>
-struct std::hash<i2pcpp::RouterHash> {
+#ifdef USE_CLANG
+template <>
+struct std::hash<i2pcpp::RouterHash>
+#else
+namespace std { 
+template <>
+struct hash<i2pcpp::RouterHash> 
+#endif
+{
 	public:
 		size_t operator()(const i2pcpp::RouterHash &rh) const
 		{
@@ -31,5 +38,7 @@ struct std::hash<i2pcpp::RouterHash> {
 			return f(std::string(rh.cbegin(), rh.cend()));
 		}
 };
-
+#ifndef USE_CLANG
+}
+#endif
 #endif

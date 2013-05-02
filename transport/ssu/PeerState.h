@@ -74,7 +74,7 @@ namespace i2pcpp {
 		typedef std::shared_ptr<PeerState> PeerStatePtr;
 	}
 }
-
+#ifdef USE_CLANG
 template<>
 struct std::hash<i2pcpp::SSU::PeerStatePtr> {
 	public:
@@ -84,5 +84,5 @@ struct std::hash<i2pcpp::SSU::PeerStatePtr> {
 			return f(ps->getIdentity().getHash());
 		}
 };
-
+#endif
 #endif

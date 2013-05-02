@@ -3,9 +3,9 @@
 
 #include <array>
 
+#include "Certificate.h"
 #include "Datatype.h"
 #include "RouterHash.h"
-#include "Certificate.h"
 
 namespace i2pcpp {
 	class RouterIdentity : public Datatype {

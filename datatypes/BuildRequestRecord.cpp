@@ -71,7 +71,7 @@ namespace i2pcpp {
 
 		b.insert(b.end(), 29, 0x00); // TODO Random padding
 
-		Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-256"));
+		Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-256")); // memory leak?
 		hashPipe.start_msg();
 		hashPipe.write(b.data(), b.size());
 		hashPipe.end_msg();
@@ -86,6 +86,7 @@ namespace i2pcpp {
 		Botan::AutoSeeded_RNG rng;
 		Botan::DL_Group group("modp/ietf/2048");
 		Botan::ElGamal_PublicKey elgKey(group, Botan::BigInt(encryptionKey.data(), encryptionKey.size()));
+		// memory leak?
 		Botan::Pipe encPipe(new Botan::PK_Encryptor_Filter(new Botan::PK_Encryptor_EME(elgKey, "Raw"), rng));
 
 		encPipe.start_msg();
@@ -101,6 +102,7 @@ namespace i2pcpp {
 	void BuildRequestRecord::decrypt(Botan::ElGamal_PrivateKey const *key)
 	{
 		Botan::DL_Group group("modp/ietf/2048");
+		// memory leak ?
 		Botan::Pipe decPipe(new Botan::PK_Decryptor_Filter(new Botan::PK_Decryptor_EME(*key, "Raw")));
 
 		decPipe.start_msg();

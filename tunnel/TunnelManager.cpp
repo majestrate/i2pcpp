@@ -11,6 +11,7 @@ namespace i2pcpp {
 
 	void TunnelManager::createTunnel(bool inbound)
 	{
+	  // hard coded
 		std::list<RouterHash> l = { std::string("DNJIjfMurt2-qg3kgBJJ4ShMq~WUJpMUW9Mh11LXo8A="), std::string("BMmZ54ID2g~ls3vaKqxNftEYZ9AtSXv8Mz4uKuy4PIk="), std::string("MwnGsCcpXZE2KOKUQbCHnqQqChyn2BcKvzyXX5s1XBw=") };
 		TunnelState::Direction d = (inbound) ? TunnelState::INBOUND : TunnelState::OUTBOUND;
 		TunnelStatePtr t = std::make_shared<TunnelState>(m_ctx, l, d);
@@ -21,6 +22,12 @@ namespace i2pcpp {
 		I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(t->getRequest()));
 		m_ctx.getOutMsgDisp().sendMessage(t->getTerminalHop(), vtb);
 	}
+
+  void TunnelManager::mainloop()
+  {
+
+
+  }
 
 	void TunnelManager::handleRequest(std::list<BuildRequestRecord> const &records)
 	{

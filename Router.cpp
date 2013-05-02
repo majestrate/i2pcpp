@@ -14,11 +14,17 @@ namespace i2pcpp {
 	{
 		if(m_serviceThread.joinable()) m_serviceThread.join();
 	}
+      
+        i2p_logger_mt & Router::getLogger()
+        {
+	  return m_ctx.getLogger();
+        }
+
 
 	void Router::start()
 	{
 		m_serviceThread = std::thread([&](){m_ios.run();});
-
+		BOOST_LOG_SEV(m_ctx.getLogger(), info) << "local router hash: " << m_ctx.getIdentity().getHashEncoded();
 		TransportPtr t = TransportPtr(new UDPTransport(*m_ctx.getSigningKey(), m_ctx.getIdentity()));
 		t->registerReceivedHandler(boost::bind(&InboundMessageDispatcher::messageReceived, m_ctx.getInMsgDisp(), _1, _2));
 		t->registerEstablishedHandler(boost::bind(&InboundMessageDispatcher::connectionEstablished, m_ctx.getInMsgDisp(), _1, _2));

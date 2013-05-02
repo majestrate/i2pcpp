@@ -11,6 +11,7 @@ set(PACKAGE_STRING "${PACKAGE_NAME} ${PACKAGE_VERSION}")
 
 set(SRCS
 	Database.cpp
+	DatabaseImporter.cpp
 	InboundMessageDispatcher.cpp
 	Log.cpp
 	OutboundMessageDispatcher.cpp
@@ -84,12 +85,17 @@ set(TEST_SRCS
 	util/Base64.cpp
 	util/I2PHMAC.cpp
 	)
-
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g -O0 -Wall -std=c++11 -stdlib=libc++")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O2 -w -std=c++11 -stdlib=libc++")
-
+if(USE_GCC)
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g -O0 -fPIC -Wall -std=c++11")
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O2 -w -fPIC -std=c++11")
+else(USE_GCC)
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g -O0 -Wall -std=c++11 -stdlib=libc++")
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O2 -w -std=c++11 -stdlib=libc++")
+endif(USE_GCC)
 add_executable(i2p main.cpp ${SRCS})
 add_executable(generate_keys tools/generate_keys.cpp)
+# python wrapper script
+add_library(i2py SHARED py/i2py.cpp)
 
 # Sqlite3
 find_path(SQLITE3_INCLUDE_DIR sqlite3.h PATHS "${SQLITE3_INCLUDE_PREFIX}" NO_DEFAULT_PATH)
@@ -127,7 +133,7 @@ target_link_libraries(generate_keys ${BOTAN_LIBRARY_PATH})
 # Boost
 find_package(Boost 1.53.0 REQUIRED COMPONENTS system thread filesystem chrono date_time log)
 include_directories(BEFORE i2p ${Boost_INCLUDE_DIR})
-target_link_libraries(i2p ${Boost_LIBRARIES})
+target_link_libraries(i2p ${Boost_LIBRARIES} )
 add_definitions(-DBOOST_ALL_DYN_LINK)
 
 # Googletest
@@ -154,4 +160,18 @@ else(GTEST_LIBRARY_PATH AND GTEST_INCLUDE_DIR)
 	message(STATUS "Google Testing Framework not found... not building tests")
 endif(GTEST_LIBRARY_PATH AND GTEST_INCLUDE_DIR)
 
+find_package(PythonLibs)
 
+
+include_directories(BEFORE i2py ${PYTHON_INCLUDE_PATH})
+include_directories(BEFORE i2py ${BOTAN_INCLUDE_PATH})
+target_link_libraries(i2py ${BOTAN_LIBRARY_PATH})
+
+GET_TARGET_PROPERTY(LIB_NAME i2py LOCATION)
+SET(NEW_LIB_NAME i2py.so)
+
+ADD_CUSTOM_COMMAND(
+  TARGET i2py
+  POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy ${LIB_NAME} ${NEW_LIB_NAME}
+  )

@@ -23,13 +23,12 @@ namespace i2pcpp {
 			void stop();
 
 			void connect(std::string const &to);
-
+			
 			ByteArray getRouterInfo();
 			void importRouterInfo(ByteArray const &info);
-
 			void sendRawData(std::string const &dst, std::string const &data);
 			void createTunnel(bool inbound);
-
+			i2p_logger_mt & getLogger();
 		private:
 			boost::asio::io_service m_ios;
 			boost::asio::io_service::work m_work;

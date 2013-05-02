@@ -1,5 +1,6 @@
 #ifndef DATE_H
 #define DATE_H
+#include <cstdint>
 
 #include "Datatype.h"
 

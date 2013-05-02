@@ -1,7 +1,11 @@
 #include "PeerStateList.h"
+#include <mutex>
 
 namespace i2pcpp {
 	namespace SSU {
+
+	  
+
 		void PeerStateList::addRemotePeer(PeerStatePtr const &ps)
 		{
 			std::lock_guard<std::mutex> lock(m_remotePeersMutex);

@@ -2,6 +2,9 @@
 #define CERTIFICATE_H
 
 #include "Datatype.h"
+#ifndef USE_CLANG
+#include <cstdint>
+#endif
 
 namespace i2pcpp {
 	class Certificate : public Datatype {
