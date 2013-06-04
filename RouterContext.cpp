@@ -12,6 +12,9 @@ namespace i2pcpp {
 		m_db(dbFile),
 		m_inMsgDispatcher(ios, *this),
 		m_signals(ios),
+		m_tunnelManager(*this),
+		m_profileManager(*this),
+		m_peerManager(ios, *this),
 		m_log(boost::log::keywords::channel = "Router")
 	{
 		Botan::AutoSeeded_RNG rng;
@@ -71,6 +74,21 @@ namespace i2pcpp {
 	Signals& RouterContext::getSignals()
 	{
 		return m_signals;
+	}
+
+	TunnelManager& RouterContext::getTunnelManager()
+	{
+		return m_tunnelManager;
+	}
+
+	ProfileManager& RouterContext::getProfileManager()
+	{
+		return m_profileManager;
+	}
+
+	PeerManager& RouterContext::getPeerManager()
+	{
+		return m_peerManager;
 	}
 
 	const Botan::DL_Group& RouterContext::getDSAParameters() const

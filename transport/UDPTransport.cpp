@@ -50,6 +50,7 @@ namespace i2pcpp {
 						break;
 					} catch(std::exception &e) {
 						// TODO Handle exception
+						BOOST_LOG_SEV(m_log, error) << "exception in service thread: " << e.what();
 					}
 				}
 			});
@@ -61,12 +62,14 @@ namespace i2pcpp {
 
 	void UDPTransport::connect(RouterInfo const &ri)
 	{
-		// TODO Try all the addresses if it times out
 		for(auto a: ri) {
 			if(a.getTransport() == "SSU") {
 				const Mapping& m = a.getOptions();
 				Endpoint ep(m.getValue("host"), stoi(m.getValue("port")));
 				RouterIdentity id = ri.getIdentity();
+
+				if(m_establishmentManager.stateExists(ep))
+					return;
 
 				m_establishmentManager.createState(ep, id);
 
@@ -144,6 +147,8 @@ namespace i2pcpp {
 						boost::asio::placeholders::bytes_transferred
 						)
 					);
+		} else {
+			BOOST_LOG_SEV(m_log, debug) << "error: " << e.message();
 		}
 	}
 

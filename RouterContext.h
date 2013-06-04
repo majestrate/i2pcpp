@@ -12,6 +12,9 @@
 #include "InboundMessageDispatcher.h"
 #include "OutboundMessageDispatcher.h"
 #include "Signals.h"
+#include "tunnel/TunnelManager.h"
+#include "ProfileManager.h"
+#include "PeerManager.h"
 #include "Log.h"
 
 namespace i2pcpp {
@@ -30,6 +33,10 @@ namespace i2pcpp {
 			OutboundMessageDispatcher& getOutMsgDisp();
 
 			Signals& getSignals();
+
+			TunnelManager& getTunnelManager();
+			ProfileManager& getProfileManager();
+			PeerManager& getPeerManager();
 
 			const Botan::DL_Group& getDSAParameters() const;
 
@@ -51,6 +58,10 @@ namespace i2pcpp {
 			OutboundMessageDispatcher m_outMsgDispatcher;
 
 			Signals m_signals;
+
+			TunnelManager m_tunnelManager;
+			ProfileManager m_profileManager;
+			PeerManager m_peerManager;
 
 			i2p_logger_mt m_log;
 	};

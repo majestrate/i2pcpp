@@ -18,12 +18,16 @@ namespace i2pcpp {
 
 				EstablishmentStatePtr createState(Endpoint const &ep);
 				void createState(Endpoint const &ep, RouterIdentity const &ri);
+				bool stateExists(Endpoint const &ep) const;
 
 				void post(EstablishmentStatePtr const &es);
 				void stateChanged(EstablishmentStatePtr es);
 				EstablishmentStatePtr getState(Endpoint const &ep) const;
 
 			private:
+				void delState(const Endpoint &ep);
+				void timeoutCallback(const boost::system::error_code& e, EstablishmentStatePtr es);
+
 				void sendRequest(EstablishmentStatePtr const &state);
 				void processRequest(EstablishmentStatePtr const &state);
 				void processCreated(EstablishmentStatePtr const &state);
@@ -35,6 +39,7 @@ namespace i2pcpp {
 				RouterIdentity m_identity;
 
 				std::unordered_map<Endpoint, EstablishmentStatePtr> m_stateTable;
+				std::unordered_map<Endpoint, std::shared_ptr<boost::asio::deadline_timer>> m_stateTimers;
 				mutable std::mutex m_stateTableMutex;
 		};
 	}
