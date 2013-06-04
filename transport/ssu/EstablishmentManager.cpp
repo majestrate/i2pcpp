@@ -20,6 +20,10 @@ namespace i2pcpp {
 			auto es = std::make_shared<EstablishmentState>(m_privKey, m_identity, ep);
 			m_stateTable[ep] = es;
 
+			std::shared_ptr<boost::asio::deadline_timer> timer(new boost::asio::deadline_timer(m_transport.m_ios, boost::posix_time::time_duration(0, 0, 5)));
+			timer->async_wait(boost::bind(&EstablishmentManager::timeoutCallback, this, boost::asio::placeholders::error, es));
+			m_stateTimers[ep] = timer;
+
 			return es;
 		}
 
@@ -31,6 +35,15 @@ namespace i2pcpp {
 			m_stateTable[ep] = es;
 
 			sendRequest(es);
+
+			std::shared_ptr<boost::asio::deadline_timer> timer(new boost::asio::deadline_timer(m_transport.m_ios, boost::posix_time::time_duration(0, 0, 5)));
+			timer->async_wait(boost::bind(&EstablishmentManager::timeoutCallback, this, boost::asio::placeholders::error, es));
+			m_stateTimers[ep] = timer;
+		}
+
+		bool EstablishmentManager::stateExists(Endpoint const &ep) const
+		{
+			return (m_stateTable.count(ep) > 0);
 		}
 
 		void EstablishmentManager::post(EstablishmentStatePtr const &es)
@@ -40,42 +53,54 @@ namespace i2pcpp {
 
 		void EstablishmentManager::stateChanged(EstablishmentStatePtr es)
 		{
+			const Endpoint &ep = es->getTheirEndpoint();
+
 			I2P_LOG_TAG(m_transport.getLogger(), "EM");
-			I2P_LOG_EP(m_transport.getLogger(), es->getTheirEndpoint());
+			I2P_LOG_EP(m_transport.getLogger(), ep);
 
 			switch(es->getState())
 			{
 				case EstablishmentState::REQUEST_SENT:
 					BOOST_LOG_SEV(m_transport.getLogger(), debug) << "sent session request";
+
 					break;
 
 				case EstablishmentState::REQUEST_RECEIVED:
 					BOOST_LOG_SEV(m_transport.getLogger(), debug) << "received session request";
 					processRequest(es);
+
 					break;
 
 				case EstablishmentState::CREATED_SENT:
 					BOOST_LOG_SEV(m_transport.getLogger(), debug) << "sent session created";
+
 					break;
 
 				case EstablishmentState::CREATED_RECEIVED:
 					BOOST_LOG_SEV(m_transport.getLogger(), debug) << "received session created";
 					processCreated(es);
+
 					break;
 
 				case EstablishmentState::CONFIRMED_SENT:
 					BOOST_LOG_SEV(m_transport.getLogger(), debug) << "sent session confirmed";
+					delState(ep);
 					m_transport.post(boost::bind(boost::ref(m_transport.m_establishedSignal), es->getTheirIdentity().getHash(), (es->getDirection() == EstablishmentState::INBOUND)));
+
 					break;
 
 				case EstablishmentState::CONFIRMED_RECEIVED:
 					BOOST_LOG_SEV(m_transport.getLogger(), debug) << "received session confirmed";
 					processConfirmed(es);
+
 					break;
 
 				case EstablishmentState::UNKNOWN:
 				case EstablishmentState::FAILURE:
-					BOOST_LOG_SEV(m_transport.getLogger(), error) << "establishing session failed";
+					BOOST_LOG_SEV(m_transport.getLogger(), error) << "establishment failed";
+					delState(ep);
+					m_transport.post(boost::bind(boost::ref(m_transport.m_failureSignal), es->getTheirIdentity().getHash()));
+
 					break;
 			}
 		}
@@ -91,6 +116,31 @@ namespace i2pcpp {
 				es = itr->second;
 
 			return es;
+		}
+
+		void EstablishmentManager::delState(const Endpoint &ep)
+		{
+			std::lock_guard<std::mutex> lock(m_stateTableMutex);
+
+			std::shared_ptr<boost::asio::deadline_timer> timer = m_stateTimers[ep];
+			if(timer) {
+				timer->cancel();
+				m_stateTimers.erase(ep);
+			}
+
+			m_stateTable.erase(ep);
+		}
+
+		void EstablishmentManager::timeoutCallback(const boost::system::error_code& e, EstablishmentStatePtr es)
+		{
+			if(!e) {
+				I2P_LOG_TAG(m_transport.getLogger(), "EM");
+				I2P_LOG_EP(m_transport.getLogger(), es->getTheirEndpoint());
+				BOOST_LOG_SEV(m_transport.getLogger(), debug) << "establishment timed out";
+
+				es->setState(EstablishmentState::FAILURE);
+				post(es);
+			}
 		}
 
 		void EstablishmentManager::sendRequest(EstablishmentStatePtr const &state)
@@ -165,6 +215,8 @@ namespace i2pcpp {
 			if(!state->verifyConfirmationSignature()) {
 				BOOST_LOG_SEV(m_transport.getLogger(), error) << "confirmation signature verification failed";
 				state->setState(EstablishmentState::FAILURE);
+				post(state);
+
 				return;
 			} else
 				BOOST_LOG_SEV(m_transport.getLogger(), debug) << "confirmation signature verification succeeded";
@@ -175,9 +227,8 @@ namespace i2pcpp {
 			ps->setCurrentMacKey(state->getMacKey());
 			m_transport.m_peers.addRemotePeer(ps);
 
-			m_stateTableMutex.lock();
-			m_stateTable.erase(state->getTheirEndpoint());
-			m_stateTableMutex.unlock();
+			delState(ep);
+
 			m_transport.post(boost::bind(boost::ref(m_transport.m_establishedSignal), state->getTheirIdentity().getHash(), (state->getDirection() == EstablishmentState::INBOUND)));
 		}
 	}

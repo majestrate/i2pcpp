@@ -20,7 +20,7 @@ namespace i2pcpp {
 			timer->async_wait(boost::bind(&AcknowledgementScheduler::flushAckCallback, this, boost::asio::placeholders::error, timer));
 		}
 
-		void AcknowledgementScheduler::flushAckCallback(const boost::system::error_code& e, AcknowledgementTimerPtr &timer)
+		void AcknowledgementScheduler::flushAckCallback(const boost::system::error_code& e, AcknowledgementTimerPtr timer)
 		{
 			for(auto& peerPair: m_transport.m_peers) {
 				PeerStatePtr ps = peerPair.second;

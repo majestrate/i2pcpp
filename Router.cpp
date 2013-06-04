@@ -7,8 +7,10 @@
 namespace i2pcpp {
 	Router::Router(std::string const &dbFile) :
 		m_work(m_ios),
-		m_ctx(dbFile, m_ios),
-		m_tunnelManager(m_ctx) {}
+		m_ctx(dbFile, m_ios)
+	{
+		BOOST_LOG_SEV(m_ctx.getLogger(), info) << "local router hash: " << m_ctx.getIdentity().getHashEncoded();
+	}
 
 	Router::~Router()
 	{
@@ -28,12 +30,16 @@ namespace i2pcpp {
 		TransportPtr t = TransportPtr(new UDPTransport(*m_ctx.getSigningKey(), m_ctx.getIdentity()));
 		t->registerReceivedHandler(boost::bind(&InboundMessageDispatcher::messageReceived, m_ctx.getInMsgDisp(), _1, _2));
 		t->registerEstablishedHandler(boost::bind(&InboundMessageDispatcher::connectionEstablished, m_ctx.getInMsgDisp(), _1, _2));
+		t->registerEstablishedHandler(boost::bind(&PeerManager::establishmentSuccess, boost::ref(m_ctx.getPeerManager()), _1, _2));
+		t->registerFailureSignal(boost::bind(&PeerManager::establishmentFailure, boost::ref(m_ctx.getPeerManager()), _1));
 		m_ctx.getOutMsgDisp().registerTransport(t);
 
-		m_ctx.getSignals().registerBuildTunnelRequest(boost::bind(&TunnelManager::handleRequest, boost::ref(m_tunnelManager), _1));
+		m_ctx.getSignals().registerBuildTunnelRequest(boost::bind(&TunnelManager::handleRequest, boost::ref(m_ctx.getTunnelManager()), _1));
 
 		std::shared_ptr<UDPTransport> u = std::dynamic_pointer_cast<UDPTransport>(t);
 		u->start(Endpoint(m_ctx.getDatabase().getConfigValue("ssu_bind_ip"), std::stoi(m_ctx.getDatabase().getConfigValue("ssu_bind_port"))));
+
+		m_ctx.getPeerManager().begin();
 	}
 
 	void Router::stop()
@@ -61,6 +67,7 @@ namespace i2pcpp {
 		rm.setValue("netId", "2");
 		rm.setValue("router.version", "0.9.5");
 		rm.setValue("stat_uptime", "90m");
+		rm.setValue("caps", "MR");
 		RouterInfo myInfo(m_ctx.getIdentity(), Date(), rm);
 		myInfo.addAddress(a);
 		myInfo.sign(m_ctx.getSigningKey());
@@ -83,6 +90,6 @@ namespace i2pcpp {
 
 	void Router::createTunnel(bool inbound)
 	{
-		m_tunnelManager.createTunnel(inbound);
+		m_ctx.getTunnelManager().createTunnel(inbound);
 	}
 }

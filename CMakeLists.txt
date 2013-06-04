@@ -15,6 +15,8 @@ set(SRCS
 	InboundMessageDispatcher.cpp
 	Log.cpp
 	OutboundMessageDispatcher.cpp
+	PeerManager.cpp
+	ProfileManager.cpp
 	Router.cpp
 	RouterContext.cpp
 	Signals.cpp

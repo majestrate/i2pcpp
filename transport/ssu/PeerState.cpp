@@ -31,7 +31,6 @@ namespace i2pcpp {
 			m_inboundMessageStates[msgId] = ims;
 
 			std::shared_ptr<boost::asio::deadline_timer> timer(new boost::asio::deadline_timer(m_ios, boost::posix_time::time_duration(0, 0, 10)));
-
 			timer->async_wait(boost::bind(&PeerState::inboundTimerCallback, this, boost::asio::placeholders::error, msgId));
 
 			m_inboundTimers[msgId] = timer;
@@ -51,7 +50,6 @@ namespace i2pcpp {
 
 		void PeerState::delInboundMessageState(std::map<uint32_t, InboundMessageStatePtr>::const_iterator itr)
 		{
-
 			uint32_t msgId = itr->second->getMsgId();
 			std::shared_ptr<boost::asio::deadline_timer> timer = m_inboundTimers[msgId];
 			if(timer) {
@@ -92,7 +90,6 @@ namespace i2pcpp {
 			m_outboundMessageStates[msgId] = oms;
 
 			std::shared_ptr<boost::asio::deadline_timer> timer(new boost::asio::deadline_timer(m_ios, boost::posix_time::time_duration(0, 0, 10)));
-
 			timer->async_wait(boost::bind(&PeerState::outboundTimerCallback, this, boost::asio::placeholders::error, msgId));
 
 			m_outboundTimers[msgId] = timer;

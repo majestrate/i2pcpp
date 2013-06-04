@@ -10,8 +10,6 @@
 
 #include "RouterContext.h"
 
-#include "tunnel/TunnelManager.h"
-
 namespace i2pcpp {
 	class Router {
 		public:
@@ -35,7 +33,6 @@ namespace i2pcpp {
 			std::thread m_serviceThread;
 
 			RouterContext m_ctx;
-			TunnelManager m_tunnelManager;
 	};
 }
 

@@ -14,7 +14,7 @@ namespace i2pcpp {
 				AcknowledgementScheduler(UDPTransport &transport);
 
 			private:
-				void flushAckCallback(const boost::system::error_code& e, AcknowledgementTimerPtr &timer);
+				void flushAckCallback(const boost::system::error_code& e, AcknowledgementTimerPtr timer);
 
 				UDPTransport& m_transport;
 		};
