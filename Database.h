@@ -7,6 +7,7 @@
 
 #include "datatypes/ByteArray.h"
 #include "datatypes/RouterInfo.h"
+#include "Log.h"
 
 namespace i2pcpp {
 	class Database {
@@ -21,10 +22,11 @@ namespace i2pcpp {
 			RouterInfo getRouterInfo(RouterHash const &routerHash);
 			void deleteRouter(RouterHash const &hash);
 			void setRouterInfo(RouterInfo const &info);
+			bool importNetDb(std::string const &directory);
 
 		private:
+			i2p_logger_mt  m_log;
 			sqlite3 *m_db;
-
 			static void sha256_func(sqlite3_context *context, int argc, sqlite3_value **argv);
 	};
 }

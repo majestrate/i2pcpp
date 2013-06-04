@@ -9,7 +9,6 @@
 
 #include "Log.h"
 #include "Router.h"
-#include "DatabaseImporter.h"
 
 bool keepRunning = true;
 
@@ -28,7 +27,13 @@ int main()
 	Botan::LibraryInitializer init("thread_safe=true");
 
 	i2pcpp::Router r("i2p.db");
-	i2pcpp::DatabaseImporter::importDir(r,"netDb");
+	try {
+	  r.importNetDb("netDb");
+	} 
+	catch(std::exception & what) {
+	  BOOST_LOG_SEV(lg, error) << "netDb import Error: "<< what.what();
+	  return 1;
+	}
 	r.start();
 	enum Command {
 		CONNECT,
@@ -40,6 +45,7 @@ int main()
 		QUIT
 	};
 	std::map<std::string, Command> cmd_map = boost::assign::map_list_of("lookup", DB_LOOKUP)("quit", QUIT)("connect", CONNECT)("export", EXPORT_INFO)("import", IMPORT_INFO)("send", SEND)("ibt", BUILD_INBOUND);
+
 
 	while(keepRunning) {
 		std::string str;

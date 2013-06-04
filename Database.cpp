@@ -5,8 +5,15 @@
 
 #include "util/Base64.h"
 
+#include <vector>
+#include <fstream>
+#include <boost/filesystem.hpp>
+
+using namespace boost::filesystem;
+
+
 namespace i2pcpp {
-	Database::Database(std::string const &file)
+  Database::Database(std::string const &file) : m_log(boost::log::keywords::channel = "Database")
 	{
 		if(sqlite3_open(file.c_str(), &m_db) != SQLITE_OK) {} // TODO Exception
 
@@ -236,7 +243,104 @@ namespace i2pcpp {
 		if((rc = sqlite3_step(statement)) != SQLITE_DONE) { std::cerr << "Delete RC: " << rc << "\n"; } // TODO Exception`
 		sqlite3_finalize(statement);
 	}
+  bool Database::importNetDb(std::string const & directory)
+  {
 
+    path netdbDir(directory);
+    std::vector<path> netdbFiles;
+    if (exists(netdbDir) && is_directory(netdbDir))
+      {
+	copy(directory_iterator(netdbDir),directory_iterator(), back_inserter(netdbFiles));
+	sqlite3_exec(m_db, "BEGIN TRANSACTION", NULL, NULL, NULL);
+
+	for ( auto fname : netdbFiles)
+	  {
+	    try {
+	    path p = path(fname);
+	    if ( exists(p) && is_regular_file(p) )
+	      {
+		std::fstream fst;
+		fst.open(p.native());
+	       
+		ByteArray ba((std::istreambuf_iterator<char>(fst)), std::istreambuf_iterator<char>());
+		fst.close();
+		auto begin = ba.cbegin();
+		RouterInfo rnfo(begin,ba.cend());
+		
+		RouterHash rh = rnfo.getIdentity().getHash();
+		sqlite3_stmt *statement;
+
+		int rc;
+
+		const ByteArray& encKey = rnfo.getIdentity().getEncryptionKey();
+		const ByteArray& sigKey = rnfo.getIdentity().getSigningKey();
+		const ByteArray& cert   = rnfo.getIdentity().getCertificate().serialize();
+		const ByteArray& pub    = rnfo.getPublished().serialize();
+		const ByteArray& sig    = rnfo.getSignature();
+
+		std::string insert = "INSERT INTO routers(id, encryption_key, signing_key, certificate, published, signature) VALUES(?, ?, ?, ?, ?, ?)";
+		if((rc = sqlite3_prepare(m_db, insert.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
+		sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
+		sqlite3_bind_blob(statement, 2, encKey.data(), encKey.size(), SQLITE_STATIC);
+		sqlite3_bind_blob(statement, 3, sigKey.data(), sigKey.size(), SQLITE_STATIC);
+		sqlite3_bind_blob(statement, 4, cert.data(), cert.size(), SQLITE_STATIC);
+		sqlite3_bind_blob(statement, 5, pub.data(), pub.size(), SQLITE_STATIC);
+		sqlite3_bind_blob(statement, 6, sig.data(), sig.size(), SQLITE_STATIC);
+		if((rc = sqlite3_step(statement)) != SQLITE_DONE) { std::cerr << "Insert RC: " << rc << "\n"; } // TODO Exception
+		sqlite3_finalize(statement);
+
+		int i = 0;
+		for(auto& a: rnfo) {
+			std::string istr = std::to_string(i);
+			insert = "INSERT INTO router_addresses(router_id, \"index\", cost, expiration, transport) VALUES(?, ?, ?, ?, ?)";
+
+			if((rc = sqlite3_prepare(m_db, insert.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
+			sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
+			sqlite3_bind_text(statement, 2, istr.c_str(), -1, SQLITE_STATIC);
+			sqlite3_bind_int(statement, 3, (int)a.getCost());
+			ByteArray expBytes = a.getExpiration().serialize();
+			sqlite3_bind_blob(statement, 4, expBytes.data(), expBytes.size(), SQLITE_STATIC);
+			sqlite3_bind_text(statement, 5, a.getTransport().c_str(), -1, SQLITE_STATIC);
+			if((rc = sqlite3_step(statement)) != SQLITE_DONE) { std::cerr << "Insert RC: " << rc << "\n"; } // TODO Exception
+			sqlite3_finalize(statement);
+
+			for(auto& o: a.getOptions()) {
+				insert = "INSERT INTO router_address_options(router_id, \"index\", name, value) VALUES(?, ?, ?, ?)";
+				if((rc = sqlite3_prepare(m_db, insert.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
+				sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
+				sqlite3_bind_text(statement, 2, istr.c_str(), -1, SQLITE_STATIC);
+				sqlite3_bind_text(statement, 3, o.first.c_str(), -1, SQLITE_STATIC);
+				sqlite3_bind_text(statement, 4, o.second.c_str(), -1, SQLITE_STATIC);
+				if((rc = sqlite3_step(statement)) != SQLITE_DONE) { std::cerr << "Insert[" << i << "] RC: " << rc << "\n"; } // TODO Exception
+				sqlite3_finalize(statement);
+			}
+
+			i++;
+		}
+
+		for(auto& o: rnfo.getOptions()) {
+			insert = "INSERT INTO router_options(router_id, name, value) VALUES(?, ?, ?)";
+			if((rc = sqlite3_prepare(m_db, insert.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
+			sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
+			sqlite3_bind_text(statement, 2, o.first.c_str(), -1, SQLITE_STATIC);
+			sqlite3_bind_text(statement, 3, o.second.c_str(), -1, SQLITE_STATIC);
+			if((rc = sqlite3_step(statement)) != SQLITE_DONE) { std::cerr << "Insert[" << i << "] RC: " << rc << "\n"; } // TODO Exception
+			sqlite3_finalize(statement);
+		}
+
+	      }
+	    } catch(std::exception & ex) {
+	      BOOST_LOG_SEV(m_log, error) << "failed to load " << fname.native();
+	      return false;
+	    }
+	  }
+	sqlite3_exec(m_db, "COMMIT TRANSACTION", NULL, NULL, NULL);
+      } 
+    else {
+      return false;
+    }
+    return true;
+  }
 	void Database::setRouterInfo(RouterInfo const &info)
 	{
 		sqlite3_exec(m_db, "BEGIN TRANSACTION", NULL, NULL, NULL);

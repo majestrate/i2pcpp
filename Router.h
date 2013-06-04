@@ -26,6 +26,7 @@ namespace i2pcpp {
 			void importRouterInfo(ByteArray const &info);
 			void sendRawData(std::string const &dst, std::string const &data);
 			void createTunnel(bool inbound);
+			void importNetDb(std::string const &dirname);
 			i2p_logger_mt & getLogger();
 		private:
 			boost::asio::io_service m_ios;

@@ -92,4 +92,19 @@ namespace i2pcpp {
 	{
 		m_ctx.getTunnelManager().createTunnel(inbound);
 	}
+       
+  void Router::importNetDb(std::string const & dirname)
+  {
+    BOOST_LOG_SEV(getLogger(), info) << "Load netdb from " << dirname;
+      
+    if(m_ctx.getDatabase().importNetDb(dirname))
+      {
+	BOOST_LOG_SEV(getLogger(), info) << "Loaded Netdb fine";
+      }
+    else
+      {
+	BOOST_LOG_SEV(getLogger(), warning) << "Failed to load netdb from " << dirname;
+      
+      }
+  }
 }

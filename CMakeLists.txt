@@ -11,7 +11,6 @@ set(PACKAGE_STRING "${PACKAGE_NAME} ${PACKAGE_VERSION}")
 
 set(SRCS
 	Database.cpp
-	DatabaseImporter.cpp
 	InboundMessageDispatcher.cpp
 	Log.cpp
 	OutboundMessageDispatcher.cpp
