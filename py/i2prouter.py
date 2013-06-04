@@ -8,7 +8,7 @@ from urllib.request import urlopen as urlget
 
 def get_external_ip():
     print ('get external ip address')
-    return urlget('http://ifconfig.me/ip').read().strip().decode('ascii')
+    return urlget('http://ipecho.net/plain').read().strip().decode('ascii')
 
 def has_config(cur,k):
     return cur.execute('SELECT value FROM config WHERE name = ?',(k,)).fetchone() is not None
@@ -16,7 +16,7 @@ def has_config(cur,k):
 def put_config(cur,k,v):
     cur.execute('INSERT INTO config ( name, value ) VALUES ( ? , ? )',(k,v))
 
-def init(db_schema='db_schema.sql',db_fname='i2p.db',ssu_ip='0.0.0.0',ssu_port=6699):
+def init(db_schema='db_schema.sql',db_fname='i2p.db',ssu_ip='0.0.0.0',ssu_port=6699,max_peers=100):
     con = sqlite3.connect(db_fname)
     cur = con.cursor()
 
@@ -30,7 +30,7 @@ def init(db_schema='db_schema.sql',db_fname='i2p.db',ssu_ip='0.0.0.0',ssu_port=6
             cur.execute(line)
         con.commit()
 
-    if not has_config(cur,'private_encryption_key') and has_config(cur,'private_signing_key'):
+    if not ( has_config(cur,'private_encryption_key') and has_config(cur,'private_signing_key')):
         print ('generate keys')
         signing_pub , signing_prv , encryption_pub, encryption_prv = i2py.gen_keys()
         put_config(cur,'private_encryption_key',encryption_prv)
@@ -53,6 +53,9 @@ def init(db_schema='db_schema.sql',db_fname='i2p.db',ssu_ip='0.0.0.0',ssu_port=6
         print ('set ssu external ip to '+extern_ip)
         put_config(cur,'ssu_external_ip',extern_ip)
         
+    if not has_config(cur,'max_peers'):
+        print ('set max peer count to %d'%max_peers)
+        put_config(cur,'max_peers',max_peers)
     
     con.commit()
     con.close()

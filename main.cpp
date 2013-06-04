@@ -28,7 +28,7 @@ int main()
 	Botan::LibraryInitializer init("thread_safe=true");
 
 	i2pcpp::Router r("i2p.db");
-	i2pcpp::DatabaseImporter::importDir(r,"netdb");
+	i2pcpp::DatabaseImporter::importDir(r,"netDb");
 	r.start();
 	enum Command {
 		CONNECT,
