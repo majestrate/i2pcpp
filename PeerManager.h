@@ -20,6 +20,7 @@ namespace i2pcpp {
 
 			void establishmentSuccess(const RouterHash rh, bool inbound);
 			void establishmentFailure(const RouterHash rh);
+			void disconnected(const RouterHash rh);
 
 		private:
 			void callback(const boost::system::error_code &e);

@@ -37,6 +37,7 @@ namespace i2pcpp {
 		t->registerEstablishedHandler(boost::bind(&InboundMessageDispatcher::connectionEstablished, m_ctx.getInMsgDisp(), _1, _2));
 		t->registerEstablishedHandler(boost::bind(&PeerManager::establishmentSuccess, boost::ref(m_ctx.getPeerManager()), _1, _2));
 		t->registerFailureSignal(boost::bind(&PeerManager::establishmentFailure, boost::ref(m_ctx.getPeerManager()), _1));
+		t->registerDisconnectedSignal(boost::bind(&PeerManager::disconnected, boost::ref(m_ctx.getPeerManager()), _1));
 		m_ctx.getOutMsgDisp().registerTransport(t);
 
 		m_ctx.getSignals().registerBuildTunnelRequest(boost::bind(&TunnelManager::handleRequest, boost::ref(m_ctx.getTunnelManager()), _1));

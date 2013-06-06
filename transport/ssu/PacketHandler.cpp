@@ -49,6 +49,11 @@ namespace i2pcpp {
 					I2P_LOG(m_log, debug) << "data packet received";
 					m_imf.receiveData(state, dataItr, data.cend());
 					break;
+
+				case Packet::SESSION_DESTROY:
+					I2P_LOG(m_log, debug) << "received session destroy";
+					handleSessionDestroyed(state);
+					break;
 			}
 		}
 
@@ -81,6 +86,11 @@ namespace i2pcpp {
 
 				case Packet::SESSION_CONFIRMED:
 					handleSessionConfirmed(begin, data.cend(), state);
+					break;
+
+				case Packet::SESSION_DESTROY:
+					I2P_LOG(m_log, debug) << "received session destroy";
+					handleSessionDestroyed(state);
 					break;
 			}
 		}
@@ -186,6 +196,18 @@ namespace i2pcpp {
 			state->setSignature(end - 40, end);
 
 			state->setState(EstablishmentState::CONFIRMED_RECEIVED);
+			m_transport.getEstablisher().post(state);
+		}
+
+		void PacketHandler::handleSessionDestroyed(PeerStatePtr const &ps)
+		{
+			m_transport.m_peers.delRemotePeer(ps->getEndpoint());
+			m_transport.post(boost::bind(boost::ref(m_transport.m_disconnectedSignal), ps->getIdentity().getHash()));
+		}
+
+		void PacketHandler::handleSessionDestroyed(EstablishmentStatePtr const &state)
+		{
+			state->setState(EstablishmentState::FAILURE);
 			m_transport.getEstablisher().post(state);
 		}
 	}
