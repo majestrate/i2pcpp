@@ -62,23 +62,28 @@ namespace i2pcpp {
 
 	void UDPTransport::connect(RouterInfo const &ri)
 	{
-		for(auto a: ri) {
-			if(a.getTransport() == "SSU") {
-				const Mapping& m = a.getOptions();
-				Endpoint ep(m.getValue("host"), stoi(m.getValue("port")));
-				RouterIdentity id = ri.getIdentity();
+		try {
+			for(auto a: ri) {
+				if(a.getTransport() == "SSU") {
+					const Mapping& m = a.getOptions();
+					Endpoint ep(m.getValue("host"), stoi(m.getValue("port")));
+					RouterIdentity id = ri.getIdentity();
 
-				if(m_establishmentManager.stateExists(ep) || m_peers.remotePeerExists(ep))
-					return;
+					if(m_establishmentManager.stateExists(ep) || m_peers.remotePeerExists(ep))
+						return;
 
-				m_establishmentManager.createState(ep, id);
+					m_establishmentManager.createState(ep, id);
 
-				I2P_LOG_SCOPED_EP(m_log, ep);
-				I2P_LOG_SCOPED_RH(m_log, id.getHash());
-				I2P_LOG(m_log, debug) << "attempting to establish session";
+					I2P_LOG_SCOPED_EP(m_log, ep);
+					I2P_LOG_SCOPED_RH(m_log, id.getHash());
+					I2P_LOG(m_log, debug) << "attempting to establish session";
 
-				break;
+					break;
+				}
 			}
+		} catch(std::exception &e) {
+			I2P_LOG_SCOPED_TAG(m_log, "channel");
+			I2P_LOG(m_log, error) << "exception thrown: " << e.what();
 		}
 	}
 

@@ -12,10 +12,6 @@ namespace i2pcpp {
 
 	void PeerManager::begin()
 	{
-		uint32_t max_peers = std::stoi(m_ctx.getDatabase().getConfigValue("max_peers"));
-		for(uint32_t i = 0; i < max_peers; i++)
-			m_ctx.getOutMsgDisp().getTransport()->connect(m_ctx.getProfileManager().getPeer());
-
 		std::shared_ptr<boost::asio::deadline_timer> timer(new boost::asio::deadline_timer(m_ios, boost::posix_time::time_duration(0, 0, 10)));
 		timer->async_wait(boost::bind(&PeerManager::callback, this, boost::asio::placeholders::error, timer));
 	}
@@ -37,11 +33,12 @@ namespace i2pcpp {
 
 	void PeerManager::callback(const boost::system::error_code &e, std::shared_ptr<boost::asio::deadline_timer> timer)
 	{
-		uint32_t max_peers = std::stoi(m_ctx.getDatabase().getConfigValue("max_peers"));
-		int32_t gap = max_peers - (m_inboundEstablished + m_outboundEstablished);
+		uint32_t maxPeers = std::stoi(m_ctx.getDatabase().getConfigValue("max_peers"));
+		uint32_t numPeers = m_ctx.getOutMsgDisp().getTransport()->numPeers();
 
-		I2P_LOG(m_log, debug) << "current number of peers: " << m_ctx.getOutMsgDisp().getTransport()->numPeers();
+		I2P_LOG(m_log, debug) << "current number of peers: " << numPeers << " (IB: " << m_inboundEstablished << ", OB: " << m_outboundEstablished << ")";
 
+		uint32_t gap = maxPeers - numPeers;
 		for(int32_t i = 0; i < gap; i++)
 			m_ctx.getOutMsgDisp().getTransport()->connect(m_ctx.getProfileManager().getPeer());
 
