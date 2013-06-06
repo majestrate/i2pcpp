@@ -16,7 +16,7 @@ namespace i2pcpp {
 			return I2NP::Message::Type::DB_SEARCH_REPLY;
 		}
 
-		void DatabaseSearchReply::handleMessage(RouterHash const &from, I2NP::MessagePtr const &msg)
+		void DatabaseSearchReply::handleMessage(RouterHash const from, I2NP::MessagePtr const msg)
 		{
 			std::shared_ptr<I2NP::DatabaseSearchReply> dsr = std::dynamic_pointer_cast<I2NP::DatabaseSearchReply>(msg);
 

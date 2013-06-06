@@ -25,7 +25,6 @@ namespace i2pcpp {
 			std::bitset<8> flag = *(begin++);
 
 			if(flag[7]) {
-				// TODO
 				if((end - begin) < 1) throw FormattingError();
 				unsigned char numAcks = *(begin++);
 				if((end - begin) < (numAcks * 4)) throw FormattingError();

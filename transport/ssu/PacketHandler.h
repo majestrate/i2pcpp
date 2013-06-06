@@ -16,7 +16,7 @@ namespace i2pcpp {
 			public:
 				PacketHandler(UDPTransport &transport, SessionKey const &sk);
 
-				void packetReceived(PacketPtr &p);
+				void packetReceived(PacketPtr p);
 
 			private:
 				void handlePacket(PacketPtr const &packet, PeerStatePtr const &state);

@@ -7,16 +7,16 @@ namespace i2pcpp {
 	class UDPTransport;
 
 	namespace SSU {
-		typedef std::shared_ptr<boost::asio::deadline_timer> AcknowledgementTimerPtr;
-
 		class AcknowledgementScheduler {
 			public:
 				AcknowledgementScheduler(UDPTransport &transport);
 
 			private:
-				void flushAckCallback(const boost::system::error_code& e, AcknowledgementTimerPtr timer);
+				void flushAckCallback(const boost::system::error_code& e);
 
 				UDPTransport& m_transport;
+
+				boost::asio::deadline_timer m_timer;
 		};
 	}
 }

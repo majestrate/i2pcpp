@@ -136,6 +136,22 @@ namespace i2pcpp {
 		m_nextMsgId = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
 	}
 
+	void BuildRequestRecord::encrypt(SessionKey const &iv, SessionKey const &key)
+	{
+		Botan::InitializationVector biv(iv.data(), 16);
+		Botan::SymmetricKey bkey(key.data(), key.size());
+		Botan::Pipe cipherPipe(get_cipher("AES-256/CBC/NoPadding", bkey, biv, Botan::ENCRYPTION));
+
+		ByteArray record = serialize();
+		cipherPipe.process_msg(record.data(), record.size());
+
+		size_t encryptedSize = cipherPipe.remaining();
+		ByteArray encryptedBytes(encryptedSize);
+
+		cipherPipe.read(encryptedBytes.data(), encryptedSize);
+		m_bytes = encryptedBytes;
+}
+
 	void BuildRequestRecord::decrypt(SessionKey const &iv, SessionKey const &key)
 	{
 		Botan::InitializationVector biv(iv.data(), 16);

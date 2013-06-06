@@ -10,14 +10,9 @@ namespace i2pcpp {
 			m_imf(transport),
 	 		m_log(boost::log::keywords::channel = "PH") {}
 
-		void PacketHandler::packetReceived(PacketPtr &p)
+		void PacketHandler::packetReceived(PacketPtr p)
 		{
 			I2P_LOG_SCOPED_EP(m_log, p->getEndpoint());
-
-			if(p->getData().size() < Packet::MIN_PACKET_LEN) {
-				I2P_LOG(m_log, error) << "dropping short packet";
-				return;
-			}
 
 			PeerStatePtr ps = m_transport.m_peers.getRemotePeer(p->getEndpoint());
 			if(ps) {

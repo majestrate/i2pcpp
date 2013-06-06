@@ -18,7 +18,7 @@ namespace i2pcpp {
 			return I2NP::Message::Type::DELIVERY_STATUS;
 		}
 
-		void DeliveryStatus::handleMessage(RouterHash const &from, I2NP::MessagePtr const &msg)
+		void DeliveryStatus::handleMessage(RouterHash const from, I2NP::MessagePtr const msg)
 		{
 			I2P_LOG_SCOPED_RH(m_log, from);
 			I2P_LOG(m_log, debug) << "received DeliveryStatus message, replying with DatabaseStore message";

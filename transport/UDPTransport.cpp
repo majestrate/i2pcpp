@@ -142,9 +142,17 @@ namespace i2pcpp {
 	void UDPTransport::dataReceived(const boost::system::error_code& e, size_t n)
 	{
 		if(!e && n > 0) {
-			I2P_LOG(m_log, debug) << "received " << n << " bytes from " << m_senderEndpoint;
+			Endpoint ep(m_senderEndpoint);
+
+			I2P_LOG_SCOPED_EP(m_log, ep);
+			I2P_LOG(m_log, debug) << "received " << n << " bytes from " << ep;
+
+			if(n < SSU::Packet::MIN_PACKET_LEN) {
+				I2P_LOG(m_log, debug) << "dropping short packet";
+				return;
+			}
 			
-			auto p = std::make_shared<SSU::Packet>(Endpoint(m_senderEndpoint), m_receiveBuf.data(), n);
+			auto p = std::make_shared<SSU::Packet>(ep, m_receiveBuf.data(), n);
 			m_ios.post(boost::bind(&SSU::PacketHandler::packetReceived, &m_packetHandler, p));
 
 			m_socket.async_receive_from(

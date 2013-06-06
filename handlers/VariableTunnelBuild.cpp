@@ -15,7 +15,7 @@ namespace i2pcpp {
 			return I2NP::Message::Type::VARIABLE_TUNNEL_BUILD;
 		}
 
-		void VariableTunnelBuild::handleMessage(RouterHash const &from, I2NP::MessagePtr const &msg)
+		void VariableTunnelBuild::handleMessage(RouterHash const from, I2NP::MessagePtr const msg)
 		{
 			std::shared_ptr<I2NP::VariableTunnelBuild> vtb = std::dynamic_pointer_cast<I2NP::VariableTunnelBuild>(msg);
 

@@ -18,7 +18,7 @@ namespace i2pcpp {
 			return I2NP::Message::Type::DB_STORE;
 		}
 
-		void DatabaseStore::handleMessage(RouterHash const &from, I2NP::MessagePtr const &msg)
+		void DatabaseStore::handleMessage(RouterHash const from, I2NP::MessagePtr const msg)
 		{
 			try {
 				std::shared_ptr<I2NP::DatabaseStore> dsm = std::dynamic_pointer_cast<I2NP::DatabaseStore>(msg);
