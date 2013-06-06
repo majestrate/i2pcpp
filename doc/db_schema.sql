@@ -1,9 +1,9 @@
-CREATE IF NOT EXISTS TABLE "config" (
+CREATE TABLE IF NOT EXISTS "config" (
   "name" TEXT PRIMARY KEY NOT NULL,
   "value" TEXT
 );
 ;
-CREATE IF NOT EXISTS TABLE "routers" (
+CREATE TABLE IF NOT EXISTS "routers" (
   "id" BLOB PRIMARY KEY,
   "encryption_key" BLOB NOT NULL,
   "signing_key" BLOB NOT NULL,
@@ -12,7 +12,7 @@ CREATE IF NOT EXISTS TABLE "routers" (
   "signature" BLOB NOT NULL
 );
 ;
-CREATE IF NOT EXISTS TABLE "router_addresses" (
+CREATE TABLE IF NOT EXISTS "router_addresses" (
   "router_id" BLOB NOT NULL REFERENCES routers(id) ON UPDATE CASCADE ON DELETE CASCADE,
   "index" INTEGER NOT NULL,
   "cost" INTEGER NOT NULL,
@@ -21,20 +21,20 @@ CREATE IF NOT EXISTS TABLE "router_addresses" (
   PRIMARY KEY(router_id,"index")
 );
 ;
-CREATE IF NOT EXISTS TABLE "router_options" (
+CREATE TABLE IF NOT EXISTS "router_options" (
   "router_id" BLOB NOT NULL REFERENCES routers(id) ON UPDATE CASCADE ON DELETE CASCADE,
   "name" TEXT NOT NULL,
   "value" TEXT NOT NULL,
   PRIMARY KEY(router_id, name)
 );
 ;
-CREATE IF NOT EXISTS TABLE "profiles" (
+CREATE TABLE IF NOT EXISTS "profiles" (
     "router_id" BLOB NOT NULL REFERENCES routers(id) ON UPDATE CASCADE ON DELETE CASCADE,
     "last_seen" INTEGER,
     PRIMARY KEY("router_id")
 );
 ;
-CREATE IF NOT EXISTS TABLE "router_address_options" (
+CREATE TABLE IF NOT EXISTS  "router_address_options" (
 	"router_id" BLOB NOT NULL,
 	"index" INTEGER NOT NULL,
 	"name" TEXT NOT NULL,

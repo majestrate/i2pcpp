@@ -86,5 +86,5 @@ def init(db_schema='db_schema.sql',db_fname='i2p.db',ssu_ip='0.0.0.0',ssu_port=6
 
 
 if __name__ == '__main__':
-    init(max_peers=50)
+    init(max_peers=200)
     os.system('./i2p')
