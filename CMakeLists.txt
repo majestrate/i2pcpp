@@ -86,13 +86,16 @@ set(TEST_SRCS
 	util/Base64.cpp
 	util/I2PHMAC.cpp
 	)
-if(USE_GCC)
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g -O0 -fPIC -Wall -std=c++11")
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O2 -w -fPIC -std=c++11")
-else(USE_GCC)
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g -O0 -Wall -std=c++11 -stdlib=libc++")
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O2 -w -std=c++11 -stdlib=libc++")
-endif(USE_GCC)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+if(NOT CMAKE_COMPILER_IS_GNUCXX)
+  message(STATUS "Not Using GCC... assume Clang")
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+endif(NOT CMAKE_COMPILER_IS_GNUCXX)
+
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g -O0 -fPIC -Wall")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O2 -w -fPIC")  
 add_executable(i2p main.cpp ${SRCS})
 add_executable(generate_keys tools/generate_keys.cpp)
 # python wrapper script
