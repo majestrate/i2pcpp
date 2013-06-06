@@ -11,7 +11,8 @@ namespace i2pcpp {
 		EstablishmentManager::EstablishmentManager(UDPTransport &transport, Botan::DSA_PrivateKey const &privKey, RouterIdentity const &ri) :
 			m_transport(transport),
 			m_privKey(privKey),
-			m_identity(ri) {}
+			m_identity(ri),
+			m_log(boost::log::keywords::channel = "EM") {}
 
 		EstablishmentStatePtr EstablishmentManager::createState(Endpoint const &ep)
 		{
@@ -20,7 +21,7 @@ namespace i2pcpp {
 			auto es = std::make_shared<EstablishmentState>(m_privKey, m_identity, ep);
 			m_stateTable[ep] = es;
 
-			std::shared_ptr<boost::asio::deadline_timer> timer(new boost::asio::deadline_timer(m_transport.m_ios, boost::posix_time::time_duration(0, 0, 5)));
+			std::shared_ptr<boost::asio::deadline_timer> timer(new boost::asio::deadline_timer(m_transport.m_ios, boost::posix_time::time_duration(0, 0, 30)));
 			timer->async_wait(boost::bind(&EstablishmentManager::timeoutCallback, this, boost::asio::placeholders::error, es));
 			m_stateTimers[ep] = timer;
 
@@ -36,7 +37,7 @@ namespace i2pcpp {
 
 			sendRequest(es);
 
-			std::shared_ptr<boost::asio::deadline_timer> timer(new boost::asio::deadline_timer(m_transport.m_ios, boost::posix_time::time_duration(0, 0, 5)));
+			std::shared_ptr<boost::asio::deadline_timer> timer(new boost::asio::deadline_timer(m_transport.m_ios, boost::posix_time::time_duration(0, 0, 30)));
 			timer->async_wait(boost::bind(&EstablishmentManager::timeoutCallback, this, boost::asio::placeholders::error, es));
 			m_stateTimers[ep] = timer;
 		}
@@ -54,53 +55,48 @@ namespace i2pcpp {
 		void EstablishmentManager::stateChanged(EstablishmentStatePtr es)
 		{
 			const Endpoint &ep = es->getTheirEndpoint();
-
-			I2P_LOG_TAG(m_transport.getLogger(), "EM");
-			I2P_LOG_EP(m_transport.getLogger(), ep);
+			I2P_LOG_SCOPED_EP(m_log, ep);
 
 			switch(es->getState())
 			{
 				case EstablishmentState::REQUEST_SENT:
-					BOOST_LOG_SEV(m_transport.getLogger(), debug) << "sent session request";
-
+					I2P_LOG(m_log, debug) << "sent session request";
 					break;
 
 				case EstablishmentState::REQUEST_RECEIVED:
-					BOOST_LOG_SEV(m_transport.getLogger(), debug) << "received session request";
+					I2P_LOG(m_log, debug) << "received session request";
 					processRequest(es);
-
 					break;
 
 				case EstablishmentState::CREATED_SENT:
-					BOOST_LOG_SEV(m_transport.getLogger(), debug) << "sent session created";
-
+					I2P_LOG(m_log, debug) << "sent session created";
 					break;
 
 				case EstablishmentState::CREATED_RECEIVED:
-					BOOST_LOG_SEV(m_transport.getLogger(), debug) << "received session created";
+					I2P_LOG(m_log, debug) << "received session created";
 					processCreated(es);
-
 					break;
 
 				case EstablishmentState::CONFIRMED_SENT:
-					BOOST_LOG_SEV(m_transport.getLogger(), debug) << "sent session confirmed";
-					delState(ep);
-					m_transport.post(boost::bind(boost::ref(m_transport.m_establishedSignal), es->getTheirIdentity().getHash(), (es->getDirection() == EstablishmentState::INBOUND)));
-
+					{
+						const RouterHash &rh = es->getTheirIdentity().getHash();
+						I2P_LOG_SCOPED_RH(m_log, rh);
+						I2P_LOG(m_log, debug) << "sent session confirmed";
+						m_transport.post(boost::bind(boost::ref(m_transport.m_establishedSignal), rh, (es->getDirection() == EstablishmentState::INBOUND)));
+						delState(ep);
+					}
 					break;
 
 				case EstablishmentState::CONFIRMED_RECEIVED:
-					BOOST_LOG_SEV(m_transport.getLogger(), debug) << "received session confirmed";
+					I2P_LOG(m_log, debug) << "received session confirmed";
 					processConfirmed(es);
-
 					break;
 
 				case EstablishmentState::UNKNOWN:
 				case EstablishmentState::FAILURE:
-					BOOST_LOG_SEV(m_transport.getLogger(), error) << "establishment failed";
-					delState(ep);
+					I2P_LOG(m_log, error) << "establishment failed";
 					m_transport.post(boost::bind(boost::ref(m_transport.m_failureSignal), es->getTheirIdentity().getHash()));
-
+					delState(ep);
 					break;
 			}
 		}
@@ -134,9 +130,8 @@ namespace i2pcpp {
 		void EstablishmentManager::timeoutCallback(const boost::system::error_code& e, EstablishmentStatePtr es)
 		{
 			if(!e) {
-				I2P_LOG_TAG(m_transport.getLogger(), "EM");
-				I2P_LOG_EP(m_transport.getLogger(), es->getTheirEndpoint());
-				BOOST_LOG_SEV(m_transport.getLogger(), debug) << "establishment timed out";
+				I2P_LOG_SCOPED_EP(m_log, es->getTheirEndpoint());
+				I2P_LOG(m_log, debug) << "establishment timed out";
 
 				es->setState(EstablishmentState::FAILURE);
 				post(es);
@@ -180,7 +175,7 @@ namespace i2pcpp {
 			state->calculateDHSecret();
 
 			if(!state->verifyCreationSignature()) {
-				BOOST_LOG_SEV(m_transport.getLogger(), error) << "creation signature verification failed";
+				I2P_LOG(m_log, error) << "creation signature verification failed";
 				state->setState(EstablishmentState::FAILURE);
 				return;
 			}
@@ -210,16 +205,16 @@ namespace i2pcpp {
 
 		void EstablishmentManager::processConfirmed(EstablishmentStatePtr const &state)
 		{
-			I2P_LOG_RH(m_transport.getLogger(), state->getTheirIdentity().getHash());
+			I2P_LOG_RH(m_log, state->getTheirIdentity().getHash());
 
 			if(!state->verifyConfirmationSignature()) {
-				BOOST_LOG_SEV(m_transport.getLogger(), error) << "confirmation signature verification failed";
+				I2P_LOG(m_log, error) << "confirmation signature verification failed";
 				state->setState(EstablishmentState::FAILURE);
 				post(state);
 
 				return;
 			} else
-				BOOST_LOG_SEV(m_transport.getLogger(), debug) << "confirmation signature verification succeeded";
+				I2P_LOG(m_log, debug) << "confirmation signature verification succeeded";
 
 			Endpoint ep = state->getTheirEndpoint();
 			auto ps = std::make_shared<PeerState>(m_transport.m_ios, ep, state->getTheirIdentity());

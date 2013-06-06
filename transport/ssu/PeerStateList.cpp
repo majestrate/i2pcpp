@@ -57,6 +57,21 @@ namespace i2pcpp {
 			m_remotePeersByHash.erase(rh);
 		}
 
+		bool PeerStateList::remotePeerExists(Endpoint const &ep) const
+		{
+			return (m_remotePeers.count(ep) > 0);
+		}
+
+		bool PeerStateList::remotePeerExists(RouterHash const &rh) const
+		{
+			return (m_remotePeersByHash.count(rh) > 0);
+		}
+
+		uint32_t PeerStateList::numPeers() const
+		{
+			return m_remotePeers.size();
+		}
+
 		std::unordered_map<RouterHash, PeerStatePtr>::const_iterator PeerStateList::begin() const
 		{
 			return m_remotePeersByHash.cbegin();

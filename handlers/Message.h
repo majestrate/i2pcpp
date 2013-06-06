@@ -5,6 +5,7 @@
 
 #include "../i2np/Message.h"
 #include "../datatypes/RouterHash.h"
+#include "../Log.h"
 
 namespace i2pcpp {
 	class RouterContext;
@@ -12,7 +13,7 @@ namespace i2pcpp {
 	namespace Handlers {
 		class Message {
 			public:
-				Message(RouterContext &ctx) : m_ctx(ctx) {}
+				Message(RouterContext &ctx);
 				virtual ~Message() {}
 
 				virtual I2NP::Message::Type getType() const = 0;

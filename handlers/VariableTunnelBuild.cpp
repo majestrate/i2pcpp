@@ -7,7 +7,8 @@
 namespace i2pcpp {
 	namespace Handlers {
 		VariableTunnelBuild::VariableTunnelBuild(RouterContext &ctx) :
-			Message(ctx) {}
+			Message(ctx),
+			m_log(boost::log::keywords::channel = "H[VTB]") {}
 
 		I2NP::Message::Type VariableTunnelBuild::getType() const
 		{
@@ -18,8 +19,8 @@ namespace i2pcpp {
 		{
 			std::shared_ptr<I2NP::VariableTunnelBuild> vtb = std::dynamic_pointer_cast<I2NP::VariableTunnelBuild>(msg);
 
-			I2P_LOG_RH(m_ctx.getLogger(), from);
-			BOOST_LOG_SEV(m_ctx.getLogger(), debug) << "received VariableTunnelBuild message";
+			I2P_LOG_SCOPED_RH(m_log, from);
+			I2P_LOG(m_log, debug) << "received VariableTunnelBuild message";
 
 			m_ctx.getSignals().invokeBuildTunnelRequest(vtb->getRecords());
 		}

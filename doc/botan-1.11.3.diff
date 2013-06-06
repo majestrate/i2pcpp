@@ -1,6 +1,6 @@
-diff -Naur Botan-1.11.1.orig/src/filters/bzip2/bzip2.cpp Botan-1.11.1/src/filters/bzip2/bzip2.cpp
---- Botan-1.11.1.orig/src/filters/bzip2/bzip2.cpp	2012-10-30 16:20:04.000000000 -0400
-+++ Botan-1.11.1/src/filters/bzip2/bzip2.cpp	2013-01-02 14:56:11.448658814 -0500
+diff -Naur src/filters/compression/bzip2/bzip2.cpp src/filters/compression/bzip2/bzip2.cpp
+--- src/filters/compression/bzip2/bzip2.cpp	2012-10-30 16:20:04.000000000 -0400
++++ src/filters/compression/bzip2/bzip2.cpp	2013-01-02 14:56:11.448658814 -0500
 @@ -14,6 +14,7 @@
  #include <cstring>
  #define BZ_NO_STDIO
@@ -9,9 +9,9 @@ diff -Naur Botan-1.11.1.orig/src/filters/bzip2/bzip2.cpp Botan-1.11.1/src/filter
  
  namespace Botan {
  
-diff -Naur Botan-1.11.1.orig/src/filters/lzma/lzma.cpp Botan-1.11.1/src/filters/lzma/lzma.cpp
---- Botan-1.11.1.orig/src/filters/lzma/lzma.cpp	2012-10-30 16:20:04.000000000 -0400
-+++ Botan-1.11.1/src/filters/lzma/lzma.cpp	2013-01-02 14:56:26.486658357 -0500
+diff -Naur src/filters/compression/lzma/lzma.cpp src/filters/compression/lzma/lzma.cpp
+--- src/filters/compression/lzma/lzma.cpp	2012-10-30 16:20:04.000000000 -0400
++++ src/filters/compression/lzma/lzma.cpp	2013-01-02 14:56:26.486658357 -0500
 @@ -14,6 +14,7 @@
  #include <cstring>
  #include <map>
@@ -20,9 +20,9 @@ diff -Naur Botan-1.11.1.orig/src/filters/lzma/lzma.cpp Botan-1.11.1/src/filters/
  
  namespace Botan {
  
-diff -Naur Botan-1.11.1.orig/src/filters/pk_filts/pk_filts.cpp Botan-1.11.1/src/filters/pk_filts/pk_filts.cpp
---- Botan-1.11.1.orig/src/filters/pk_filts/pk_filts.cpp	2012-10-30 16:20:04.000000000 -0400
-+++ Botan-1.11.1/src/filters/pk_filts/pk_filts.cpp	2013-01-08 21:59:55.783851692 -0500
+diff -Naur src/filters/pk_filts/pk_filts.cpp src/filters/pk_filts/pk_filts.cpp
+--- src/filters/pk_filts/pk_filts.cpp	2012-10-30 16:20:04.000000000 -0400
++++ src/filters/pk_filts/pk_filts.cpp	2013-01-08 21:59:55.783851692 -0500
 @@ -8,6 +8,10 @@
  #include <botan/pk_filts.h>
  
@@ -70,9 +70,9 @@ diff -Naur Botan-1.11.1.orig/src/filters/pk_filts/pk_filts.cpp Botan-1.11.1/src/
  /*
  * Add more data
  */
-diff -Naur Botan-1.11.1.orig/src/filters/pk_filts/pk_filts.h Botan-1.11.1/src/filters/pk_filts/pk_filts.h
---- Botan-1.11.1.orig/src/filters/pk_filts/pk_filts.h	2012-10-30 16:20:04.000000000 -0400
-+++ Botan-1.11.1/src/filters/pk_filts/pk_filts.h	2013-01-08 21:59:36.112852296 -0500
+diff -Naur src/filters/pk_filts/pk_filts.h src/filters/pk_filts/pk_filts.h
+--- src/filters/pk_filts/pk_filts.h	2012-10-30 16:20:04.000000000 -0400
++++ src/filters/pk_filts/pk_filts.h	2013-01-08 21:59:36.112852296 -0500
 @@ -19,6 +19,7 @@
  class BOTAN_DLL PK_Encryptor_Filter : public Filter
     {
@@ -105,9 +105,9 @@ diff -Naur Botan-1.11.1.orig/src/filters/pk_filts/pk_filts.h Botan-1.11.1/src/fi
        void write(const byte[], size_t);
        void end_msg();
  
-diff -Naur Botan-1.11.1.orig/src/filters/zlib/zlib.cpp Botan-1.11.1/src/filters/zlib/zlib.cpp
---- Botan-1.11.1.orig/src/filters/zlib/zlib.cpp	2012-10-30 16:20:04.000000000 -0400
-+++ Botan-1.11.1/src/filters/zlib/zlib.cpp	2013-01-04 02:44:35.767298080 -0500
+diff -Naur src/filters/compression/zlib/zlib.cpp src/filters/compression/zlib/zlib.cpp
+--- src/filters/compression/zlib/zlib.cpp	2012-10-30 16:20:04.000000000 -0400
++++ src/filters/compression/zlib/zlib.cpp	2013-01-04 02:44:35.767298080 -0500
 @@ -13,6 +13,7 @@
  #include <cstring>
  #include <map>
@@ -148,9 +148,9 @@ diff -Naur Botan-1.11.1.orig/src/filters/zlib/zlib.cpp Botan-1.11.1/src/filters/
  
           zlib->stream.next_in = input + read_from_block;
           zlib->stream.avail_in = length - read_from_block;
-diff -Naur Botan-1.11.1.orig/src/pubkey/dsa/dsa.cpp Botan-1.11.1/src/pubkey/dsa/dsa.cpp
---- Botan-1.11.1.orig/src/pubkey/dsa/dsa.cpp	2012-10-30 16:20:04.000000000 -0400
-+++ Botan-1.11.1/src/pubkey/dsa/dsa.cpp	2012-11-29 08:55:44.182780144 -0500
+diff -Naur src/pubkey/dsa/dsa.cpp src/pubkey/dsa/dsa.cpp
+--- src/pubkey/dsa/dsa.cpp	2012-10-30 16:20:04.000000000 -0400
++++ src/pubkey/dsa/dsa.cpp	2012-11-29 08:55:44.182780144 -0500
 @@ -89,12 +89,8 @@
           k.randomize(rng, q.bits());
        while(k >= q);

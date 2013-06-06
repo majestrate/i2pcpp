@@ -40,8 +40,6 @@ namespace i2pcpp {
 
 			const Botan::DL_Group& getDSAParameters() const;
 
-			i2p_logger_mt& getLogger();
-
 		private:
 			static const Botan::BigInt p;
 			static const Botan::BigInt q;
@@ -62,8 +60,6 @@ namespace i2pcpp {
 			TunnelManager m_tunnelManager;
 			ProfileManager m_profileManager;
 			PeerManager m_peerManager;
-
-			i2p_logger_mt m_log;
 	};
 }
 

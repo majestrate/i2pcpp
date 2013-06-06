@@ -6,12 +6,14 @@
 
 namespace i2pcpp {
 	namespace SSU {
-		i2p_logger_mt PeerState::m_log(boost::log::keywords::channel = "PeerState");
-
 		PeerState::PeerState(boost::asio::io_service &ios, Endpoint const &ep, RouterIdentity const &ri) :
 			m_ios(ios),
 			m_endpoint(ep),
-			m_identity(ri) {}
+			m_identity(ri),
+	 		m_log(boost::log::keywords::channel = "PS")
+		{
+			I2P_LOG_RH(m_log, m_identity.getHash());
+		}
 
 		InboundMessageStatePtr PeerState::getInboundMessageState(const uint32_t msgId) const
 		{
@@ -40,7 +42,7 @@ namespace i2pcpp {
 		{
 			std::shared_ptr<boost::asio::deadline_timer> timer = m_inboundTimers[msgId];
 			if(timer) {
-				BOOST_LOG_SEV(m_log, debug) << "canceling IMS timer";
+				I2P_LOG(m_log, debug) << "canceling IMS timer";
 				timer->cancel();
 				m_inboundTimers.erase(msgId);
 			}
@@ -53,7 +55,7 @@ namespace i2pcpp {
 			uint32_t msgId = itr->second->getMsgId();
 			std::shared_ptr<boost::asio::deadline_timer> timer = m_inboundTimers[msgId];
 			if(timer) {
-				BOOST_LOG_SEV(m_log, debug) << "canceling IMS timer";
+				I2P_LOG(m_log, debug) << "canceling IMS timer";
 				timer->cancel();
 				m_inboundTimers.erase(msgId);
 			}
@@ -66,7 +68,7 @@ namespace i2pcpp {
 			std::lock_guard<std::mutex> lock(m_mutex);
 
 			if(!e) {
-				BOOST_LOG_SEV(m_log, debug) << "removing IMS due to timeout";
+				I2P_LOG(m_log, debug) << "removing IMS due to timeout";
 				m_inboundMessageStates.erase(msgId);
 				m_inboundTimers.erase(msgId);
 			}
@@ -99,7 +101,7 @@ namespace i2pcpp {
 		{
 			std::shared_ptr<boost::asio::deadline_timer> timer = m_outboundTimers[msgId];
 			if(timer) {
-				BOOST_LOG_SEV(m_log, debug) << "canceling OMS timer";
+				I2P_LOG(m_log, debug) << "canceling OMS timer";
 				timer->cancel();
 				m_outboundTimers.erase(msgId);
 			}
@@ -112,7 +114,7 @@ namespace i2pcpp {
 			std::lock_guard<std::mutex> lock(m_mutex);
 
 			if(!e) {
-				BOOST_LOG_SEV(m_log, debug) << "removing OMS due to timeout";
+				I2P_LOG(m_log, debug) << "removing OMS due to timeout";
 				m_outboundMessageStates.erase(msgId);
 				m_outboundTimers.erase(msgId);
 			}

@@ -34,6 +34,7 @@ namespace i2pcpp {
 			void connect(RouterInfo const &ri);
 			void send(RouterHash const &rh, ByteArray const &data);
 			void disconnect(RouterHash const &rh);
+			uint32_t numPeers() const;
 			void shutdown();
 
 		private:
@@ -45,8 +46,6 @@ namespace i2pcpp {
 			void post(CompletionHandler ch) { m_ios.post(ch); }
 
 			SSU::EstablishmentManager& getEstablisher();
-
-			i2p_logger_mt& getLogger();
 
 			boost::asio::io_service m_ios;
 			boost::asio::ip::udp::socket m_socket;

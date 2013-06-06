@@ -2,6 +2,7 @@
 
 #include <string>
 #include <bitset>
+#include <iomanip>
 
 #include <botan/pipe.h>
 #include <botan/filters.h>
@@ -15,12 +16,11 @@
 namespace i2pcpp {
 	namespace SSU {
 		InboundMessageFragments::InboundMessageFragments(UDPTransport &transport) :
-			m_transport(transport) {}
+			m_transport(transport),
+			m_log(boost::log::keywords::channel = "IMF") {}
 
 		void InboundMessageFragments::receiveData(PeerStatePtr const &ps, ByteArrayConstItr &begin, ByteArrayConstItr end)
 		{
-			I2P_LOG_TAG(m_transport.getLogger(), "IMF");
-
 			if((end - begin) < 1) throw FormattingError();
 			std::bitset<8> flag = *(begin++);
 
@@ -48,30 +48,30 @@ namespace i2pcpp {
 
 			if((end - begin) < 1) throw FormattingError();
 			unsigned char numFragments = *(begin++);
-			BOOST_LOG_SEV(m_transport.getLogger(), debug) << "number of fragments: " << std::to_string(numFragments);
+			I2P_LOG(m_log, debug) << "number of fragments: " << std::to_string(numFragments);
 
 			for(int i = 0; i < numFragments; i++) {
 				if((end - begin) < 7) throw FormattingError();
 				uint32_t msgId = (*(begin++) << 24) | (*(begin++) << 16) | (*(begin++) << 8) | *(begin++);
-				BOOST_LOG_SEV(m_transport.getLogger(), debug) << "fragment[" << i << "] message id: " << std::hex << msgId << std::dec;
+				I2P_LOG(m_log, debug) << "fragment[" << i << "] message id: " << std::hex << msgId << std::dec;
 
 				uint32_t fragInfo = (*(begin++) << 16) | (*(begin++) << 8) | *(begin++);
 
 				uint16_t fragNum = fragInfo >> 17;
-				BOOST_LOG_SEV(m_transport.getLogger(), debug) << "fragment[" << i << "] fragment #: " << fragNum;
+				I2P_LOG(m_log, debug) << "fragment[" << i << "] fragment #: " << fragNum;
 
 				bool isLast = (fragInfo & 0x010000);
-				BOOST_LOG_SEV(m_transport.getLogger(), debug) << "fragment[" << i << "] isLast: " << isLast;
+				I2P_LOG(m_log, debug) << "fragment[" << i << "] isLast: " << isLast;
 
 				uint16_t fragSize = fragInfo & ((1 << 14) - 1);
-				BOOST_LOG_SEV(m_transport.getLogger(), debug) << "fragment[" << i << "] size: " << fragSize;
+				I2P_LOG(m_log, debug) << "fragment[" << i << "] size: " << fragSize;
 
 				if((end - begin) < fragSize) throw FormattingError();
 				ByteArray fragData(begin, begin + fragSize);
 				std::stringstream s;
 				s << std::setw(2) << std::setfill('0') << std::hex;
 				for(auto c: fragData) s << (int)c;
-				BOOST_LOG_SEV(m_transport.getLogger(), debug) << "fragment[" << i << "] data: " << s.str();
+				I2P_LOG(m_log, debug) << "fragment[" << i << "] data: " << s.str();
 
 				std::lock_guard<std::mutex> lock(ps->getMutex());
 				InboundMessageStatePtr ims = ps->getInboundMessageState(msgId);

@@ -1,29 +1,20 @@
 #ifndef LOG_H
 #define LOG_H
 
-#include <boost/log/sources/record_ostream.hpp>
-#include <boost/log/sources/global_logger_storage.hpp>
 #include <boost/log/sources/severity_channel_logger.hpp>
-#include <boost/log/utility/manipulators/add_value.hpp>
+#include <boost/log/sources/record_ostream.hpp>
 #include <boost/log/sinks/sync_frontend.hpp>
-#include <boost/log/sinks/text_ostream_backend.hpp>
-#include <boost/log/utility/empty_deleter.hpp>
-#include <boost/log/expressions.hpp>
-#include <boost/log/attributes/clock.hpp>
-#include <boost/log/attributes/current_thread_id.hpp>
-#include <boost/log/attributes/named_scope.hpp>
+#include <boost/log/attributes/constant.hpp>
 #include <boost/log/attributes/scoped_attribute.hpp>
-#include <boost/log/support/exception.hpp>
-#include <boost/log/expressions/message.hpp>
-#include <boost/log/expressions/formatters/named_scope.hpp>
-#include <boost/log/expressions/formatters/stream.hpp>
-#include <boost/log/expressions/formatters/date_time.hpp>
-#include <boost/log/support/date_time.hpp>
 
-#define I2P_LOG_EP(logger, var) BOOST_LOG_SCOPED_LOGGER_ATTR(logger, "Endpoint", boost::log::attributes::constant<Endpoint>(var))
-#define I2P_LOG_RH(logger, var) BOOST_LOG_SCOPED_LOGGER_ATTR(logger, "RouterHash", boost::log::attributes::constant<RouterHash>(var))
+#define I2P_LOG(logger, sev) BOOST_LOG_SEV(logger, sev)
 
-#define I2P_LOG_TAG(logger, name) BOOST_LOG_SCOPED_LOGGER_TAG(logger, "Scope", name)
+#define I2P_LOG_EP(logger, var) logger.add_attribute("Endpoint", boost::log::attributes::constant<Endpoint>(var))
+#define I2P_LOG_RH(logger, var) logger.add_attribute("RouterHash", boost::log::attributes::constant<RouterHash>(var))
+
+#define I2P_LOG_SCOPED_EP(logger, var) BOOST_LOG_SCOPED_LOGGER_ATTR(logger, "Endpoint", boost::log::attributes::constant<Endpoint>(var))
+#define I2P_LOG_SCOPED_RH(logger, var) BOOST_LOG_SCOPED_LOGGER_ATTR(logger, "RouterHash", boost::log::attributes::constant<RouterHash>(var))
+#define I2P_LOG_SCOPED_TAG(logger, name) BOOST_LOG_SCOPED_LOGGER_TAG(logger, "Scope", name)
 
 namespace i2pcpp {
 	enum severity_level
@@ -40,6 +31,7 @@ namespace i2pcpp {
 	class Log {
 		public:
 			static void initialize();
+			static void formatter(boost::log::record_view const &rec, boost::log::formatting_ostream &s);
 	};
 }
 

@@ -1,6 +1,8 @@
 #ifndef SSUPACKETHANDLER_H
 #define SSUPACKETHANDLER_H
 
+#include "../../Log.h"
+
 #include "Packet.h"
 #include "PeerState.h"
 #include "EstablishmentState.h"
@@ -30,6 +32,8 @@ namespace i2pcpp {
 				SessionKey m_inboundKey;
 
 				InboundMessageFragments m_imf;
+
+				i2p_logger_mt m_log;
 		};
 	}
 }

@@ -5,6 +5,8 @@
 
 #include "../../datatypes/ByteArray.h"
 
+#include "../../Log.h"
+
 namespace i2pcpp {
 	class UDPTransport;
 
@@ -17,6 +19,8 @@ namespace i2pcpp {
 
 			private:
 				UDPTransport &m_transport;
+
+				i2p_logger_mt m_log;
 				// TODO Decaying bloom filter
 		};
 	}

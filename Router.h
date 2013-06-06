@@ -8,6 +8,7 @@
 
 #include "datatypes/ByteArray.h"
 
+#include "Log.h"
 #include "RouterContext.h"
 
 namespace i2pcpp {
@@ -34,6 +35,8 @@ namespace i2pcpp {
 			std::thread m_serviceThread;
 
 			RouterContext m_ctx;
+
+			i2p_logger_mt m_log;
 	};
 }
 

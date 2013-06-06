@@ -6,6 +6,8 @@
 
 #include <botan/dsa.h>
 
+#include "../../Log.h"
+
 #include "EstablishmentState.h"
 
 namespace i2pcpp {
@@ -41,6 +43,8 @@ namespace i2pcpp {
 				std::unordered_map<Endpoint, EstablishmentStatePtr> m_stateTable;
 				std::unordered_map<Endpoint, std::shared_ptr<boost::asio::deadline_timer>> m_stateTimers;
 				mutable std::mutex m_stateTableMutex;
+
+				i2p_logger_mt m_log;
 		};
 	}
 }
