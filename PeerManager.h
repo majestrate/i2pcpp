@@ -22,13 +22,15 @@ namespace i2pcpp {
 			void establishmentFailure(const RouterHash rh);
 
 		private:
-			void callback(const boost::system::error_code &e, std::shared_ptr<boost::asio::deadline_timer> timer);
+			void callback(const boost::system::error_code &e);
 
 			boost::asio::io_service& m_ios;
 			RouterContext& m_ctx;
 
 			std::atomic<uint32_t> m_inboundEstablished;
 			std::atomic<uint32_t> m_outboundEstablished;
+
+			boost::asio::deadline_timer m_timer;
 
 			i2p_logger_mt m_log;
 	};

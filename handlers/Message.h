@@ -17,7 +17,7 @@ namespace i2pcpp {
 				virtual ~Message() {}
 
 				virtual I2NP::Message::Type getType() const = 0;
-				virtual void handleMessage(RouterHash const &from, I2NP::MessagePtr const &msg) = 0;
+				virtual void handleMessage(RouterHash const from, I2NP::MessagePtr const msg) = 0;
 
 			protected:
 				RouterContext& m_ctx;

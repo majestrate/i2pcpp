@@ -13,6 +13,7 @@ namespace i2pcpp {
 	class Database {
 		public:
 			Database(std::string const &file);
+			~Database();
 
 			std::string getConfigValue(std::string const &name);
 			ByteArray getConfigBlob(std::string const &name);

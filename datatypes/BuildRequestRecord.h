@@ -24,6 +24,7 @@ namespace i2pcpp {
 
 			void encrypt(ByteArray const &encryptionKey);
 			void decrypt(Botan::ElGamal_PrivateKey const *key);
+			void encrypt(SessionKey const &iv, SessionKey const &key);
 			void decrypt(SessionKey const &iv, SessionKey const &key);
 
 			const std::array<unsigned char, 16>& getHeader() const;

@@ -21,6 +21,12 @@ namespace i2pcpp {
 		sqlite3_create_function(m_db, "sha256", 1, SQLITE_ANY, NULL, &sha256_func, NULL, NULL);
 	}
 
+	Database::~Database()
+	{
+		if(m_db)
+			sqlite3_close(m_db);
+	}
+
 	std::string Database::getConfigValue(std::string const &name)
 	{
 		const std::string select = "SELECT value FROM config WHERE name = ?";

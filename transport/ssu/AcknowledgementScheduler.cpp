@@ -13,14 +13,13 @@
 namespace i2pcpp {
 	namespace SSU {
 		AcknowledgementScheduler::AcknowledgementScheduler(UDPTransport &transport) :
-			m_transport(transport)
+			m_transport(transport),
+			m_timer(m_transport.m_ios, boost::posix_time::time_duration(0, 0, 1))
 		{
-			AcknowledgementTimerPtr timer(new boost::asio::deadline_timer(m_transport.m_ios, boost::posix_time::time_duration(0, 0, 1)));
-
-			timer->async_wait(boost::bind(&AcknowledgementScheduler::flushAckCallback, this, boost::asio::placeholders::error, timer));
+			m_timer.async_wait(boost::bind(&AcknowledgementScheduler::flushAckCallback, this, boost::asio::placeholders::error));
 		}
 
-		void AcknowledgementScheduler::flushAckCallback(const boost::system::error_code& e, AcknowledgementTimerPtr timer)
+		void AcknowledgementScheduler::flushAckCallback(const boost::system::error_code& e)
 		{
 			for(auto& peerPair: m_transport.m_peers) {
 				PeerStatePtr ps = peerPair.second;
@@ -47,8 +46,8 @@ namespace i2pcpp {
 				}
 			}
 
-			timer->expires_at(timer->expires_at() + boost::posix_time::time_duration(0, 0, 1));
-			timer->async_wait(boost::bind(&AcknowledgementScheduler::flushAckCallback, this, boost::asio::placeholders::error, timer));
+			m_timer.expires_at(m_timer.expires_at() + boost::posix_time::time_duration(0, 0, 1));
+			m_timer.async_wait(boost::bind(&AcknowledgementScheduler::flushAckCallback, this, boost::asio::placeholders::error));
 		}
 	}
 }

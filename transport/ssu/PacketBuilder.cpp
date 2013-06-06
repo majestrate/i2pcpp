@@ -133,15 +133,21 @@ namespace i2pcpp {
 				ba.insert(ba.end(), m.first >> 8);
 				ba.insert(ba.end(), m.first);
 
-				size_t steps = ceil(m.second.size() / 7.0);
+				size_t numBits = m.second.size();
+				size_t steps = ceil(numBits / 7.0);
+
 				for(int i = 0; i < steps; i++) {
 					unsigned char byte = 0;
 
-					for(int j = 0; j < 7; j++)
-						byte |= (m.second[(i * 7) + j] << j);
-
-					if(i < steps - 1)
+					if(i < steps - 1) {
 						byte |= (1 << 7);
+
+						for(int j = 0; j < 7; j++)
+							byte |= (m.second[(i * 7) + j] << j);
+					} else {
+						for(int j = 0; j < numBits - ((steps - 1) * 7); j++)
+							byte |= (m.second[(i * 7) + j] << j);
+					}
 
 					ba.insert(ba.end(), byte);
 				}

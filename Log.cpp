@@ -59,7 +59,6 @@ namespace i2pcpp {
 		sink->set_filter(expr::attr<severity_level>("Severity") >= debug);
 		sink->set_formatter(&Log::formatter);
 
-		boost::log::core::get()->add_global_attribute("ThreadID", attrs::current_thread_id());
 		boost::log::core::get()->add_global_attribute("Timestamp", attrs::local_clock());
 	}
 

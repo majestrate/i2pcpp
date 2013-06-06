@@ -15,7 +15,7 @@ namespace i2pcpp {
 			return I2NP::Message::Type::TUNNEL_GATEWAY;
 		}
 
-		void TunnelGateway::handleMessage(RouterHash const &from, I2NP::MessagePtr const &msg)
+		void TunnelGateway::handleMessage(RouterHash const from, I2NP::MessagePtr const msg)
 		{
 			std::shared_ptr<I2NP::TunnelGateway> tg = std::dynamic_pointer_cast<I2NP::TunnelGateway>(msg);
 
