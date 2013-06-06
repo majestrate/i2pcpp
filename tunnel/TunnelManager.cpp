@@ -37,7 +37,7 @@ namespace i2pcpp {
 
 		for(auto& r: records) {
 			if(myTruncatedIdentity == r.getHeader()) {
-				BOOST_LOG_SEV(m_log, debug) << "found BRR with our identity";
+				I2P_LOG(m_log, debug) << "found BRR with our identity";
 				BuildRequestRecord myRecord = r;
 				myRecord.decrypt(m_ctx.getEncryptionKey());
 
@@ -46,25 +46,25 @@ namespace i2pcpp {
 				if(itr != m_tunnels.end()) {
 					TunnelStatePtr ts = itr->second;
 
-					BOOST_LOG_SEV(m_log, debug) << "found TunnelState with matching tunnel ID";
+					I2P_LOG(m_log, debug) << "found TunnelState with matching tunnel ID";
 
 					std::list<BuildResponseRecord> responses(records.cbegin(), records.cend());
 					ts->parseResponseRecords(responses);
 
 					switch(ts->getState()) {
 						case TunnelState::OPERATIONAL:
-							BOOST_LOG_SEV(m_log, debug) << "tunnel built successfully";
+							I2P_LOG(m_log, debug) << "tunnel built successfully";
 							break;
 
 						case TunnelState::FAILURE:
-							BOOST_LOG_SEV(m_log, debug) << "tunnel build failed";
+							I2P_LOG(m_log, debug) << "tunnel build failed";
 							break;
 
 						default:
 							break;
 					}
 				} else {
-					BOOST_LOG_SEV(m_log, debug) << "TunnelState with matching tunnel ID not found";
+					I2P_LOG(m_log, debug) << "TunnelState with matching tunnel ID not found";
 				}
 			}
 		}

@@ -11,6 +11,9 @@ namespace i2pcpp {
 
 				I2NP::Message::Type getType() const;
 				void handleMessage(RouterHash const &from, I2NP::MessagePtr const &msg);
+
+			private:
+				i2p_logger_mt m_log;
 		};
 	}
 }

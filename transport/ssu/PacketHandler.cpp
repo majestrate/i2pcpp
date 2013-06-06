@@ -7,14 +7,15 @@ namespace i2pcpp {
 		PacketHandler::PacketHandler(UDPTransport &transport, SessionKey const &sk) :
 			m_transport(transport),
 			m_inboundKey(sk),
-			m_imf(transport) {}
+			m_imf(transport),
+	 		m_log(boost::log::keywords::channel = "PH") {}
 
 		void PacketHandler::packetReceived(PacketPtr &p)
 		{
-			I2P_LOG_EP(m_transport.getLogger(), p->getEndpoint());
+			I2P_LOG_SCOPED_EP(m_log, p->getEndpoint());
 
 			if(p->getData().size() < Packet::MIN_PACKET_LEN) {
-				BOOST_LOG_SEV(m_transport.getLogger(), error) << "dropping short packet";
+				I2P_LOG(m_log, error) << "dropping short packet";
 				return;
 			}
 
@@ -32,8 +33,10 @@ namespace i2pcpp {
 
 		void PacketHandler::handlePacket(PacketPtr const &packet, PeerStatePtr const &state)
 		{
+			I2P_LOG_SCOPED_TAG(m_log, "PS");
+
 			if(!packet->verify(state->getCurrentMacKey())) {
-				BOOST_LOG_SEV(m_transport.getLogger(), error) << "packet verification failed";
+				I2P_LOG(m_log, error) << "packet verification failed";
 				return;
 			}
 
@@ -48,7 +51,7 @@ namespace i2pcpp {
 
 			switch(ptype) {
 				case Packet::DATA:
-					BOOST_LOG_SEV(m_transport.getLogger(), debug) << "data packet received";
+					I2P_LOG(m_log, debug) << "data packet received";
 					m_imf.receiveData(state, dataItr, data.cend());
 					break;
 			}
@@ -56,8 +59,10 @@ namespace i2pcpp {
 
 		void PacketHandler::handlePacket(PacketPtr const &packet, EstablishmentStatePtr const &state)
 		{
+			I2P_LOG_SCOPED_TAG(m_log, "EM");
+
 			if(!packet->verify(state->getMacKey())) {
-				BOOST_LOG_SEV(m_transport.getLogger(), error) << "packet verification failed";
+				I2P_LOG(m_log, error) << "packet verification failed";
 				return;
 			}
 
@@ -87,10 +92,12 @@ namespace i2pcpp {
 
 		void PacketHandler::handlePacket(PacketPtr &p)
 		{
+			I2P_LOG_SCOPED_TAG(m_log, "N");
+
 			Endpoint ep = p->getEndpoint();
 
 			if(!p->verify(m_inboundKey)) {
-				BOOST_LOG_SEV(m_transport.getLogger(), error) << "dropping new packet with invalid key";
+				I2P_LOG(m_log, error) << "dropping new packet with invalid key";
 				return;
 			}
 
@@ -111,7 +118,7 @@ namespace i2pcpp {
 					break;
 
 				default:
-					BOOST_LOG_SEV(m_transport.getLogger(), error) << "dropping new, out-of-state packet";
+					I2P_LOG(m_log, error) << "dropping new, out-of-state packet";
 			}
 		}
 

@@ -32,7 +32,7 @@ namespace i2pcpp {
 
 			m_socket.bind(ep.getUDPEndpoint());
 
-			BOOST_LOG_SEV(m_log, info) << "listening on " << ep;
+			I2P_LOG(m_log, info) << "listening on " << ep;
 
 			m_socket.async_receive_from(
 					boost::asio::buffer(m_receiveBuf.data(), m_receiveBuf.size()),
@@ -52,7 +52,7 @@ namespace i2pcpp {
 						break;
 					} catch(std::exception &e) {
 						// TODO Handle exception
-						BOOST_LOG_SEV(m_log, error) << "exception in service thread: " << e.what();
+						I2P_LOG(m_log, error) << "exception in service thread: " << e.what();
 					}
 				}
 			});
@@ -70,14 +70,14 @@ namespace i2pcpp {
 				Endpoint ep(m.getValue("host"), stoi(m.getValue("port")));
 				RouterIdentity id = ri.getIdentity();
 
-				if(m_establishmentManager.stateExists(ep))
+				if(m_establishmentManager.stateExists(ep) || m_peers.remotePeerExists(ep))
 					return;
 
 				m_establishmentManager.createState(ep, id);
 
-				I2P_LOG_EP(m_log, ep);
-				I2P_LOG_RH(m_log, id.getHash());
-				BOOST_LOG_SEV(m_log, debug) << "attempting to establish session";
+				I2P_LOG_SCOPED_EP(m_log, ep);
+				I2P_LOG_SCOPED_RH(m_log, id.getHash());
+				I2P_LOG(m_log, debug) << "attempting to establish session";
 
 				break;
 			}
@@ -99,6 +99,11 @@ namespace i2pcpp {
 
 	void UDPTransport::disconnect(RouterHash const &rh)
 	{
+	}
+
+	uint32_t UDPTransport::numPeers() const
+	{
+		return m_peers.numPeers();
 	}
 
 	void UDPTransport::shutdown()
@@ -134,7 +139,7 @@ namespace i2pcpp {
 	void UDPTransport::dataReceived(const boost::system::error_code& e, size_t n)
 	{
 		if(!e && n > 0) {
-			BOOST_LOG_SEV(m_log, debug) << "received " << n << " bytes from " << m_senderEndpoint;
+			I2P_LOG(m_log, debug) << "received " << n << " bytes from " << m_senderEndpoint;
 			
 			auto p = std::make_shared<SSU::Packet>(Endpoint(m_senderEndpoint), m_receiveBuf.data(), n);
 			m_ios.post(boost::bind(&SSU::PacketHandler::packetReceived, &m_packetHandler, p));
@@ -150,22 +155,17 @@ namespace i2pcpp {
 						)
 					);
 		} else {
-			BOOST_LOG_SEV(m_log, debug) << "error: " << e.message();
+			I2P_LOG(m_log, debug) << "error: " << e.message();
 		}
 	}
 
 	void UDPTransport::dataSent(const boost::system::error_code& e, size_t n, boost::asio::ip::udp::endpoint ep)
 	{
-		BOOST_LOG_SEV(m_log, debug) << "sent " << n << " bytes to " << ep;
+		I2P_LOG(m_log, debug) << "sent " << n << " bytes to " << ep;
 	}
 
 	SSU::EstablishmentManager& UDPTransport::getEstablisher()
 	{
 		return m_establishmentManager;
-	}
-
-	i2p_logger_mt& UDPTransport::getLogger()
-	{
-		return m_log;
 	}
 }

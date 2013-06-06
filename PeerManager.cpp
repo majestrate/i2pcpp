@@ -40,6 +40,8 @@ namespace i2pcpp {
 		uint32_t max_peers = std::stoi(m_ctx.getDatabase().getConfigValue("max_peers"));
 		int32_t gap = max_peers - (m_inboundEstablished + m_outboundEstablished);
 
+		I2P_LOG(m_log, debug) << "current number of peers: " << m_ctx.getOutMsgDisp().getTransport()->numPeers();
+
 		for(int32_t i = 0; i < gap; i++)
 			m_ctx.getOutMsgDisp().getTransport()->connect(m_ctx.getProfileManager().getPeer());
 

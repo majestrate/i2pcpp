@@ -8,7 +8,8 @@
 namespace i2pcpp {
 	namespace Handlers {
 		DatabaseSearchReply::DatabaseSearchReply(RouterContext &ctx) :
-			Message(ctx) {}
+			Message(ctx),
+			m_log(boost::log::keywords::channel = "H[DSR]") {}
 
 		I2NP::Message::Type DatabaseSearchReply::getType() const
 		{
@@ -19,8 +20,8 @@ namespace i2pcpp {
 		{
 			std::shared_ptr<I2NP::DatabaseSearchReply> dsr = std::dynamic_pointer_cast<I2NP::DatabaseSearchReply>(msg);
 
-			I2P_LOG_RH(m_ctx.getLogger(), from);
-			BOOST_LOG_SEV(m_ctx.getLogger(), debug) << "received DatabaseSearchReply message";
+			I2P_LOG_SCOPED_RH(m_log, from);
+			I2P_LOG(m_log, debug) << "received DatabaseSearchReply message";
 
 			for(auto h: dsr->getHashes()) {
 				if(!m_ctx.getDatabase().routerExists(h)) {

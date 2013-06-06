@@ -7,7 +7,8 @@
 namespace i2pcpp {
 	namespace Handlers {
 		TunnelGateway::TunnelGateway(RouterContext &ctx) :
-			Message(ctx) {}
+			Message(ctx),
+			m_log(boost::log::keywords::channel = "H[TG]") {}
 
 		I2NP::Message::Type TunnelGateway::getType() const
 		{
@@ -18,8 +19,8 @@ namespace i2pcpp {
 		{
 			std::shared_ptr<I2NP::TunnelGateway> tg = std::dynamic_pointer_cast<I2NP::TunnelGateway>(msg);
 
-			I2P_LOG_RH(m_ctx.getLogger(), from);
-			BOOST_LOG_SEV(m_ctx.getLogger(), debug) << "received TunnelGateway message";
+			I2P_LOG_SCOPED_RH(m_log, from);
+			I2P_LOG(m_log, debug) << "received TunnelGateway message";
 		}
 	}
 }

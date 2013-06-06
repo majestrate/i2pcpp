@@ -4,6 +4,7 @@
 
 #include <botan/botan.h>
 
+#include <boost/filesystem.hpp>
 #include <boost/assign/list_of.hpp>
 #include <boost/tokenizer.hpp>
 
@@ -22,7 +23,7 @@ int main()
 	using namespace i2pcpp;
 
 	Log::initialize();
-	i2p_logger_mt lg(boost::log::keywords::channel = "Main");
+	i2p_logger_mt lg(boost::log::keywords::channel = "M");
 
 	Botan::LibraryInitializer init("thread_safe=true");
 
@@ -40,11 +41,12 @@ int main()
 		DB_LOOKUP,
 		EXPORT_INFO,
 		IMPORT_INFO,
+		IMPORT_DIR,
 		SEND,
 		BUILD_INBOUND,
 		QUIT
 	};
-	std::map<std::string, Command> cmd_map = boost::assign::map_list_of("lookup", DB_LOOKUP)("quit", QUIT)("connect", CONNECT)("export", EXPORT_INFO)("import", IMPORT_INFO)("send", SEND)("ibt", BUILD_INBOUND);
+	std::map<std::string, Command> cmd_map = boost::assign::map_list_of("lookup", DB_LOOKUP)("quit", QUIT)("connect", CONNECT)("export", EXPORT_INFO)("import", IMPORT_INFO)("importdir", IMPORT_DIR)("send", SEND)("ibt", BUILD_INBOUND);
 
 
 	while(keepRunning) {
@@ -92,6 +94,38 @@ int main()
 				r.importRouterInfo(info);
 				break;
 
+			case IMPORT_DIR:
+				{
+					namespace fs = boost::filesystem;
+
+					fs::path dir = *(tokItr++);
+					if(!fs::exists(dir)) {
+						I2P_LOG(lg, error) << "directory does not exist";
+						break;
+					}
+
+					fs::recursive_directory_iterator itr(dir), end;
+					while(itr != end) {
+						if(is_regular_file(*itr)) {
+							f.open(itr->path().string());
+							info = i2pcpp::ByteArray((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
+							f.close();
+							I2P_LOG(lg, debug) << "importing " << itr->path().string();
+							r.importRouterInfo(info);
+						}
+
+						if(fs::is_symlink(*itr)) itr.no_push();
+
+						try {
+							++itr;
+						} catch(std::exception &e) {
+							itr.no_push();
+							continue;
+						}
+					}
+				}
+				break;
+
 			case SEND:
 				r.sendRawData(*tokItr++, *tokItr++);
 				break;
@@ -106,7 +140,7 @@ int main()
 		}
 	}
 
-	BOOST_LOG_SEV(lg, debug) << "shutting down...";
+	I2P_LOG(lg, debug) << "shutting down...";
 
 	r.stop();
 

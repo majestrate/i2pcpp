@@ -68,7 +68,7 @@ namespace i2pcpp {
 
 				mutable std::mutex m_mutex;
 
-				static i2p_logger_mt m_log;
+				i2p_logger_mt m_log;
 		};
 
 		typedef std::shared_ptr<PeerState> PeerStatePtr;

@@ -1,7 +1,29 @@
 #include "Log.h"
 
+#include <sstream>
+#include <locale>
+
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/date_time/posix_time/posix_time_io.hpp>
+
+#include <boost/log/expressions.hpp>
+#include <boost/log/sources/global_logger_storage.hpp>
+#include <boost/log/sinks/text_ostream_backend.hpp>
+#include <boost/log/attributes/clock.hpp>
+#include <boost/log/attributes/current_thread_id.hpp>
+#include <boost/log/attributes/named_scope.hpp>
+#include <boost/log/attributes/value_extraction.hpp>
+#include <boost/log/utility/empty_deleter.hpp>
+#include <boost/log/utility/manipulators/add_value.hpp>
+#include <boost/log/support/exception.hpp>
+
 #include "datatypes/Endpoint.h"
 #include "datatypes/RouterHash.h"
+
+namespace keywords = boost::log::keywords;
+namespace attrs = boost::log::attributes;
+namespace sinks = boost::log::sinks;
+namespace expr = boost::log::expressions;
 
 namespace i2pcpp {
 	std::ostream& operator<< (std::ostream& strm, severity_level level)
@@ -25,10 +47,6 @@ namespace i2pcpp {
 
 	void Log::initialize()
 	{
-		namespace keywords = boost::log::keywords;
-		namespace attrs = boost::log::attributes;
-		namespace sinks = boost::log::sinks;
-		namespace expr = boost::log::expressions;
 
 		typedef sinks::synchronous_sink<sinks::text_ostream_backend> sink_t;
 
@@ -39,41 +57,36 @@ namespace i2pcpp {
 		boost::log::core::get()->add_sink(sink);
 
 		sink->set_filter(expr::attr<severity_level>("Severity") >= debug);
-		sink->set_formatter(expr::stream
-				<< '['
-				<< expr::format_date_time<boost::posix_time::ptime>("Timestamp", "%Y-%m-%d %T.%f")
-				<< "] "
-				<< expr::attr<attrs::current_thread_id::value_type>("ThreadID")
-				<< ' '
-				<< expr::attr<std::string>("Channel")
-				<< expr::if_(expr::has_attr<std::string>("Scope"))
-					[
-						expr::stream
-						<< "("
-						<< expr::attr<std::string>("Scope")
-						<< ")"
-					]
-				<< '/'
-				<< expr::attr<severity_level>("Severity")
-				<< expr::if_(expr::has_attr<RouterHash>("RouterHash"))
-					[
-						expr::stream
-						<< " ["
-						<< expr::attr<RouterHash>("RouterHash")
-						<< "]"
-					]
-				<< expr::if_(expr::has_attr<Endpoint>("Endpoint"))
-					[
-						expr::stream
-						<< " ["
-						<< expr::attr<Endpoint>("Endpoint")
-						<< "]"
-					]
-				<< ": "
-				<< expr::message
-			);
+		sink->set_formatter(&Log::formatter);
 
 		boost::log::core::get()->add_global_attribute("ThreadID", attrs::current_thread_id());
 		boost::log::core::get()->add_global_attribute("Timestamp", attrs::local_clock());
+	}
+
+	void Log::formatter(boost::log::record_view const &rec, boost::log::formatting_ostream &s)
+	{
+		const boost::log::attribute_value_set& attrSet = rec.attribute_values();
+
+		static std::locale loc(std::clog.getloc(), new boost::posix_time::time_facet("%Y-%m-%d %T.%f"));
+		std::stringstream ss;
+		ss.imbue(loc);
+		if(!ss.good()) return;
+		ss << boost::log::extract<boost::posix_time::ptime>("Timestamp", rec);
+		if(!ss.good()) return;
+		s << '[' << ss.str() << ']';
+
+		s << ' ' << boost::log::extract<std::string>("Channel", rec);
+		if(attrSet.find("Scope") != attrSet.end())
+			s << '(' << boost::log::extract<std::string>("Scope", rec) << ')';
+		s << '/' << boost::log::extract<severity_level>("Severity", rec);
+
+
+		if(attrSet.find("RouterHash") != attrSet.end())
+			s << " [" << boost::log::extract<RouterHash>("RouterHash", rec) << ']';
+
+		if(attrSet.find("Endpoint") != attrSet.end())
+			s << " [" << boost::log::extract<Endpoint>("Endpoint", rec) << ']';
+
+		s << ": " << rec[expr::smessage];
 	}
 }

@@ -1,5 +1,7 @@
 #include "InboundMessageDispatcher.h"
 
+#include <iomanip>
+
 #include <boost/bind.hpp>
 #include <iomanip>
 #include <botan/auto_rng.h>
@@ -22,11 +24,11 @@ namespace i2pcpp {
 
 	void InboundMessageDispatcher::messageReceived(RouterHash from, ByteArray data)
 	{
-		I2P_LOG_RH(m_log, from);
+		I2P_LOG_SCOPED_RH(m_log, from);
 
 		std::stringstream s;
 		for(auto c: data) s << std::setw(2) << std::setfill('0') << std::hex << (int)c;
-		BOOST_LOG_SEV(m_log, debug) << "received data: " << s.str();
+		I2P_LOG(m_log, debug) << "received data: " << s.str();
 
 		I2NP::MessagePtr m = I2NP::Message::fromBytes(data);
 		if(m) {
@@ -52,7 +54,7 @@ namespace i2pcpp {
 					break;
 
 				default:
-					BOOST_LOG_SEV(m_log, error) << "dropping unhandled message of type " << m->getType();
+					I2P_LOG(m_log, error) << "dropping unhandled message of type " << m->getType();
 					break;
 			}
 		}
@@ -60,8 +62,8 @@ namespace i2pcpp {
 
 	void InboundMessageDispatcher::connectionEstablished(RouterHash rh, bool inbound)
 	{
-		I2P_LOG_RH(m_log, rh);
-		BOOST_LOG_SEV(m_log, info) << "session established";
+		I2P_LOG_SCOPED_RH(m_log, rh);
+		I2P_LOG(m_log, info) << "session established";
 
 		if(inbound) {
 			Botan::AutoSeeded_RNG rng;

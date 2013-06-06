@@ -10,7 +10,8 @@
 namespace i2pcpp {
 	namespace Handlers {
 		DeliveryStatus::DeliveryStatus(RouterContext &ctx) :
-			Message(ctx) {}
+			Message(ctx),
+			m_log(boost::log::keywords::channel = "H[DStat]") {}
 
 		I2NP::Message::Type DeliveryStatus::getType() const
 		{
@@ -19,8 +20,9 @@ namespace i2pcpp {
 
 		void DeliveryStatus::handleMessage(RouterHash const &from, I2NP::MessagePtr const &msg)
 		{
-			I2P_LOG_RH(m_ctx.getLogger(), from);
-			BOOST_LOG_SEV(m_ctx.getLogger(), debug) << "received DeliveryStatus message, replying with DatabaseStore message";
+			I2P_LOG_SCOPED_RH(m_log, from);
+			I2P_LOG(m_log, debug) << "received DeliveryStatus message, replying with DatabaseStore message";
+
 			Mapping am;
 			am.setValue("caps", "BC");
 			am.setValue("host", m_ctx.getDatabase().getConfigValue("ssu_external_ip"));

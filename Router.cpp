@@ -7,9 +7,10 @@
 namespace i2pcpp {
 	Router::Router(std::string const &dbFile) :
 		m_work(m_ios),
-		m_ctx(dbFile, m_ios)
+		m_ctx(dbFile, m_ios),
+		m_log(boost::log::keywords::channel = "R")
 	{
-		BOOST_LOG_SEV(m_ctx.getLogger(), info) << "local router hash: " << m_ctx.getIdentity().getHashEncoded();
+		I2P_LOG(m_log, info) << "local router hash: " << m_ctx.getIdentity().getHashEncoded();
 	}
 
 	Router::~Router()
@@ -25,8 +26,17 @@ namespace i2pcpp {
 
 	void Router::start()
 	{
-		m_serviceThread = std::thread([&](){m_ios.run();});
-		BOOST_LOG_SEV(m_ctx.getLogger(), info) << "local router hash: " << m_ctx.getIdentity().getHashEncoded();
+		m_serviceThread = std::thread([&](){
+			while(1) {
+				try {
+					m_ios.run();
+					break;
+				} catch(std::exception &e) {
+					// TODO Handle exception
+					I2P_LOG(m_log, error) << "exception in service thread: " << e.what();
+				}
+			}
+		});
 		TransportPtr t = TransportPtr(new UDPTransport(*m_ctx.getSigningKey(), m_ctx.getIdentity()));
 		t->registerReceivedHandler(boost::bind(&InboundMessageDispatcher::messageReceived, m_ctx.getInMsgDisp(), _1, _2));
 		t->registerEstablishedHandler(boost::bind(&InboundMessageDispatcher::connectionEstablished, m_ctx.getInMsgDisp(), _1, _2));
