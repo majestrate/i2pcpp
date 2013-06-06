@@ -26,6 +26,8 @@ namespace i2pcpp {
 				void handleSessionRequest(ByteArrayConstItr &begin, ByteArrayConstItr end, EstablishmentStatePtr const &state);
 				void handleSessionCreated(ByteArrayConstItr &begin, ByteArrayConstItr end, EstablishmentStatePtr const &state);
 				void handleSessionConfirmed(ByteArrayConstItr &begin, ByteArrayConstItr end, EstablishmentStatePtr const &state);
+				void handleSessionDestroyed(PeerStatePtr const &ps);
+				void handleSessionDestroyed(EstablishmentStatePtr const &state);
 
 				UDPTransport& m_transport;
 

@@ -31,6 +31,11 @@ namespace i2pcpp {
 		// TODO Ding the peer's profile
 	}
 
+	void PeerManager::disconnected(const RouterHash rh)
+	{
+		I2P_LOG(m_log, debug) << "decrement count!";
+	}
+
 	void PeerManager::callback(const boost::system::error_code &e)
 	{
 		uint32_t maxPeers = std::stoi(m_ctx.getDatabase().getConfigValue("max_peers"));
