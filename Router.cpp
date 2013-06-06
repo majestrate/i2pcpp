@@ -20,7 +20,7 @@ namespace i2pcpp {
       
         i2p_logger_mt & Router::getLogger()
         {
-	  return m_ctx.getLogger();
+	  return m_log;
         }
 
 
