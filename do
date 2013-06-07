@@ -1,8 +1,8 @@
 #!/bin/bash
 #
 # automagic build script
-# get all dependancies 
-# build all dependancies
+# get botan and boost (with boost-log)
+# build botan and boost
 # build i2p
 #
 # author chisquare
@@ -49,8 +49,8 @@ _botan_build() # build patched botan
 {
     srcdir="$1"
     cd $srcdir
-    python ./configure.py --prefix=$2
-    make && make install
+    python ./configure.py --prefix=$2 --with-zlib
+    make -j$jobs && make install -j$jobs
     cd -
 }
 
@@ -64,7 +64,7 @@ _build_boost() # build boost with boost-log
     ./bootstrap.sh --prefix=$prefix
     ./b2 -tx -j $jobs -a 
     cd -
-    cp -a $boostdir $prefix
+    cp -av $boostdir $prefix
     
 }
 
@@ -81,11 +81,6 @@ get_deps() # grab all dependancies
 	cd -
     fi
     
-    #if [ ! -d $base/sqlite3 ]; then
-    #	get_url http://www.sqlite.org/2013/sqlite-autoconf-3071700.tar.gz $base/sqlite3.tar.gz
-    #	_e $base/sqlite3.tar.gz $base/sqlite3
-    #fi
-
     if [ ! -d $base/boost ]; then	
 	get_url http://superb-dca3.dl.sourceforge.net/project/boost/boost/1.53.0/boost_1_53_0.tar.gz $base/boost.tar.gz
 	_e $base/boost.tar.gz $base/boost
@@ -96,15 +91,6 @@ get_deps() # grab all dependancies
 	_e $base/boost-log.zip $base/boost-log
     fi
 
-    #if [ ! -d $base/python ]; then	
-    #	get_url http://python.org/ftp/python/3.3.2/Python-3.3.2.tar.bz2 $base/python.tar.bz2
-    #	_e $base/python.tar.bz2 $base/python
-    #fi
-
-    #if [ ! -d $base/cmake ]; then	
-    #	get_url http://www.cmake.org/files/v2.8/cmake-2.8.11.tar.gz $base/cmake.tar.gz
-    #	_e $base/cmake.tar.gz $base/cmake
-    #fi
 }
 
 build_deps() # build dependancies
@@ -114,16 +100,6 @@ build_deps() # build dependancies
     echo "Build Dependancies..."
     prefix="$3"
     
-    # build cmake
-    #echo "Build Cmake..."
-    #_ac_build $base/cmake $base/cmake/build $prefix
-    
-    #echo "Build Sqlite3..."
-    #_ac_build $base/sqlite3 $base/sqlite3/build $prefix
-
-    #echo "Build Python..."
-    #_ac_build $base/python $base/python/build $prefix
-
     echo "Building Botan..."
     _botan_build $src/botan $prefix
 
@@ -137,14 +113,14 @@ build_i2p() # build i2p itself
     base="$1"
     build="$2"
     prefix="$3"
-    mkdir -p $build
+    rm -rf $build
+    mkdir $build
     cmake="`which cmake`"
     echo "Building I2P..."
     cd $build
-    echo "in $PWD base=$base"
-    $cmake  -DBOTAN_INCLUDE_DIR=$prefix/include/botan-1.11/ -DBOTAN_LIBRARY_PATH=$prefix/lib/ -DBOOST_ROOT=$prefix/boost/ $base
+    $cmake  -DBOTAN_INCLUDE_DIR=$prefix/include/botan-1.11 -DBOTAN_LIBRARY_PREFIX=$prefix/lib -DBOOST_ROOT=$prefix/boost/ $base
+    make -j$jobs
 }
-
 ensure_gcc() # make sure we have g++
 {
     if [ "`which g++`" == "" ] ; then
@@ -174,7 +150,7 @@ runit() # run the damn thing :3
     mkdir -p $t
     get_deps $base $t
     mkdir -p $prefix
-    #build_deps $base $t $prefix
+    build_deps $base $t $prefix
     build_i2p $base $build/i2p $prefix
 }
 
