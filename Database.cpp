@@ -8,6 +8,7 @@
 #include <vector>
 #include <fstream>
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 
 using namespace boost::filesystem;
 
@@ -263,10 +264,11 @@ namespace i2pcpp {
 	  {
 	    try {
 	    path p = path(fname);
-	    if ( exists(p) && is_regular_file(p) )
+	    std::string filename = p.native();
+	    if ( exists(p) && is_regular_file(p) && boost::algorithm::ends_with(filename, ".dat"))
 	      {
 		std::fstream fst;
-		fst.open(p.native());
+		fst.open(filename);
 	       
 		ByteArray ba((std::istreambuf_iterator<char>(fst)), std::istreambuf_iterator<char>());
 		fst.close();
