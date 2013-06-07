@@ -36,8 +36,9 @@ def import_netdb_dir(netdb_dir,new_dir):
             for dir in dirs:
                 count += import_netdb_dir(os.path.join(root,dir),new_dir)
         for file in files:
-            cp(os.path.join(root,file),os.path.join(new_dir,file))
-            count += 1
+            if file.endswith('.dat'):
+                cp(os.path.join(root,file),os.path.join(new_dir,file))
+                count += 1
     return count 
 def init(db_schema='db_schema.sql',db_fname='i2p.db',ssu_ip='0.0.0.0',ssu_port=6699,max_peers=10):
     con = sqlite3.connect(db_fname)
