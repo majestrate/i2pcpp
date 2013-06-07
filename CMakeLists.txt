@@ -117,16 +117,27 @@ include_directories(BEFORE i2p "${SQLITE3_INCLUDE_DIR}")
 target_link_libraries(i2p "${SQLITE3_LIBRARY_PATH}")
 
 # Botan
-find_path(BOTAN_INCLUDE_DIR botan/botan.h PATHS "${BOTAN_INCLUDE_PREFIX}" NO_DEFAULT_PATH)
-find_path(BOTAN_INCLUDE_DIR botan/botan.h)
+
+find_path(BOTAN_INCLUDE_DIR botan/botan.h PATHS "${BOTAN_INCLUDE_PREFIX}" "/usr/local/include/botan-1.11" "/usr/include/botan-1.11")
+find_path(BOTAN_INCLUDE_DIR botan/botan.h )
+
+
+if(BOTAN_INCLUDE_DIR)
+	message(STATUS "Found botan Include Files: ${BOTAN_INCLUDE_DIR}")
+else(BOTAN_INCLUDE_DIR)
+	message(FATAL_ERROR "Botan 1.11 Include Files not found")
+endif(BOTAN_INCLUDE_DIR)
+
 find_library(BOTAN_LIBRARY_PATH botan-1.11 PATHS "${BOTAN_LIBRARY_PREFIX}" NO_DEFAULT_PATH)
 find_library(BOTAN_LIBRARY_PATH botan-1.11)
 
-if(BOTAN_LIBRARY_PATH AND BOTAN_INCLUDE_DIR)
-	message(STATUS "Found botan: ${BOTAN_LIBRARY_PATH}")
-else(BOTAN_LIBRARY_PATH AND BOTAN_INCLUDE_DIR)
-	message(FATAL_ERROR "Botan 1.11 not found")
-endif(BOTAN_LIBRARY_PATH AND BOTAN_INCLUDE_DIR)
+
+if(BOTAN_LIBRARY_PATH)
+	message(STATUS "Found botan Library: ${BOTAN_LIBRARY_PATH}")
+else(BOTAN_LIBRARY_PATH)
+	message(FATAL_ERROR "Botan 1.11 Library not found")
+endif(BOTAN_LIBRARY_PATH)
+
 
 include_directories(BEFORE i2p ${BOTAN_INCLUDE_DIR})
 target_link_libraries(i2p ${BOTAN_LIBRARY_PATH})
