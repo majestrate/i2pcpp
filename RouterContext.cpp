@@ -20,11 +20,11 @@ namespace i2pcpp {
 
 		std::string encryptingKeyPEM = m_db.getConfigValue("private_encryption_key");
 		Botan::DataSource_Memory dsm((unsigned char *)encryptingKeyPEM.data(), encryptingKeyPEM.size());
-		m_encryptionKey = dynamic_cast<Botan::ElGamal_PrivateKey *>(Botan::PKCS8::load_key(dsm, rng, ""));
+		m_encryptionKey = dynamic_cast<Botan::ElGamal_PrivateKey *>(Botan::PKCS8::load_key(dsm, rng, (std::string)""));
 
 		std::string signingKeyPEM = m_db.getConfigValue("private_signing_key");
 		Botan::DataSource_Memory dsm2((unsigned char *)signingKeyPEM.data(), signingKeyPEM.size());
-		m_signingKey = dynamic_cast<Botan::DSA_PrivateKey *>(Botan::PKCS8::load_key(dsm2, rng, ""));
+		m_signingKey = dynamic_cast<Botan::DSA_PrivateKey *>(Botan::PKCS8::load_key(dsm2, rng, (std::string)""));
 
 		Botan::BigInt encryptionKeyPublic, signingKeyPublic;
 		encryptionKeyPublic = m_encryptionKey->get_y();

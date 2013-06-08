@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <mutex>
+#include <condition_variable>
 
 #include <botan/botan.h>
 
@@ -72,9 +73,6 @@ int main(int argc, char **argv)
 		po::store(po::command_line_parser(argc, argv).options(all_opts).run(), vm);
 		po::notify(vm);
 
-
-		Router r(dbFile);
-
 		if(vm.count("help")) {
 			cout << general << endl;
 			cout << db << endl;
@@ -87,6 +85,8 @@ int main(int argc, char **argv)
 
 			return EXIT_SUCCESS;
 		}
+
+		Router r(dbFile);
 
 		if(vm.count("log")) {
 			// TODO Log rotation, etc

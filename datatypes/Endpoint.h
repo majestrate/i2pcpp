@@ -31,23 +31,25 @@ namespace i2pcpp {
 	std::ostream& operator<<(std::ostream &s, Endpoint const &ep);
 }
 
-template<>
-struct std::hash<i2pcpp::Endpoint> {
-	public:
-		size_t operator()(const i2pcpp::Endpoint &ep) const
-		{
-			std::hash<std::string> f;
-			return f(ep.getIP() + ":" + boost::lexical_cast<std::string>(ep.getPort()));
-		}
-};
+namespace std {
+	template<>
+	struct hash<i2pcpp::Endpoint> {
+		public:
+			size_t operator()(const i2pcpp::Endpoint &ep) const
+			{
+				std::hash<std::string> f;
+				return f(ep.getIP() + ":" + boost::lexical_cast<std::string>(ep.getPort()));
+			}
+	};
 
-template<>
-struct std::equal_to<i2pcpp::Endpoint> {
-	public:
-		bool operator()(const i2pcpp::Endpoint& lhs, const i2pcpp::Endpoint& rhs) const
-		{
-			return lhs == rhs;
-		}
-};
+	template<>
+	struct equal_to<i2pcpp::Endpoint> {
+		public:
+			bool operator()(const i2pcpp::Endpoint& lhs, const i2pcpp::Endpoint& rhs) const
+			{
+				return lhs == rhs;
+			}
+	};
+}
 
 #endif

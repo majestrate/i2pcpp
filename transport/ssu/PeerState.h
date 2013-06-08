@@ -75,14 +75,16 @@ namespace i2pcpp {
 	}
 }
 
-template<>
-struct std::hash<i2pcpp::SSU::PeerStatePtr> {
-	public:
-		size_t operator()(const i2pcpp::SSU::PeerStatePtr &ps) const
-		{
-			std::hash<i2pcpp::RouterHash> f;
-			return f(ps->getIdentity().getHash());
-		}
-};
+namespace std {
+	template<>
+	struct hash<i2pcpp::SSU::PeerStatePtr> {
+		public:
+			size_t operator()(const i2pcpp::SSU::PeerStatePtr &ps) const
+			{
+				std::hash<i2pcpp::RouterHash> f;
+				return f(ps->getIdentity().getHash());
+			}
+	};
+}
 
 #endif
