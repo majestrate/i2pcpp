@@ -2,6 +2,7 @@
 
 #include "exceptions/StatementPrepareError.h"
 #include "exceptions/RecordNotFound.h"
+#include "exceptions/SQLError.h"
 
 #include "util/Base64.h"
 
@@ -46,6 +47,22 @@ namespace i2pcpp {
 			return ret;
 		} else
 			throw RecordNotFound(name);
+	}
+
+	void Database::setConfigValue(std::string const &name, std::string const &value)
+	{
+		const std::string insert = "INSERT OR REPLACE INTO config (name, value) VALUES (?, ?)";
+		sqlite3_stmt *statement;
+
+		if(sqlite3_prepare(m_db, insert.c_str(), -1, &statement, NULL) != SQLITE_OK) throw StatementPrepareError();
+
+		sqlite3_bind_text(statement, 1, name.c_str(), -1, SQLITE_STATIC);
+		sqlite3_bind_text(statement, 2, value.c_str(), -1, SQLITE_STATIC);
+
+		if(sqlite3_step(statement) != SQLITE_DONE)
+			throw SQLError(insert);
+
+		sqlite3_finalize(statement);
 	}
 
 	RouterHash Database::getRandomFloodfill()
@@ -229,25 +246,37 @@ namespace i2pcpp {
 		std::string del = "DELETE FROM router_address_options WHERE router_id = ?";
 		if((rc = sqlite3_prepare(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
 		sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
-		if((rc = sqlite3_step(statement)) != SQLITE_DONE) { std::cerr << "Delete RC: " << rc << "\n"; } // TODO Exception`
+
+		if((rc = sqlite3_step(statement)) != SQLITE_DONE)
+			throw SQLError(del);
+
 		sqlite3_finalize(statement);
 
 		del = "DELETE FROM router_addresses WHERE router_id = ?";
 		if((rc = sqlite3_prepare(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
 		sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
-		if((rc = sqlite3_step(statement)) != SQLITE_DONE) { std::cerr << "Delete RC: " << rc << "\n"; } // TODO Exception`
+
+		if((rc = sqlite3_step(statement)) != SQLITE_DONE)
+			throw SQLError(del);
+
 		sqlite3_finalize(statement);
 
 		del = "DELETE FROM router_options WHERE router_id = ?";
 		if((rc = sqlite3_prepare(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
 		sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
-		if((rc = sqlite3_step(statement)) != SQLITE_DONE) { std::cerr << "Delete RC: " << rc << "\n"; } // TODO Exception`
+
+		if((rc = sqlite3_step(statement)) != SQLITE_DONE)
+			throw SQLError(del);
+
 		sqlite3_finalize(statement);
 
 		del = "DELETE FROM routers WHERE id = ?";
 		if((rc = sqlite3_prepare(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
 		sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
-		if((rc = sqlite3_step(statement)) != SQLITE_DONE) { std::cerr << "Delete RC: " << rc << "\n"; } // TODO Exception`
+
+		if((rc = sqlite3_step(statement)) != SQLITE_DONE)
+			throw SQLError(del);
+
 		sqlite3_finalize(statement);
 	}
   bool Database::importNetDb(std::string const & directory)
@@ -257,7 +286,8 @@ namespace i2pcpp {
     std::vector<path> netdbFiles;
     if (exists(netdbDir) && is_directory(netdbDir))
       {
-	copy(directory_iterator(netdbDir),directory_iterator(), back_inserter(netdbFiles));
+
+	copy(recursive_directory_iterator(netdbDir),recursive_directory_iterator(), back_inserter(netdbFiles));
 	sqlite3_exec(m_db, "BEGIN TRANSACTION", NULL, NULL, NULL);
 
 	for ( auto fname : netdbFiles)
@@ -372,7 +402,10 @@ namespace i2pcpp {
 		sqlite3_bind_blob(statement, 4, cert.data(), cert.size(), SQLITE_STATIC);
 		sqlite3_bind_blob(statement, 5, pub.data(), pub.size(), SQLITE_STATIC);
 		sqlite3_bind_blob(statement, 6, sig.data(), sig.size(), SQLITE_STATIC);
-		if((rc = sqlite3_step(statement)) != SQLITE_DONE) { std::cerr << "Insert RC: " << rc << "\n"; } // TODO Exception
+
+		if((rc = sqlite3_step(statement)) != SQLITE_DONE)
+			throw SQLError(insert);
+
 		sqlite3_finalize(statement);
 
 		int i = 0;
@@ -387,7 +420,10 @@ namespace i2pcpp {
 			ByteArray expBytes = a.getExpiration().serialize();
 			sqlite3_bind_blob(statement, 4, expBytes.data(), expBytes.size(), SQLITE_STATIC);
 			sqlite3_bind_text(statement, 5, a.getTransport().c_str(), -1, SQLITE_STATIC);
-			if((rc = sqlite3_step(statement)) != SQLITE_DONE) { std::cerr << "Insert RC: " << rc << "\n"; } // TODO Exception
+
+			if((rc = sqlite3_step(statement)) != SQLITE_DONE)
+				throw SQLError(insert);
+
 			sqlite3_finalize(statement);
 
 			for(auto& o: a.getOptions()) {
@@ -397,7 +433,10 @@ namespace i2pcpp {
 				sqlite3_bind_text(statement, 2, istr.c_str(), -1, SQLITE_STATIC);
 				sqlite3_bind_text(statement, 3, o.first.c_str(), -1, SQLITE_STATIC);
 				sqlite3_bind_text(statement, 4, o.second.c_str(), -1, SQLITE_STATIC);
-				if((rc = sqlite3_step(statement)) != SQLITE_DONE) { std::cerr << "Insert[" << i << "] RC: " << rc << "\n"; } // TODO Exception
+
+				if((rc = sqlite3_step(statement)) != SQLITE_DONE)
+					throw SQLError(insert);
+
 				sqlite3_finalize(statement);
 			}
 
@@ -410,7 +449,10 @@ namespace i2pcpp {
 			sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
 			sqlite3_bind_text(statement, 2, o.first.c_str(), -1, SQLITE_STATIC);
 			sqlite3_bind_text(statement, 3, o.second.c_str(), -1, SQLITE_STATIC);
-			if((rc = sqlite3_step(statement)) != SQLITE_DONE) { std::cerr << "Insert[" << i << "] RC: " << rc << "\n"; } // TODO Exception
+
+			if((rc = sqlite3_step(statement)) != SQLITE_DONE)
+				throw SQLError(insert);
+
 			sqlite3_finalize(statement);
 		}
 

@@ -21,13 +21,11 @@ namespace i2pcpp {
 			void start();
 			void stop();
 
-			void connect(std::string const &to);
-			
+			void importNetDb(std::string const &dirname);
 			ByteArray getRouterInfo();
 			void importRouterInfo(ByteArray const &info);
-			void sendRawData(std::string const &dst, std::string const &data);
-			void createTunnel(bool inbound);
-			void importNetDb(std::string const &dirname);
+			void setConfigValue(std::string key, std::string value);
+			std::string getConfigValue(std::string key);
 
 			i2p_logger_mt & getLogger();
 		private:

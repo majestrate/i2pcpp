@@ -11,12 +11,12 @@ namespace i2pcpp {
 		return m_routerInfoSaved.connect(rish);
 	}
 
-	void Signals::invokeBuildTunnelRequest(const std::list<BuildRequestRecord> &records)
+	void Signals::invokeTunnelRecordsReceived(const std::list<BuildRecord> &records)
 	{
 		m_ios.post(boost::bind(boost::ref(m_buildTunnelRequest), records));
 	}
 
-	boost::signals2::connection Signals::registerBuildTunnelRequest(BuildTunnelRequest::slot_type const &btrh)
+	boost::signals2::connection Signals::registerTunnelRecordsReceived(BuildTunnelRequest::slot_type const &btrh)
 	{
 		return m_buildTunnelRequest.connect(btrh);
 	}

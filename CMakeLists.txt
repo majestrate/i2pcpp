@@ -19,8 +19,10 @@ set(SRCS
 	Router.cpp
 	RouterContext.cpp
 	Signals.cpp
+	Version.cpp
 	datatypes/Certificate.cpp
 	datatypes/ByteArray.cpp
+	datatypes/BuildRecord.cpp
 	datatypes/BuildRequestRecord.cpp
 	datatypes/BuildResponseRecord.cpp
 	datatypes/Datatype.cpp
@@ -34,6 +36,7 @@ set(SRCS
 	datatypes/SessionKey.cpp
 	exceptions/FormattingError.cpp
 	exceptions/RecordNotFound.cpp
+	exceptions/SQLError.cpp
 	exceptions/StatementPrepareError.cpp
 	handlers/DatabaseSearchReply.cpp
 	handlers/DatabaseStore.cpp
@@ -62,8 +65,9 @@ set(SRCS
 	transport/ssu/PeerStateList.cpp
 	transport/Transport.cpp
 	transport/UDPTransport.cpp
+	tunnel/Tunnel.cpp
+	tunnel/TunnelHop.cpp
 	tunnel/TunnelManager.cpp
-	tunnel/TunnelState.cpp
 	util/Base64.cpp
 	util/I2PHMAC.cpp
 	)
@@ -97,9 +101,12 @@ endif(NOT CMAKE_COMPILER_IS_GNUCXX)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g -O0 -fPIC -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O2 -w -fPIC")  
 add_executable(i2p main.cpp ${SRCS})
-add_executable(generate_keys tools/generate_keys.cpp)
-# python wrapper script
-add_library(i2py SHARED py/i2py.cpp)
+
+add_custom_command(OUTPUT build.h COMMAND "./share/genbuild.sh" "${PROJECT_BINARY_DIR}/build.h" WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} COMMENT "Generating version file")
+add_custom_target(version ALL DEPENDS build.h)
+add_definitions(-DHAVE_BUILD_INFO)
+add_dependencies(i2p version)
+include_directories(BEFORE i2p "${PROJECT_BINARY_DIR}")
 
 # Sqlite3
 find_path(SQLITE3_INCLUDE_DIR sqlite3.h PATHS "${SQLITE3_INCLUDE_PREFIX}" NO_DEFAULT_PATH)
@@ -142,11 +149,8 @@ endif(BOTAN_LIBRARY_PATH)
 include_directories(BEFORE i2p ${BOTAN_INCLUDE_DIR})
 target_link_libraries(i2p ${BOTAN_LIBRARY_PATH})
 
-include_directories(BEFORE generate_keys ${BOTAN_INCLUDE_DIR})
-target_link_libraries(generate_keys ${BOTAN_LIBRARY_PATH})
-
 # Boost
-find_package(Boost 1.53.0 REQUIRED COMPONENTS system thread filesystem chrono date_time log)
+find_package(Boost 1.53.0 REQUIRED COMPONENTS system thread filesystem chrono date_time program_options log)
 include_directories(BEFORE i2p ${Boost_INCLUDE_DIR})
 target_link_libraries(i2p ${Boost_LIBRARIES} )
 add_definitions(-DBOOST_ALL_DYN_LINK)
@@ -177,6 +181,7 @@ endif(GTEST_LIBRARY_PATH AND GTEST_INCLUDE_DIR)
 
 find_package(PythonLibs)
 
+add_library(i2py SHARED py/i2py.cpp)
 
 include_directories(BEFORE i2py ${PYTHON_INCLUDE_PATH})
 include_directories(BEFORE i2py ${BOTAN_INCLUDE_PATH})

@@ -8,10 +8,7 @@ namespace i2pcpp {
 	Router::Router(std::string const &dbFile) :
 		m_work(m_ios),
 		m_ctx(dbFile, m_ios),
-		m_log(boost::log::keywords::channel = "R")
-	{
-		I2P_LOG(m_log, info) << "local router hash: " << m_ctx.getIdentity().getHashEncoded();
-	}
+		m_log(boost::log::keywords::channel = "R") {}
 
 	Router::~Router()
 	{
@@ -26,6 +23,8 @@ namespace i2pcpp {
 
 	void Router::start()
 	{
+		I2P_LOG(m_log, info) << "local router hash: " << m_ctx.getIdentity().getHashEncoded();
+
 		m_serviceThread = std::thread([&](){
 			while(1) {
 				try {
@@ -45,9 +44,9 @@ namespace i2pcpp {
 		t->registerDisconnectedSignal(boost::bind(&PeerManager::disconnected, boost::ref(m_ctx.getPeerManager()), _1));
 		m_ctx.getOutMsgDisp().registerTransport(t);
 
-		m_ctx.getSignals().registerBuildTunnelRequest(boost::bind(&TunnelManager::handleRequest, boost::ref(m_ctx.getTunnelManager()), _1));
+		m_ctx.getSignals().registerTunnelRecordsReceived(boost::bind(&TunnelManager::receiveRecords, boost::ref(m_ctx.getTunnelManager()), _1));
 
-		std::shared_ptr<UDPTransport> u = std::dynamic_pointer_cast<UDPTransport>(t);
+		std::shared_ptr<UDPTransport> u = std::static_pointer_cast<UDPTransport>(t);
 		u->start(Endpoint(m_ctx.getDatabase().getConfigValue("ssu_bind_ip"), std::stoi(m_ctx.getDatabase().getConfigValue("ssu_bind_port"))));
 
 		m_ctx.getPeerManager().begin();
@@ -56,12 +55,6 @@ namespace i2pcpp {
 	void Router::stop()
 	{
 		m_ios.stop();
-	}
-
-	void Router::connect(std::string const &to)
-	{
-		RouterInfo ri = m_ctx.getDatabase().getRouterInfo(Base64::decode(to));
-		m_ctx.getOutMsgDisp().getTransport()->connect(ri);
 	}
 
 	ByteArray Router::getRouterInfo()
@@ -92,16 +85,14 @@ namespace i2pcpp {
 		m_ctx.getDatabase().setRouterInfo(RouterInfo(begin, info.cend()));
 	}
 
-	void Router::sendRawData(std::string const &dst, std::string const &data)
+	void Router::setConfigValue(std::string key, std::string value)
 	{
-		ByteArray dataBytes(data.cbegin(), data.cend());
-
-		m_ctx.getOutMsgDisp().getTransport()->send(Base64::decode(dst), dataBytes);
+		m_ctx.getDatabase().setConfigValue(key, value);
 	}
 
-	void Router::createTunnel(bool inbound)
+	std::string Router::getConfigValue(std::string key)
 	{
-		m_ctx.getTunnelManager().createTunnel(inbound);
+		return m_ctx.getDatabase().getConfigValue(key);
 	}
        
   void Router::importNetDb(std::string const & dirname)

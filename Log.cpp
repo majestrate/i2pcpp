@@ -9,6 +9,7 @@
 #include <boost/log/expressions.hpp>
 #include <boost/log/sources/global_logger_storage.hpp>
 #include <boost/log/sinks/text_ostream_backend.hpp>
+#include <boost/log/sinks/text_file_backend.hpp>
 #include <boost/log/attributes/clock.hpp>
 #include <boost/log/attributes/current_thread_id.hpp>
 #include <boost/log/attributes/named_scope.hpp>
@@ -16,6 +17,7 @@
 #include <boost/log/utility/empty_deleter.hpp>
 #include <boost/log/utility/manipulators/add_value.hpp>
 #include <boost/log/support/exception.hpp>
+
 
 #include "datatypes/Endpoint.h"
 #include "datatypes/RouterHash.h"
@@ -60,6 +62,23 @@ namespace i2pcpp {
 		sink->set_formatter(&Log::formatter);
 
 		boost::log::core::get()->add_global_attribute("Timestamp", attrs::local_clock());
+	}
+
+	void Log::logToFile(const std::string &file)
+	{
+		boost::log::core::get()->remove_all_sinks();
+
+		boost::shared_ptr<sinks::text_file_backend> backend = boost::make_shared<sinks::text_file_backend>(
+				keywords::file_name = file
+		);
+		backend->auto_flush(true);
+
+		typedef sinks::synchronous_sink<sinks::text_file_backend> sink_t;
+		boost::shared_ptr<sink_t> sink(new sink_t(backend));
+		boost::log::core::get()->add_sink(sink);
+
+		sink->set_filter(expr::attr<severity_level>("Severity") >= debug);
+		sink->set_formatter(&Log::formatter);
 	}
 
 	void Log::formatter(boost::log::record_view const &rec, boost::log::formatting_ostream &s)

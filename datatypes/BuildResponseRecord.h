@@ -2,9 +2,10 @@
 #define BUILDRESPONSERECORD_H
 
 #include "SessionKey.h"
+#include "BuildRecord.h"
 
 namespace i2pcpp {
-	class BuildResponseRecord {
+	class BuildResponseRecord : public BuildRecord {
 		public:
 			enum Reply {
 				SUCCESS = 0,
@@ -14,13 +15,16 @@ namespace i2pcpp {
 				CRITICAL = 50
 			};
 
-			BuildResponseRecord(ByteArrayConstItr &begin, ByteArrayConstItr end);
+			BuildResponseRecord(Reply r);
+			BuildResponseRecord(const BuildRecord &r);
 
-			void decrypt(SessionKey const &iv, SessionKey const &key);
+			void parse();
+			void compile();
+
 			Reply getReply() const;
 
 		private:
-			ByteArray m_data;
+			Reply m_reply;
 	};
 }
 

@@ -3,7 +3,7 @@
 
 #include <list>
 
-#include "../datatypes/BuildRequestRecord.h"
+#include "../datatypes/BuildRecord.h"
 
 #include "Message.h"
 
@@ -12,18 +12,18 @@ namespace i2pcpp {
 		class VariableTunnelBuild : public Message {
 			public:
 				VariableTunnelBuild();
-				VariableTunnelBuild(std::list<BuildRequestRecord> const &buildRecords);
+				VariableTunnelBuild(std::list<BuildRecord> const &buildRecords);
 
 				Message::Type getType() const;
 
-				const std::list<BuildRequestRecord>& getRecords() const { return m_buildRecords; }
+				const std::list<BuildRecord>& getRecords() const;
 
 			protected:
 				ByteArray getBytes() const;
 				bool parse(ByteArrayConstItr &begin, ByteArrayConstItr end);
 
 			private:
-				std::list<BuildRequestRecord> m_buildRecords;
+				std::list<BuildRecord> m_buildRecords;
 		};
 	}
 }
