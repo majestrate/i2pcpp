@@ -148,9 +148,11 @@ runit() # run the damn thing :3
     export jobs="$1"
     export MAKEOPTS="-j$jobs"
     mkdir -p $t
-    get_deps $base $t
-    mkdir -p $prefix
-    build_deps $base $t $prefix
+    if [[ "$NO_REBUILD" == "" ]] ; then
+	get_deps $base $t
+	mkdir -p $prefix
+	build_deps $base $t $prefix
+    fi
     build_i2p $base $build/i2p $prefix
 }
 

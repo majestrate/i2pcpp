@@ -3,15 +3,7 @@
 
 #include <mutex>
 #include <map>
-<<<<<<< HEAD
-#include <list>
-#ifndef USE_CLANG
-#include <mutex>
-#endif
-=======
 
-#include "../datatypes/BuildRecord.h"
->>>>>>> master
 #include "../datatypes/BuildRequestRecord.h"
 #include "../datatypes/BuildResponseRecord.h"
 
