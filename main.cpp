@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <mutex>
+#include <condition_variable>
 
 #include <botan/botan.h>
 
@@ -128,38 +129,8 @@ int main(int argc, char **argv)
 		}
 
 		if(vm.count("importdir")) {
-			namespace fs = boost::filesystem;
-
-			string dir = vm["importdir"].as<string>();
-			if(!fs::exists(dir)) {
-				I2P_LOG(lg, fatal) << "error: directory " << dir << " does not exist";
-
-				return EXIT_FAILURE;
-			}
-
-			fs::recursive_directory_iterator itr(dir), end;
-			while(itr != end) {
-				if(is_regular_file(*itr)) {
-					ifstream f(itr->path().string(), ios::binary);
-					if(!f.is_open()) continue;
-
-					ByteArray info = ByteArray((istreambuf_iterator<char>(f)), istreambuf_iterator<char>());
-					f.close();
-					I2P_LOG(lg, severity_level::info) << "importing " << itr->path().string();
-					r.importRouterInfo(info);
-				}
-
-				if(fs::is_symlink(*itr)) itr.no_push();
-
-				try {
-					++itr;
-				} catch(exception &e) {
-					itr.no_push();
-					continue;
-				}
-			}
-
-			return EXIT_SUCCESS;
+		  r.importNetDb(vm["importdir"].as<string>());
+		  return EXIT_SUCCESS;
 		}
 
 		if(vm.count("get")) {

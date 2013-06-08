@@ -16,31 +16,6 @@ def has_config(cur,k):
 def put_config(cur,k,v):
     cur.execute('INSERT INTO config ( name, value ) VALUES ( ? , ? )',(k,v))
 
-def cp(src,dst):
-    with open(src,'rb') as r:
-        with open(dst,'wb+') as w:
-            w.write(r.read())
-
-def migrate_netdb(new_dir='netDb'):
-    netdb_dir = os.path.join(os.environ['HOME'],'.i2p','netDb')
-    if os.path.exists(netdb_dir):
-        print ('Migrate netdb...')
-        if not os.path.exists(new_dir):
-            os.mkdir(new_dir)
-        print ('imported %d entries'%import_netdb_dir(netdb_dir,new_dir))
-
-def import_netdb_dir(netdb_dir,new_dir):
-    count = 0
-    for root , dirs, files in os.walk(netdb_dir):
-        if len(dirs) > 0:
-            for dir in dirs:
-                count += import_netdb_dir(os.path.join(root,dir),new_dir)
-        for file in files:
-            if file.endswith('.dat'):
-                cp(os.path.join(root,file),os.path.join(new_dir,file))
-                count += 1
-    return count 
-
 def init(db_schema='db_schema.sql',db_fname='i2p.db',ssu_ip='0.0.0.0',ssu_port=6699,max_peers=10):
     con = sqlite3.connect(db_fname)
     cur = con.cursor()
@@ -84,9 +59,8 @@ def init(db_schema='db_schema.sql',db_fname='i2p.db',ssu_ip='0.0.0.0',ssu_port=6
     
     con.commit()
     con.close()
-    migrate_netdb()
 
 
 if __name__ == '__main__':
     init(max_peers=200)
-    os.system('./i2p')
+    os.system('./i2p --importdir %s'%os.path.join(os.environ['HOME'],'.i2p','netDb'))
