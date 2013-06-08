@@ -1,7 +1,5 @@
 #include "TunnelManager.h"
 
-#include "../i2np/VariableTunnelBuild.h"
-
 #include "../RouterContext.h"
 
 namespace i2pcpp {
@@ -9,57 +7,53 @@ namespace i2pcpp {
 		m_ctx(ctx),
 		m_log(boost::log::keywords::channel = "TM") {}
 
-	void TunnelManager::createTunnel(bool inbound)
+	void TunnelManager::receiveRecords(std::list<BuildRecord> &records)
 	{
-		std::list<RouterHash> l = { std::string("DNJIjfMurt2-qg3kgBJJ4ShMq~WUJpMUW9Mh11LXo8A="), std::string("BMmZ54ID2g~ls3vaKqxNftEYZ9AtSXv8Mz4uKuy4PIk="), std::string("MwnGsCcpXZE2KOKUQbCHnqQqChyn2BcKvzyXX5s1XBw=") };
-		TunnelState::Direction d = (inbound) ? TunnelState::INBOUND : TunnelState::OUTBOUND;
-		TunnelStatePtr t = std::make_shared<TunnelState>(m_ctx, l, d);
-
-		std::lock_guard<std::mutex> lock(m_tunnelsMutex);
-		m_tunnels[t->getTunnelId()] = t;
-
-		I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(t->getRequest()));
-		m_ctx.getOutMsgDisp().sendMessage(t->getTerminalHop(), vtb);
-	}
-
-	void TunnelManager::handleRequest(std::list<BuildRequestRecord> const &records)
-	{
-		RouterHash myIdentity = m_ctx.getIdentity().getHash();
-		std::array<unsigned char, 16> myTruncatedIdentity;
-		std::copy(myIdentity.cbegin(), myIdentity.cbegin() + 16, myTruncatedIdentity.begin());
+		RouterHash myHash = m_ctx.getIdentity().getHash();
+		std::array<unsigned char, 16> myTruncatedHash;
+		std::copy(myHash.cbegin(), myHash.cbegin() + 16, myTruncatedHash.begin());
 
 		for(auto& r: records) {
-			if(myTruncatedIdentity == r.getHeader()) {
+			if(myTruncatedHash == r.getHeader()) {
 				I2P_LOG(m_log, debug) << "found BRR with our identity";
-				BuildRequestRecord myRecord = r;
-				myRecord.decrypt(m_ctx.getEncryptionKey());
+				r.decrypt(m_ctx.getEncryptionKey());
 
 				std::lock_guard<std::mutex> lock(m_tunnelsMutex);
-				auto itr = m_tunnels.find(myRecord.getTunnelId());
+				BuildRequestRecord req = r;
+				TunnelHop& hop = req.getHop();
+				auto itr = m_tunnels.find(hop.getTunnelId());
 				if(itr != m_tunnels.end()) {
-					TunnelStatePtr ts = itr->second;
+					TunnelPtr t = itr->second;
 
-					I2P_LOG(m_log, debug) << "found TunnelState with matching tunnel ID";
-
-					std::list<BuildResponseRecord> responses(records.cbegin(), records.cend());
-					ts->parseResponseRecords(responses);
-
-					switch(ts->getState()) {
-						case TunnelState::OPERATIONAL:
-							I2P_LOG(m_log, debug) << "tunnel built successfully";
-							break;
-
-						case TunnelState::FAILURE:
-							I2P_LOG(m_log, debug) << "tunnel build failed";
-							break;
-
-						default:
-							break;
+					if(t->getState() != Tunnel::REQUESTED) {
+						I2P_LOG(m_log, debug) << "found Tunnel with matching tunnel ID, but was not requested";
+						// reject
+						return;
 					}
+
+					I2P_LOG(m_log, debug) << "found requested Tunnel with matching tunnel ID";
+					handleRequest(req);
 				} else {
-					I2P_LOG(m_log, debug) << "TunnelState with matching tunnel ID not found";
+					I2P_LOG(m_log, debug) << "did not find Tunnel with matching Tunnel ID (participation request)";
+
+					if(m_participating.count(hop.getTunnelId()) > 0) {
+						I2P_LOG(m_log, debug) << "rejecting tunnel participation request: tunnel ID in use";
+						// reject
+						return;
+					}
+
+					BuildResponseRecord resp = r;
+					handleResponse(resp);
 				}
 			}
 		}
+	}
+
+	void TunnelManager::handleRequest(BuildRequestRecord &request)
+	{
+	}
+
+	void TunnelManager::handleResponse(BuildResponseRecord &response)
+	{
 	}
 }

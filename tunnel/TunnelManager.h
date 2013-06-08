@@ -1,14 +1,17 @@
-#ifndef TUNNELTUNNELMANAGER_H
-#define TUNNELTUNNELMANAGER_H
+#ifndef TUNNELMANAGER_H
+#define TUNNELMANAGER_H
 
+#include <mutex>
 #include <map>
-#include <list>
 
+#include "../datatypes/BuildRecord.h"
 #include "../datatypes/BuildRequestRecord.h"
+#include "../datatypes/BuildResponseRecord.h"
 
 #include "../Log.h"
 
-#include "TunnelState.h"
+#include "Tunnel.h"
+#include "TunnelHop.h"
 
 namespace i2pcpp {
 	class RouterContext;
@@ -17,15 +20,18 @@ namespace i2pcpp {
 		public:
 			TunnelManager(RouterContext &ctx);
 
-			void createTunnel(bool inbound);
-			void handleRequest(std::list<BuildRequestRecord> const &records);
+			void receiveRecords(std::list<BuildRecord> &records);
+			void handleRequest(BuildRequestRecord &request);
+			void handleResponse(BuildResponseRecord &response);
 
 		private:
 			RouterContext &m_ctx;
 
-			std::map<uint32_t, TunnelStatePtr> m_tunnels;
+			std::map<uint32_t, TunnelPtr> m_tunnels;
+			std::map<uint32_t, TunnelHopPtr> m_participating;
 
 			mutable std::mutex m_tunnelsMutex;
+			mutable std::mutex m_participatingMutex;
 
 			i2p_logger_mt m_log;
 	};
