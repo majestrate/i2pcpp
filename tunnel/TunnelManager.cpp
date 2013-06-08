@@ -1,5 +1,7 @@
 #include "TunnelManager.h"
 
+#include "../i2np/VariableTunnelBuild.h"
+
 #include "../RouterContext.h"
 
 namespace i2pcpp {
@@ -20,6 +22,7 @@ namespace i2pcpp {
 
 				std::lock_guard<std::mutex> lock(m_tunnelsMutex);
 				BuildRequestRecord req = r;
+				req.parse();
 				TunnelHop& hop = req.getHop();
 				auto itr = m_tunnels.find(hop.getTunnelId());
 				if(itr != m_tunnels.end()) {
@@ -32,25 +35,37 @@ namespace i2pcpp {
 					}
 
 					I2P_LOG(m_log, debug) << "found requested Tunnel with matching tunnel ID";
-					handleRequest(req);
+					BuildResponseRecord resp = r;
+					handleResponse(resp);
 				} else {
 					I2P_LOG(m_log, debug) << "did not find Tunnel with matching Tunnel ID (participation request)";
 
+					std::lock_guard<std::mutex> lock(m_participatingMutex);
 					if(m_participating.count(hop.getTunnelId()) > 0) {
 						I2P_LOG(m_log, debug) << "rejecting tunnel participation request: tunnel ID in use";
 						// reject
 						return;
 					}
 
-					BuildResponseRecord resp = r;
-					handleResponse(resp);
+					m_participating[hop.getTunnelId()] = std::make_shared<TunnelHop>(hop);
+					BuildResponseRecord resp(BuildResponseRecord::SUCCESS);
+					resp.setHeader(req.getHeader());
+					resp.compile();
+
+					r = resp; // Replace the request record with our response
+
+					for(auto& x: records)
+						x.encrypt(hop.getReplyIV(), hop.getReplyKey());
+
+					I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(records));
+					m_ctx.getOutMsgDisp().sendMessage(hop.getNextHash(), vtb);
+
+					break;
 				}
 			}
 		}
-	}
 
-	void TunnelManager::handleRequest(BuildRequestRecord &request)
-	{
+
 	}
 
 	void TunnelManager::handleResponse(BuildResponseRecord &response)

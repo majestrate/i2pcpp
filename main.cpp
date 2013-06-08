@@ -56,7 +56,7 @@ int main(int argc, char **argv)
 			("init", "Initialize a fresh copy of the database")
 			("import", po::value<string>(), "Import a single routerInfo file")
 			("export", po::value<string>(), "Export your routerInfo file")
-			("importdir", "Import all files in the given directory recursively");
+			("importdir", po::value<string>(), "Import all files in the given directory recursively");
 
 		po::options_description config("Configuration manipulation");
 		config.add_options()

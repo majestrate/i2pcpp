@@ -15,10 +15,16 @@ namespace i2pcpp {
 				CRITICAL = 50
 			};
 
+			BuildResponseRecord(Reply r);
 			BuildResponseRecord(const BuildRecord &r);
 
-			bool validate() const;
+			void parse();
+			void compile();
+
 			Reply getReply() const;
+
+		private:
+			Reply m_reply;
 	};
 }
 

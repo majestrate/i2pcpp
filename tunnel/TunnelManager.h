@@ -21,7 +21,6 @@ namespace i2pcpp {
 			TunnelManager(RouterContext &ctx);
 
 			void receiveRecords(std::list<BuildRecord> &records);
-			void handleRequest(BuildRequestRecord &request);
 			void handleResponse(BuildResponseRecord &response);
 
 		private:
