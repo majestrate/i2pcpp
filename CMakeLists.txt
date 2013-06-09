@@ -1,14 +1,6 @@
 project(i2pcpp CXX C)
 cmake_minimum_required(VERSION 2.8.9)
 
-set(i2pcpp_VERSION_MAJOR 0)
-set(i2pcpp_VERSION_MINOR 1)
-
-set(PACKAGE_VERSION "v${i2pcpp_VERSION_MAJOR}.${i2pcpp_VERSION_MINOR}-")
-
-set(PACKAGE_NAME i2pcpp)
-set(PACKAGE_STRING "${PACKAGE_NAME} ${PACKAGE_VERSION}")
-
 set(SRCS
 	Database.cpp
 	InboundMessageDispatcher.cpp
@@ -91,22 +83,41 @@ set(TEST_SRCS
 	util/I2PHMAC.cpp
 	)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-if(NOT CMAKE_COMPILER_IS_GNUCXX)
-  message(STATUS "Not Using GCC... assume Clang")
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-endif(NOT CMAKE_COMPILER_IS_GNUCXX)
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -stdlib=libc++")
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -stdlib=libc++")
+endif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g -O0 -fPIC -Wall")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O2 -w -fPIC")  
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0 -Wall")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2 -w")
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
 add_executable(i2p main.cpp ${SRCS})
 
-add_custom_command(OUTPUT build.h COMMAND "./share/genbuild.sh" "${PROJECT_BINARY_DIR}/build.h" WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} COMMENT "Generating version file")
+# Version information
+add_custom_command(
+  OUTPUT build.h
+  COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/share/genbuild.sh" "${CMAKE_CURRENT_BINARY_DIR}/build.h"
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+  COMMENT "Generating version file")
+
 add_custom_target(version ALL DEPENDS build.h)
 add_definitions(-DHAVE_BUILD_INFO)
 add_dependencies(i2p version)
-include_directories(BEFORE i2p "${PROJECT_BINARY_DIR}")
+
+# Database schema
+add_custom_command(
+  OUTPUT schema.sql.o
+  COMMAND ${CMAKE_LINKER} -r -b binary -o ${CMAKE_CURRENT_BINARY_DIR}/schema.sql.o schema.sql
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/share
+  COMMENT "Generating database schema object")
+
+add_custom_target(schema ALL DEPENDS schema.sql.o)
+add_dependencies(i2p schema)
+target_link_libraries(i2p "${CMAKE_CURRENT_BINARY_DIR}/schema.sql.o")
+
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 # Sqlite3
 find_path(SQLITE3_INCLUDE_DIR sqlite3.h PATHS "${SQLITE3_INCLUDE_PREFIX}" NO_DEFAULT_PATH)

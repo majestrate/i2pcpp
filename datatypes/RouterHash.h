@@ -22,23 +22,17 @@ namespace i2pcpp {
 
 	std::ostream& operator<<(std::ostream &s, RouterHash const &rh);
 }
-#ifdef USE_CLANG
-template <>
-struct std::hash<i2pcpp::RouterHash>
-#else
-namespace std { 
-template <>
-struct hash<i2pcpp::RouterHash> 
-#endif
-{
-	public:
-		size_t operator()(const i2pcpp::RouterHash &rh) const
-		{
-			std::hash<std::string> f;
-			return f(std::string(rh.cbegin(), rh.cend()));
-		}
-};
-#ifndef USE_CLANG
+
+namespace std {
+	template<>
+	struct hash<i2pcpp::RouterHash> {
+		public:
+			size_t operator()(const i2pcpp::RouterHash &rh) const
+			{
+				std::hash<std::string> f;
+				return f(std::string(rh.cbegin(), rh.cend()));
+			}
+	};
 }
-#endif
+
 #endif
