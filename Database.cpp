@@ -1,15 +1,34 @@
 #include "Database.h"
 
+#include <sys/stat.h>
+
+#include <botan/auto_rng.h>
+#include <botan/elgamal.h>
+#include <botan/rng.h>
+#include <botan/pkcs8.h>
+#include <botan/dsa.h>
+
+#include <boost/tokenizer.hpp>
+
 #include "exceptions/StatementPrepareError.h"
 #include "exceptions/RecordNotFound.h"
 #include "exceptions/SQLError.h"
 
 #include "util/Base64.h"
+#include "util/I2PDH.h"
+
+extern uint8_t _binary_schema_sql_start[];
+extern uintptr_t _binary_schema_sql_size[];
 
 namespace i2pcpp {
 	Database::Database(std::string const &file)
 	{
-		if(sqlite3_open(file.c_str(), &m_db) != SQLITE_OK) {} // TODO Exception
+		struct stat buffer;
+		if(stat(file.c_str(), &buffer) != 0)
+			throw std::runtime_error("database file " + file + " does not exist");
+
+		if(sqlite3_open(file.c_str(), &m_db) != SQLITE_OK)
+			throw std::runtime_error("could not open database");
 
 		sqlite3_exec(m_db, "PRAGMA foreign_keys=ON", NULL, NULL, NULL);
 		sqlite3_create_function(m_db, "sha256", 1, SQLITE_ANY, NULL, &sha256_func, NULL, NULL);
@@ -19,6 +38,61 @@ namespace i2pcpp {
 	{
 		if(m_db)
 			sqlite3_close(m_db);
+	}
+
+	void Database::createDb(std::string const &file)
+	{
+		sqlite3 *db;
+
+		if(sqlite3_open(file.c_str(), &db) != SQLITE_OK)
+			throw std::runtime_error("could not create database");
+
+		sqlite3_exec(db, "PRAGMA foreign_keys=ON", NULL, NULL, NULL);
+
+		sqlite3_exec(db, "BEGIN TRANSACTION", NULL, NULL, NULL);
+
+		std::string schema((char *)_binary_schema_sql_start, (uintptr_t)_binary_schema_sql_size);
+
+		boost::char_separator<char> sep(";");
+		boost::tokenizer<boost::char_separator<char>> tok(schema, sep);
+
+		auto itr = tok.begin();
+		for(auto s: tok) {
+			if(s == "\n" || s.size() < 2) continue;
+
+			sqlite3_exec(db, s.c_str(), NULL, NULL, NULL);
+		}
+
+		Botan::AutoSeeded_RNG rng;
+		Botan::DSA_PrivateKey dsa_key(rng, DH::group);
+		Botan::ElGamal_PrivateKey elg_key(rng, Botan::DL_Group("modp/ietf/2048"));
+		std::string elg_string = Botan::PKCS8::PEM_encode(elg_key);
+		std::string dsa_string = Botan::PKCS8::PEM_encode(dsa_key);
+
+		sqlite3_stmt *statement;
+
+		std::string insert = "INSERT OR REPLACE INTO config (name, value) VALUES ('private_encryption_key', ?)";
+		if(sqlite3_prepare(db, insert.c_str(), -1, &statement, NULL) != SQLITE_OK) throw StatementPrepareError();
+
+		sqlite3_bind_text(statement, 1, elg_string.c_str(), -1, SQLITE_STATIC);
+
+		if(sqlite3_step(statement) != SQLITE_DONE)
+			throw SQLError(insert);
+
+		sqlite3_finalize(statement);
+
+		insert = "INSERT OR REPLACE INTO config (name, value) VALUES ('private_signing_key', ?)";
+		if(sqlite3_prepare(db, insert.c_str(), -1, &statement, NULL) != SQLITE_OK) throw StatementPrepareError();
+
+		sqlite3_bind_text(statement, 1, dsa_string.c_str(), -1, SQLITE_STATIC);
+
+		if(sqlite3_step(statement) != SQLITE_DONE)
+			throw SQLError(insert);
+
+		sqlite3_finalize(statement);
+
+		sqlite3_exec(db, "COMMIT TRANSACTION", NULL, NULL, NULL);
+		sqlite3_close(db);
 	}
 
 	std::string Database::getConfigValue(std::string const &name)

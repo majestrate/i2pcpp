@@ -14,6 +14,7 @@ namespace i2pcpp {
 			Database(std::string const &file);
 			~Database();
 
+			static void createDb(std::string const &file);
 			std::string getConfigValue(std::string const &name);
 			void setConfigValue(std::string const &name, std::string const &value);
 			ByteArray getConfigBlob(std::string const &name);

@@ -136,7 +136,7 @@ namespace i2pcpp {
 				size_t numBits = m.second.size();
 				size_t steps = ceil(numBits / 7.0);
 
-				for(int i = 0; i < steps; i++) {
+				for(size_t i = 0; i < steps; i++) {
 					unsigned char byte = 0;
 
 					if(i < steps - 1) {
@@ -145,7 +145,7 @@ namespace i2pcpp {
 						for(int j = 0; j < 7; j++)
 							byte |= (m.second[(i * 7) + j] << j);
 					} else {
-						for(int j = 0; j < numBits - ((steps - 1) * 7); j++)
+						for(size_t j = 0; j < numBits - ((steps - 1) * 7); j++)
 							byte |= (m.second[(i * 7) + j] << j);
 					}
 

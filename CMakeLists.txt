@@ -61,6 +61,7 @@ set(SRCS
 	tunnel/TunnelHop.cpp
 	tunnel/TunnelManager.cpp
 	util/Base64.cpp
+	util/I2PDH.cpp
 	util/I2PHMAC.cpp
 	)
 
@@ -80,6 +81,7 @@ set(TEST_SRCS
 	tests/testi2p.cpp
 	transport/ssu/Packet.cpp
 	util/Base64.cpp
+	util/I2PDH.cpp
 	util/I2PHMAC.cpp
 	)
 
