@@ -65,8 +65,7 @@ int main(int argc, char **argv)
 		po::options_description config("Configuration manipulation");
 		config.add_options()
 			("get", po::value<string>(), "Retrieve a configuration setting")
-			("set", po::value<vector<string>>()->multitoken(), "Set a configuration setting (key value)")
-			("genkeys", "Generate fresh crypto keys and save them");
+			("set", po::value<vector<string>>()->multitoken(), "Set a configuration setting (key value)");
 
 		po::options_description all_opts;
 		all_opts.add(general).add(db).add(config);
@@ -80,11 +79,20 @@ int main(int argc, char **argv)
 			cout << general << endl;
 			cout << db << endl;
 			cout << config << endl;
+
 			return EXIT_SUCCESS;
 		}
 
 		if(vm.count("version")) {
 			cout << CLIENT_NAME + ' ' + CLIENT_BUILD << ' ' << CLIENT_DATE << endl;
+
+			return EXIT_SUCCESS;
+		}
+
+		if(vm.count("init")) {
+			Database::createDb(dbFile);
+
+			I2P_LOG(lg, info) << "database created successfully";
 
 			return EXIT_SUCCESS;
 		}

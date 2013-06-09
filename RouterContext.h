@@ -39,14 +39,7 @@ namespace i2pcpp {
 			ProfileManager& getProfileManager();
 			PeerManager& getPeerManager();
 
-			const Botan::DL_Group& getDSAParameters() const;
-
 		private:
-			static const Botan::BigInt p;
-			static const Botan::BigInt q;
-			static const Botan::BigInt g;
-			static const Botan::DL_Group m_group;
-
 			Botan::ElGamal_PrivateKey *m_encryptionKey;
 			Botan::DSA_PrivateKey *m_signingKey;
 			RouterIdentity m_identity;

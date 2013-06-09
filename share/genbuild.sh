@@ -13,7 +13,7 @@ else
     exit 1
 fi
 
-if [ -e "$(which git)" ]; then
+if [ -e "$(which git)" -a -d ".git" ]; then
     # clean 'dirty' status of touched files that haven't been modified
     git diff >/dev/null 2>/dev/null
 
@@ -25,7 +25,8 @@ if [ -e "$(which git)" ]; then
 fi
 
 if [ -n "$DESC" ]; then
-    NEWINFO="#define BUILD_DESC \"$DESC\""
+    NEWINFO="#define BUILD_DESC \"$DESC\" \
+	#define BUILD_DATE \"$TIME\""
 else
     NEWINFO="// No build information available"
 fi
@@ -33,5 +34,4 @@ fi
 # only update build.h if necessary
 if [ "$INFO" != "$NEWINFO" ]; then
     echo "$NEWINFO" >"$FILE"
-    echo "#define BUILD_DATE \"$TIME\"" >>"$FILE"
 fi

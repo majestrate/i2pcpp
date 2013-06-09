@@ -164,7 +164,7 @@ TEST(Datatypes, RouterInfo) {
 
 	ASSERT_EQ(r1.serialize(), sample_routerInfo);
 
-	ASSERT_TRUE(r1.verifySignature(group));
+	ASSERT_TRUE(r1.verifySignature());
 
 	ASSERT_EQ(r1.getOptions().getValue("netdb.knownLeaseSets"), "37");
 	ASSERT_EQ(r1.getOptions().getValue("caps"), "OfR");

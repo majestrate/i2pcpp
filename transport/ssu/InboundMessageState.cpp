@@ -19,7 +19,7 @@ namespace i2pcpp {
 				m_lastFragment = fragNum;
 			}
 
-			if(m_fragments.size() < fragNum + 1)
+			if(m_fragments.size() < (uint8_t)(fragNum + 1))
 				m_fragments.resize(fragNum + 1);
 
 			auto f = std::make_shared<ByteArray>(data);
@@ -69,7 +69,7 @@ namespace i2pcpp {
 		{
 			std::vector<bool> v(m_fragments.size());
 
-			for(int i = 0; i < m_fragments.size(); i++)
+			for(unsigned int i = 0; i < m_fragments.size(); i++)
 				v[i] = (m_fragments[i] != ByteArrayPtr());
 
 			return v;
