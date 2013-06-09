@@ -2,9 +2,9 @@
 
 #include <boost/bind.hpp>
 
-#include "PacketBuilder.h"
-
 #include "../UDPTransport.h"
+
+#include "PacketBuilder.h"
 
 namespace i2pcpp {
 	namespace SSU {
