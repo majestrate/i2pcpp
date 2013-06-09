@@ -11,6 +11,8 @@
 #include <boost/program_options/variables_map.hpp>
 #include <boost/program_options/parsers.hpp>
 
+#include "datatypes/RouterInfo.h"
+
 #include "Log.h"
 #include "Router.h"
 #include "Version.h"
@@ -57,7 +59,8 @@ int main(int argc, char **argv)
 			("init", "Initialize a fresh copy of the database")
 			("import", po::value<string>(), "Import a single routerInfo file")
 			("export", po::value<string>(), "Export your routerInfo file")
-			("importdir", po::value<string>(), "Import all files in the given directory recursively");
+			("importdir", po::value<string>(), "Import all files in the given directory recursively")
+			("wipe", "Delete all stored routers and profiles");
 
 		po::options_description config("Configuration manipulation");
 		config.add_options()
@@ -73,9 +76,6 @@ int main(int argc, char **argv)
 		po::store(po::command_line_parser(argc, argv).options(all_opts).run(), vm);
 		po::notify(vm);
 
-
-		Router r(dbFile);
-
 		if(vm.count("help")) {
 			cout << general << endl;
 			cout << db << endl;
@@ -88,6 +88,8 @@ int main(int argc, char **argv)
 
 			return EXIT_SUCCESS;
 		}
+
+		Router r(dbFile);
 
 		if(vm.count("log")) {
 			// TODO Log rotation, etc
@@ -118,7 +120,8 @@ int main(int argc, char **argv)
 			if(f.is_open()) {
 				ByteArray info = ByteArray((istreambuf_iterator<char>(f)), istreambuf_iterator<char>());
 				f.close();
-				r.importRouterInfo(info);
+				auto begin = info.cbegin();
+				r.importRouter(RouterInfo(begin, info.cend()));
 
 				return EXIT_SUCCESS;
 			} else {
@@ -129,8 +132,49 @@ int main(int argc, char **argv)
 		}
 
 		if(vm.count("importdir")) {
-		  r.importNetDb(vm["importdir"].as<string>());
-		  return EXIT_SUCCESS;
+			namespace fs = boost::filesystem;
+
+			string dir = vm["importdir"].as<string>();
+			if(!fs::exists(dir)) {
+				I2P_LOG(lg, fatal) << "error: directory " << dir << " does not exist";
+
+				return EXIT_FAILURE;
+			}
+
+			vector<RouterInfo> routers;
+			fs::recursive_directory_iterator itr(dir), end;
+			while(itr != end) {
+				if(is_regular_file(*itr)) {
+					ifstream f(itr->path().string(), ios::binary);
+					if(!f.is_open()) continue;
+
+					ByteArray info = ByteArray((istreambuf_iterator<char>(f)), istreambuf_iterator<char>());
+					f.close();
+					I2P_LOG(lg, debug) << "importing " << itr->path().string();
+					auto begin = info.cbegin();
+					routers.push_back(RouterInfo(begin, info.cend()));
+				}
+
+				if(fs::is_symlink(*itr)) itr.no_push();
+
+				try {
+					++itr;
+				} catch(exception &e) {
+					itr.no_push();
+					continue;
+				}
+			}
+
+			r.importRouter(routers);
+			I2P_LOG(lg, info) << "successfully imported " << routers.size() << " routers";
+
+			return EXIT_SUCCESS;
+		}
+
+		if(vm.count("wipe")) {
+			r.deleteAllRouters();
+
+			return EXIT_SUCCESS;
 		}
 
 		if(vm.count("get")) {

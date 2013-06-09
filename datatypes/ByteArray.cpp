@@ -2,6 +2,7 @@
 
 #include <iomanip>
 #include <iostream>
+
 namespace i2pcpp {
 	std::ostream& operator<<(std::ostream &s, ByteArray const &data)
 	{

@@ -23,12 +23,16 @@ namespace i2pcpp {
 			RouterInfo getRouterInfo(std::string const &routerHash);
 			RouterInfo getRouterInfo(RouterHash const &routerHash);
 			void deleteRouter(RouterHash const &hash);
-			void setRouterInfo(RouterInfo const &info);
-			bool importNetDb(std::string const &directory);
+			void deleteAllRouters();
+			void setRouterInfo(std::vector<RouterInfo> const &routers);
+			void setRouterInfo(RouterInfo const &info, bool transaction = true);
 
 		private:
 			i2p_logger_mt  m_log;
 			sqlite3 *m_db;
+
+			mutable std::mutex m_mutex;
+
 			static void sha256_func(sqlite3_context *context, int argc, sqlite3_value **argv);
 	};
 }

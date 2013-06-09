@@ -23,7 +23,9 @@ namespace i2pcpp {
 
 			void importNetDb(std::string const &dirname);
 			ByteArray getRouterInfo();
-			void importRouterInfo(ByteArray const &info);
+			void importRouter(RouterInfo const &router);
+			void importRouter(std::vector<RouterInfo> const &routers);
+			void deleteAllRouters();
 			void setConfigValue(std::string key, std::string value);
 			std::string getConfigValue(std::string key);
 
