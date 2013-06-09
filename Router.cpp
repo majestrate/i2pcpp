@@ -103,19 +103,5 @@ namespace i2pcpp {
 	{
 		return m_ctx.getDatabase().getConfigValue(key);
 	}
-       
-  void Router::importNetDb(std::string const & dirname)
-  {
-    BOOST_LOG_SEV(getLogger(), info) << "Load netdb from " << dirname;
-      
-    if(m_ctx.getDatabase().importNetDb(dirname))
-      {
-	BOOST_LOG_SEV(getLogger(), info) << "Loaded Netdb fine";
-      }
-    else
-      {
-	BOOST_LOG_SEV(getLogger(), warning) << "Failed to load netdb from " << dirname;
-      
-      }
-  }
+   
 }
