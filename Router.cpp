@@ -74,10 +74,19 @@ namespace i2pcpp {
 		return myInfo.serialize();
 	}
 
-	void Router::importRouterInfo(ByteArray const &info)
+	void Router::importRouter(RouterInfo const &router)
 	{
-		auto begin = info.cbegin();
-		m_ctx.getDatabase().setRouterInfo(RouterInfo(begin, info.cend()));
+		m_ctx.getDatabase().setRouterInfo(router);
+	}
+
+	void Router::importRouter(std::vector<RouterInfo> const &routers)
+	{
+		m_ctx.getDatabase().setRouterInfo(routers);
+	}
+
+	void Router::deleteAllRouters()
+	{
+		m_ctx.getDatabase().deleteAllRouters();
 	}
 
 	void Router::setConfigValue(std::string key, std::string value)

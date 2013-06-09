@@ -11,6 +11,8 @@
 #include <boost/program_options/variables_map.hpp>
 #include <boost/program_options/parsers.hpp>
 
+#include "datatypes/RouterInfo.h"
+
 #include "Log.h"
 #include "Router.h"
 #include "Version.h"
@@ -57,7 +59,8 @@ int main(int argc, char **argv)
 			("init", "Initialize a fresh copy of the database")
 			("import", po::value<string>(), "Import a single routerInfo file")
 			("export", po::value<string>(), "Export your routerInfo file")
-			("importdir", po::value<string>(), "Import all files in the given directory recursively");
+			("importdir", po::value<string>(), "Import all files in the given directory recursively")
+			("wipe", "Delete all stored routers and profiles");
 
 		po::options_description config("Configuration manipulation");
 		config.add_options()
@@ -117,7 +120,8 @@ int main(int argc, char **argv)
 			if(f.is_open()) {
 				ByteArray info = ByteArray((istreambuf_iterator<char>(f)), istreambuf_iterator<char>());
 				f.close();
-				r.importRouterInfo(info);
+				auto begin = info.cbegin();
+				r.importRouter(RouterInfo(begin, info.cend()));
 
 				return EXIT_SUCCESS;
 			} else {
@@ -137,6 +141,7 @@ int main(int argc, char **argv)
 				return EXIT_FAILURE;
 			}
 
+			vector<RouterInfo> routers;
 			fs::recursive_directory_iterator itr(dir), end;
 			while(itr != end) {
 				if(is_regular_file(*itr)) {
@@ -145,8 +150,9 @@ int main(int argc, char **argv)
 
 					ByteArray info = ByteArray((istreambuf_iterator<char>(f)), istreambuf_iterator<char>());
 					f.close();
-					I2P_LOG(lg, severity_level::info) << "importing " << itr->path().string();
-					r.importRouterInfo(info);
+					I2P_LOG(lg, debug) << "importing " << itr->path().string();
+					auto begin = info.cbegin();
+					routers.push_back(RouterInfo(begin, info.cend()));
 				}
 
 				if(fs::is_symlink(*itr)) itr.no_push();
@@ -158,6 +164,15 @@ int main(int argc, char **argv)
 					continue;
 				}
 			}
+
+			r.importRouter(routers);
+			I2P_LOG(lg, info) << "successfully imported " << routers.size() << " routers";
+
+			return EXIT_SUCCESS;
+		}
+
+		if(vm.count("wipe")) {
+			r.deleteAllRouters();
 
 			return EXIT_SUCCESS;
 		}
