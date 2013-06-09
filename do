@@ -10,7 +10,7 @@
 # license GPL 3.0
 #
 
-set +e
+set -e
 
 #set -x
 
@@ -19,9 +19,9 @@ _e() # extract
     tmp="`mktemp -d`"
     cd $tmp
     case $1 in
-	*.gz) tar -zxf $1 ;;
-	*.bz2) tar -jxf $1 ;;
-	*.zip) unzip $1 ;;
+				*.gz) tar -zxf $1 ;;
+				*.bz2) tar -jxf $1 ;;
+				*.zip) unzip $1 ;;
     esac
     mv * $2
     rm -rf $tmp
@@ -30,32 +30,45 @@ _e() # extract
 
 _ac_build() #build with autotools
 {
-    mkdir -p $2
-    cd $2
-    $1/configure --prefix=$3 && make && make install
+    cd $1
+    ./configure --prefix=$3 && make -j$jobs && make -j$jobs install 
     cd -
+		
 }
 
 get_url() # download url
 {
     if [ "`which wget`" != "" ] ; then
-	wget $1 -O $2
+				wget $1 -O $2
     elif [ "`which curl`" != "" ] ; then
-	curl $1 -o $2
+				curl $1 -o $2
     fi
 }
 
-_botan_build() # build patched botan
+_build_botan() # build patched botan
 {
+
+		echo "Building Botan..."
     srcdir="$1"
     cd $srcdir
     python ./configure.py --prefix=$2 --with-zlib
-    make -j$jobs && make install -j$jobs
+    make -j$jobs && echo "Installing Botan..." && make install -j$jobs
     cd -
+}
+
+_build_gtest() # build gtest
+{
+		echo "Building GTest..."
+		cd $1
+		./configure --prefix=$2 && make -j$jobs 
+		cd -
+		echo "Installing GTest"
+		cp -a $1/libs/libgtest_main.la $2/lib
 }
 
 _build_boost() # build boost with boost-log
 {
+		echo "Building Boost..."
     boostdir="$1"
     logdir="$2"
     prefix="$3"
@@ -64,69 +77,87 @@ _build_boost() # build boost with boost-log
     ./bootstrap.sh --prefix=$prefix
     ./b2 -tx -j $jobs -a 
     cd -
-    cp -av $boostdir $prefix
-    
+		echo "Installing Boost..."
+		cp -a $boostdir $prefix
 }
 
-get_deps() # grab all dependancies
+_deps() # grab/build all dependancies
 {
     i2psrc="$1"
     local base="$2"
-    echo "Downloading Dependancies..."
-    if [ ! -d $base/botan ]; then
-	get_url http://files.randombit.net/botan/v1.11/Botan-1.11.3.tbz $base/botan.tar.bz2
-	_e $base/botan.tar.bz2 $base/botan
-	cd $base/botan
-	patch -p0 < $i2psrc/doc/botan-1.11.3.diff
-	cd -
-    fi
+		local prefix="$3"
+		
+		mkdir -p $prefix
+
+    echo "Building Dependancies..."
+
+		if [ ! -d $base/gtest ]; then
+				get_url https://googletest.googlecode.com/files/gtest-1.6.0.zip $base/gtest.zip
+				_e $base/gtest.zip $base/gtest
+		fi
+		
+		if [ ! -e $base/gtest-built ]; then
+				_build_gtest $base/gtest $prefix
+				echo "`date`" > $base/gtest-built
+		fi
     
-    if [ ! -d $base/boost ]; then	
-	get_url http://superb-dca3.dl.sourceforge.net/project/boost/boost/1.53.0/boost_1_53_0.tar.gz $base/boost.tar.gz
-	_e $base/boost.tar.gz $base/boost
+		if [ ! -d $base/botan ]; then
+				get_url http://files.randombit.net/botan/v1.11/Botan-1.11.3.tbz $base/botan.tar.bz2
+				_e $base/botan.tar.bz2 $base/botan
+				cd $base/botan
+				patch -p0 < $i2psrc/doc/botan-1.11.3.diff
+				cd -
     fi
-    
+
+    if [ ! -e $base/botan-built ]; then
+				_build_botan $base/botan $prefix
+				echo "`date`" > $base/botan-built
+		fi
+
     if [ ! -d $base/boost-log ]; then
-	get_url http://superb-dca2.dl.sourceforge.net/project/boost-log/boost-log-2.0-r862.zip $base/boost-log.zip
-	_e $base/boost-log.zip $base/boost-log
+				get_url http://superb-dca2.dl.sourceforge.net/project/boost-log/boost-log-2.0-r862.zip $base/boost-log.zip
+				_e $base/boost-log.zip $base/boost-log
     fi
 
+    if [ ! -d $base/boost ]; then	
+				get_url http://superb-dca3.dl.sourceforge.net/project/boost/boost/1.53.0/boost_1_53_0.tar.gz $base/boost.tar.gz
+				_e $base/boost.tar.gz $base/boost
+    fi
+
+		if [ ! -e $base/boost-built ] ; then
+				_build_boost $base/boost $base/boost-log $prefix
+				echo "`date`" > $base/boost-built
+		fi
 }
 
-build_deps() # build dependancies
-{
-    base="$1"
-    src="$2"
-    echo "Build Dependancies..."
-    prefix="$3"
-    
-    echo "Building Botan..."
-    _botan_build $src/botan $prefix
-
-    echo "Building Boost..."
-    _build_boost $src/boost $src/boost-log $prefix
-
-}
-
-build_i2p() # build i2p itself
+_build_i2p() # build i2p itself
 {
     base="$1"
     build="$2"
     prefix="$3"
+		echo "Removing Last build..."
     rm -rf $build
     mkdir $build
     cmake="`which cmake`"
     echo "Building I2P..."
     cd $build
-    $cmake  -DBOTAN_INCLUDE_DIR=$prefix/include/botan-1.11 -DBOTAN_LIBRARY_PREFIX=$prefix/lib -DBOOST_ROOT=$prefix/boost/ $base
+    $cmake \
+				-DGTEST_MAIN_LIBRARY_PATH=$prefix/lib/libgtest_main.la \
+				-DBOTAN_INCLUDE_DIR=$prefix/include/botan-1.11/ \
+				-DBOTAN_LIBRARY_PREFIX=$prefix/lib/ \
+				-DBOOST_ROOT=$prefix/boost/ \
+				$base
     make -j$jobs
 }
-ensure_gcc() # make sure we have g++
+
+_ensure_gcc() # make sure we have g++
 {
-    if [ "`which g++`" == "" ] ; then
-	echo "install g++"
-	exit 1;
-    fi
+		if [ "`which clang++`" == "" ] ; then
+				if [ "`which g++`" == "" ] ; then
+						echo "install g++"
+						exit 1;
+				fi
+		fi
 }
 
 runit() # run the damn thing :3
@@ -137,23 +168,17 @@ runit() # run the damn thing :3
 
     prefix=$build/prefix
     mkdir -p $prefix
-    
-    local t=$build/tmp
-    mkdir -p $t
 
-    ensure_gcc
+    _ensure_gcc
 
     export CC="`which cc`"
     export CXX="`which c++`"
     export jobs="$1"
     export MAKEOPTS="-j$jobs"
-    mkdir -p $t
-    if [[ "$NO_REBUILD" == "" ]] ; then
-	get_deps $base $t
-	mkdir -p $prefix
-	build_deps $base $t $prefix
-    fi
-    build_i2p $base $build/i2p $prefix
+    
+    
+		_deps $base $build $prefix
+    _build_i2p $base $build/i2p $prefix
 }
 
 runit 4

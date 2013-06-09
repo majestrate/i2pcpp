@@ -16,7 +16,7 @@ def has_config(cur,k):
 def put_config(cur,k,v):
     cur.execute('INSERT INTO config ( name, value ) VALUES ( ? , ? )',(k,v))
 
-def init(db_schema='db_schema.sql',db_fname='i2p.db',ssu_ip='0.0.0.0',ssu_port=6699,max_peers=10):
+def init(db_schema='schema.sql',db_fname='i2p.db',ssu_ip='0.0.0.0',ssu_port=6699,max_peers=10):
     con = sqlite3.connect(db_fname)
     cur = con.cursor()
 
@@ -59,8 +59,8 @@ def init(db_schema='db_schema.sql',db_fname='i2p.db',ssu_ip='0.0.0.0',ssu_port=6
     
     con.commit()
     con.close()
-
+    os.system('./i2p --importdir %s'%os.path.join(os.environ['HOME'],'.i2p','netDb'))
 
 if __name__ == '__main__':
     init(max_peers=200)
-    os.system('./i2p --importdir %s'%os.path.join(os.environ['HOME'],'.i2p','netDb'))
+    

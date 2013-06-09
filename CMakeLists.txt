@@ -213,4 +213,9 @@ ADD_CUSTOM_COMMAND(
   POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy ${i2pcpp_SOURCE_DIR}/py/i2prouter.py i2prouter.py
   )
+ADD_CUSTOM_COMMAND(
+  TARGET i2py
+  POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy ${i2pcpp_SOURCE_DIR}/share/schema.sql schema.sql
+  )
 
