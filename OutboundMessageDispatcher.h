@@ -22,8 +22,8 @@ namespace i2pcpp {
 			void sendMessage(RouterHash const &to, I2NP::MessagePtr const &msg);
 			void registerTransport(TransportPtr const &t);
 			TransportPtr getTransport() const;
-			void connected(RouterHash const &rh);
-			void infoSaved(RouterHash const &rh);
+			void connected(RouterHash const rh);
+			void infoSaved(RouterHash const rh);
 
 		private:
 			RouterContext& m_ctx;
