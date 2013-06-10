@@ -31,7 +31,7 @@ _e() # extract
 _ac_build() #build with autotools
 {
     cd $1
-    ./configure --prefix=$3 && make -j$jobs && make -j$jobs install 
+    ./configure --prefix=$2 && make -j$jobs && make -j$jobs install 
     cd -
 		
 }
@@ -39,7 +39,7 @@ _ac_build() #build with autotools
 get_url() # download url
 {
     if [ "`which wget`" != "" ] ; then
-				wget $1 -O $2
+				wget $1 -O $2 --no-check-certificate
     elif [ "`which curl`" != "" ] ; then
 				curl $1 -o $2
     fi
@@ -90,6 +90,16 @@ _deps() # grab/build all dependancies
 		mkdir -p $prefix
 
     echo "Building Dependancies..."
+
+		if [ ! -d $base/sqlite3 ]; then
+				get_url https://www.sqlite.org/2013/sqlite-autoconf-3071700.tar.gz $base/sqlite3.tar.gz
+				_e $base/sqlite3.tar.gz $base/sqlite3
+		fi
+
+		if [ ! -e $base/sqlite3-built ]; then
+				_ac_build $base/sqlite3 $prefix
+				echo "`date`" > $base/sqlite3-built
+		fi
 
 		if [ ! -d $base/gtest ]; then
 				get_url https://googletest.googlecode.com/files/gtest-1.6.0.zip $base/gtest.zip
@@ -142,7 +152,8 @@ _build_i2p() # build i2p itself
     echo "Building I2P..."
     cd $build
     $cmake \
-				-DGTEST_MAIN_LIBRARY_PATH=$prefix/lib/libgtest_main.la \
+				-DSQLITE3_INCLUDE_DIR=$prefix/include/ \
+				-DSQLITE3_LIBRARY_PREFIX=$prefix/lib/ \
 				-DBOTAN_INCLUDE_DIR=$prefix/include/botan-1.11/ \
 				-DBOTAN_LIBRARY_PREFIX=$prefix/lib/ \
 				-DBOOST_ROOT=$prefix/boost/ \
