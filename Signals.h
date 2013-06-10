@@ -12,6 +12,7 @@ namespace i2pcpp {
 		public:
 			typedef boost::signals2::signal<void(const RouterHash&)> RouterInfoSaved;
 			typedef boost::signals2::signal<void(std::list<BuildRecord>&)> BuildTunnelRequest;
+			typedef boost::signals2::signal<void(const RouterHash&)> PeerConnected;
 
 			Signals(boost::asio::io_service &ios) : m_ios(ios) {}
 
@@ -21,11 +22,15 @@ namespace i2pcpp {
 			void invokeTunnelRecordsReceived(const std::list<BuildRecord> &records);
 			boost::signals2::connection registerTunnelRecordsReceived(BuildTunnelRequest::slot_type const &btrh);
 
+			void invokePeerConnected(const RouterHash &rh);
+			boost::signals2::connection registerPeerConnected(PeerConnected::slot_type const &pch);
+
 		private:
 			boost::asio::io_service& m_ios;
 
 			RouterInfoSaved m_routerInfoSaved;
 			BuildTunnelRequest m_buildTunnelRequest;
+			PeerConnected m_peerConnected;
 	};
 }
 

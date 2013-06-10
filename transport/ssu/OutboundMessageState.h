@@ -18,7 +18,6 @@ namespace i2pcpp {
 
 				const PacketBuilder::FragmentPtr getNextFragment();
 				const PacketBuilder::FragmentPtr getNextUnackdFragment() const;
-				const PacketBuilder::FragmentPtr getFragment(const uint8_t fragNum) const;
 				void markFragmentSent(const uint8_t fragNum);
 				void markFragmentAckd(const uint8_t fragNum);
 				bool allFragmentsSent() const;

@@ -18,8 +18,8 @@ namespace i2pcpp {
 
 			void begin();
 
-			void establishmentSuccess(const RouterHash rh, bool inbound);
-			void establishmentFailure(const RouterHash rh);
+			void connected(const RouterHash rh);
+			void failure(const RouterHash rh);
 			void disconnected(const RouterHash rh);
 
 		private:
@@ -27,9 +27,6 @@ namespace i2pcpp {
 
 			boost::asio::io_service& m_ios;
 			RouterContext& m_ctx;
-
-			std::atomic<uint32_t> m_inboundEstablished;
-			std::atomic<uint32_t> m_outboundEstablished;
 
 			boost::asio::deadline_timer m_timer;
 

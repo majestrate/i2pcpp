@@ -35,6 +35,7 @@ namespace i2pcpp {
 			void send(RouterHash const &rh, ByteArray const &data);
 			void disconnect(RouterHash const &rh);
 			uint32_t numPeers() const;
+			bool isConnected(RouterHash const &rh) const;
 			void shutdown();
 
 		private:

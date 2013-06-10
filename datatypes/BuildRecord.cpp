@@ -68,17 +68,17 @@ namespace i2pcpp {
 		if(size != 255)
 			throw FormattingError();
 
-		m_data.resize(size);
-		decPipe.read(m_data.data(), size);
+		ByteArray record(size);
+		decPipe.read(record.data(), size);
 
-		auto dataItr = m_data.cbegin();
+		auto dataItr = record.cbegin();
 
 		dataItr++; // Non zero byte
 
 		std::array<unsigned char, 32> givenHash;
 		std::copy(dataItr, dataItr + 32, givenHash.begin()), dataItr += 32;
 
-		ByteArray toHash(dataItr, m_data.cend());
+		ByteArray toHash(dataItr, record.cend());
 
 		Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-256"));
 		hashPipe.start_msg();
@@ -89,6 +89,8 @@ namespace i2pcpp {
 		hashPipe.read(calcHash.data(), 32);
 		if(givenHash != calcHash)
 			throw FormattingError();
+
+		m_data = toHash;
 	}
 
 	void BuildRecord::encrypt(SessionKey const &iv, SessionKey const &key)

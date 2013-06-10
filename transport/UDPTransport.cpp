@@ -51,8 +51,7 @@ namespace i2pcpp {
 						m_ios.run();
 						break;
 					} catch(std::exception &e) {
-						// TODO Handle exception
-						I2P_LOG(m_log, error) << "exception in service thread: " << e.what();
+						I2P_LOG(m_log, error) << "exception thrown: " << e.what();
 					}
 				}
 			});
@@ -109,6 +108,11 @@ namespace i2pcpp {
 	uint32_t UDPTransport::numPeers() const
 	{
 		return m_peers.numPeers();
+	}
+
+	bool UDPTransport::isConnected(RouterHash const &rh) const
+	{
+		return m_peers.remotePeerExists(rh);
 	}
 
 	void UDPTransport::shutdown()

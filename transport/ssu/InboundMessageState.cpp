@@ -6,7 +6,7 @@ namespace i2pcpp {
 			m_routerHash(rh),
 			m_msgId(msgId) {}
 
-		void InboundMessageState::addFragment(const unsigned char fragNum, ByteArray const &data, bool isLast)
+		void InboundMessageState::addFragment(const uint8_t fragNum, ByteArray const &data, bool isLast)
 		{
 			if(m_gotLast && fragNum > m_lastFragment)
 				return; // TODO Exception -- trying to give us a fragment greater than last

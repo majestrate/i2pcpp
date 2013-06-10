@@ -18,6 +18,7 @@
 
 //#include "../transport/UDPTransport.h"
 #include "../transport/ssu/Packet.h"
+#include "../transport/ssu/PacketBuilder.h"
 
 #include <fstream>
 
@@ -200,7 +201,7 @@ TEST(Utils, Base64) {
 	UDPTransport t(SessionKey(Base64::decode("A6DVqs4yCV1s9QalgeB28iiV6341qm88Gblf3-c1SVg=")), group, key);
 	t.start(Endpoint(SSU_TEST_IP, SSU_TEST_PORT));
 	ASSERT_THROW(t.start(Endpoint(SSU_TEST_BAD_IP, SSU_TEST_PORT)), boost::system::system_error);
-}*/
+	}*/
 
 TEST(Packet, encrypt) {
 	using namespace i2pcpp;
@@ -252,4 +253,101 @@ TEST(Packet, decrypt) {
 
 	ByteArray expected = { 't', 'e', 's', 't', ' ', 'd', 'a', 't', 'a', 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07 };
 	ASSERT_EQ(p.getData(), expected);
+}
+
+TEST(PacketBuilder, buildData) {
+	using namespace i2pcpp;
+	using namespace i2pcpp::SSU;
+
+	CompleteAckList cal;
+	cal.push_back(0xc0ffee);
+	cal.push_back(0xf100d);
+
+	std::vector<bool> m1frags(6), m2frags(18), m3frags(2);
+	m1frags[0] = true;
+	m1frags[1] = true;
+	m1frags[2] = false;
+	m1frags[3] = true;
+	m1frags[4] = true;
+	m1frags[5] = false; // 01101100 0x6c
+
+	m2frags[0] = true;
+	m2frags[1] = true;
+	m2frags[2] = false;
+	m2frags[3] = true;
+	m2frags[4] = true;
+	m2frags[5] = false;
+	m2frags[6] = true; // 11101101 0xed
+	m2frags[7] = true;
+	m2frags[8] = false;
+	m2frags[9] = false;
+	m2frags[10] = true;
+	m2frags[11] = false;
+	m2frags[12] = true;
+	m2frags[13] = true; // 11001011 0xcb
+	m2frags[14] = false;
+	m2frags[15] = true;
+	m2frags[16] = true;
+	m2frags[17] = true; // 00111000 0x38
+
+	m3frags[0] = true;
+	m3frags[1] = true; // 01100000 0x60
+
+	PartialAckList pal;
+	pal[0xface] = m1frags;
+	pal[0xd1ce] = m2frags;
+	pal[0x5eed] = m3frags;
+
+	PacketBuilder::FragmentPtr f1 = std::make_shared<PacketBuilder::Fragment>();
+	f1->msgId = 0xdeadbeef;
+	f1->isLast = false;
+	f1->fragNum = 0;
+	f1->data = { 0x00, 0x01, 0x02, 0x03 };
+
+	PacketBuilder::FragmentPtr f2 = std::make_shared<PacketBuilder::Fragment>();
+	f2->msgId = 0xa77e57ed;
+	f2->isLast = false;
+	f2->fragNum = 1;
+	f2->data = { 0x04, 0x05, 0x06, 0x07 };
+
+	PacketBuilder::FragmentPtr f3 = std::make_shared<PacketBuilder::Fragment>();
+	f3->msgId = 0x005ca1e5;
+	f3->isLast = true;
+	f3->fragNum = 2;
+	f3->data = { 0x08, 0x09, 0x0a, 0x0b };
+
+	std::vector<PacketBuilder::FragmentPtr> fragList;
+	fragList.push_back(f1);
+	fragList.push_back(f2);
+	fragList.push_back(f3);
+
+	PacketPtr p = PacketBuilder::buildData(Endpoint("127.0.0.1", 12345), false, cal, pal, fragList);
+
+	ByteArray expected = { 0xc0,
+		0x02,
+		0x00, 0xc0, 0xff, 0xee,
+		0x00, 0x0f, 0x10, 0x0d,
+		0x03,
+		0x00, 0x00, 0x5e, 0xed,
+		0x60,
+		0x00, 0x00, 0xd1, 0xce,
+		0xed, 0xcb, 0x38,
+		0x00, 0x00, 0xfa, 0xce,
+		0x6c,
+		0x03,
+		0xde, 0xad, 0xbe, 0xef,
+		0x00, 0x00, 0x04,
+		0x00, 0x01, 0x02, 0x03,
+		0xa7, 0x7e, 0x57, 0xed,
+		0x02, 0x00, 0x04,
+		0x04, 0x05, 0x06, 0x07,
+		0x00, 0x5c, 0xa1, 0xe5,
+		0x05, 0x00, 0x04,
+		0x08, 0x09, 0x0a, 0x0b
+	};
+
+	ByteArray data = p->getData();
+	data.erase(data.begin(), data.begin() + 5);
+
+	ASSERT_EQ(expected, data);
 }

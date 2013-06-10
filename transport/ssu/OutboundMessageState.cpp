@@ -62,18 +62,17 @@ namespace i2pcpp {
 			return m_fragments[i / 2];
 		}
 
-		const PacketBuilder::FragmentPtr OutboundMessageState::getFragment(const uint8_t fragNum) const
-		{
-			return m_fragments[fragNum];
-		}
-
 		void OutboundMessageState::markFragmentSent(const uint8_t fragNum)
 		{
+			if((fragNum * 2) >= m_fragmentStates.size()) return;
+
 			m_fragmentStates[fragNum * 2] = 1;
 		}
 
 		void OutboundMessageState::markFragmentAckd(const uint8_t fragNum)
 		{
+			if((fragNum * 2) >= m_fragmentStates.size()) return;
+
 			m_fragmentStates[(fragNum * 2) + 1] = 1;
 		}
 
