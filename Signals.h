@@ -10,9 +10,9 @@
 namespace i2pcpp {
 	class Signals {
 		public:
-			typedef boost::signals2::signal<void(const RouterHash&)> RouterInfoSaved;
-			typedef boost::signals2::signal<void(std::list<BuildRecord>&)> BuildTunnelRequest;
-			typedef boost::signals2::signal<void(const RouterHash&)> PeerConnected;
+			typedef boost::signals2::signal<void(const RouterHash)> RouterInfoSaved;
+			typedef boost::signals2::signal<void(std::list<BuildRecord>)> BuildTunnelRequest;
+			typedef boost::signals2::signal<void(const RouterHash)> PeerConnected;
 
 			Signals(boost::asio::io_service &ios) : m_ios(ios) {}
 

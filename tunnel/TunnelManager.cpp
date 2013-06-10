@@ -9,7 +9,7 @@ namespace i2pcpp {
 		m_ctx(ctx),
 		m_log(boost::log::keywords::channel = "TM") {}
 
-	void TunnelManager::receiveRecords(std::list<BuildRecord> &records)
+	void TunnelManager::receiveRecords(std::list<BuildRecord> records)
 	{
 		RouterHash myHash = m_ctx.getIdentity().getHash();
 		std::array<unsigned char, 16> myTruncatedHash;
@@ -58,7 +58,7 @@ namespace i2pcpp {
 						x.encrypt(hop.getReplyIV(), hop.getReplyKey());
 
 					I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(records));
-					m_ctx.getOutMsgDisp().sendMessage(hop.getNextHash(), vtb);
+					//m_ctx.getOutMsgDisp().sendMessage(hop.getNextHash(), vtb);
 
 					break;
 				}
