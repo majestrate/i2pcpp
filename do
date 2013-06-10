@@ -49,9 +49,13 @@ _build_botan() # build patched botan
 {
 
 		echo "Building Botan..."
+		cpu='x86_64'
+		if [ "$BUILD32" != "" ]; then
+				cpu='x86'
+		fi
     srcdir="$1"
     cd $srcdir
-    python ./configure.py --prefix=$2 --with-zlib
+    python ./configure.py --prefix=$2 --with-zlib --cpu=$cpu
     make -j$jobs && echo "Installing Botan..." && make install -j$jobs
     cd -
 }
@@ -74,7 +78,7 @@ _build_boost() # build boost with boost-log
     prefix="$3"
     cp -rf $logdir/{boost,libs} $boostdir
     cd $boostdir
-    ./bootstrap.sh --prefix=$prefix
+    ./bootstrap.sh --prefix=$prefix --with-libraries=system,thread,filesystem,program_options,log
     ./b2 -tx -j $jobs -a 
     cd -
 		echo "Installing Boost..."
@@ -101,15 +105,15 @@ _deps() # grab/build all dependancies
 				echo "`date`" > $base/sqlite3-built
 		fi
 
-		if [ ! -d $base/gtest ]; then
-				get_url https://googletest.googlecode.com/files/gtest-1.6.0.zip $base/gtest.zip
-				_e $base/gtest.zip $base/gtest
-		fi
+		#if [ ! -d $base/gtest ]; then
+		#		get_url https://googletest.googlecode.com/files/gtest-1.6.0.zip $base/gtest.zip
+		#		_e $base/gtest.zip $base/gtest
+		#fi
 		
-		if [ ! -e $base/gtest-built ]; then
-				_build_gtest $base/gtest $prefix
-				echo "`date`" > $base/gtest-built
-		fi
+		#if [ ! -e $base/gtest-built ]; then
+		#		_build_gtest $base/gtest $prefix
+		#		echo "`date`" > $base/gtest-built
+		#fi
     
 		if [ ! -d $base/botan ]; then
 				get_url http://files.randombit.net/botan/v1.11/Botan-1.11.3.tbz $base/botan.tar.bz2
