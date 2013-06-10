@@ -45,14 +45,14 @@ namespace i2pcpp {
 
 			Database m_db;
 
+			TunnelManager m_tunnelManager;
+			ProfileManager m_profileManager;
+			PeerManager m_peerManager;
+
 			InboundMessageDispatcher m_inMsgDispatcher;
 			OutboundMessageDispatcher m_outMsgDispatcher;
 
 			Signals m_signals;
-
-			TunnelManager m_tunnelManager;
-			ProfileManager m_profileManager;
-			PeerManager m_peerManager;
 	};
 }
 

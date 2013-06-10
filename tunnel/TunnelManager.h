@@ -19,6 +19,8 @@ namespace i2pcpp {
 	class TunnelManager {
 		public:
 			TunnelManager(RouterContext &ctx);
+			TunnelManager(const TunnelManager &) = delete;
+			TunnelManager& operator=(TunnelManager &) = delete;
 
 			void receiveRecords(std::list<BuildRecord> records);
 			void handleResponse(BuildResponseRecord &response);

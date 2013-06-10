@@ -9,6 +9,9 @@ namespace i2pcpp {
 	class ProfileManager {
 		public:
 			ProfileManager(RouterContext &ctx);
+			ProfileManager(const ProfileManager &) = delete;
+			ProfileManager& operator=(ProfileManager &) = delete;
+
 			const RouterInfo getPeer();
 
 		private:
