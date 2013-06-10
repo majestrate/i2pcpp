@@ -32,7 +32,7 @@ namespace i2pcpp {
 		return m_transport;
 	}
 
-	void OutboundMessageDispatcher::connected(RouterHash const &rh)
+	void OutboundMessageDispatcher::connected(RouterHash const rh)
 	{
 		std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -44,7 +44,7 @@ namespace i2pcpp {
 		}
 	}
 
-	void OutboundMessageDispatcher::infoSaved(RouterHash const &rh)
+	void OutboundMessageDispatcher::infoSaved(RouterHash const rh)
 	{
 		std::lock_guard<std::mutex> lock(m_mutex);
 

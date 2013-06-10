@@ -9,7 +9,7 @@ namespace i2pcpp {
 		m_ctx(ctx),
 		m_log(boost::log::keywords::channel = "TM") {}
 
-	void TunnelManager::receiveRecords(std::list<BuildRecord> &records)
+	void TunnelManager::receiveRecords(std::list<BuildRecord> records)
 	{
 		RouterHash myHash = m_ctx.getIdentity().getHash();
 		std::array<unsigned char, 16> myTruncatedHash;

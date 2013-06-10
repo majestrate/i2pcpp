@@ -19,7 +19,7 @@ namespace i2pcpp {
 		public:
 			TunnelManager(RouterContext &ctx);
 
-			void receiveRecords(std::list<BuildRecord> &records);
+			void receiveRecords(std::list<BuildRecord> records);
 			void handleResponse(BuildResponseRecord &response);
 
 		private:
