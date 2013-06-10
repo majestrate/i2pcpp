@@ -29,11 +29,9 @@ namespace i2pcpp {
 			private:
 				std::unordered_map<Endpoint, PeerStatePtr> m_remotePeers;
 				std::unordered_map<RouterHash, PeerStatePtr> m_remotePeersByHash;
-				#ifdef USE_CLANG
+		
 				mutable std::mutex m_remotePeersMutex;
-				#else 
-				mutable std::mutex m_remotePeersMutex;
-				#endif
+		
 		};
 	}
 }

@@ -13,9 +13,7 @@ namespace i2pcpp {
 		m_establishmentManager(*this, privKey, ri),
 		m_ackScheduler(*this),
 		m_omf(*this),
-		m_log(boost::log::keywords::channel = "SSU") {
-	  
-	}
+		m_log(boost::log::keywords::channel = "SSU") {}
 
 	UDPTransport::~UDPTransport()
 	{

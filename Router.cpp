@@ -14,12 +14,6 @@ namespace i2pcpp {
 	{
 		if(m_serviceThread.joinable()) m_serviceThread.join();
 	}
-      
-        i2p_logger_mt & Router::getLogger()
-        {
-	  return m_log;
-        }
-
 
 	void Router::start()
 	{

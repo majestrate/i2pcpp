@@ -28,8 +28,6 @@ namespace i2pcpp {
 			void setConfigValue(std::string key, std::string value);
 			std::string getConfigValue(std::string key);
 
-
-			i2p_logger_mt & getLogger();
 		private:
 			boost::asio::io_service m_ios;
 			boost::asio::io_service::work m_work;

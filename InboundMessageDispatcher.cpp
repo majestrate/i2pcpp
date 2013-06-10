@@ -92,12 +92,9 @@ namespace i2pcpp {
 
 			Botan::Pipe gzPipe(new Botan::Zlib_Compression);
 			gzPipe.start_msg();
-			#ifdef USE_CLANG
+
 			gzPipe.write(myInfo.serialize());
-			#else
-			for ( Botan::byte b : myInfo.serialize())
-			  gzPipe.write(b);
-			#endif
+			
 			gzPipe.end_msg();
 
 			unsigned int size = gzPipe.remaining();
