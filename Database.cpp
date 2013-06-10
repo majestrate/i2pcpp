@@ -456,16 +456,11 @@ namespace i2pcpp {
 
 			sqlite3_finalize(statement);
 
-<<<<<<< HEAD
-		sqlite3_exec(m_db, "COMMIT TRANSACTION", NULL, NULL, NULL);
-	}
-=======
 			sqlite3_exec(m_db, "COMMIT TRANSACTION", NULL, NULL, NULL);
 		} catch(SQLError &e) {
 			sqlite3_finalize(statement);
 		}
-}
->>>>>>> master
+	}
 
 	void Database::setRouterInfo(std::vector<RouterInfo> const &routers)
 	{
