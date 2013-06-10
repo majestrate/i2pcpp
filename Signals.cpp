@@ -20,4 +20,14 @@ namespace i2pcpp {
 	{
 		return m_buildTunnelRequest.connect(btrh);
 	}
+
+	void Signals::invokePeerConnected(const RouterHash &rh)
+	{
+		m_ios.post(boost::bind(boost::ref(m_peerConnected), rh));
+	}
+
+	boost::signals2::connection Signals::registerPeerConnected(PeerConnected::slot_type const &pch)
+	{
+		return m_peerConnected.connect(pch);
+	}
 }

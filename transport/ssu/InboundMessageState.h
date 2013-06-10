@@ -13,7 +13,7 @@ namespace i2pcpp {
 			public:
 				InboundMessageState(RouterHash const &rh, const uint32_t msgId);
 
-				void addFragment(const unsigned char fragNum, ByteArray const &data, bool isLast);
+				void addFragment(const uint8_t fragNum, ByteArray const &data, bool isLast);
 				ByteArray assemble() const;
 
 				RouterHash getRouterHash() const;

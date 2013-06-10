@@ -19,6 +19,7 @@ namespace i2pcpp {
 			virtual void send(RouterHash const &rh, ByteArray const &msg) = 0;
 			virtual void disconnect(RouterHash const &rh) = 0;
 			virtual uint32_t numPeers() const = 0;
+			virtual bool isConnected(RouterHash const &rh) const = 0;
 
 			boost::signals2::connection registerEstablishedHandler(EstablishedSignal::slot_type const &eh);
 			boost::signals2::connection registerReceivedHandler(ReceivedSignal::slot_type const &rh);

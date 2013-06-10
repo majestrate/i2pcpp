@@ -137,16 +137,14 @@ namespace i2pcpp {
 				size_t steps = ceil(numBits / 7.0);
 
 				for(size_t i = 0; i < steps; i++) {
-					unsigned char byte = 0;
+					uint8_t byte = 0;
 
-					if(i < steps - 1) {
+					if((i + 1) < steps)
 						byte |= (1 << 7);
 
-						for(int j = 0; j < 7; j++)
-							byte |= (m.second[(i * 7) + j] << j);
-					} else {
-						for(size_t j = 0; j < numBits - ((steps - 1) * 7); j++)
-							byte |= (m.second[(i * 7) + j] << j);
+					for(int j = 6, k = (i * 7); j >= 0 && k < numBits; j--, k++) {
+						if(m.second[k])
+							byte |= (1 << j);
 					}
 
 					ba.insert(ba.end(), byte);
@@ -184,7 +182,9 @@ namespace i2pcpp {
 				if(f->isLast)
 					fragInfo |= (1 << 16);
 
-				// TODO Exception if fragment size > 16383 (maybe)
+				if(f->data.size() > 16383)
+					throw std::logic_error("fragment size too big");
+
 				fragInfo |= (f->data.size());
 
 				d.insert(d.end(), fragInfo >> 16);

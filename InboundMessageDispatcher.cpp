@@ -81,9 +81,9 @@ namespace i2pcpp {
 			RouterAddress a(5, Date(0), "SSU", am);
 
 			Mapping rm;
-			rm.setValue("coreVersion", "0.9.5");
+			rm.setValue("coreVersion", "0.9.6");
 			rm.setValue("netId", "2");
-			rm.setValue("router.version", "0.9.5");
+			rm.setValue("router.version", "0.9.6");
 			rm.setValue("stat_uptime", "90m");
 			rm.setValue("caps", "MR");
 			RouterInfo myInfo(m_ctx.getIdentity(), Date(), rm);
@@ -107,5 +107,7 @@ namespace i2pcpp {
 			auto mydsm = std::make_shared<I2NP::DatabaseStore>(myInfo.getIdentity().getHash(), I2NP::DatabaseStore::DataType::ROUTER_INFO, 0, gzInfoBytes);
 			m_ctx.getOutMsgDisp().sendMessage(rh, mydsm);
 		}
+
+		m_ctx.getSignals().invokePeerConnected(rh);
 	}
 }
