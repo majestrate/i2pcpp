@@ -191,30 +191,9 @@ else(GTEST_LIBRARY_PATH AND GTEST_INCLUDE_DIR)
 	message(STATUS "Google Testing Framework not found... not building tests")
 endif(GTEST_LIBRARY_PATH AND GTEST_INCLUDE_DIR)
 
-find_package(PythonLibs)
-
-add_library(i2py SHARED py/i2py.cpp)
-
-include_directories(BEFORE i2py ${PYTHON_INCLUDE_PATH})
-include_directories(BEFORE i2py ${BOTAN_INCLUDE_PATH})
-target_link_libraries(i2py ${BOTAN_LIBRARY_PATH})
-
-GET_TARGET_PROPERTY(LIB_NAME i2py LOCATION)
-SET(NEW_LIB_NAME i2py.so)
-
 ADD_CUSTOM_COMMAND(
   TARGET i2py
   POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy ${LIB_NAME} ${NEW_LIB_NAME}
-  )
-ADD_CUSTOM_COMMAND(
-  TARGET i2py
-  POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy ${i2pcpp_SOURCE_DIR}/py/i2prouter.py i2prouter.py
-  )
-ADD_CUSTOM_COMMAND(
-  TARGET i2py
-  POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy ${i2pcpp_SOURCE_DIR}/share/schema.sql schema.sql
+  COMMAND ${CMAKE_COMMAND} -E copy ${i2pcpp_SOURCE_DIR}/py/i2pinit.py i2pinit.py
   )
 
