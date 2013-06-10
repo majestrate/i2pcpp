@@ -36,8 +36,7 @@ namespace i2pcpp {
 
 	Database::~Database()
 	{
-		if(m_db)
-			sqlite3_close(m_db);
+		sqlite3_close(m_db);
 	}
 
 	void Database::createDb(std::string const &file)

@@ -32,17 +32,36 @@ namespace i2pcpp {
 				while(numAcks--) {
 					uint32_t msgId = (*(begin++) << 24) | (*(begin++) << 16) | (*(begin++) << 8) | *(begin++);
 					std::lock_guard<std::mutex> lock(ps->getMutex());
+
 					ps->delOutboundMessageState(msgId);
 				}
 			}
 
 			if(flag[6]) {
-				// TODO
+				std::lock_guard<std::mutex> lock(ps->getMutex());
+
 				unsigned char numFields = *(begin++);
 				while(numFields--) {
 					uint32_t msgId = (*(begin++) << 24) | (*(begin++) << 16) | (*(begin++) << 8) | *(begin++);
-					while(*(begin++) & 0x80);
-				}	
+
+					OutboundMessageStatePtr oms = ps->getOutboundMessageState(msgId);
+
+					uint8_t byteNum = 0;
+					do {
+						uint8_t byte = *begin;
+						for(int i = 6, j = 0; i >= 0; i--, j++) {
+							if(byte & (1 << i)) {
+								if(oms)
+									oms->markFragmentAckd((byteNum * 7) + j);
+							}
+						}
+
+						byteNum++;
+					} while(*(begin++) & (1 << 7));
+
+					if(oms && oms->allFragmentsAckd())
+						ps->delOutboundMessageState(msgId);
+				}
 			}
 
 			if((end - begin) < 1) throw FormattingError();

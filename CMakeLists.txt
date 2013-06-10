@@ -79,7 +79,9 @@ set(TEST_SRCS
 	datatypes/SessionKey.cpp
 	exceptions/FormattingError.cpp
 	tests/testi2p.cpp
+	transport/ssu/EstablishmentState.cpp
 	transport/ssu/Packet.cpp
+	transport/ssu/PacketBuilder.cpp
 	util/Base64.cpp
 	util/I2PDH.cpp
 	util/I2PHMAC.cpp
@@ -89,9 +91,6 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -stdlib=libc++")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -stdlib=libc++")
 endif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0 -Wall")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2 -w")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 

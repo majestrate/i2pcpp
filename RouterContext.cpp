@@ -6,6 +6,7 @@ namespace i2pcpp {
 	RouterContext::RouterContext(std::string const &dbFile, boost::asio::io_service &ios) :
 		m_db(dbFile),
 		m_inMsgDispatcher(ios, *this),
+		m_outMsgDispatcher(*this),
 		m_signals(ios),
 		m_tunnelManager(*this),
 		m_profileManager(*this),

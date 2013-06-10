@@ -34,12 +34,14 @@ namespace i2pcpp {
 		TransportPtr t = TransportPtr(new UDPTransport(*m_ctx.getSigningKey(), m_ctx.getIdentity()));
 		t->registerReceivedHandler(boost::bind(&InboundMessageDispatcher::messageReceived, m_ctx.getInMsgDisp(), _1, _2));
 		t->registerEstablishedHandler(boost::bind(&InboundMessageDispatcher::connectionEstablished, m_ctx.getInMsgDisp(), _1, _2));
-		t->registerEstablishedHandler(boost::bind(&PeerManager::establishmentSuccess, boost::ref(m_ctx.getPeerManager()), _1, _2));
-		t->registerFailureSignal(boost::bind(&PeerManager::establishmentFailure, boost::ref(m_ctx.getPeerManager()), _1));
+		t->registerFailureSignal(boost::bind(&PeerManager::failure, boost::ref(m_ctx.getPeerManager()), _1));
 		t->registerDisconnectedSignal(boost::bind(&PeerManager::disconnected, boost::ref(m_ctx.getPeerManager()), _1));
 		m_ctx.getOutMsgDisp().registerTransport(t);
 
 		m_ctx.getSignals().registerTunnelRecordsReceived(boost::bind(&TunnelManager::receiveRecords, boost::ref(m_ctx.getTunnelManager()), _1));
+		m_ctx.getSignals().registerRouterInfoSaved(boost::bind(&OutboundMessageDispatcher::infoSaved, boost::ref(m_ctx.getOutMsgDisp()), _1));
+		m_ctx.getSignals().registerPeerConnected(boost::bind(&PeerManager::connected, boost::ref(m_ctx.getPeerManager()), _1));
+		m_ctx.getSignals().registerPeerConnected(boost::bind(&OutboundMessageDispatcher::connected, boost::ref(m_ctx.getOutMsgDisp()), _1));
 
 		std::shared_ptr<UDPTransport> u = std::static_pointer_cast<UDPTransport>(t);
 		u->start(Endpoint(m_ctx.getDatabase().getConfigValue("ssu_bind_ip"), std::stoi(m_ctx.getDatabase().getConfigValue("ssu_bind_port"))));
