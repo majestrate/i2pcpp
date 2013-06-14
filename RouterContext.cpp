@@ -7,6 +7,7 @@ namespace i2pcpp {
 		m_db(dbFile),
 		m_inMsgDispatcher(ios, *this),
 		m_outMsgDispatcher(*this),
+		m_dht(m_outMsgDispatcher),
 		m_signals(ios),
 		m_tunnelManager(*this),
 		m_profileManager(*this),

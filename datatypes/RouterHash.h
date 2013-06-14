@@ -28,8 +28,8 @@ namespace std {
 		public:
 			size_t operator()(const i2pcpp::RouterHash &rh) const
 			{
-				std::hash<std::string> f;
-				return f(std::string(rh.cbegin(), rh.cend()));
+				hash<string> f;
+				return f(string(rh.cbegin(), rh.cend()));
 			}
 	};
 }
