@@ -1,6 +1,9 @@
 #include "Transport.h"
 
 namespace i2pcpp {
+	Transport::Transport() {}
+	Transport::~Transport() {}
+
 	boost::signals2::connection Transport::registerEstablishedHandler(EstablishedSignal::slot_type const &eh)
 	{
 		return m_establishedSignal.connect(eh);

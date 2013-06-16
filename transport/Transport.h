@@ -15,6 +15,11 @@ namespace i2pcpp {
 			typedef boost::signals2::signal<void(const RouterHash)> FailureSignal;
 			typedef boost::signals2::signal<void(const RouterHash)> DisconnectedSignal;
 
+			Transport();
+			Transport(const Transport &) = delete;
+			Transport& operator=(Transport &) = delete;
+			virtual ~Transport();
+
 			virtual void connect(RouterInfo const &ri) = 0;
 			virtual void send(RouterHash const &rh, ByteArray const &msg) = 0;
 			virtual void disconnect(RouterHash const &rh) = 0;

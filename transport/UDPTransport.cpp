@@ -8,6 +8,7 @@
 
 namespace i2pcpp {
 	UDPTransport::UDPTransport(Botan::DSA_PrivateKey const &privKey, RouterIdentity const &ri) :
+		Transport(),
 		m_socket(m_ios),
 		m_packetHandler(*this, ri.getHash()),
 		m_establishmentManager(*this, privKey, ri),

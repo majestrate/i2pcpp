@@ -55,7 +55,6 @@ namespace i2pcpp {
 				}
 			} catch(Botan::Decoding_Error &e) {
 				I2P_LOG(m_log, error) << "problem decompressing data";
-				return;
 			}
 		}
 	}

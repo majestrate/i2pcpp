@@ -10,6 +10,8 @@ namespace i2pcpp {
 		class AcknowledgementScheduler {
 			public:
 				AcknowledgementScheduler(UDPTransport &transport);
+				AcknowledgementScheduler(const AcknowledgementScheduler &) = delete;
+				AcknowledgementScheduler& operator=(AcknowledgementScheduler &) = delete;
 
 			private:
 				void flushAckCallback(const boost::system::error_code& e);

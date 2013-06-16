@@ -18,6 +18,8 @@ namespace i2pcpp {
 			typedef std::unordered_multimap<RouterHash, I2NP::MessagePtr> MapType;
 
 			OutboundMessageDispatcher(RouterContext &ctx);
+			OutboundMessageDispatcher(const OutboundMessageDispatcher &) = delete;
+			OutboundMessageDispatcher& operator=(OutboundMessageDispatcher &) = delete;
 
 			void sendMessage(RouterHash const &to, I2NP::MessagePtr const &msg);
 			void registerTransport(TransportPtr const &t);

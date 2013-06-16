@@ -31,8 +31,8 @@ namespace i2pcpp {
 			}
 		});
 		TransportPtr t = TransportPtr(new UDPTransport(*m_ctx.getSigningKey(), m_ctx.getIdentity()));
-		t->registerReceivedHandler(boost::bind(&InboundMessageDispatcher::messageReceived, m_ctx.getInMsgDisp(), _1, _2));
-		t->registerEstablishedHandler(boost::bind(&InboundMessageDispatcher::connectionEstablished, m_ctx.getInMsgDisp(), _1, _2));
+		t->registerReceivedHandler(boost::bind(&InboundMessageDispatcher::messageReceived, boost::ref(m_ctx.getInMsgDisp()), _1, _2));
+		t->registerEstablishedHandler(boost::bind(&InboundMessageDispatcher::connectionEstablished, boost::ref(m_ctx.getInMsgDisp()), _1, _2));
 		t->registerFailureSignal(boost::bind(&PeerManager::failure, boost::ref(m_ctx.getPeerManager()), _1));
 		t->registerDisconnectedSignal(boost::bind(&PeerManager::disconnected, boost::ref(m_ctx.getPeerManager()), _1));
 		m_ctx.getOutMsgDisp().registerTransport(t);

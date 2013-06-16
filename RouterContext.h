@@ -8,12 +8,14 @@
 #include <botan/dsa.h>
 
 #include "datatypes/RouterIdentity.h"
+#include "tunnel/TunnelManager.h"
+
+#include "dht/Kademlia.h"
 
 #include "Database.h"
 #include "InboundMessageDispatcher.h"
 #include "OutboundMessageDispatcher.h"
 #include "Signals.h"
-#include "tunnel/TunnelManager.h"
 #include "ProfileManager.h"
 #include "PeerManager.h"
 #include "Log.h"
@@ -46,14 +48,16 @@ namespace i2pcpp {
 
 			Database m_db;
 
-			InboundMessageDispatcher m_inMsgDispatcher;
-			OutboundMessageDispatcher m_outMsgDispatcher;
-
-			Signals m_signals;
-
 			TunnelManager m_tunnelManager;
 			ProfileManager m_profileManager;
 			PeerManager m_peerManager;
+
+			InboundMessageDispatcher m_inMsgDispatcher;
+			OutboundMessageDispatcher m_outMsgDispatcher;
+
+			DHT::Kademlia m_dht;
+
+			Signals m_signals;
 	};
 }
 

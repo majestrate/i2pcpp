@@ -16,6 +16,8 @@ namespace i2pcpp {
 	class InboundMessageDispatcher {
 		public:
 			InboundMessageDispatcher(boost::asio::io_service &ios, RouterContext &ctx);
+			InboundMessageDispatcher(const InboundMessageDispatcher &) = delete;
+			InboundMessageDispatcher& operator=(InboundMessageDispatcher &) = delete;
 
 			void messageReceived(RouterHash from, ByteArray data);
 			void connectionEstablished(RouterHash rh, bool inbound);

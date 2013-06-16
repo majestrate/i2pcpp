@@ -37,7 +37,7 @@ namespace std {
 		public:
 			size_t operator()(const i2pcpp::Endpoint &ep) const
 			{
-				std::hash<std::string> f;
+				hash<string> f;
 				return f(ep.getIP() + ":" + boost::lexical_cast<std::string>(ep.getPort()));
 			}
 	};

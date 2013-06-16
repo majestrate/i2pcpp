@@ -2,7 +2,7 @@
 #define TUNNELMANAGER_H
 
 #include <mutex>
-#include <map>
+#include <unordered_map>
 
 #include "../datatypes/BuildRequestRecord.h"
 #include "../datatypes/BuildResponseRecord.h"
@@ -18,6 +18,8 @@ namespace i2pcpp {
 	class TunnelManager {
 		public:
 			TunnelManager(RouterContext &ctx);
+			TunnelManager(const TunnelManager &) = delete;
+			TunnelManager& operator=(TunnelManager &) = delete;
 
 			void receiveRecords(std::list<BuildRecord> records);
 			void handleResponse(BuildResponseRecord &response);
@@ -25,8 +27,8 @@ namespace i2pcpp {
 		private:
 			RouterContext &m_ctx;
 
-			std::map<uint32_t, TunnelPtr> m_tunnels;
-			std::map<uint32_t, TunnelHopPtr> m_participating;
+			std::unordered_map<uint32_t, TunnelPtr> m_tunnels;
+			std::unordered_map<uint32_t, TunnelHopPtr> m_participating;
 
 			mutable std::mutex m_tunnelsMutex;
 			mutable std::mutex m_participatingMutex;

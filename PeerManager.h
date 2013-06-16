@@ -15,6 +15,8 @@ namespace i2pcpp {
 	class PeerManager {
 		public:
 			PeerManager(boost::asio::io_service &ios, RouterContext &ctx);
+			PeerManager(const PeerManager &) = delete;
+			PeerManager& operator=(PeerManager &) = delete;
 
 			void begin();
 
