@@ -7,7 +7,6 @@ namespace i2pcpp {
 		m_db(dbFile),
 		m_inMsgDispatcher(ios, *this),
 		m_outMsgDispatcher(*this),
-		m_dht(m_outMsgDispatcher),
 		m_signals(ios),
 		m_tunnelManager(*this),
 		m_profileManager(*this),
@@ -29,6 +28,11 @@ namespace i2pcpp {
 
 		ByteArray encryptionKeyBytes = Botan::BigInt::encode(encryptionKeyPublic), signingKeyBytes = Botan::BigInt::encode(signingKeyPublic);
 		m_identity = RouterIdentity(encryptionKeyBytes, signingKeyBytes, Certificate());
+
+		m_dht = std::make_shared<DHT::Kademlia>(m_identity.getHash());
+		std::forward_list<RouterHash> hashes = m_db.getAllHashes();
+		for(auto h: hashes)
+			m_dht->insert(DHT::Kademlia::makeKey(h), h);
 	}
 
 	RouterContext::~RouterContext()

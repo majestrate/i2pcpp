@@ -2,6 +2,7 @@
 #define DATABASE_H
 
 #include <string>
+#include <forward_list>
 
 #include <sqlite3.h>
 
@@ -26,13 +27,12 @@ namespace i2pcpp {
 			void deleteAllRouters();
 			void setRouterInfo(std::vector<RouterInfo> const &routers);
 			void setRouterInfo(RouterInfo const &info, bool transaction = true);
+			std::forward_list<RouterHash> getAllHashes();
 
 		private:
 			sqlite3 *m_db;
 
 			mutable std::mutex m_mutex;
-
-			static void sha256_func(sqlite3_context *context, int argc, sqlite3_value **argv);
 	};
 }
 

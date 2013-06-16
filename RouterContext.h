@@ -8,7 +8,6 @@
 
 #include "datatypes/RouterIdentity.h"
 #include "tunnel/TunnelManager.h"
-
 #include "dht/Kademlia.h"
 
 #include "Database.h"
@@ -54,7 +53,7 @@ namespace i2pcpp {
 			InboundMessageDispatcher m_inMsgDispatcher;
 			OutboundMessageDispatcher m_outMsgDispatcher;
 
-			DHT::Kademlia m_dht;
+			DHT::KademliaPtr m_dht;
 
 			Signals m_signals;
 	};

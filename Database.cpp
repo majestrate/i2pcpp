@@ -4,7 +4,6 @@
 
 #include <botan/auto_rng.h>
 #include <botan/elgamal.h>
-#include <botan/rng.h>
 #include <botan/pkcs8.h>
 #include <botan/dsa.h>
 
@@ -31,7 +30,6 @@ namespace i2pcpp {
 			throw std::runtime_error("could not open database");
 
 		sqlite3_exec(m_db, "PRAGMA foreign_keys=ON", NULL, NULL, NULL);
-		sqlite3_create_function(m_db, "sha256", 1, SQLITE_ANY, NULL, &sha256_func, NULL, NULL);
 	}
 
 	Database::~Database()
@@ -71,7 +69,7 @@ namespace i2pcpp {
 		sqlite3_stmt *statement;
 
 		std::string insert = "INSERT OR REPLACE INTO config (name, value) VALUES ('private_encryption_key', ?)";
-		if(sqlite3_prepare(db, insert.c_str(), -1, &statement, NULL) != SQLITE_OK) throw StatementPrepareError();
+		if(sqlite3_prepare_v2(db, insert.c_str(), -1, &statement, NULL) != SQLITE_OK) throw StatementPrepareError();
 
 		sqlite3_bind_text(statement, 1, elg_string.c_str(), -1, SQLITE_STATIC);
 
@@ -83,7 +81,7 @@ namespace i2pcpp {
 		sqlite3_finalize(statement);
 
 		insert = "INSERT OR REPLACE INTO config (name, value) VALUES ('private_signing_key', ?)";
-		if(sqlite3_prepare(db, insert.c_str(), -1, &statement, NULL) != SQLITE_OK) throw StatementPrepareError();
+		if(sqlite3_prepare_v2(db, insert.c_str(), -1, &statement, NULL) != SQLITE_OK) throw StatementPrepareError();
 
 		sqlite3_bind_text(statement, 1, dsa_string.c_str(), -1, SQLITE_STATIC);
 
@@ -105,7 +103,7 @@ namespace i2pcpp {
 		const std::string select = "SELECT value FROM config WHERE name = ?";
 		sqlite3_stmt *statement;
 
-		if(sqlite3_prepare(m_db, select.c_str(), -1, &statement, NULL) != SQLITE_OK) throw StatementPrepareError();
+		if(sqlite3_prepare_v2(m_db, select.c_str(), -1, &statement, NULL) != SQLITE_OK) throw StatementPrepareError();
 
 		sqlite3_bind_text(statement, 1, name.c_str(), -1, SQLITE_STATIC);
 
@@ -130,7 +128,7 @@ namespace i2pcpp {
 		const std::string insert = "INSERT OR REPLACE INTO config (name, value) VALUES (?, ?)";
 		sqlite3_stmt *statement;
 
-		if(sqlite3_prepare(m_db, insert.c_str(), -1, &statement, NULL) != SQLITE_OK) throw StatementPrepareError();
+		if(sqlite3_prepare_v2(m_db, insert.c_str(), -1, &statement, NULL) != SQLITE_OK) throw StatementPrepareError();
 
 		sqlite3_bind_text(statement, 1, name.c_str(), -1, SQLITE_STATIC);
 		sqlite3_bind_text(statement, 2, value.c_str(), -1, SQLITE_STATIC);
@@ -150,7 +148,7 @@ namespace i2pcpp {
 		const std::string select = "SELECT router_id FROM router_options WHERE router_options.name='caps' AND router_options.value LIKE '%f%' ORDER BY RANDOM() LIMIT 1";
 		sqlite3_stmt *statement;
 
-		if(sqlite3_prepare(m_db, select.c_str(), -1, &statement, NULL) != SQLITE_OK) throw StatementPrepareError();
+		if(sqlite3_prepare_v2(m_db, select.c_str(), -1, &statement, NULL) != SQLITE_OK) throw StatementPrepareError();
 
 		int rc = sqlite3_step(statement);
 		if(rc == SQLITE_ROW) {
@@ -174,7 +172,7 @@ namespace i2pcpp {
 		const std::string select = "SELECT COUNT(id) AS count FROM routers WHERE id = ?";
 		sqlite3_stmt *statement;
 
-		if(sqlite3_prepare(m_db, select.c_str(), -1, &statement, NULL) != SQLITE_OK) throw StatementPrepareError();
+		if(sqlite3_prepare_v2(m_db, select.c_str(), -1, &statement, NULL) != SQLITE_OK) throw StatementPrepareError();
 
 		sqlite3_bind_blob(statement, 1, routerHash.data(), routerHash.size(), SQLITE_STATIC);
 
@@ -205,7 +203,7 @@ namespace i2pcpp {
 			std::string select = "SELECT encryption_key, signing_key, certificate, published, signature FROM routers WHERE id = ?";
 
 			int rc;
-			if((rc = sqlite3_prepare(m_db, select.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
+			if((rc = sqlite3_prepare_v2(m_db, select.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
 
 			sqlite3_bind_blob(statement, 1, routerHash.data(), routerHash.size(), SQLITE_STATIC);
 
@@ -247,7 +245,7 @@ namespace i2pcpp {
 			Mapping router_options;
 
 			select = "SELECT name, value FROM router_options WHERE router_id = ?";
-			if(sqlite3_prepare(m_db, select.c_str(), -1, &statement, NULL) != SQLITE_OK) throw StatementPrepareError();
+			if(sqlite3_prepare_v2(m_db, select.c_str(), -1, &statement, NULL) != SQLITE_OK) throw StatementPrepareError();
 
 			sqlite3_bind_blob(statement, 1, routerHash.data(), routerHash.size(), SQLITE_STATIC);
 
@@ -275,7 +273,7 @@ namespace i2pcpp {
 			RouterInfo ri(RouterIdentity(encryptionKey, signingKey, Certificate(certItr, certEndItr)), Date(pubItr, pubEndItr), router_options, signature);
 
 			select = "SELECT \"index\", cost, expiration, transport FROM router_addresses WHERE router_id = ?";
-			if(sqlite3_prepare(m_db, select.c_str(), -1, &statement, NULL) != SQLITE_OK) throw StatementPrepareError();
+			if(sqlite3_prepare_v2(m_db, select.c_str(), -1, &statement, NULL) != SQLITE_OK) throw StatementPrepareError();
 
 			sqlite3_bind_blob(statement, 1, routerHash.data(), routerHash.size(), SQLITE_STATIC);
 
@@ -297,7 +295,7 @@ namespace i2pcpp {
 				std::string transport(bytes, size);
 
 				select = "SELECT name, value FROM router_address_options WHERE router_id = ? AND \"index\" = ? ORDER BY name ASC";
-				if(sqlite3_prepare(m_db, select.c_str(), -1, &options_statement, NULL) != SQLITE_OK) throw StatementPrepareError();
+				if(sqlite3_prepare_v2(m_db, select.c_str(), -1, &options_statement, NULL) != SQLITE_OK) throw StatementPrepareError();
 
 				sqlite3_bind_blob(options_statement, 1, routerHash.data(), routerHash.size(), SQLITE_STATIC);
 				sqlite3_bind_int(options_statement, 2, index);
@@ -347,7 +345,7 @@ namespace i2pcpp {
 			sqlite3_exec(m_db, "BEGIN TRANSACTION", NULL, NULL, NULL);
 
 			std::string del = "DELETE FROM profiles WHERE router_id = ?";
-			if((rc = sqlite3_prepare(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
+			if((rc = sqlite3_prepare_v2(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
 			sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
 
 			if((rc = sqlite3_step(statement)) != SQLITE_DONE)
@@ -356,7 +354,7 @@ namespace i2pcpp {
 			sqlite3_finalize(statement);
 
 			del = "DELETE FROM router_address_options WHERE router_id = ?";
-			if((rc = sqlite3_prepare(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
+			if((rc = sqlite3_prepare_v2(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
 			sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
 
 			if((rc = sqlite3_step(statement)) != SQLITE_DONE)
@@ -365,7 +363,7 @@ namespace i2pcpp {
 			sqlite3_finalize(statement);
 
 			del = "DELETE FROM router_addresses WHERE router_id = ?";
-			if((rc = sqlite3_prepare(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
+			if((rc = sqlite3_prepare_v2(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
 			sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
 
 			if((rc = sqlite3_step(statement)) != SQLITE_DONE)
@@ -374,7 +372,7 @@ namespace i2pcpp {
 			sqlite3_finalize(statement);
 
 			del = "DELETE FROM router_options WHERE router_id = ?";
-			if((rc = sqlite3_prepare(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
+			if((rc = sqlite3_prepare_v2(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
 			sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
 
 			if((rc = sqlite3_step(statement)) != SQLITE_DONE)
@@ -383,7 +381,7 @@ namespace i2pcpp {
 			sqlite3_finalize(statement);
 
 			del = "DELETE FROM routers WHERE id = ?";
-			if((rc = sqlite3_prepare(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
+			if((rc = sqlite3_prepare_v2(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
 			sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
 
 			if((rc = sqlite3_step(statement)) != SQLITE_DONE)
@@ -409,7 +407,7 @@ namespace i2pcpp {
 			sqlite3_exec(m_db, "BEGIN TRANSACTION", NULL, NULL, NULL);
 
 			std::string del = "DELETE FROM profiles";
-			if((rc = sqlite3_prepare(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
+			if((rc = sqlite3_prepare_v2(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
 
 			if((rc = sqlite3_step(statement)) != SQLITE_DONE)
 				throw SQLError(del);
@@ -417,7 +415,7 @@ namespace i2pcpp {
 			sqlite3_finalize(statement);
 
 			del = "DELETE FROM router_address_options";
-			if((rc = sqlite3_prepare(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
+			if((rc = sqlite3_prepare_v2(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
 
 			if((rc = sqlite3_step(statement)) != SQLITE_DONE)
 				throw SQLError(del);
@@ -425,7 +423,7 @@ namespace i2pcpp {
 			sqlite3_finalize(statement);
 
 			del = "DELETE FROM router_addresses";
-			if((rc = sqlite3_prepare(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
+			if((rc = sqlite3_prepare_v2(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
 
 			if((rc = sqlite3_step(statement)) != SQLITE_DONE)
 				throw SQLError(del);
@@ -433,7 +431,7 @@ namespace i2pcpp {
 			sqlite3_finalize(statement);
 
 			del = "DELETE FROM router_options";
-			if((rc = sqlite3_prepare(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
+			if((rc = sqlite3_prepare_v2(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
 
 			if((rc = sqlite3_step(statement)) != SQLITE_DONE)
 				throw SQLError(del);
@@ -441,7 +439,7 @@ namespace i2pcpp {
 			sqlite3_finalize(statement);
 
 			del = "DELETE FROM routers";
-			if((rc = sqlite3_prepare(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
+			if((rc = sqlite3_prepare_v2(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
 
 			if((rc = sqlite3_step(statement)) != SQLITE_DONE)
 				throw SQLError(del);
@@ -452,7 +450,7 @@ namespace i2pcpp {
 		} catch(SQLError &e) {
 			sqlite3_finalize(statement);
 		}
-}
+	}
 
 	void Database::setRouterInfo(std::vector<RouterInfo> const &routers)
 	{
@@ -487,7 +485,7 @@ namespace i2pcpp {
 			const ByteArray& sig    = info.getSignature();
 
 			std::string insert = "INSERT OR REPLACE INTO routers(id, encryption_key, signing_key, certificate, published, signature) VALUES(?, ?, ?, ?, ?, ?)";
-			if((rc = sqlite3_prepare(m_db, insert.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
+			if((rc = sqlite3_prepare_v2(m_db, insert.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
 			sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
 			sqlite3_bind_blob(statement, 2, encKey.data(), encKey.size(), SQLITE_STATIC);
 			sqlite3_bind_blob(statement, 3, sigKey.data(), sigKey.size(), SQLITE_STATIC);
@@ -505,7 +503,7 @@ namespace i2pcpp {
 				std::string istr = std::to_string(i);
 				insert = "INSERT OR REPLACE INTO router_addresses(router_id, \"index\", cost, expiration, transport) VALUES(?, ?, ?, ?, ?)";
 
-				if((rc = sqlite3_prepare(m_db, insert.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
+				if((rc = sqlite3_prepare_v2(m_db, insert.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
 				sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
 				sqlite3_bind_text(statement, 2, istr.c_str(), -1, SQLITE_STATIC);
 				sqlite3_bind_int(statement, 3, (int)a.getCost());
@@ -520,7 +518,7 @@ namespace i2pcpp {
 
 				for(auto& o: a.getOptions()) {
 					insert = "INSERT OR REPLACE INTO router_address_options(router_id, \"index\", name, value) VALUES(?, ?, ?, ?)";
-					if((rc = sqlite3_prepare(m_db, insert.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
+					if((rc = sqlite3_prepare_v2(m_db, insert.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
 					sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
 					sqlite3_bind_text(statement, 2, istr.c_str(), -1, SQLITE_STATIC);
 					sqlite3_bind_text(statement, 3, o.first.c_str(), -1, SQLITE_STATIC);
@@ -537,7 +535,7 @@ namespace i2pcpp {
 
 			for(auto& o: info.getOptions()) {
 				insert = "INSERT OR REPLACE INTO router_options(router_id, name, value) VALUES(?, ?, ?)";
-				if((rc = sqlite3_prepare(m_db, insert.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
+				if((rc = sqlite3_prepare_v2(m_db, insert.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
 				sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
 				sqlite3_bind_text(statement, 2, o.first.c_str(), -1, SQLITE_STATIC);
 				sqlite3_bind_text(statement, 3, o.second.c_str(), -1, SQLITE_STATIC);
@@ -559,25 +557,27 @@ namespace i2pcpp {
 		}
 	}
 
-	void Database::sha256_func(sqlite3_context *context, int argc, sqlite3_value **argv)
+	std::forward_list<RouterHash> Database::getAllHashes()
 	{
-		if(argc != 1) {
-			sqlite3_result_null(context);
-			return;
+		std::lock_guard<std::mutex> lock(m_mutex);
+
+		std::forward_list<RouterHash> hashes;
+
+		const std::string select = "SELECT id FROM routers";
+		sqlite3_stmt *statement;
+
+		if(sqlite3_prepare_v2(m_db, select.c_str(), -1, &statement, NULL) != SQLITE_OK) throw StatementPrepareError();
+
+		while(sqlite3_step(statement) == SQLITE_ROW) {
+			unsigned char *bytes = (unsigned char *)sqlite3_column_blob(statement, 0);
+			int size = sqlite3_column_bytes(statement, 0);
+			RouterHash rh;
+			std::copy(bytes, bytes + size, rh.begin());
+			hashes.push_front(rh);
 		}
 
-		int size = sqlite3_value_bytes(argv[0]);
-		const unsigned char *input = (unsigned char *)sqlite3_value_blob(argv[0]);
-		Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-256"));
-		hashPipe.start_msg();
+		sqlite3_finalize(statement);
 
-		hashPipe.write(input, size);
-
-		hashPipe.end_msg();
-
-		std::array<unsigned char, 32> output;
-		hashPipe.read(output.data(), 32);
-
-		sqlite3_result_blob(context, output.data(), 32, NULL);
+		return hashes;
 	}
 }
