@@ -10,9 +10,9 @@ namespace i2pcpp {
 		m_signals(ios),
 		m_tunnelManager(*this),
 		m_profileManager(*this),
-		m_peerManager(ios, *this)
+		m_peerManager(ios, *this),
+		m_searchManager(ios, *this)
 	{
-	  std::string blank = "";
 		Botan::AutoSeeded_RNG rng;
 
 		std::string encryptingKeyPEM = m_db.getConfigValue("private_encryption_key");
@@ -29,6 +29,7 @@ namespace i2pcpp {
 		
 		m_identity = RouterIdentity(encryptionKeyBytes, signingKeyBytes, Certificate());
 
+		// Populate the DHT
 		m_dht = std::make_shared<DHT::Kademlia>(m_identity.getHash());
 		std::forward_list<RouterHash> hashes = m_db.getAllHashes();
 		for(auto h: hashes)
@@ -89,5 +90,15 @@ namespace i2pcpp {
 	PeerManager& RouterContext::getPeerManager()
 	{
 		return m_peerManager;
+	}
+
+	DHT::KademliaPtr RouterContext::getDHT()
+	{
+		return m_dht;
+	}
+
+	DHT::SearchManager& RouterContext::getSearchManager()
+	{
+		return m_searchManager;
 	}
 }

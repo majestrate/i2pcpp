@@ -30,28 +30,35 @@ namespace i2pcpp {
 
 				switch(dsm->getDataType()) {
 					case I2NP::DatabaseStore::DataType::ROUTER_INFO:
-						ungzPipe.start_msg();
-						ungzPipe.write(dsm->getData());
-						ungzPipe.end_msg();
+						{
+							ungzPipe.start_msg();
+							ungzPipe.write(dsm->getData());
+							ungzPipe.end_msg();
+
+							unsigned int size = ungzPipe.remaining();
+							ByteArray inflatedData(size);
+							ungzPipe.read(inflatedData.data(), size);
+
+							auto begin = inflatedData.cbegin();
+							RouterInfo ri(begin, inflatedData.cend());
+
+							if(ri.verifySignature()) {
+								m_ctx.getDatabase().setRouterInfo(ri);
+								I2P_LOG(m_log, debug) << "added RouterInfo to DB";
+
+								m_ctx.getSignals().invokeDatabaseStore(from, ri.getIdentity().getHash(), true);
+							} else {
+								I2P_LOG(m_log, error) << "RouterInfo verification failed";
+							}
+						}
+
 						break;
 
 					case I2NP::DatabaseStore::DataType::LEASE_SET:
+						I2P_LOG(m_log, debug) << "this is a LeaseSet";
+
+						// signal here
 						break;
-				}
-
-				unsigned int size = ungzPipe.remaining();
-				ByteArray inflatedData(size);
-				ungzPipe.read(inflatedData.data(), size);
-
-				auto begin = inflatedData.cbegin();
-				RouterInfo ri(begin, inflatedData.cend());
-
-				if(ri.verifySignature()) {
-					m_ctx.getDatabase().setRouterInfo(ri);
-					I2P_LOG(m_log, debug) << "added RouterInfo to DB";
-					m_ctx.getSignals().invokeRouterInfoSaved(ri.getIdentity().getHash());
-				} else {
-					I2P_LOG(m_log, error) << "RouterInfo verification failed";
 				}
 			} catch(Botan::Decoding_Error &e) {
 				I2P_LOG(m_log, error) << "problem decompressing data";

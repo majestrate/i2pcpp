@@ -19,8 +19,9 @@ namespace i2pcpp {
 			InboundMessageDispatcher(const InboundMessageDispatcher &) = delete;
 			InboundMessageDispatcher& operator=(InboundMessageDispatcher &) = delete;
 
-			void messageReceived(RouterHash from, ByteArray data);
-			void connectionEstablished(RouterHash rh, bool inbound);
+			void messageReceived(RouterHash const from, ByteArray data);
+			void connectionEstablished(RouterHash const rh, bool inbound);
+			void connectionFailure(RouterHash const rh);
 
 		private:
 			boost::asio::io_service& m_ios;

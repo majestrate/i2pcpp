@@ -19,6 +19,11 @@ namespace i2pcpp {
 		std::copy(b.cbegin(), b.cbegin() + 32, begin());
 	}
 
+	RouterHash::RouterHash(std::array<unsigned char, 32> const &k)
+	{
+		std::copy(k.cbegin(), k.cbegin() + 32, begin());
+	}
+
 	RouterHash::operator ByteArray() const
 	{
 		return ByteArray(cbegin(), cend());

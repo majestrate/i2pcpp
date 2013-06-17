@@ -23,12 +23,7 @@ namespace i2pcpp {
 			I2P_LOG_SCOPED_RH(m_log, from);
 			I2P_LOG(m_log, debug) << "received DatabaseSearchReply message";
 
-			for(auto h: dsr->getHashes()) {
-				if(!m_ctx.getDatabase().routerExists(h)) {
-					I2NP::MessagePtr dbl(new I2NP::DatabaseLookup(h, m_ctx.getIdentity().getHash(), 0));
-					m_ctx.getOutMsgDisp().sendMessage(from, dbl);
-				}
-			}
+			m_ctx.getSignals().invokeSearchReply(from, dsr->getKey(), dsr->getHashes());
 		}
 	}
 }

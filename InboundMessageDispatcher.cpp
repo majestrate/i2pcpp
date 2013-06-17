@@ -22,7 +22,7 @@ namespace i2pcpp {
 		m_variableTunnelBuildHandler(ctx),
 		m_log(boost::log::keywords::channel = "IMD") {}
 
-	void InboundMessageDispatcher::messageReceived(RouterHash from, ByteArray data)
+	void InboundMessageDispatcher::messageReceived(RouterHash const from, ByteArray data)
 	{
 		I2P_LOG_SCOPED_RH(m_log, from);
 
@@ -60,7 +60,7 @@ namespace i2pcpp {
 		}
 	}
 
-	void InboundMessageDispatcher::connectionEstablished(RouterHash rh, bool inbound)
+	void InboundMessageDispatcher::connectionEstablished(RouterHash const rh, bool inbound)
 	{
 		I2P_LOG_SCOPED_RH(m_log, rh);
 		I2P_LOG(m_log, info) << "session established";
@@ -106,5 +106,10 @@ namespace i2pcpp {
 		}
 
 		m_ctx.getSignals().invokePeerConnected(rh);
+	}
+
+	void InboundMessageDispatcher::connectionFailure(RouterHash const rh)
+	{
+		m_ctx.getSignals().invokeConnectionFailure(rh);
 	}
 }
