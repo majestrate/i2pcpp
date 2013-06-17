@@ -13,14 +13,14 @@
 #include "../datatypes/RouterIdentity.h"
 #include "../datatypes/RouterAddress.h"
 #include "../datatypes/RouterInfo.h"
+#include "../datatypes/RouterHash.h"
 
 #include "../util/Base64.h"
 
-//#include "../transport/UDPTransport.h"
 #include "../transport/ssu/Packet.h"
 #include "../transport/ssu/PacketBuilder.h"
 
-#include <fstream>
+#include "../dht/Kademlia.h"
 
 #include "routerInfo.cpp"
 
@@ -191,18 +191,6 @@ TEST(Utils, Base64) {
 	ASSERT_EQ(Base64::decode("AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="), test);
 }
 
-// TODO
-/*TEST(UDPTransport, start) {
-	using namespace i2pcpp;
-
-	Botan::LibraryInitializer init;
-	Botan::AutoSeeded_RNG rng;
-	Botan::DSA_PrivateKey key(rng, group);
-	UDPTransport t(SessionKey(Base64::decode("A6DVqs4yCV1s9QalgeB28iiV6341qm88Gblf3-c1SVg=")), group, key);
-	t.start(Endpoint(SSU_TEST_IP, SSU_TEST_PORT));
-	ASSERT_THROW(t.start(Endpoint(SSU_TEST_BAD_IP, SSU_TEST_PORT)), boost::system::system_error);
-	}*/
-
 TEST(Packet, encrypt) {
 	using namespace i2pcpp;
 	using namespace i2pcpp::SSU;
@@ -350,4 +338,18 @@ TEST(PacketBuilder, buildData) {
 	data.erase(data.begin(), data.begin() + 5);
 
 	ASSERT_EQ(expected, data);
+}
+
+TEST(DHT, Kademlia) {
+	using namespace i2pcpp;
+
+	RouterHash myHash(std::string("AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="));
+	RouterHash toStore(std::string("1pp0rQV7hK~XsLib8o8AHX74kWHmRjDsmDqF7aigZD0="));
+	DHT::KademliaKey k = DHT::Kademlia::makeKey(toStore);
+
+	DHT::Kademlia kad(myHash);
+	kad.insert(k, toStore);
+
+	DHT::KademliaValue v = kad.find(k);
+	ASSERT_EQ(toStore, v);
 }

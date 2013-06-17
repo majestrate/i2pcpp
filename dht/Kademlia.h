@@ -1,33 +1,45 @@
 #ifndef DHTKADEMLIA_H
 #define DHTKADEMLIA_H
 
-#include <unordered_map>
+#include <map>
+#include <array>
+#include <memory>
 
-#include "../OutboundMessageDispatcher.h"
+#include "../datatypes/RouterHash.h"
 
-#include "I2PKey.h"
-#include "I2PValue.h"
-#include "SearchMethod.h"
 #include "DistributedHashTable.h"
+
+#define KEY_SIZE 32
+#define NUM_BUCKETS (KEY_SIZE * 8)
+#define K_VALUE 20
 
 namespace i2pcpp {
 	namespace DHT {
-		class Kademlia : public DistributedHashTable<I2PKey, I2PValue> {
-			public:
-				typedef std::shared_ptr<SearchMethod<I2PKey, I2PValue>> I2PSearchMethodPtr;
+		typedef std::array<unsigned char, KEY_SIZE> KademliaKey;
+		typedef RouterHash KademliaValue;
 
-				Kademlia(OutboundMessageDispatcher &omd);
+		class Kademlia : public DistributedHashTable<KademliaKey, KademliaValue> {
+			public:
+				Kademlia(KademliaKey const &reference);
 				~Kademlia();
 
-				void insert(I2PKey const &k, I2PValue const &v);
-				void erase(I2PKey const &k);
-				void find(I2PKey const &k);
+				void insert(KademliaKey const &k, KademliaValue const &v);
+				void erase(KademliaKey const &k);
+				KademliaValue find(KademliaKey const &k);
+
+				void setReference(KademliaKey const &reference);
+
+				static KademliaKey makeKey(RouterHash const &rh);
 
 			private:
-				OutboundMessageDispatcher& m_omd;
+				size_t getBucket(KademliaKey const &k);
 
-				std::unordered_map<I2PKey, I2PSearchMethodPtr> m_lookups;
+				KademliaKey m_ref;
+
+				std::array<std::map<KademliaKey, KademliaValue>, NUM_BUCKETS> m_table;
 		};
+
+		typedef std::shared_ptr<Kademlia> KademliaPtr;
 	}
 }
 

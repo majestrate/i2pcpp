@@ -26,7 +26,6 @@ set(SRCS
 	datatypes/RouterIdentity.cpp
 	datatypes/RouterInfo.cpp
 	datatypes/SessionKey.cpp
-	dht/IterativeSearch.cpp
 	dht/Kademlia.cpp
 	exceptions/FormattingError.cpp
 	exceptions/RecordNotFound.cpp
@@ -79,7 +78,9 @@ set(TEST_SRCS
 	datatypes/RouterIdentity.cpp
 	datatypes/RouterInfo.cpp
 	datatypes/SessionKey.cpp
+	dht/Kademlia.cpp
 	exceptions/FormattingError.cpp
+	exceptions/RecordNotFound.cpp
 	tests/testi2p.cpp
 	transport/ssu/EstablishmentState.cpp
 	transport/ssu/Packet.cpp
