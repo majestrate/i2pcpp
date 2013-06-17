@@ -27,6 +27,8 @@ set(SRCS
 	datatypes/RouterInfo.cpp
 	datatypes/SessionKey.cpp
 	dht/Kademlia.cpp
+	dht/SearchManager.cpp
+	dht/SearchState.cpp
 	exceptions/FormattingError.cpp
 	exceptions/RecordNotFound.cpp
 	exceptions/SQLError.cpp

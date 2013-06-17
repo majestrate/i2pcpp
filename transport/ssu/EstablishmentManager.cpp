@@ -21,7 +21,7 @@ namespace i2pcpp {
 			auto es = std::make_shared<EstablishmentState>(m_privKey, m_identity, ep);
 			m_stateTable[ep] = es;
 
-			std::shared_ptr<boost::asio::deadline_timer> timer(new boost::asio::deadline_timer(m_transport.m_ios, boost::posix_time::time_duration(0, 0, 30)));
+			std::shared_ptr<boost::asio::deadline_timer> timer(new boost::asio::deadline_timer(m_transport.m_ios, boost::posix_time::time_duration(0, 0, 10)));
 			timer->async_wait(boost::bind(&EstablishmentManager::timeoutCallback, this, boost::asio::placeholders::error, es));
 			m_stateTimers[ep] = timer;
 
@@ -37,7 +37,7 @@ namespace i2pcpp {
 
 			sendRequest(es);
 
-			std::shared_ptr<boost::asio::deadline_timer> timer(new boost::asio::deadline_timer(m_transport.m_ios, boost::posix_time::time_duration(0, 0, 30)));
+			std::shared_ptr<boost::asio::deadline_timer> timer(new boost::asio::deadline_timer(m_transport.m_ios, boost::posix_time::time_duration(0, 0, 10)));
 			timer->async_wait(boost::bind(&EstablishmentManager::timeoutCallback, this, boost::asio::placeholders::error, es));
 			m_stateTimers[ep] = timer;
 		}

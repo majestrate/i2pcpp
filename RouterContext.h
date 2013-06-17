@@ -9,6 +9,7 @@
 #include "datatypes/RouterIdentity.h"
 #include "tunnel/TunnelManager.h"
 #include "dht/Kademlia.h"
+#include "dht/SearchManager.h"
 
 #include "Database.h"
 #include "InboundMessageDispatcher.h"
@@ -38,6 +39,8 @@ namespace i2pcpp {
 			TunnelManager& getTunnelManager();
 			ProfileManager& getProfileManager();
 			PeerManager& getPeerManager();
+			DHT::KademliaPtr getDHT();
+			DHT::SearchManager& getSearchManager();
 
 		private:
 			Botan::ElGamal_PrivateKey *m_encryptionKey;
@@ -54,6 +57,7 @@ namespace i2pcpp {
 			OutboundMessageDispatcher m_outMsgDispatcher;
 
 			DHT::KademliaPtr m_dht;
+			DHT::SearchManager m_searchManager;
 
 			Signals m_signals;
 	};

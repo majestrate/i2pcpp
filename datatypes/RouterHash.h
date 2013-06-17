@@ -14,6 +14,7 @@ namespace i2pcpp {
 			RouterHash();
 			RouterHash(ByteArray const &b);
 			RouterHash(std::string const &s);
+			RouterHash(std::array<unsigned char, 32> const &k);
 
 			operator ByteArray() const;
 			operator std::string() const;

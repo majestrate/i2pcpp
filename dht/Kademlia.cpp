@@ -36,9 +36,18 @@ namespace i2pcpp {
 
 		KademliaValue Kademlia::find(KademliaKey const &k)
 		{
-			auto& bucket = m_table[getBucket(k)];
+			size_t bucketNum = getBucket(k);
+			auto& bucket = m_table[bucketNum];
 
-			return bucket[k];
+			if(bucket.count(k))
+				return bucket[k];
+
+			while(!bucket.size() && bucketNum++ < NUM_BUCKETS)
+				bucket = m_table[bucketNum];
+
+			if(!bucket.size()) return KademliaValue();
+
+			return bucket.cbegin()->second;
 		}
 
 		KademliaKey Kademlia::makeKey(RouterHash const &rh)

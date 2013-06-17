@@ -1,14 +1,14 @@
 #include "Signals.h"
 
 namespace i2pcpp {
-	void Signals::invokeRouterInfoSaved(const RouterHash &rh)
+	void Signals::invokeDatabaseStore(RouterHash const &from, std::array<unsigned char, 32> const &k, bool isRouterInfo)
 	{
-		m_ios.post(boost::bind(boost::ref(m_routerInfoSaved), rh));
+		m_ios.post(boost::bind(boost::ref(m_databaseStore), from, k, isRouterInfo));
 	}
 
-	boost::signals2::connection Signals::registerRouterInfoSaved(RouterInfoSaved::slot_type const &rish)
+	boost::signals2::connection Signals::registerDatabaseStore(DatabaseStore::slot_type const &dbsh)
 	{
-		return m_routerInfoSaved.connect(rish);
+		return m_databaseStore.connect(dbsh);
 	}
 
 	void Signals::invokeTunnelRecordsReceived(const std::list<BuildRecord> &records)
@@ -21,7 +21,7 @@ namespace i2pcpp {
 		return m_buildTunnelRequest.connect(btrh);
 	}
 
-	void Signals::invokePeerConnected(const RouterHash &rh)
+	void Signals::invokePeerConnected(RouterHash const &rh)
 	{
 		m_ios.post(boost::bind(boost::ref(m_peerConnected), rh));
 	}
@@ -29,5 +29,25 @@ namespace i2pcpp {
 	boost::signals2::connection Signals::registerPeerConnected(PeerConnected::slot_type const &pch)
 	{
 		return m_peerConnected.connect(pch);
+	}
+
+	void Signals::invokeConnectionFailure(RouterHash const &rh)
+	{
+		m_ios.post(boost::bind(boost::ref(m_connectionFailure), rh));
+	}
+
+	boost::signals2::connection Signals::registerConnectionFailure(ConnectionFailure::slot_type const &cfh)
+	{
+		return m_connectionFailure.connect(cfh);
+	}
+
+	void Signals::invokeSearchReply(RouterHash const &from, std::array<unsigned char, 32> const &query, std::list<RouterHash> const &hashes)
+	{
+		m_ios.post(boost::bind(boost::ref(m_searchReply), from, query, hashes));
+	}
+
+	boost::signals2::connection Signals::registerSearchReply(SearchReply::slot_type const &srh)
+	{
+		return m_searchReply.connect(srh);
 	}
 }

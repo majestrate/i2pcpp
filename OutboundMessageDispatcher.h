@@ -7,6 +7,7 @@
 #include "datatypes/RouterHash.h"
 #include "i2np/Message.h"
 #include "transport/Transport.h"
+#include "dht/Kademlia.h"
 
 #include "Log.h"
 
@@ -22,16 +23,20 @@ namespace i2pcpp {
 			OutboundMessageDispatcher& operator=(OutboundMessageDispatcher &) = delete;
 
 			void sendMessage(RouterHash const &to, I2NP::MessagePtr const &msg);
+			void queueMessage(RouterHash const &to, I2NP::MessagePtr const &msg);
 			void registerTransport(TransportPtr const &t);
 			TransportPtr getTransport() const;
 			void connected(RouterHash const rh);
-			void infoSaved(RouterHash const rh);
+
+			void dhtSuccess(DHT::KademliaKey const k, DHT::KademliaValue const v);
+			void dhtFailure(DHT::KademliaKey const k);
 
 		private:
 			RouterContext& m_ctx;
 			TransportPtr m_transport;
 
 			MapType m_pending;
+			std::unordered_map<DHT::KademliaKey, RouterHash> m_keymap;
 
 			mutable std::mutex m_mutex;
 

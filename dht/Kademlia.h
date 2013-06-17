@@ -43,4 +43,15 @@ namespace i2pcpp {
 	}
 }
 
+namespace std {
+	template<>
+	struct hash<i2pcpp::DHT::KademliaKey> {
+		public:
+			size_t operator()(const i2pcpp::DHT::KademliaKey &k) const
+			{
+				hash<string> f;
+				return f(string(k.cbegin(), k.cend()));
+			}
+	};
+}
 #endif
