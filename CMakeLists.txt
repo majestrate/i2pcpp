@@ -2,6 +2,7 @@ project(i2pcpp CXX C)
 cmake_minimum_required(VERSION 2.8.9)
 
 set(SRCS
+	CachingProfileManager.cpp
 	Database.cpp
 	InboundMessageDispatcher.cpp
 	Log.cpp

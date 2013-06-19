@@ -149,9 +149,9 @@ _build_i2p() # build i2p itself
     base="$1"
     build="$2"
     prefix="$3"
-		echo "Removing Last build..."
-    rm -rf $build
-    mkdir $build
+		#echo "Removing Last build..."
+    #rm -rf $build
+    mkdir -p $build
     cmake="`which cmake`"
     echo "Building I2P..."
     cd $build
@@ -161,6 +161,7 @@ _build_i2p() # build i2p itself
 				-DBOTAN_INCLUDE_DIR=$prefix/include/botan-1.11/ \
 				-DBOTAN_LIBRARY_PREFIX=$prefix/lib/ \
 				-DBOOST_ROOT=$prefix/boost/ \
+				-DCMAKE_CXX_COMPILER=$CXX \
 				$base
     make -j$jobs
 }

@@ -16,7 +16,7 @@ def has_config(cur,k):
 def put_config(cur,k,v):
     cur.execute('INSERT INTO config ( name, value ) VALUES ( ? , ? )',(k,v))
 
-def init(db_schema='schema.sql',db_fname='i2p.db',ssu_ip='0.0.0.0',ssu_port=6699,max_peers=10):
+def init(db_schema='schema.sql',db_fname='i2p.db',ssu_ip='0.0.0.0',ssu_port=6699,max_peers=1000):
 
     os.system('./i2p --init --db=%s'%db_fname) # yes i know you can do injection here
 

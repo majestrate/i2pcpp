@@ -2,6 +2,7 @@
 #define DHTSEARCHMANAGER_H
 
 #include <set>
+#include <mutex>
 
 #include <boost/asio.hpp>
 
