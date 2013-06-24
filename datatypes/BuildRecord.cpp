@@ -23,8 +23,8 @@ namespace i2pcpp {
 	ByteArray BuildRecord::serialize() const
 	{
 		ByteArray b(m_header.size() + m_data.size());
-		std::copy(m_header.cbegin(), m_header.cend(), b.end());
-		std::copy(m_data.cbegin(), m_data.cend(), b.end());
+		std::copy(m_header.cbegin(), m_header.cend(), b.begin());
+		std::copy(m_data.cbegin(), m_data.cend(), b.begin() + m_header.size());		
 		return b;
 	}
 

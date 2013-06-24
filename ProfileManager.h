@@ -14,8 +14,9 @@ namespace i2pcpp {
 			ProfileManager& operator=(ProfileManager &) = delete;
 
 			virtual RouterInfo getPeer();
+			virtual void expungePeer(RouterHash const & rh);
 
-		private:
+		protected:
 			RouterContext& m_ctx;
 	};
 }

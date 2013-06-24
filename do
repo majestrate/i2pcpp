@@ -162,6 +162,7 @@ _build_i2p() # build i2p itself
 				-DBOTAN_LIBRARY_PREFIX=$prefix/lib/ \
 				-DBOOST_ROOT=$prefix/boost/ \
 				-DCMAKE_CXX_COMPILER=$CXX \
+				-DCMAKE_BUILD_TYPE="Debug" \
 				$base
     make -j$jobs
 }
@@ -178,14 +179,17 @@ _ensure_gcc() # make sure we have g++
 
 runit() # run the damn thing :3
 {
+		if [ "`which cmake`" == "" ]; then
+				echo "No Cmake?"
+				exit 1
+		fi
     base=$PWD
-    build="`readlink -f $base/build`"
+		build_base=$2
+    build="`readlink -f $build_base/build`"
     mkdir -p $build
 
     prefix=$build/prefix
     mkdir -p $prefix
-
-    _ensure_gcc
 
     export CC="`which cc`"
     export CXX="`which c++`"
@@ -195,6 +199,10 @@ runit() # run the damn thing :3
     
 		_deps $base $build $prefix
     _build_i2p $base $build/i2p $prefix
+		echo "`cat $base/README.CHI.TXT`"
 }
 
-runit 4
+# run with 4 jobs
+runit 4 $PWD
+
+

@@ -20,6 +20,7 @@ namespace i2pcpp {
 			std::string getConfigValue(std::string const &name);
 			void setConfigValue(std::string const &name, std::string const &value);
 			ByteArray getConfigBlob(std::string const &name);
+			std::vector<RouterHash> getRandomFloodfills(int count);
 			RouterHash getRandomFloodfill();
 			bool routerExists(RouterHash const &routerHash);
 			RouterInfo getRouterInfo(std::string const &routerHash);
@@ -29,7 +30,7 @@ namespace i2pcpp {
 			void setRouterInfo(std::vector<RouterInfo> const &routers);
 			void setRouterInfo(RouterInfo const &info, bool transaction = true);
 			std::forward_list<RouterHash> getAllHashes();
-
+			uint32_t countAllHashes();
 		private:
 			i2p_logger_mt  m_log;
 			sqlite3 *m_db;

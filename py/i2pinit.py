@@ -16,7 +16,7 @@ def has_config(cur,k):
 def put_config(cur,k,v):
     cur.execute('INSERT INTO config ( name, value ) VALUES ( ? , ? )',(k,v))
 
-def init(db_schema='schema.sql',db_fname='i2p.db',ssu_ip='0.0.0.0',ssu_port=6699,max_peers=1000):
+def init(ndb_dir,ssu_port,db_fname='i2p.db',ssu_ip='0.0.0.0',max_peers=500):
 
     os.system('./i2p --init --db=%s'%db_fname) # yes i know you can do injection here
 
@@ -46,9 +46,16 @@ def init(db_schema='schema.sql',db_fname='i2p.db',ssu_ip='0.0.0.0',ssu_port=6699
     
     con.commit()
     con.close()
-
-    os.system('./i2p --importdir %s'%os.path.join(os.environ['HOME'],'.i2p','netDb'))
+ 
+    os.system('./i2p --importdir '+ndb_dir)
 
 if __name__ == '__main__':
-    init(max_peers=200)
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--port',default=6699,type=int)
+    ap.add_argument('--netdb',default=os.path.join(os.environ['HOME'],'.i2p','netDb'))
     
+    args = ap.parse_args()
+
+    init(ssu_port=args.port,ndb_dir=args.netdb)
+            

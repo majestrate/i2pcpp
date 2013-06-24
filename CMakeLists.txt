@@ -2,6 +2,7 @@ project(i2pcpp CXX C)
 cmake_minimum_required(VERSION 2.8.9)
 
 set(SRCS
+	ChiPeerManager.cpp
 	CachingProfileManager.cpp
 	Database.cpp
 	InboundMessageDispatcher.cpp
@@ -198,7 +199,7 @@ else(GTEST_LIBRARY_PATH AND GTEST_INCLUDE_DIR)
 endif(GTEST_LIBRARY_PATH AND GTEST_INCLUDE_DIR)
 
 ADD_CUSTOM_COMMAND(
-  TARGET i2py
+  TARGET i2p
   POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy ${i2pcpp_SOURCE_DIR}/py/i2pinit.py i2pinit.py
   )

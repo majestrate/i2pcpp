@@ -22,6 +22,14 @@ namespace i2pcpp {
 		m_options = Mapping(begin, end);
 	}
 
+	bool RouterAddress::verify() const 
+	{
+		if (m_transport == "SSU" ) {
+			return m_options.getValue("host").size() > 0 && m_options.getValue("port").size() > 0;
+		}
+		return false;
+	}
+
 	ByteArray RouterAddress::serialize() const
 	{
 		ByteArray b;

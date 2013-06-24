@@ -10,4 +10,6 @@ namespace i2pcpp {
 	{
 		return m_ctx.getDatabase().getRouterInfo(m_ctx.getDatabase().getRandomFloodfill());
 	}
+
+	void ProfileManager::expungePeer(RouterHash const & rh) {}
 }

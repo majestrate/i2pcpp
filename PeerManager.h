@@ -20,15 +20,18 @@ namespace i2pcpp {
 
 			void begin();
 
-			void connected(const RouterHash rh);
-			void failure(const RouterHash rh);
-			void disconnected(const RouterHash rh);
+			virtual void connected(const RouterHash rh);
+			virtual void failure(const RouterHash rh);
+			virtual void disconnected(const RouterHash rh);
+
+		protected:
+			RouterContext& m_ctx;
+
 
 		private:
 			void callback(const boost::system::error_code &e);
 
 			boost::asio::io_service& m_ios;
-			RouterContext& m_ctx;
 
 			boost::asio::deadline_timer m_timer;
 

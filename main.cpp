@@ -158,9 +158,11 @@ int main(int argc, char **argv)
 
 					ByteArray info = ByteArray((istreambuf_iterator<char>(f)), istreambuf_iterator<char>());
 					f.close();
-					I2P_LOG(lg, debug) << "importing " << itr->path().string();
 					auto begin = info.cbegin();
-					routers.push_back(RouterInfo(begin, info.cend()));
+					RouterInfo ri(begin,info.cend());
+					// I2P_LOG(lg, debug) << "importing " << itr->path().string();
+					routers.push_back(ri);
+					
 				}
 
 				if(fs::is_symlink(*itr)) itr.no_push();
@@ -174,7 +176,7 @@ int main(int argc, char **argv)
 			}
 
 			r.importRouter(routers);
-			I2P_LOG(lg, info) << "successfully imported " << routers.size() << " routers";
+			I2P_LOG(lg, info) << "Import done. We have " << r.hashCount() << " valid router hashes";
 
 			return EXIT_SUCCESS;
 		}

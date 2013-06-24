@@ -13,6 +13,7 @@ namespace i2pcpp {
 			RouterAddress(int cost, Date const &expiration, std::string const &transport, Mapping const &options);
 			RouterAddress(ByteArrayConstItr &begin, ByteArrayConstItr end);
 
+			bool verify() const;
 			ByteArray serialize() const;
 			const unsigned char getCost() const;
 			const Date& getExpiration() const;

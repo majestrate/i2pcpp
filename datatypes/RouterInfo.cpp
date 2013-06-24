@@ -111,6 +111,12 @@ namespace i2pcpp {
 		return m_addresses.cend();
 	}
 
+	bool RouterInfo::verify() const {
+		for ( auto a : m_addresses )
+			if (!a.verify()) return false;
+		return verifySignature();
+	}
+
 	ByteArray RouterInfo::getSignedBytes() const
 	{
 		ByteArray b;

@@ -1,6 +1,8 @@
 build
+build_win32
 *~
 \#*
+.\#*
 .\*
 *.pyc
 *.db

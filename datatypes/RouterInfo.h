@@ -27,6 +27,8 @@ namespace i2pcpp {
 			bool verifySignature() const;
 			void sign(const Botan::DSA_PrivateKey * const signingKey);
 
+			bool verify() const;
+
 			const RouterAddress& getAddress(const int index) const;
 			const RouterIdentity& getIdentity() const;
 			const Date& getPublished() const;

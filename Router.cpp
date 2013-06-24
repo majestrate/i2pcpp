@@ -106,5 +106,9 @@ namespace i2pcpp {
 	{
 		return m_ctx.getDatabase().getConfigValue(key);
 	}
+
+	uint32_t Router::hashCount() {
+		return m_ctx.getDatabase().countAllHashes();
+	}
    
 }
