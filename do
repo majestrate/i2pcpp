@@ -63,11 +63,13 @@ _build_botan() # build patched botan
 _build_gtest() # build gtest
 {
 		echo "Building GTest..."
-		cd $1
-		./configure --prefix=$2 && make -j$jobs 
+		mkdir -p $1/build
+		cd $1/build
+		cmake $1
+		make -j$jobs
 		cd -
 		echo "Installing GTest"
-		cp -a $1/libs/libgtest_main.la $2/lib
+		cp -a $1/build/lib*.a $2
 }
 
 _build_boost() # build boost with boost-log
@@ -105,15 +107,15 @@ _deps() # grab/build all dependancies
 				echo "`date`" > $base/sqlite3-built
 		fi
 
-		#if [ ! -d $base/gtest ]; then
-		#		get_url https://googletest.googlecode.com/files/gtest-1.6.0.zip $base/gtest.zip
-		#		_e $base/gtest.zip $base/gtest
-		#fi
+		if [ ! -d $prefix/gtest ]; then
+				get_url https://googletest.googlecode.com/files/gtest-1.6.0.zip $base/gtest.zip
+				_e $base/gtest.zip $prefix/gtest
+		fi
 		
-		#if [ ! -e $base/gtest-built ]; then
-		#		_build_gtest $base/gtest $prefix
-		#		echo "`date`" > $base/gtest-built
-		#fi
+		if [ ! -e $base/gtest-built ]; then
+				_build_gtest $prefix/gtest $prefix 
+				echo "`date`" > $base/gtest-built
+		fi
     
 		if [ ! -d $base/botan ]; then
 				get_url http://files.randombit.net/botan/v1.11/Botan-1.11.3.tbz $base/botan.tar.bz2
@@ -161,6 +163,9 @@ _build_i2p() # build i2p itself
 				-DBOTAN_INCLUDE_DIR=$prefix/include/botan-1.11/ \
 				-DBOTAN_LIBRARY_PREFIX=$prefix/lib/ \
 				-DBOOST_ROOT=$prefix/boost/ \
+				-DGTEST_ROOT=$prefix/gtest/ \
+				-DGTEST_LIBRARY=$prefix/libgtest.a \
+				-DGTEST_MAIN_LIBRARY=$prefix/libgtest_main.a \
 				-DCMAKE_CXX_COMPILER=$CXX \
 				-DCMAKE_BUILD_TYPE="Debug" \
 				$base
