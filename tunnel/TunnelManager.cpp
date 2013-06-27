@@ -48,7 +48,7 @@ namespace i2pcpp {
 					}
 
 					m_participating[hop.getTunnelId()] = std::make_shared<TunnelHop>(hop);
-					BuildResponseRecord resp(BuildResponseRecord::SUCCESS);
+					auto resp = BuildResponseRecord(BuildResponseRecord::SUCCESS);
 					resp.setHeader(req.getHeader());
 					resp.compile();
 
@@ -57,7 +57,8 @@ namespace i2pcpp {
 					for(auto& x: records)
 						x.encrypt(hop.getReplyIV(), hop.getReplyKey());
 
-					I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(records));
+					I2NP::MessagePtr vtb(new 
+															 I2NP::VariableTunnelBuild(records));
 					m_ctx.getOutMsgDisp().sendMessage(hop.getNextHash(), vtb);
 
 					break;

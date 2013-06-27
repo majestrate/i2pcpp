@@ -27,7 +27,7 @@ namespace i2pcpp {
 		if (m_transport == "SSU" ) {
 			return m_options.getValue("host").size() > 0 && m_options.getValue("port").size() > 0;
 		}
-		return false;
+		return true;
 	}
 
 	ByteArray RouterAddress::serialize() const

@@ -132,4 +132,23 @@ namespace i2pcpp {
 	{
 		return m_header;
 	}
+
+	const BuildRecord & BuildRecord::operator=(BuildRecord & record) 
+	{
+		m_data.clear();
+		m_header.fill(0);
+		ByteArray ba = record.serialize();
+		auto begin = ba.cbegin();
+		auto end = ba.cend();
+
+		if((end - begin) < 528)
+			throw FormattingError();
+
+		std::copy(begin, begin + 16, m_header.begin()), begin += 16;
+		m_data.resize(512);
+		std::copy(begin, begin + 512, m_data.begin()), begin += 512;
+			
+		return *this;
+	}
+	
 }

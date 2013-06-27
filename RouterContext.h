@@ -52,7 +52,7 @@ namespace i2pcpp {
 
 			TunnelManager m_tunnelManager;
 			CachingProfileManager m_profileManager;
-			ChiPeerManager m_peerManager;
+			PeerManager m_peerManager;
 
 			InboundMessageDispatcher m_inMsgDispatcher;
 			OutboundMessageDispatcher m_outMsgDispatcher;

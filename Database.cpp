@@ -488,6 +488,7 @@ namespace i2pcpp {
 
 	void Database::setRouterInfo(RouterInfo const &info, bool transaction)
 	{
+
 		sqlite3_stmt *statement;
 
 		try {
