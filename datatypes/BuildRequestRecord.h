@@ -13,11 +13,13 @@ namespace i2pcpp {
 	class BuildRequestRecord : public BuildRecord {
 		public:
 			enum Flags {
+				NONE = 0,
 				ALLOW_FROM_ALL = (1 << 7),
 				ALLOW_TO_ALL = (1 << 6),
 			};
 
-			BuildRequestRecord(const BuildRecord &r);
+			BuildRequestRecord(TunnelHopPtr const &hop);
+			BuildRequestRecord(BuildRecord const &r);
 
 			void parse();
 			void compile();

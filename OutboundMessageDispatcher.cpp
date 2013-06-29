@@ -28,10 +28,15 @@ namespace i2pcpp {
 				auto k = DHT::Kademlia::makeKey(to);
 				auto rh = m_ctx.getDHT()->find(k);
 				if(rh != to) {
-					m_keymap[k] = to;
-					m_ctx.getSearchManager().createSearch(k, rh);
-				}
-				else
+					if(rh == DHT::KademliaValue()) {
+						I2P_LOG(m_log, error) << "could not find a good place to start search, aborting";
+						m_pending.erase(to);
+
+						return;
+					}
+
+					m_ctx.getSearchManager().createSearch(to, rh);
+				} else
 					I2P_LOG(m_log, error) << "RouterHash found in DHT but not DB";
 			}
 		}
@@ -74,7 +79,6 @@ namespace i2pcpp {
 			I2P_LOG_SCOPED_RH(m_log, v);
 			I2P_LOG(m_log, debug) << "DHT lookup succeeded, connecting to peer";
 
-			m_keymap.erase(k);
 			m_transport->connect(m_ctx.getDatabase().getRouterInfo(v));
 		}
 	}
@@ -83,12 +87,11 @@ namespace i2pcpp {
 	{
 		std::lock_guard<std::mutex> lock(m_mutex);
 
-		if(m_keymap.count(k)) {
-			I2P_LOG_SCOPED_RH(m_log, m_keymap[k]);
+		if(m_pending.count(k)) {
+			I2P_LOG_SCOPED_RH(m_log, k);
 			I2P_LOG(m_log, debug) << "DHT lookup failed, tossing queued messages";
 
-			m_pending.erase(m_keymap[k]);
-			m_keymap.erase(k);
+			m_pending.erase(k);
 		}
 	}
 }

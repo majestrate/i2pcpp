@@ -160,7 +160,12 @@ int main(int argc, char **argv)
 					f.close();
 					I2P_LOG(lg, debug) << "importing " << itr->path().string();
 					auto begin = info.cbegin();
-					routers.push_back(RouterInfo(begin, info.cend()));
+					auto ri = RouterInfo(begin, info.cend());
+
+					if(ri.verifySignature())
+						routers.push_back(ri);
+					else
+						I2P_LOG(lg, error) << "failed to import " << itr->path().string() << ": bad signature";
 				}
 
 				if(fs::is_symlink(*itr)) itr.no_push();

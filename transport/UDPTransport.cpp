@@ -66,6 +66,11 @@ namespace i2pcpp {
 			for(auto a: ri) {
 				if(a.getTransport() == "SSU") {
 					const Mapping& m = a.getOptions();
+
+					// Skip if the host and port are not valid. TODO Is this the best way?
+					if(!m.getValue("host").size() || !m.getValue("port").size())
+						continue;
+
 					Endpoint ep(m.getValue("host"), stoi(m.getValue("port")));
 					RouterIdentity id = ri.getIdentity();
 
