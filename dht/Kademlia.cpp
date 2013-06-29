@@ -42,7 +42,7 @@ namespace i2pcpp {
 			if(bucket.count(k))
 				return bucket[k];
 
-			while(!bucket.size() && bucketNum++ < NUM_BUCKETS)
+			while(!bucket.size() && ++bucketNum < NUM_BUCKETS)
 				bucket = m_table[bucketNum];
 
 			if(!bucket.size()) return KademliaValue();

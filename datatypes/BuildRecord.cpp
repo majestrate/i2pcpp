@@ -20,11 +20,22 @@ namespace i2pcpp {
 		std::copy(begin, begin + 512, m_data.begin()), begin += 512;
 	}
 
+	BuildRecord& BuildRecord::operator=(BuildRecord const &rec)
+	{
+		m_data.clear();
+
+		std::copy(rec.m_header.cbegin(), rec.m_header.cend(), m_header.begin());
+		std::copy(rec.m_data.cbegin(), rec.m_data.cend(), m_data.begin());
+
+		return *this;
+	}
+
 	ByteArray BuildRecord::serialize() const
 	{
 		ByteArray b(m_header.size() + m_data.size());
-		std::copy(m_header.cbegin(), m_header.cend(), b.end());
-		std::copy(m_data.cbegin(), m_data.cend(), b.end());
+		std::copy(m_header.cbegin(), m_header.cend(), b.begin());
+		std::copy(m_data.cbegin(), m_data.cend(), b.begin() + m_header.size());
+
 		return b;
 	}
 

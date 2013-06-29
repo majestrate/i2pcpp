@@ -1,6 +1,7 @@
 #ifndef DHTSEARCHMANAGER_H
 #define DHTSEARCHMANAGER_H
 
+#include <mutex>
 #include <set>
 
 #include <boost/asio.hpp>

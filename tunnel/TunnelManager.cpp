@@ -36,7 +36,7 @@ namespace i2pcpp {
 
 					I2P_LOG(m_log, debug) << "found requested Tunnel with matching tunnel ID";
 					BuildResponseRecord resp = r;
-					handleResponse(resp);
+					// handle response
 				} else {
 					I2P_LOG(m_log, debug) << "did not find Tunnel with matching Tunnel ID (participation request)";
 
@@ -57,6 +57,8 @@ namespace i2pcpp {
 					for(auto& x: records)
 						x.encrypt(hop.getReplyIV(), hop.getReplyKey());
 
+					I2P_LOG(m_log, debug) << "forwarding BRRs to next hop: " << hop.getNextHash();
+
 					I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(records));
 					m_ctx.getOutMsgDisp().sendMessage(hop.getNextHash(), vtb);
 
@@ -64,9 +66,5 @@ namespace i2pcpp {
 				}
 			}
 		}
-	}
-
-	void TunnelManager::handleResponse(BuildResponseRecord &response)
-	{
 	}
 }

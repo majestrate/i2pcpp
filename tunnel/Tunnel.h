@@ -3,6 +3,8 @@
 
 #include <list>
 
+#include "../datatypes/BuildRequestRecord.h"
+
 #include "TunnelHop.h"
 
 namespace i2pcpp {
@@ -19,9 +21,10 @@ namespace i2pcpp {
 				FAILED
 			};
 
-			Tunnel(Direction d);
+			Tunnel(Direction d, std::vector<RouterHash> const &hops);
 
 			State getState() const;
+			std::list<BuildRequestRecord> getRecords() const;
 
 		private:
 			std::list<TunnelHopPtr> m_hops;
