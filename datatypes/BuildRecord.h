@@ -13,6 +13,8 @@ namespace i2pcpp {
 			BuildRecord();
 			BuildRecord(ByteArrayConstItr &begin, ByteArrayConstItr end);
 
+			BuildRecord& operator=(BuildRecord const &rec);
+
 			ByteArray serialize() const;
 
 			void encrypt(ByteArray const &encryptionKey);

@@ -3,7 +3,25 @@
 #include "../exceptions/FormattingError.h"
 
 namespace i2pcpp {
-	BuildRequestRecord::BuildRequestRecord(const BuildRecord &r) :
+	BuildRequestRecord::BuildRequestRecord(TunnelHopPtr const &hop) :
+		m_hop(*hop)
+	{
+		switch(m_hop.getType()) {
+			case TunnelHop::GATEWAY:
+				m_flags = ALLOW_FROM_ALL;
+				break;
+
+			case TunnelHop::ENDPOINT:
+				m_flags = ALLOW_TO_ALL;
+				break;
+
+			case TunnelHop::PARTICIPANT:
+				m_flags = NONE;
+				break;
+		}
+	}
+
+	BuildRequestRecord::BuildRequestRecord(BuildRecord const &r) :
 		BuildRecord(r) {}
 
 	void BuildRequestRecord::parse()

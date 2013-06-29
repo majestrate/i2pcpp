@@ -36,7 +36,6 @@ namespace i2pcpp {
 			TransportPtr m_transport;
 
 			MapType m_pending;
-			std::unordered_map<DHT::KademliaKey, RouterHash> m_keymap;
 
 			mutable std::mutex m_mutex;
 

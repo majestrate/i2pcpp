@@ -159,10 +159,13 @@ int main(int argc, char **argv)
 					ByteArray info = ByteArray((istreambuf_iterator<char>(f)), istreambuf_iterator<char>());
 					f.close();
 					auto begin = info.cbegin();
-					RouterInfo ri(begin,info.cend());
-					// I2P_LOG(lg, debug) << "importing " << itr->path().string();
-					routers.push_back(ri);
-					
+
+					auto ri = RouterInfo(begin, info.cend());
+
+					if(ri.verifySignature())
+						routers.push_back(ri);
+					else
+						I2P_LOG(lg, error) << "failed to import " << itr->path().string() << ": bad signature";
 				}
 
 				if(fs::is_symlink(*itr)) itr.no_push();
