@@ -8,7 +8,7 @@ namespace i2pcpp {
 		m_inMsgDispatcher(ios, *this),
 		m_outMsgDispatcher(*this),
 		m_signals(ios),
-		m_tunnelManager(*this),
+		m_tunnelManager(ios, *this),
 		m_profileManager(*this),
 		m_peerManager(ios, *this),
 		m_searchManager(ios, *this)

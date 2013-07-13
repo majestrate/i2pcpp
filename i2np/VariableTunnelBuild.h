@@ -12,18 +12,18 @@ namespace i2pcpp {
 		class VariableTunnelBuild : public Message {
 			public:
 				VariableTunnelBuild();
-				VariableTunnelBuild(std::list<BuildRecord> const &buildRecords);
+				VariableTunnelBuild(std::list<BuildRecordPtr> const &buildRecords);
 
 				Message::Type getType() const;
 
-				const std::list<BuildRecord>& getRecords() const;
+				std::list<BuildRecordPtr> getRecords() const;
 
 			protected:
 				ByteArray getBytes() const;
 				bool parse(ByteArrayConstItr &begin, ByteArrayConstItr end);
 
 			private:
-				std::list<BuildRecord> m_buildRecords;
+				std::list<BuildRecordPtr> m_buildRecords;
 		};
 	}
 }

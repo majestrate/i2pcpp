@@ -1,6 +1,8 @@
 #ifndef BUILDREQUESTRECORD_H
 #define BUILDREQUESTRECORD_H
 
+#include <memory>
+
 #include <botan/elgamal.h>
 
 #include "Datatype.h"
@@ -32,6 +34,8 @@ namespace i2pcpp {
 			uint32_t m_requestTime;
 			uint32_t m_nextMsgId;
 	};
+
+	typedef std::shared_ptr<BuildRequestRecord> BuildRequestRecordPtr;
 }
 
 #endif

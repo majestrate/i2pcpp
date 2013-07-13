@@ -4,6 +4,8 @@
 #include <mutex>
 #include <unordered_map>
 
+#include <boost/asio.hpp>
+
 #include "../datatypes/BuildRecord.h"
 #include "../datatypes/BuildRequestRecord.h"
 #include "../datatypes/BuildResponseRecord.h"
@@ -18,13 +20,18 @@ namespace i2pcpp {
 
 	class TunnelManager {
 		public:
-			TunnelManager(RouterContext &ctx);
+			TunnelManager(boost::asio::io_service &ios, RouterContext &ctx);
 			TunnelManager(const TunnelManager &) = delete;
 			TunnelManager& operator=(TunnelManager &) = delete;
 
-			void receiveRecords(std::list<BuildRecord> records);
+			void begin();
+			void receiveRecords(std::list<BuildRecordPtr> records);
 
 		private:
+			void callback(const boost::system::error_code &e);
+			void createTunnel(Tunnel::Direction d);
+
+			boost::asio::io_service &m_ios;
 			RouterContext &m_ctx;
 
 			std::unordered_map<uint32_t, TunnelPtr> m_tunnels;
@@ -32,6 +39,8 @@ namespace i2pcpp {
 
 			mutable std::mutex m_tunnelsMutex;
 			mutable std::mutex m_participatingMutex;
+
+			boost::asio::deadline_timer m_timer;
 
 			i2p_logger_mt m_log;
 	};
