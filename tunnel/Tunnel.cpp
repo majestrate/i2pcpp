@@ -6,7 +6,7 @@ namespace i2pcpp {
 	{
 		if(d == OUTBOUND) {
 			for(int i = 0; i < hops.size(); i++) {
-				// Make the last hop reply back to you.
+				// Make the last hop reply back to me.
 				m_hops.push_back(std::make_shared<TunnelHop>(hops[i], hops[i + 1]));
 				if(i == hops.size() - 1)
 					m_hops.back()->setType(TunnelHop::ENDPOINT);
@@ -19,13 +19,18 @@ namespace i2pcpp {
 		return m_state;
 	}
 
-	std::list<BuildRequestRecord> Tunnel::getRecords() const
+	std::list<BuildRecordPtr> Tunnel::getRecords() const
 	{
-		std::list<BuildRequestRecord> recs;
+		std::list<BuildRecordPtr> recs;
 
 		for(auto h: m_hops)
-			recs.emplace_back(h);
+			recs.emplace_back(std::make_shared<BuildRequestRecord>(h));
 
 		return recs;
+	}
+
+	RouterHash Tunnel::getDownstream() const
+	{
+		return m_hops.front()->getLocalHash();
 	}
 }
