@@ -4,6 +4,7 @@
 #include "DatabaseStore.h"
 #include "DatabaseSearchReply.h"
 #include "VariableTunnelBuild.h"
+#include "TunnelGateway.h"
 
 namespace i2pcpp {
 	namespace I2NP {
@@ -30,6 +31,10 @@ namespace i2pcpp {
 
 				case Type::VARIABLE_TUNNEL_BUILD:
 					m = std::make_shared<VariableTunnelBuild>();
+					break;
+
+				case Type::TUNNEL_GATEWAY:
+					m = std::make_shared<TunnelGateway>();
 					break;
 
 				default:

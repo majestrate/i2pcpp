@@ -21,7 +21,7 @@ namespace i2pcpp {
 				FAILED
 			};
 
-			Tunnel(Direction d, std::vector<RouterHash> const &hops);
+			Tunnel(Direction d, std::vector<RouterIdentity> const &hops, RouterHash const &myHash);
 
 			State getState() const;
 			std::list<BuildRecordPtr> getRecords() const;

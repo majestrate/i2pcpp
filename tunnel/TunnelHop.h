@@ -1,7 +1,7 @@
 #ifndef TUNNELHOP_H
 #define TUNNELHOP_H
 
-#include "../datatypes/RouterHash.h"
+#include "../datatypes/RouterIdentity.h"
 #include "../datatypes/SessionKey.h"
 
 namespace i2pcpp {
@@ -14,7 +14,7 @@ namespace i2pcpp {
 			};
 
 			TunnelHop();
-			TunnelHop(RouterHash const &localHash, RouterHash const &nextHash);
+			TunnelHop(RouterIdentity const &local, RouterHash const &nextHash);
 
 			void setTunnelId(uint32_t tunnelId);
 			void setNextTunnelId(uint32_t nextTunnelId);
@@ -35,6 +35,7 @@ namespace i2pcpp {
 			SessionKey getReplyKey() const;
 			SessionKey getReplyIV() const;
 			Type getType() const;
+			ByteArray getEncryptionKey() const;
 
 		private:
 			uint32_t m_tunnelId;
@@ -46,6 +47,8 @@ namespace i2pcpp {
 			SessionKey m_replyKey;
 			SessionKey m_replyIV;
 			Type m_type;
+
+			ByteArray m_encryptionKey;
 	};
 
 	typedef std::shared_ptr<TunnelHop> TunnelHopPtr;
