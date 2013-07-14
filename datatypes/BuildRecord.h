@@ -1,6 +1,8 @@
 #ifndef BUILDRECORD_H
 #define BUILDRECORD_H
 
+#include <memory>
+
 #include <botan/elgamal.h>
 
 #include "Datatype.h"
@@ -29,6 +31,8 @@ namespace i2pcpp {
 			std::array<unsigned char, 16> m_header;
 			ByteArray m_data;
 	};
+
+	typedef std::shared_ptr<BuildRecord> BuildRecordPtr;
 }
 
 #endif

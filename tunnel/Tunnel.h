@@ -24,7 +24,8 @@ namespace i2pcpp {
 			Tunnel(Direction d, std::vector<RouterHash> const &hops);
 
 			State getState() const;
-			std::list<BuildRequestRecord> getRecords() const;
+			std::list<BuildRecordPtr> getRecords() const;
+			RouterHash getDownstream() const;
 
 		private:
 			std::list<TunnelHopPtr> m_hops;
