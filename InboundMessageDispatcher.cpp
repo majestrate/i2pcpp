@@ -20,6 +20,7 @@ namespace i2pcpp {
 		m_dbStoreHandler(ctx),
 		m_dbSearchReplyHandler(ctx),
 		m_variableTunnelBuildHandler(ctx),
+		m_tunnelGatewayHandler(ctx),
 		m_log(boost::log::keywords::channel = "IMD") {}
 
 	void InboundMessageDispatcher::messageReceived(RouterHash const from, ByteArray data)
@@ -48,6 +49,10 @@ namespace i2pcpp {
 
 				case I2NP::Message::Type::VARIABLE_TUNNEL_BUILD:
 					m_ios.post(boost::bind(&Handlers::Message::handleMessage, m_variableTunnelBuildHandler, from, m));
+					break;
+
+				case I2NP::Message::Type::TUNNEL_GATEWAY:
+					m_ios.post(boost::bind(&Handlers::Message::handleMessage, m_tunnelGatewayHandler, from, m));
 					break;
 
 				default:

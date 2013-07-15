@@ -5,9 +5,10 @@
 namespace i2pcpp {
 	TunnelHop::TunnelHop() {}
 
-	TunnelHop::TunnelHop(RouterHash const &localHash, RouterHash const &nextHash) :
-		m_localHash(localHash),
-		m_nextHash(nextHash)
+	TunnelHop::TunnelHop(RouterIdentity const &local, RouterHash const &nextHash) :
+		m_localHash(local.getHash()),
+		m_nextHash(nextHash),
+		m_encryptionKey(local.getEncryptionKey())
 	{
 		Botan::AutoSeeded_RNG rng;
 
@@ -107,5 +108,10 @@ namespace i2pcpp {
 	TunnelHop::Type TunnelHop::getType() const
 	{
 		return m_type;
+	}
+
+	ByteArray TunnelHop::getEncryptionKey() const
+	{
+		return m_encryptionKey;
 	}
 }
