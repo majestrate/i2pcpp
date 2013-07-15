@@ -8,7 +8,8 @@
 #include "../exceptions/FormattingError.h"
 
 namespace i2pcpp {
-	BuildRecord::BuildRecord() {}
+	BuildRecord::BuildRecord() :
+		m_header({0}) {}
 
 	BuildRecord::BuildRecord(ByteArrayConstItr &begin, ByteArrayConstItr end)
 	{

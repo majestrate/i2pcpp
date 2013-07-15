@@ -1,15 +1,17 @@
 #include "Tunnel.h"
 
 namespace i2pcpp {
-	Tunnel::Tunnel(Direction d, std::vector<RouterHash> const &hops) :
+	Tunnel::Tunnel(Direction d, std::vector<RouterIdentity> const &hops, RouterHash const &myHash) :
 		m_direction(d)
 	{
 		if(d == OUTBOUND) {
 			for(int i = 0; i < hops.size(); i++) {
-				// Make the last hop reply back to me.
-				m_hops.push_back(std::make_shared<TunnelHop>(hops[i], hops[i + 1]));
-				if(i == hops.size() - 1)
-					m_hops.back()->setType(TunnelHop::ENDPOINT);
+				if(i == hops.size() - 1) {
+					auto h = std::make_shared<TunnelHop>(hops[i], myHash);
+					h->setType(TunnelHop::ENDPOINT);
+					m_hops.push_back(h);
+				} else
+					m_hops.push_back(std::make_shared<TunnelHop>(hops[i], hops[i + 1].getHash()));
 			}
 		}
 	}
@@ -23,8 +25,19 @@ namespace i2pcpp {
 	{
 		std::list<BuildRecordPtr> recs;
 
-		for(auto h: m_hops)
-			recs.emplace_back(std::make_shared<BuildRequestRecord>(h));
+		for(auto h: m_hops) {
+			auto record = std::make_shared<BuildRequestRecord>(h);
+
+			const RouterHash hopHash = h->getLocalHash();
+			std::array<unsigned char, 16> truncatedHash;
+			std::copy(hopHash.cbegin(), hopHash.cbegin() + 16, truncatedHash.begin());
+			record->setHeader(truncatedHash);
+
+			record->compile();
+
+			record->encrypt(h->getEncryptionKey());
+			recs.emplace_back(record);
+		}
 
 		return recs;
 	}
