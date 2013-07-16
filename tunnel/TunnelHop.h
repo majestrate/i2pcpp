@@ -46,7 +46,7 @@ namespace i2pcpp {
 			SessionKey m_tunnelIVKey;
 			SessionKey m_replyKey;
 			SessionKey m_replyIV;
-			Type m_type;
+			Type m_type = PARTICIPANT;
 
 			ByteArray m_encryptionKey;
 	};
