@@ -8,7 +8,7 @@ namespace i2pcpp {
 	TunnelManager::TunnelManager(boost::asio::io_service &ios, RouterContext &ctx) :
 		m_ios(ios),
 		m_ctx(ctx),
-		m_timer(m_ios, boost::posix_time::time_duration(0, 0, 5)),
+		m_timer(m_ios, boost::posix_time::time_duration(0, 0, 1)),
 		m_log(boost::log::keywords::channel = "TM") {}
 
 	void TunnelManager::begin()
@@ -86,10 +86,9 @@ namespace i2pcpp {
 	void TunnelManager::createTunnel(Tunnel::Direction d)
 	{
 		I2P_LOG(m_log, debug) << "creating tunnel";
-		std::vector<RouterIdentity> hops = { m_ctx.getDatabase().getRouterInfo("").getIdentity() };
+		std::vector<RouterIdentity> hops = { m_ctx.getDatabase().getRouterInfo("").getIdentity(), m_ctx.getDatabase().getRouterInfo("").getIdentity() };
 		Tunnel t(d, hops, m_ctx.getIdentity().getHash());
 		I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(t.getRecords()));
-		//std::cerr << vtb->toBytes();
 		m_ctx.getOutMsgDisp().sendMessage(t.getDownstream(), vtb);
 	}
 }

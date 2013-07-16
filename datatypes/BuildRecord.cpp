@@ -9,7 +9,8 @@
 
 namespace i2pcpp {
 	BuildRecord::BuildRecord() :
-		m_header({0}) {}
+		m_header({}),
+		m_data({}) {}
 
 	BuildRecord::BuildRecord(ByteArrayConstItr &begin, ByteArrayConstItr end)
 	{
@@ -24,6 +25,7 @@ namespace i2pcpp {
 	BuildRecord& BuildRecord::operator=(BuildRecord const &rec)
 	{
 		m_data.clear();
+		m_data.resize(rec.m_data.size());
 
 		std::copy(rec.m_header.cbegin(), rec.m_header.cend(), m_header.begin());
 		std::copy(rec.m_data.cbegin(), rec.m_data.cend(), m_data.begin());
@@ -111,13 +113,18 @@ namespace i2pcpp {
 		Botan::SymmetricKey bkey(key.data(), key.size());
 		Botan::Pipe cipherPipe(get_cipher("AES-256/CBC/NoPadding", bkey, biv, Botan::ENCRYPTION));
 
-		cipherPipe.process_msg(m_data.data(), m_data.size());
+		cipherPipe.start_msg();
+		cipherPipe.write(m_header.data(), m_header.size());
+		cipherPipe.write(m_data.data(), m_data.size());
+		cipherPipe.end_msg();
 
 		size_t encryptedSize = cipherPipe.remaining();
-		ByteArray encryptedBytes(encryptedSize);
+		if(encryptedSize <= 16)
+			throw FormattingError();
 
-		cipherPipe.read(encryptedBytes.data(), encryptedSize);
-		m_data = encryptedBytes;
+		cipherPipe.read(m_header.data(), 16);
+		m_data.resize(encryptedSize - 16);
+		cipherPipe.read(m_data.data(), encryptedSize - 16);
 	}
 
 	void BuildRecord::decrypt(SessionKey const &iv, SessionKey const &key)
@@ -126,13 +133,18 @@ namespace i2pcpp {
 		Botan::SymmetricKey bkey(key.data(), key.size());
 		Botan::Pipe cipherPipe(get_cipher("AES-256/CBC/NoPadding", bkey, biv, Botan::DECRYPTION));
 
-		cipherPipe.process_msg(m_data.data(), m_data.size());
+		cipherPipe.start_msg();
+		cipherPipe.write(m_header.data(), m_header.size());
+		cipherPipe.write(m_data.data(), m_data.size());
+		cipherPipe.end_msg();
 
 		size_t decryptedSize = cipherPipe.remaining();
-		ByteArray decryptedBytes(decryptedSize);
+		if(decryptedSize <= 16)
+			throw FormattingError();
 
-		cipherPipe.read(decryptedBytes.data(), decryptedSize);
-		m_data = decryptedBytes;
+		cipherPipe.read(m_header.data(), 16);
+		m_data.resize(decryptedSize - 16);
+		cipherPipe.read(m_data.data(), decryptedSize - 16);
 	}
 
 	void BuildRecord::setHeader(const std::array<unsigned char, 16> &header)
