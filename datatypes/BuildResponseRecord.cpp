@@ -38,20 +38,23 @@ namespace i2pcpp {
 	{
 		Botan::AutoSeeded_RNG rng;
 
-		m_data.resize(528);
-		rng.randomize(m_data.data() + 32, 528 - 32);
-		m_data[527] = m_reply;
+		ByteArray response(496);
+		rng.randomize(response.data(), 495);
+		response[495] = m_reply;
 
 		Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-256"));
 		hashPipe.start_msg();
-		hashPipe.write(m_data.data() + 32, m_data.size() - 32);
+		hashPipe.write(response.data() + 32, response.size() - 32);
 		hashPipe.end_msg();
 
 		size_t size = hashPipe.remaining();
 		if(size != 32)
 			throw std::runtime_error("hash is not 32 bytes");
 
-		hashPipe.read(m_data.data(), size);
+		hashPipe.read(m_header.data(), 16);
+		m_data.resize(512);
+		hashPipe.read(m_data.data(), 16);
+		std::copy(response.cbegin(), response.cend(), m_data.begin() + 16);
 	}
 
 	BuildResponseRecord::Reply BuildResponseRecord::getReply() const
