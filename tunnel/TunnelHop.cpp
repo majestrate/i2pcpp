@@ -12,12 +12,18 @@ namespace i2pcpp {
 	{
 		Botan::AutoSeeded_RNG rng;
 
-		rng.randomize((unsigned char *)&m_tunnelId, sizeof(m_tunnelId));
 		rng.randomize((unsigned char *)&m_nextTunnelId, sizeof(m_nextTunnelId));
-		rng.randomize(m_tunnelLayerKey.data(), m_tunnelLayerKey.size());
-		rng.randomize(m_tunnelIVKey.data(), m_tunnelIVKey.size());
-		rng.randomize(m_replyKey.data(), m_replyKey.size());
-		rng.randomize(m_replyIV.data(), m_replyIV.size());
+
+		randomize();
+	}
+
+	TunnelHop::TunnelHop(RouterIdentity const &local, RouterHash const &nextHash, uint32_t const nextTunnelId) :
+		m_localHash(local.getHash()),
+		m_nextHash(nextHash),
+		m_nextTunnelId(nextTunnelId),
+		m_encryptionKey(local.getEncryptionKey())
+	{
+		randomize();
 	}
 
 	void TunnelHop::setTunnelId(uint32_t tunnelId)
@@ -113,5 +119,16 @@ namespace i2pcpp {
 	ByteArray TunnelHop::getEncryptionKey() const
 	{
 		return m_encryptionKey;
+	}
+
+	void TunnelHop::randomize()
+	{
+		Botan::AutoSeeded_RNG rng;
+
+		rng.randomize((unsigned char *)&m_tunnelId, sizeof(m_tunnelId));
+		rng.randomize(m_tunnelLayerKey.data(), m_tunnelLayerKey.size());
+		rng.randomize(m_tunnelIVKey.data(), m_tunnelIVKey.size());
+		rng.randomize(m_replyKey.data(), m_replyKey.size());
+		rng.randomize(m_replyIV.data(), m_replyIV.size());
 	}
 }
