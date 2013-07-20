@@ -14,6 +14,7 @@
 
 #include "Tunnel.h"
 #include "TunnelHop.h"
+#include "TunnelGenerator.h"
 
 namespace i2pcpp {
 	class RouterContext;
@@ -43,6 +44,9 @@ namespace i2pcpp {
 			boost::asio::deadline_timer m_timer;
 
 			i2p_logger_mt m_log;
+
+			TunnelGenerator m_generator;
+
 	};
 }
 

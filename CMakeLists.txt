@@ -67,6 +67,7 @@ set(SRCS
 	tunnel/Tunnel.cpp
 	tunnel/TunnelHop.cpp
 	tunnel/TunnelManager.cpp
+	tunnel/TunnelGenerator.cpp
 	util/Base64.cpp
 	util/I2PDH.cpp
 	util/I2PHMAC.cpp
