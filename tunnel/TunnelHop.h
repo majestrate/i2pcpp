@@ -15,6 +15,7 @@ namespace i2pcpp {
 
 			TunnelHop();
 			TunnelHop(RouterIdentity const &local, RouterHash const &nextHash);
+			TunnelHop(RouterIdentity const &local, RouterHash const &nextHash, uint32_t const nextTunnelId);
 
 			void setTunnelId(uint32_t tunnelId);
 			void setNextTunnelId(uint32_t nextTunnelId);
@@ -38,6 +39,8 @@ namespace i2pcpp {
 			ByteArray getEncryptionKey() const;
 
 		private:
+			void randomize();
+
 			uint32_t m_tunnelId;
 			uint32_t m_nextTunnelId;
 			RouterHash m_localHash;

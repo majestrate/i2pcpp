@@ -29,7 +29,7 @@ namespace i2pcpp {
 
 		private:
 			void callback(const boost::system::error_code &e);
-			void createTunnel(Tunnel::Direction d);
+			void createTunnel();
 
 			boost::asio::io_service &m_ios;
 			RouterContext &m_ctx;

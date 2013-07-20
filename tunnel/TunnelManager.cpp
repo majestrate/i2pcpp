@@ -4,6 +4,9 @@
 
 #include "../RouterContext.h"
 
+#include "InboundTunnel.h"
+#include "OutboundTunnel.h"
+
 namespace i2pcpp {
 	TunnelManager::TunnelManager(boost::asio::io_service &ios, RouterContext &ctx) :
 		m_ios(ios),
@@ -76,17 +79,17 @@ namespace i2pcpp {
 
 	void TunnelManager::callback(const boost::system::error_code &e)
 	{
-		createTunnel(Tunnel::OUTBOUND);
+		createTunnel();
 
 		/*m_timer.expires_at(m_timer.expires_at() + boost::posix_time::time_duration(0, 0, 10));
 		m_timer.async_wait(boost::bind(&TunnelManager::callback, this, boost::asio::placeholders::error));*/
 	}
 
-	void TunnelManager::createTunnel(Tunnel::Direction d)
+	void TunnelManager::createTunnel()
 	{
 		I2P_LOG(m_log, debug) << "creating tunnel";
-		std::vector<RouterIdentity> hops = { m_ctx.getDatabase().getRouterInfo("").getIdentity(), m_ctx.getDatabase().getRouterInfo("").getIdentity() };
-		Tunnel t(d, hops, m_ctx.getIdentity().getHash());
+		std::vector<RouterIdentity> hops = { m_ctx.getIdentity(), m_ctx.getDatabase().getRouterInfo("SXnw0C~04DNl~FWY0u1ApL7n-zSc2RIlrnYT6EqoAyU=").getIdentity() };
+		InboundTunnel t(hops);
 		I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(t.getRecords()));
 		m_ctx.getOutMsgDisp().sendMessage(t.getDownstream(), vtb);
 	}

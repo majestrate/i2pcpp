@@ -1,24 +1,16 @@
 #include "Tunnel.h"
 
-namespace i2pcpp {
-	Tunnel::Tunnel(Direction d, std::vector<RouterIdentity> const &hops, RouterHash const &myHash) :
-		m_direction(d)
-	{
-		if(d == OUTBOUND) {
-			for(int i = 0; i < hops.size(); i++) {
-				if(i == hops.size() - 1) {
-					auto h = std::make_shared<TunnelHop>(hops[i], myHash);
-					h->setType(TunnelHop::ENDPOINT);
-					m_hops.push_back(h);
-				} else
-					m_hops.push_back(std::make_shared<TunnelHop>(hops[i], hops[i + 1].getHash()));
-			}
-		}
-	}
+#include "../Log.h"
 
+namespace i2pcpp {
 	Tunnel::State Tunnel::getState() const
 	{
 		return m_state;
+	}
+
+	uint32_t Tunnel::getTunnelId() const
+	{
+		return m_tunnelId;
 	}
 
 	std::list<BuildRecordPtr> Tunnel::getRecords() const

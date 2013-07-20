@@ -21,16 +21,18 @@ namespace i2pcpp {
 				FAILED
 			};
 
-			Tunnel(Direction d, std::vector<RouterIdentity> const &hops, RouterHash const &myHash);
+			virtual Direction getDirection() const = 0;
 
 			State getState() const;
+			uint32_t getTunnelId() const;
 			std::list<BuildRecordPtr> getRecords() const;
 			RouterHash getDownstream() const;
 
-		private:
+		protected:
 			std::list<TunnelHopPtr> m_hops;
-			Direction m_direction;
 			State m_state = REQUESTED;
+			uint32_t m_tunnelId;
+			uint32_t m_gateway;
 	};
 
 	typedef std::shared_ptr<Tunnel> TunnelPtr;
