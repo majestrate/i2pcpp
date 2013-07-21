@@ -2,8 +2,6 @@
 
 #include "../datatypes/BuildResponseRecord.h"
 
-#include "../Log.h"
-
 namespace i2pcpp {
 	Tunnel::State Tunnel::getState() const
 	{
@@ -47,9 +45,8 @@ namespace i2pcpp {
 
 	void Tunnel::handleResponses(std::list<BuildRecordPtr> const &records)
 	{
-		i2p_logger_mt lg;
+		bool allgood = true;
 
-		// TODO
 		auto h = m_hops.crbegin();
 		++h;
 
@@ -57,19 +54,22 @@ namespace i2pcpp {
 			for(auto r: records)
 				r->decrypt((*h)->getReplyIV(), (*h)->getReplyKey());
 
-			RouterHash localHash;
-			std::array<unsigned char, 16> truncatedHash;
-
-			localHash = (*h)->getLocalHash();
-			std::copy(localHash.cbegin(), localHash.cbegin() + 16, truncatedHash.begin());
-
 			for(auto r: records) {
 				BuildResponseRecord resp = *r;
-
-				if(truncatedHash == resp.getHeader()) {
-					I2P_LOG(lg, debug) << "Yes!";
+				if(resp.parse()) {
+					if(resp.getReply() == BuildResponseRecord::SUCCESS) {
+						// TODO Record the success in the router's profile.
+					} else {
+						// TODO Record the failure in the router's profile.
+						allgood = false;
+					}
 				}
 			}
 		}
+
+		if(allgood)
+			m_state = Tunnel::OPERATIONAL;
+		else
+			m_state = Tunnel::FAILED;
 	}
 }

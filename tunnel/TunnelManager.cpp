@@ -46,7 +46,15 @@ namespace i2pcpp {
 					}
 
 					I2P_LOG(m_log, debug) << "found requested Tunnel with matching tunnel ID";
-					itr->second->handleResponses(records);
+
+					t->handleResponses(records);
+					if(t->getState() == Tunnel::OPERATIONAL) {
+						I2P_LOG(m_log, debug) << "tunnel is operational";
+					} else {
+						I2P_LOG(m_log, debug) << "failed to build tunnel";
+
+						m_tunnels.erase(itr);
+					}
 				} else {
 					I2P_LOG(m_log, debug) << "did not find Tunnel with matching Tunnel ID (participation request)";
 
@@ -59,7 +67,6 @@ namespace i2pcpp {
 
 					m_participating[hop.getTunnelId()] = std::make_shared<TunnelHop>(hop);
 					auto resp = std::make_shared<BuildResponseRecord>(BuildResponseRecord::SUCCESS);
-					resp->setHeader(req.getHeader());
 					resp->compile();
 
 					r = resp; // Replace the request record with our response
