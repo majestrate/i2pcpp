@@ -28,10 +28,11 @@ namespace i2pcpp {
 		for(auto& r: records) {
 			if(myTruncatedHash == r->getHeader()) {
 				I2P_LOG(m_log, debug) << "found BRR with our identity";
-				r->decrypt(m_ctx.getEncryptionKey());
+
+				BuildRequestRecord req = *r;
+				req.decrypt(m_ctx.getEncryptionKey());
 
 				std::lock_guard<std::mutex> lock(m_tunnelsMutex);
-				BuildRequestRecord req = *r;
 				req.parse();
 				TunnelHop& hop = req.getHop();
 				auto itr = m_tunnels.find(hop.getTunnelId());
@@ -45,8 +46,7 @@ namespace i2pcpp {
 					}
 
 					I2P_LOG(m_log, debug) << "found requested Tunnel with matching tunnel ID";
-					BuildResponseRecord resp = *r;
-					// handle response
+					itr->second->handleResponses(records);
 				} else {
 					I2P_LOG(m_log, debug) << "did not find Tunnel with matching Tunnel ID (participation request)";
 
@@ -90,8 +90,9 @@ namespace i2pcpp {
 	{
 		I2P_LOG(m_log, debug) << "creating tunnel";
 		std::vector<RouterIdentity> hops = { m_ctx.getIdentity(), m_ctx.getDatabase().getRouterInfo("SXnw0C~04DNl~FWY0u1ApL7n-zSc2RIlrnYT6EqoAyU=").getIdentity() };
-		InboundTunnel t(hops);
-		I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(t.getRecords()));
-		m_ctx.getOutMsgDisp().sendMessage(t.getDownstream(), vtb);
+		auto t = std::make_shared<InboundTunnel>(hops);
+		m_tunnels[t->getTunnelId()] = t;
+		I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(t->getRecords()));
+		m_ctx.getOutMsgDisp().sendMessage(t->getDownstream(), vtb);
 	}
 }

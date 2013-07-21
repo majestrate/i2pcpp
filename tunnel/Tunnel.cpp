@@ -1,5 +1,7 @@
 #include "Tunnel.h"
 
+#include "../datatypes/BuildResponseRecord.h"
+
 #include "../Log.h"
 
 namespace i2pcpp {
@@ -41,5 +43,33 @@ namespace i2pcpp {
 	RouterHash Tunnel::getDownstream() const
 	{
 		return m_hops.front()->getLocalHash();
+	}
+
+	void Tunnel::handleResponses(std::list<BuildRecordPtr> const &records)
+	{
+		i2p_logger_mt lg;
+
+		// TODO
+		auto h = m_hops.crbegin();
+		++h;
+
+		for(; h != m_hops.crend(); ++h) {
+			for(auto r: records)
+				r->decrypt((*h)->getReplyIV(), (*h)->getReplyKey());
+
+			RouterHash localHash;
+			std::array<unsigned char, 16> truncatedHash;
+
+			localHash = (*h)->getLocalHash();
+			std::copy(localHash.cbegin(), localHash.cbegin() + 16, truncatedHash.begin());
+
+			for(auto r: records) {
+				BuildResponseRecord resp = *r;
+
+				if(truncatedHash == resp.getHeader()) {
+					I2P_LOG(lg, debug) << "Yes!";
+				}
+			}
+		}
 	}
 }
