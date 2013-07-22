@@ -27,6 +27,7 @@ namespace i2pcpp {
 			uint32_t getTunnelId() const;
 			std::list<BuildRecordPtr> getRecords() const;
 			RouterHash getDownstream() const;
+			void handleResponses(std::list<BuildRecordPtr> const &records);
 
 		protected:
 			std::list<TunnelHopPtr> m_hops;

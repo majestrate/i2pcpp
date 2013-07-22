@@ -13,7 +13,7 @@ namespace i2pcpp {
 		for(int i = 0; i < hops.size(); i++) {
 			if(!i) {
 				h = std::make_shared<TunnelHop>(hops[i], RouterHash());
-				m_tunnelId = h->getNextTunnelId();
+				m_tunnelId = h->getTunnelId();
 			} else
 				h = std::make_shared<TunnelHop>(hops[i], lastRouterHash, lastTunnelId);
 
