@@ -15,23 +15,27 @@ namespace i2pcpp {
 	BuildResponseRecord::BuildResponseRecord(Reply r) :
 		m_reply(r) {}
 
-	void BuildResponseRecord::parse()
+	bool BuildResponseRecord::parse()
 	{
+		m_reply = (Reply)m_data.back();
+
 		Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-256"));
 		hashPipe.start_msg();
-		hashPipe.write(m_data.data() + 32, m_data.size() - 32);
+		hashPipe.write(m_data.data() + 16, m_data.size() - 16);
 		hashPipe.end_msg();
 
 		size_t size = hashPipe.remaining();
 		ByteArray calcHash(size);
 		hashPipe.read(calcHash.data(), size);
 
-		ByteArray givenHash(m_data.cbegin(), m_data.cbegin() + 32);
+		ByteArray givenHash(32);
+		std::copy(m_header.cbegin(), m_header.cend(), givenHash.begin());
+		std::copy(m_data.cbegin(), m_data.cbegin() + 16, givenHash.begin() + m_header.size());
 
 		if(givenHash != calcHash)
-			throw FormattingError();
+			return false;
 
-		m_reply = (Reply)m_data.back();
+		return true;
 	}
 
 	void BuildResponseRecord::compile()
@@ -44,7 +48,7 @@ namespace i2pcpp {
 
 		Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-256"));
 		hashPipe.start_msg();
-		hashPipe.write(response.data() + 32, response.size() - 32);
+		hashPipe.write(response.data(), response.size());
 		hashPipe.end_msg();
 
 		size_t size = hashPipe.remaining();
