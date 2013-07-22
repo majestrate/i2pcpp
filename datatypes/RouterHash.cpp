@@ -5,7 +5,10 @@
 
 namespace i2pcpp {
 	RouterHash::RouterHash() :
-		std::array<unsigned char, 32>() {}
+		std::array<unsigned char, 32>() 
+	{
+		fill(0);
+	}
 
 	RouterHash::RouterHash(ByteArray const &b)
 	{
@@ -22,6 +25,11 @@ namespace i2pcpp {
 	RouterHash::RouterHash(std::array<unsigned char, 32> const &k)
 	{
 		std::copy(k.cbegin(), k.cbegin() + 32, begin());
+	}
+
+	RouterHash & RouterHash::operator=(std::array<unsigned char, 32> & arr)
+	{
+		std::copy(arr.cbegin(), arr.cbegin() + 32, begin());
 	}
 
 	RouterHash::operator ByteArray() const
