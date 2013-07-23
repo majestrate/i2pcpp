@@ -22,6 +22,11 @@ namespace i2pcpp {
 
 		bool TunnelGateway::parse(ByteArrayConstItr &begin, ByteArrayConstItr end)
 		{
+			m_tunnelId = (*(begin++) << 24) | (*(begin++) << 16) | (*(begin++) << 8) | *(begin++);
+			uint16_t size = (*(begin++) << 8) | *(begin++);
+			m_data.resize(size);
+			m_data = ByteArray(begin, begin + size);
+
 			return true;
 		}
 	}

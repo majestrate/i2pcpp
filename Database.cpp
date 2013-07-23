@@ -61,7 +61,7 @@ namespace i2pcpp {
 		}
 
 		Botan::AutoSeeded_RNG rng;
-		Botan::DSA_PrivateKey dsa_key(rng, DH::group);
+		Botan::DSA_PrivateKey dsa_key(rng, DH::getGroup());
 		Botan::ElGamal_PrivateKey elg_key(rng, Botan::DL_Group("modp/ietf/2048"));
 		std::string elg_string = Botan::PKCS8::PEM_encode(elg_key);
 		std::string dsa_string = Botan::PKCS8::PEM_encode(dsa_key);
@@ -141,11 +141,12 @@ namespace i2pcpp {
 		sqlite3_finalize(statement);
 	}
 
-	RouterHash Database::getRandomFloodfill()
+	RouterHash Database::getRandomRouter()
 	{
 		std::lock_guard<std::mutex> lock(m_mutex);
 
-		const std::string select = "SELECT router_id FROM router_options WHERE router_options.name='caps' AND router_options.value LIKE '%f%' ORDER BY RANDOM() LIMIT 1";
+		//const std::string select = "SELECT router_id FROM router_options WHERE router_options.name='caps' AND router_options.value LIKE '%f%' ORDER BY RANDOM() LIMIT 1";
+		const std::string select = "SELECT router_id FROM routers ORDER BY RANDOM() LIMIT 1";
 		sqlite3_stmt *statement;
 
 		if(sqlite3_prepare_v2(m_db, select.c_str(), -1, &statement, NULL) != SQLITE_OK) throw StatementPrepareError();
@@ -161,7 +162,7 @@ namespace i2pcpp {
 			return rh;
 		} else {
 			sqlite3_finalize(statement);
-			throw RecordNotFound("random floodfill");
+			throw RecordNotFound("random router");
 		}
 	}
 

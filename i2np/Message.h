@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "../datatypes/ByteArray.h"
+#include "../datatypes/Date.h"
 
 namespace i2pcpp {
 	namespace I2NP {
@@ -26,7 +27,7 @@ namespace i2pcpp {
 					VARIABLE_TUNNEL_BUILD_REPLY = 24
 				};
 
-				static std::shared_ptr<Message> fromBytes(ByteArray const &data);
+				static std::shared_ptr<Message> fromBytes(ByteArray const &data, bool standardHeader = false);
 
 				ByteArray toBytes() const;
 				virtual Type getType() const = 0;
@@ -37,6 +38,7 @@ namespace i2pcpp {
 				virtual bool parse(ByteArrayConstItr &begin, ByteArrayConstItr end) = 0;
 
 				uint32_t m_expiration;
+				Date m_longExpiration;
 		};
 
 		typedef std::shared_ptr<Message> MessagePtr;

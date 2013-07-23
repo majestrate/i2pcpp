@@ -10,11 +10,12 @@ namespace i2pcpp {
 		class TunnelGateway : public Message {
 			public:
 				TunnelGateway() {}
-				TunnelGateway(uint32_t tunnelId, ByteArray const &data) : m_tunnelId(tunnelId), m_data(data) {}
+				TunnelGateway(uint32_t const tunnelId, ByteArray const &data) : m_tunnelId(tunnelId), m_data(data) {}
 
 				Message::Type getType() const { return Message::Type::TUNNEL_GATEWAY; }
 
 				uint32_t getTunnelId() const { return m_tunnelId; }
+				const ByteArray& getData() const { return m_data; }
 
 			protected:
 				ByteArray getBytes() const;

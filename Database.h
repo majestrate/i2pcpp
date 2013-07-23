@@ -19,7 +19,7 @@ namespace i2pcpp {
 			std::string getConfigValue(std::string const &name);
 			void setConfigValue(std::string const &name, std::string const &value);
 			ByteArray getConfigBlob(std::string const &name);
-			RouterHash getRandomFloodfill();
+			RouterHash getRandomRouter();
 			bool routerExists(RouterHash const &routerHash);
 			RouterInfo getRouterInfo(std::string const &routerHash);
 			RouterInfo getRouterInfo(RouterHash const &routerHash);

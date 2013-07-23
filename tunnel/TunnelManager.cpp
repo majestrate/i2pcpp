@@ -1,6 +1,7 @@
 #include "TunnelManager.h"
 
 #include "../i2np/VariableTunnelBuild.h"
+#include "../i2np/VariableTunnelBuildReply.h"
 
 #include "../RouterContext.h"
 
@@ -85,6 +86,17 @@ namespace i2pcpp {
 		}
 	}
 
+	void TunnelManager::receiveGatewayData(uint32_t const tunnelId, ByteArray const data)
+	{
+		I2P_LOG(m_log, debug) << "received " << data.size() << " bytes for tunnel " << tunnelId;
+
+		I2NP::MessagePtr msg = I2NP::Message::fromBytes(data, true);
+		if(msg && msg->getType() == I2NP::Message::VARIABLE_TUNNEL_BUILD_REPLY) {
+			std::shared_ptr<I2NP::VariableTunnelBuildReply> vtbr = std::dynamic_pointer_cast<I2NP::VariableTunnelBuildReply>(msg);
+			I2P_LOG(m_log, debug) << "VTBR with " << vtbr->getRecords().size() << " records";
+		}
+	}
+
 	void TunnelManager::callback(const boost::system::error_code &e)
 	{
 		createTunnel();
@@ -96,8 +108,8 @@ namespace i2pcpp {
 	void TunnelManager::createTunnel()
 	{
 		I2P_LOG(m_log, debug) << "creating tunnel";
-		std::vector<RouterIdentity> hops = { m_ctx.getIdentity(), m_ctx.getDatabase().getRouterInfo("SXnw0C~04DNl~FWY0u1ApL7n-zSc2RIlrnYT6EqoAyU=").getIdentity() };
-		auto t = std::make_shared<InboundTunnel>(hops);
+		std::vector<RouterIdentity> hops = { m_ctx.getDatabase().getRouterInfo("SXnw0C~04DNl~FWY0u1ApL7n-zSc2RIlrnYT6EqoAyU=").getIdentity() };
+		auto t = std::make_shared<OutboundTunnel>(hops, m_ctx.getIdentity().getHash(), 12345);
 		m_tunnels[t->getTunnelId()] = t;
 		I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(t->getRecords()));
 		m_ctx.getOutMsgDisp().sendMessage(t->getDownstream(), vtb);

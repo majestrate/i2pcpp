@@ -250,7 +250,7 @@ namespace i2pcpp {
 			cipherPipe.read(decryptedSig.data(), decryptedSize);
 
 			const ByteArray dsaKeyBytes = m_theirIdentity.getSigningKey();
-			Botan::DSA_PublicKey dsaKey(DH::group, Botan::BigInt(dsaKeyBytes.data(), dsaKeyBytes.size()));
+			Botan::DSA_PublicKey dsaKey(DH::getGroup(), Botan::BigInt(dsaKeyBytes.data(), dsaKeyBytes.size()));
 
 			Botan::Pipe sigPipe(new Botan::Hash_Filter("SHA-1"), new Botan::PK_Verifier_Filter(new Botan::PK_Verifier(dsaKey, "Raw"), decryptedSig));
 			sigPipe.start_msg();
@@ -292,7 +292,7 @@ namespace i2pcpp {
 		bool EstablishmentState::verifyConfirmationSignature() const
 		{
 			const ByteArray dsaKeyBytes = m_theirIdentity.getSigningKey();
-			Botan::DSA_PublicKey dsaKey(DH::group, Botan::BigInt(dsaKeyBytes.data(), dsaKeyBytes.size()));
+			Botan::DSA_PublicKey dsaKey(DH::getGroup(), Botan::BigInt(dsaKeyBytes.data(), dsaKeyBytes.size()));
 
 			Botan::secure_vector<Botan::byte> sig(m_signature.cbegin(), m_signature.cend());
 			Botan::Pipe sigPipe(new Botan::Hash_Filter("SHA-1"), new Botan::PK_Verifier_Filter(new Botan::PK_Verifier(dsaKey, "Raw"), sig));
