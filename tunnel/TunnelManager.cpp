@@ -87,10 +87,9 @@ namespace i2pcpp {
 
 	void TunnelManager::callback(const boost::system::error_code &e)
 	{
-		createTunnel();
-
-		//m_timer.expires_at(m_timer.expires_at() + boost::posix_time::time_duration(0, 0, 1));
-		//m_timer.async_wait(boost::bind(&TunnelManager::callback, this, boost::asio::placeholders::error));
+		for (auto counter =0; counter < 5; counter++) createTunnel();
+		m_timer.expires_at(m_timer.expires_at() + boost::posix_time::time_duration(0, 0, 1));
+		m_timer.async_wait(boost::bind(&TunnelManager::callback, this, boost::asio::placeholders::error));
 	}
 
 	void TunnelManager::createTunnel()
