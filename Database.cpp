@@ -146,7 +146,7 @@ namespace i2pcpp {
 		std::lock_guard<std::mutex> lock(m_mutex);
 
 		//const std::string select = "SELECT router_id FROM router_options WHERE router_options.name='caps' AND router_options.value LIKE '%f%' ORDER BY RANDOM() LIMIT 1";
-		const std::string select = "SELECT router_id FROM routers ORDER BY RANDOM() LIMIT 1";
+		const std::string select = "SELECT id FROM routers ORDER BY RANDOM() LIMIT 1";
 		sqlite3_stmt *statement;
 
 		if(sqlite3_prepare_v2(m_db, select.c_str(), -1, &statement, NULL) != SQLITE_OK) throw StatementPrepareError();
