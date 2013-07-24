@@ -81,11 +81,6 @@ namespace i2pcpp {
 				State m_state = UNKNOWN;
 				Direction m_direction;
 
-				static const Botan::BigInt p;
-				static const Botan::BigInt q;
-				static const Botan::BigInt g;
-				static const Botan::DL_Group m_group;
-
 				const Botan::DSA_PrivateKey& m_dsaKey;
 				const RouterIdentity& m_myIdentity;
 				Endpoint m_myEndpoint;

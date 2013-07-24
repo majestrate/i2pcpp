@@ -25,7 +25,7 @@ namespace i2pcpp {
 	void CachingProfileManager::populate_cache(int num)
 	{
 		Database & db = m_ctx.getDatabase();
-		for ( auto rh : db.getRandomFloodfills(num) ) m_cache[rh] = db.getRouterInfo(rh);
+		for ( auto rh : db.getRandomRouters(num) ) m_cache[rh] = db.getRouterInfo(rh);
 	}
 
 }

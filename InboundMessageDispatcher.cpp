@@ -87,7 +87,7 @@ namespace i2pcpp {
 			rm.setValue("netId", "2");
 			rm.setValue("router.version", "0.9.6");
 			rm.setValue("stat_uptime", "90m");
-			rm.setValue("caps", "MR");
+			rm.setValue("caps", "OR");
 			RouterInfo myInfo(m_ctx.getIdentity(), Date(), rm);
 			myInfo.addAddress(a);
 			myInfo.sign(m_ctx.getSigningKey());

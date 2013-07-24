@@ -8,7 +8,7 @@ namespace i2pcpp {
 
 	RouterInfo ProfileManager::getPeer()
 	{
-		return m_ctx.getDatabase().getRouterInfo(m_ctx.getDatabase().getRandomFloodfill());
+		return m_ctx.getDatabase().getRouterInfo(m_ctx.getDatabase().getRandomRouter());
 	}
 
 	void ProfileManager::expungePeer(RouterHash const & rh) {}

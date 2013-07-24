@@ -69,7 +69,7 @@ namespace i2pcpp {
 		}
 
 		Botan::AutoSeeded_RNG rng;
-		Botan::DSA_PrivateKey dsa_key(rng, DH::group);
+		Botan::DSA_PrivateKey dsa_key(rng, DH::getGroup());
 		Botan::ElGamal_PrivateKey elg_key(rng, Botan::DL_Group("modp/ietf/2048"));
 		std::string elg_string = Botan::PKCS8::PEM_encode(elg_key);
 		std::string dsa_string = Botan::PKCS8::PEM_encode(dsa_key);
@@ -149,7 +149,7 @@ namespace i2pcpp {
 		sqlite3_finalize(statement);
 	}
 
-	std::vector<RouterHash> Database::getRandomFloodfills(int count)
+	std::vector<RouterHash> Database::getRandomRouters(int count)
 	{
 		std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -174,14 +174,15 @@ namespace i2pcpp {
 				break;
 				// throw RecordNotFound("random floodfill");
 			}
+
 		}
 		sqlite3_finalize(statement);
 		return ret;
 	}
 
-	RouterHash Database::getRandomFloodfill()
+	RouterHash Database::getRandomRouter()
 	{
-		return getRandomFloodfills(1)[0];
+		return getRandomRouters(1)[0];
 	}
 
 	bool Database::routerExists(RouterHash const &routerHash)

@@ -46,8 +46,10 @@ set(SRCS
 	i2np/DatabaseStore.cpp
 	i2np/DeliveryStatus.cpp
 	i2np/Message.cpp
+	i2np/TunnelData.cpp
 	i2np/TunnelGateway.cpp
 	i2np/VariableTunnelBuild.cpp
+	i2np/VariableTunnelBuildReply.cpp
 	transport/ssu/AcknowledgementScheduler.cpp
 	transport/ssu/EstablishmentManager.cpp
 	transport/ssu/EstablishmentState.cpp
@@ -98,8 +100,8 @@ set(TEST_SRCS
 	)
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -stdlib=libc++")
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -stdlib=libc++")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -stdlib=libc++ -Wno-constexpr-not-const")
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -stdlib=libc++ -Wno-constexpr-not-const")
 endif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")

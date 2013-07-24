@@ -52,7 +52,7 @@ namespace i2pcpp {
 	bool RouterInfo::verifySignature() const
 	{
 		const ByteArray&& dsaKeyBytes = m_identity.getSigningKey();
-		Botan::DSA_PublicKey dsaKey(DH::group, Botan::BigInt(dsaKeyBytes.data(), dsaKeyBytes.size()));
+		Botan::DSA_PublicKey dsaKey(DH::getGroup(), Botan::BigInt(dsaKeyBytes.data(), dsaKeyBytes.size()));
 		Botan::Pipe sigPipe(new Botan::Hash_Filter("SHA-1"), new Botan::PK_Verifier_Filter(new Botan::PK_Verifier(dsaKey, "Raw"), m_signature.data(), m_signature.size()));
 		sigPipe.start_msg();
 		sigPipe.write(getSignedBytes());

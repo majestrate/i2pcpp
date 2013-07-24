@@ -1,6 +1,7 @@
 #include "TunnelManager.h"
 
 #include "../i2np/VariableTunnelBuild.h"
+#include "../i2np/VariableTunnelBuildReply.h"
 
 #include "../RouterContext.h"
 
@@ -82,6 +83,17 @@ namespace i2pcpp {
 					break;
 				}
 			}
+		}
+	}
+
+	void TunnelManager::receiveGatewayData(uint32_t const tunnelId, ByteArray const data)
+	{
+		I2P_LOG(m_log, debug) << "received " << data.size() << " bytes for tunnel " << tunnelId;
+
+		I2NP::MessagePtr msg = I2NP::Message::fromBytes(data, true);
+		if(msg && msg->getType() == I2NP::Message::VARIABLE_TUNNEL_BUILD_REPLY) {
+			std::shared_ptr<I2NP::VariableTunnelBuildReply> vtbr = std::dynamic_pointer_cast<I2NP::VariableTunnelBuildReply>(msg);
+			I2P_LOG(m_log, debug) << "VTBR with " << vtbr->getRecords().size() << " records";
 		}
 	}
 

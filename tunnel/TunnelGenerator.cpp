@@ -13,7 +13,7 @@ namespace i2pcpp {
 	{
 		std::vector<RouterIdentity> vec;
 		while (hops--) {
-			RouterHash rh = m_db.getRandomFloodfill();
+			RouterHash rh = m_db.getRandomRouter();
 			vec.push_back(m_db.getRouterInfo(rh).getIdentity());
 		}
 		return vec;
