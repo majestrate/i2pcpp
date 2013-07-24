@@ -48,6 +48,8 @@ namespace i2pcpp {
 
 			TunnelGenerator m_generator;
 
+			uint32_t m_tunnel_count = 0;
+
 	};
 }
 

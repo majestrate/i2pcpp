@@ -99,9 +99,8 @@ namespace i2pcpp {
 
 	void TunnelManager::callback(const boost::system::error_code &e)
 	{
-		for (auto counter =0; counter < 5; counter++) createTunnel();
-		m_timer.expires_at(m_timer.expires_at() + boost::posix_time::time_duration(0, 0, 1));
-		m_timer.async_wait(boost::bind(&TunnelManager::callback, this, boost::asio::placeholders::error));
+		for(auto counter=0; counter < 5; counter++) createTunnel();
+		I2P_LOG(m_log,debug) << m_tunnel_count << " tunnels made";
 	}
 
 	void TunnelManager::createTunnel()
@@ -113,5 +112,6 @@ namespace i2pcpp {
 		m_tunnels[t->getTunnelId()] = t;
 		I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(t->getRecords()));
 		m_ctx.getOutMsgDisp().sendMessage(t->getDownstream(), vtb);
+		m_tunnel_count ++;
 	}
 }
