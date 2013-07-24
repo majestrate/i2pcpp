@@ -15,6 +15,7 @@ namespace i2pcpp {
 			typedef boost::signals2::signal<void(const RouterHash)> PeerConnected;
 			typedef boost::signals2::signal<void(const RouterHash)> ConnectionFailure;
 			typedef boost::signals2::signal<void(const RouterHash, const std::array<unsigned char, 32>, const std::list<RouterHash>)> SearchReply;
+			typedef boost::signals2::signal<void(const uint32_t, const ByteArray)> TunnelGatewayData;
 
 			Signals(boost::asio::io_service &ios) : m_ios(ios) {}
 
@@ -33,6 +34,9 @@ namespace i2pcpp {
 			void invokeSearchReply(RouterHash const &from, std::array<unsigned char, 32> const &query, std::list<RouterHash> const &hashes);
 			boost::signals2::connection registerSearchReply(SearchReply::slot_type const &srh);
 
+			void invokeTunnelGatewayData(const uint32_t tunnelId, ByteArray const &data);
+			boost::signals2::connection registerTunnelGatewayData(TunnelGatewayData::slot_type const &tgdh);
+
 		private:
 			boost::asio::io_service& m_ios;
 
@@ -41,6 +45,7 @@ namespace i2pcpp {
 			PeerConnected m_peerConnected;
 			ConnectionFailure m_connectionFailure;
 			SearchReply m_searchReply;
+			TunnelGatewayData m_tunnelGatewayData;
 	};
 }
 

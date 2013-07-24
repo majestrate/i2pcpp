@@ -1,14 +1,18 @@
 #include "Message.h"
 
+#include "../exceptions/FormattingError.h"
+
 #include "DeliveryStatus.h"
 #include "DatabaseStore.h"
 #include "DatabaseSearchReply.h"
 #include "VariableTunnelBuild.h"
+#include "VariableTunnelBuildReply.h"
+#include "TunnelData.h"
 #include "TunnelGateway.h"
 
 namespace i2pcpp {
 	namespace I2NP {
-		MessagePtr Message::fromBytes(ByteArray const &data)
+		MessagePtr Message::fromBytes(ByteArray const &data, bool standardHeader)
 		{
 			MessagePtr m;
 
@@ -33,6 +37,14 @@ namespace i2pcpp {
 					m = std::make_shared<VariableTunnelBuild>();
 					break;
 
+				case Type::VARIABLE_TUNNEL_BUILD_REPLY:
+					m = std::make_shared<VariableTunnelBuildReply>();
+					break;
+
+				case Type::TUNNEL_DATA:
+					m = std::make_shared<TunnelData>();
+					break;
+
 				case Type::TUNNEL_GATEWAY:
 					m = std::make_shared<TunnelGateway>();
 					break;
@@ -41,7 +53,19 @@ namespace i2pcpp {
 					return MessagePtr();
 			}
 
-			m->m_expiration = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
+			if(standardHeader) {
+				dataItr += 4; // unused msgId
+
+				m->m_longExpiration = Date(dataItr, data.cend());
+
+				uint16_t size = (*(dataItr++) << 8) | *(dataItr++);
+				uint8_t checksum = *dataItr++;
+
+				if(data.cend() - dataItr != size)
+					throw FormattingError();
+			} else {
+				m->m_expiration = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
+			}
 
 			if(m->parse(dataItr, data.cend()))
 				return m;

@@ -21,6 +21,8 @@ namespace i2pcpp {
 
 			I2P_LOG_SCOPED_RH(m_log, from);
 			I2P_LOG(m_log, debug) << "received TunnelGateway message";
+
+			m_ctx.getSignals().invokeTunnelGatewayData(tg->getTunnelId(), tg->getData());
 		}
 	}
 }

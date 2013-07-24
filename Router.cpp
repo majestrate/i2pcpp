@@ -37,14 +37,18 @@ namespace i2pcpp {
 		t->registerDisconnectedSignal(boost::bind(&PeerManager::disconnected, boost::ref(m_ctx.getPeerManager()), _1));
 		m_ctx.getOutMsgDisp().registerTransport(t);
 
-		m_ctx.getSignals().registerTunnelRecordsReceived(boost::bind(&TunnelManager::receiveRecords, boost::ref(m_ctx.getTunnelManager()), _1));
 		m_ctx.getSignals().registerPeerConnected(boost::bind(&PeerManager::connected, boost::ref(m_ctx.getPeerManager()), _1));
 		m_ctx.getSignals().registerPeerConnected(boost::bind(&OutboundMessageDispatcher::connected, boost::ref(m_ctx.getOutMsgDisp()), _1));
 		m_ctx.getSignals().registerPeerConnected(boost::bind(&DHT::SearchManager::connected, boost::ref(m_ctx.getSearchManager()), _1));
+
 		m_ctx.getSignals().registerConnectionFailure(boost::bind(&DHT::SearchManager::connectionFailure, boost::ref(m_ctx.getSearchManager()), _1));
 		m_ctx.getSignals().registerConnectionFailure(boost::bind(&PeerManager::failure, boost::ref(m_ctx.getPeerManager()), _1));
+
 		m_ctx.getSignals().registerSearchReply(boost::bind(&DHT::SearchManager::searchReply, boost::ref(m_ctx.getSearchManager()), _1, _2, _3));
 		m_ctx.getSignals().registerDatabaseStore(boost::bind(&DHT::SearchManager::databaseStore, boost::ref(m_ctx.getSearchManager()), _1, _2, _3));
+
+		m_ctx.getSignals().registerTunnelRecordsReceived(boost::bind(&TunnelManager::receiveRecords, boost::ref(m_ctx.getTunnelManager()), _1));
+		m_ctx.getSignals().registerTunnelGatewayData(boost::bind(&TunnelManager::receiveGatewayData, boost::ref(m_ctx.getTunnelManager()), _1, _2));
 
 		m_ctx.getSearchManager().registerSuccess(boost::bind(&OutboundMessageDispatcher::dhtSuccess, boost::ref(m_ctx.getOutMsgDisp()), _1, _2));
 		m_ctx.getSearchManager().registerFailure(boost::bind(&OutboundMessageDispatcher::dhtFailure, boost::ref(m_ctx.getOutMsgDisp()), _1));
@@ -52,8 +56,8 @@ namespace i2pcpp {
 		std::shared_ptr<UDPTransport> u = std::static_pointer_cast<UDPTransport>(t);
 		u->start(Endpoint(m_ctx.getDatabase().getConfigValue("ssu_bind_ip"), std::stoi(m_ctx.getDatabase().getConfigValue("ssu_bind_port"))));
 
-		//m_ctx.getPeerManager().begin();
-		m_ctx.getTunnelManager().begin();
+		m_ctx.getPeerManager().begin();
+		//m_ctx.getTunnelManager().begin();
 	}
 
 	void Router::stop()

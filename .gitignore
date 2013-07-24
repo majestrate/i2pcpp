@@ -1,7 +1,13 @@
-build
 *~
 \#*
 .\*
 *.pyc
-*.db
+build/
+*.sh
+*.txt
+*.bak
 *.log
+*.core
+*.db
+*.swp
+*.tgz
