@@ -37,6 +37,7 @@ set(SRCS
 	handlers/DatabaseStore.cpp
 	handlers/DeliveryStatus.cpp
 	handlers/Message.cpp
+	handlers/TunnelData.cpp
 	handlers/TunnelGateway.cpp
 	handlers/VariableTunnelBuild.cpp
 	i2np/DatabaseLookup.cpp
@@ -67,6 +68,7 @@ set(SRCS
 	tunnel/Tunnel.cpp
 	tunnel/TunnelHop.cpp
 	tunnel/TunnelManager.cpp
+	tunnel/TunnelMessage.cpp
 	util/Base64.cpp
 	util/I2PDH.cpp
 	util/I2PHMAC.cpp

@@ -50,6 +50,7 @@ namespace i2pcpp {
 
 		m_ctx.getSignals().registerTunnelRecordsReceived(boost::bind(&TunnelManager::receiveRecords, boost::ref(m_ctx.getTunnelManager()), _1));
 		m_ctx.getSignals().registerTunnelGatewayData(boost::bind(&TunnelManager::receiveGatewayData, boost::ref(m_ctx.getTunnelManager()), _1, _2));
+		m_ctx.getSignals().registerTunnelData(boost::bind(&TunnelManager::receiveData, boost::ref(m_ctx.getTunnelManager()), _1, _2));
 
 		m_ctx.getSearchManager().registerSuccess(boost::bind(&OutboundMessageDispatcher::dhtSuccess, boost::ref(m_ctx.getOutMsgDisp()), _1, _2));
 		m_ctx.getSearchManager().registerFailure(boost::bind(&OutboundMessageDispatcher::dhtFailure, boost::ref(m_ctx.getOutMsgDisp()), _1));

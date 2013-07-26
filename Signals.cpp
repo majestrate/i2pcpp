@@ -60,4 +60,14 @@ namespace i2pcpp {
 	{
 		return m_tunnelGatewayData.connect(tgdh);
 	}
+
+	void Signals::invokeTunnelData(uint32_t const tunnelId, std::array<unsigned char, 1024> const &data)
+	{
+		m_ios.post(boost::bind(boost::ref(m_tunnelData), tunnelId, data));
+	}
+
+	boost::signals2::connection Signals::registerTunnelData(TunnelData::slot_type const &tdh)
+	{
+		return m_tunnelData.connect(tdh);
+	}
 }

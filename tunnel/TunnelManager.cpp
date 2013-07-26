@@ -97,6 +97,12 @@ namespace i2pcpp {
 		}
 	}
 
+	void TunnelManager::receiveData(uint32_t const tunnelId, std::array<unsigned char, 1024> const data)
+	{
+		I2P_LOG(m_log, debug) << "received data for tunnel " << tunnelId;
+		//I2P_LOG(m_log, debug) << "tunnel key: " << m_participating[tunnelId]->getTunnelKey()
+	}
+
 	void TunnelManager::callback(const boost::system::error_code &e)
 	{
 		createTunnel();
