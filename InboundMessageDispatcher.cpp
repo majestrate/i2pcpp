@@ -80,6 +80,7 @@ namespace i2pcpp {
 			I2NP::MessagePtr m(new I2NP::DeliveryStatus(msgId, Date(2)));
 			m_ctx.getOutMsgDisp().sendMessage(rh, m);
 
+			// TODO Get this out of here
 			Mapping am;
 			am.setValue("caps", "BC");
 			am.setValue("host", m_ctx.getDatabase().getConfigValue("ssu_external_ip"));
@@ -88,9 +89,9 @@ namespace i2pcpp {
 			RouterAddress a(5, Date(0), "SSU", am);
 
 			Mapping rm;
-			rm.setValue("coreVersion", "0.9.6");
+			rm.setValue("coreVersion", "0.9.7");
 			rm.setValue("netId", "2");
-			rm.setValue("router.version", "0.9.6");
+			rm.setValue("router.version", "0.9.7");
 			rm.setValue("stat_uptime", "90m");
 			rm.setValue("caps", "OR");
 			RouterInfo myInfo(m_ctx.getIdentity(), Date(), rm);

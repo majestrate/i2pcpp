@@ -26,6 +26,8 @@ namespace i2pcpp {
 		private:
 			Reply m_reply;
 	};
+
+	typedef std::shared_ptr<BuildResponseRecord> BuildResponseRecordPtr;
 }
 
 #endif

@@ -59,10 +59,12 @@ namespace i2pcpp {
 		{
 			SearchStateByGoal::iterator itr = m_searches.get<0>().find(k);
 
-			m_ios.post(boost::bind(boost::ref(m_failureSignal), itr->goal));
+			if(itr != m_searches.get<0>().end()) {
+				m_ios.post(boost::bind(boost::ref(m_failureSignal), itr->goal));
 
-			m_searches.get<0>().erase(itr);
-			m_timers.erase(k);
+				m_searches.get<0>().erase(itr);
+				m_timers.erase(k);
+			}
 		}
 
 		void SearchManager::connected(RouterHash const rh)

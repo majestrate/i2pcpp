@@ -77,11 +77,11 @@ namespace i2pcpp {
 		RouterAddress a(5, Date(0), "SSU", am);
 
 		Mapping rm;
-		rm.setValue("coreVersion", "0.9.5");
+		rm.setValue("coreVersion", "0.9.7");
 		rm.setValue("netId", "2");
-		rm.setValue("router.version", "0.9.5");
+		rm.setValue("router.version", "0.9.7");
 		rm.setValue("stat_uptime", "90m");
-		rm.setValue("caps", "MR");
+		rm.setValue("caps", "OR");
 		RouterInfo myInfo(m_ctx.getIdentity(), Date(), rm);
 		myInfo.addAddress(a);
 		myInfo.sign(m_ctx.getSigningKey());
