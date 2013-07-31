@@ -2,11 +2,13 @@
 
 #include "../i2np/VariableTunnelBuild.h"
 #include "../i2np/VariableTunnelBuildReply.h"
+#include "../i2np/TunnelData.h"
 
 #include "../RouterContext.h"
 
 #include "InboundTunnel.h"
 #include "OutboundTunnel.h"
+#include "TunnelMessage.h"
 
 namespace i2pcpp {
 	TunnelManager::TunnelManager(boost::asio::io_service &ios, RouterContext &ctx) :
@@ -32,10 +34,10 @@ namespace i2pcpp {
 
 				BuildRequestRecord req = *r;
 				req.decrypt(m_ctx.getEncryptionKey());
-
-				std::lock_guard<std::mutex> lock(m_tunnelsMutex);
 				req.parse();
 				TunnelHop& hop = req.getHop();
+
+				std::lock_guard<std::mutex> lock(m_tunnelsMutex);
 				auto itr = m_tunnels.find(hop.getTunnelId());
 				if(itr != m_tunnels.end()) {
 					TunnelPtr t = itr->second;
@@ -66,8 +68,18 @@ namespace i2pcpp {
 						return;
 					}
 
-					m_participating[hop.getTunnelId()] = std::make_shared<TunnelHop>(hop);
-					auto resp = std::make_shared<BuildResponseRecord>(BuildResponseRecord::SUCCESS);
+					BuildResponseRecordPtr resp;
+
+					if(hop.getType() != TunnelHop::PARTICIPANT) {
+						I2P_LOG(m_log, debug) << "rejecting tunnel participation request: gateways and endpoints not implemented yet";
+
+						resp = std::make_shared<BuildResponseRecord>(BuildResponseRecord::PROBABALISTIC_REJECT);
+					} else {
+						m_participating[hop.getTunnelId()] = std::make_shared<TunnelHop>(hop);
+
+						resp = std::make_shared<BuildResponseRecord>(BuildResponseRecord::SUCCESS);
+					}
+
 					resp->compile();
 
 					r = resp; // Replace the request record with our response
@@ -95,6 +107,31 @@ namespace i2pcpp {
 			std::shared_ptr<I2NP::VariableTunnelBuildReply> vtbr = std::dynamic_pointer_cast<I2NP::VariableTunnelBuildReply>(msg);
 			I2P_LOG(m_log, debug) << "VTBR with " << vtbr->getRecords().size() << " records";
 		}
+	}
+
+	void TunnelManager::receiveData(uint32_t const tunnelId, std::array<unsigned char, 1024> const data)
+	{
+		I2P_LOG(m_log, debug) << "received data for tunnel " << tunnelId;
+
+		auto itr = m_participating.find(tunnelId);
+		if(itr != m_participating.end()) {
+			I2P_LOG(m_log, debug) << "data is for a known tunnel, encrypting and forwarding";
+
+			TunnelHopPtr hop = m_participating[tunnelId];
+
+			SessionKey k1 = hop->getTunnelIVKey();
+			Botan::SymmetricKey ivKey(k1.data(), k1.size());
+
+			SessionKey k2 = hop->getTunnelLayerKey();
+			Botan::SymmetricKey layerKey(k2.data(), k2.size());
+
+			TunnelMessage msg(data);
+			msg.encrypt(ivKey, layerKey);
+
+			I2NP::MessagePtr td(new I2NP::TunnelData(hop->getNextTunnelId(), msg.compile()));
+			m_ctx.getOutMsgDisp().sendMessage(hop->getNextHash(), td);
+		} else
+			I2P_LOG(m_log, debug) << "data is for an unknown tunnel, dropping";
 	}
 
 	void TunnelManager::callback(const boost::system::error_code &e)

@@ -8,15 +8,15 @@ namespace i2pcpp {
 	{
 		switch(m_hop.getType()) {
 			case TunnelHop::GATEWAY:
-				m_flags = ALLOW_FROM_ALL;
+				m_flags[7] = true;
 				break;
 
 			case TunnelHop::ENDPOINT:
-				m_flags = ALLOW_TO_ALL;
+				m_flags[6] = true;
 				break;
 
 			case TunnelHop::PARTICIPANT:
-				m_flags = NONE;
+				m_flags = 0;
 				break;
 		}
 	}
@@ -58,20 +58,13 @@ namespace i2pcpp {
 		copy(dataItr, dataItr + 32, sk.begin()), dataItr += 32;
 		m_hop.setReplyIV(sk);
 
-		m_flags = (Flags)*(dataItr)++;
-		switch(m_flags) {
-			case ALLOW_FROM_ALL:
-				m_hop.setType(TunnelHop::GATEWAY);
-				break;
-
-			case ALLOW_TO_ALL:
-				m_hop.setType(TunnelHop::ENDPOINT);
-				break;
-
-			default:
-				m_hop.setType(TunnelHop::PARTICIPANT);
-				break;
-		}
+		m_flags = *(dataItr)++;
+		if(m_flags[7])
+			m_hop.setType(TunnelHop::GATEWAY);
+		else if(m_flags[6])
+			m_hop.setType(TunnelHop::ENDPOINT);
+		else
+			m_hop.setType(TunnelHop::PARTICIPANT);
 
 		m_requestTime = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
 		m_nextMsgId = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
@@ -109,7 +102,7 @@ namespace i2pcpp {
 		SessionKey replyIV = m_hop.getReplyIV();
 		m_data.insert(m_data.end(), replyIV.cbegin(), replyIV.cbegin() + 16);
 
-		m_data.insert(m_data.end(), m_flags);
+		m_data.insert(m_data.end(), static_cast<unsigned char>(m_flags.to_ulong()));
 
 		m_data.insert(m_data.end(), m_requestTime >> 24);
 		m_data.insert(m_data.end(), m_requestTime >> 16);

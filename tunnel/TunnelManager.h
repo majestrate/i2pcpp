@@ -27,6 +27,7 @@ namespace i2pcpp {
 			void begin();
 			void receiveRecords(std::list<BuildRecordPtr> records);
 			void receiveGatewayData(uint32_t const tunnelId, ByteArray const data);
+			void receiveData(uint32_t const tunnelId, std::array<unsigned char, 1024> const data);
 
 		private:
 			void callback(const boost::system::error_code &e);

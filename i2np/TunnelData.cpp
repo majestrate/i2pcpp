@@ -24,6 +24,9 @@ namespace i2pcpp {
 
 		bool TunnelData::parse(ByteArrayConstItr &begin, ByteArrayConstItr end)
 		{
+			if(end - begin < 4 + 1024)
+				return false;
+
 			m_tunnelId = (*(begin++) << 24) | (*(begin++) << 16) | (*(begin++) << 8) | *(begin++);
 			std::copy(begin, begin + 1024, m_data.begin());
 

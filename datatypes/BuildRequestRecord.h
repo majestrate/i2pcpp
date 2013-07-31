@@ -14,12 +14,6 @@
 namespace i2pcpp {
 	class BuildRequestRecord : public BuildRecord {
 		public:
-			enum Flags {
-				NONE = 0,
-				ALLOW_FROM_ALL = (1 << 7),
-				ALLOW_TO_ALL = (1 << 6),
-			};
-
 			BuildRequestRecord(TunnelHopPtr const &hop);
 			BuildRequestRecord(BuildRecord const &r);
 
@@ -30,7 +24,7 @@ namespace i2pcpp {
 
 		private:
 			TunnelHop m_hop;
-			Flags m_flags;
+			std::bitset<8> m_flags;
 			uint32_t m_requestTime;
 			uint32_t m_nextMsgId;
 	};

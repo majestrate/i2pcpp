@@ -49,6 +49,7 @@ namespace i2pcpp {
 
 		m_ctx.getSignals().registerTunnelRecordsReceived(boost::bind(&TunnelManager::receiveRecords, boost::ref(m_ctx.getTunnelManager()), _1));
 		m_ctx.getSignals().registerTunnelGatewayData(boost::bind(&TunnelManager::receiveGatewayData, boost::ref(m_ctx.getTunnelManager()), _1, _2));
+		m_ctx.getSignals().registerTunnelData(boost::bind(&TunnelManager::receiveData, boost::ref(m_ctx.getTunnelManager()), _1, _2));
 
 		m_ctx.getSearchManager().registerSuccess(boost::bind(&OutboundMessageDispatcher::dhtSuccess, boost::ref(m_ctx.getOutMsgDisp()), _1, _2));
 		m_ctx.getSearchManager().registerFailure(boost::bind(&OutboundMessageDispatcher::dhtFailure, boost::ref(m_ctx.getOutMsgDisp()), _1));
@@ -75,11 +76,11 @@ namespace i2pcpp {
 		RouterAddress a(5, Date(0), "SSU", am);
 
 		Mapping rm;
-		rm.setValue("coreVersion", "0.9.5");
+		rm.setValue("coreVersion", "0.9.7");
 		rm.setValue("netId", "2");
-		rm.setValue("router.version", "0.9.5");
+		rm.setValue("router.version", "0.9.7");
 		rm.setValue("stat_uptime", "90m");
-		rm.setValue("caps", "MR");
+		rm.setValue("caps", "OR");
 		RouterInfo myInfo(m_ctx.getIdentity(), Date(), rm);
 		myInfo.addAddress(a);
 		myInfo.sign(m_ctx.getSigningKey());
