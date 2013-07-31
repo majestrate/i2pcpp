@@ -23,7 +23,7 @@ namespace i2pcpp {
 		{
 			ByteArray b;
 
-			b.insert(b.end(), m_buildRecords.size());
+			b.insert(b.end(),m_buildRecords.size());
 			for(auto& r: m_buildRecords) {
 				const ByteArray recordBytes = r->serialize();
 				b.insert(b.end(), recordBytes.cbegin(), recordBytes.cend());

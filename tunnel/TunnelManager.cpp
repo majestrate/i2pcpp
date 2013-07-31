@@ -14,6 +14,7 @@ namespace i2pcpp {
 	TunnelManager::TunnelManager(boost::asio::io_service &ios, RouterContext &ctx) :
 		m_ios(ios),
 		m_ctx(ctx),
+		m_generator(m_ctx.getDatabase()),
 		m_timer(m_ios, boost::posix_time::time_duration(0, 0, 1)),
 		m_log(boost::log::keywords::channel = "TM") {}
 
@@ -67,7 +68,6 @@ namespace i2pcpp {
 						// reject
 						return;
 					}
-
 					BuildResponseRecordPtr resp;
 
 					if(hop.getType() != TunnelHop::PARTICIPANT) {
@@ -136,19 +136,19 @@ namespace i2pcpp {
 
 	void TunnelManager::callback(const boost::system::error_code &e)
 	{
-		createTunnel();
-
-		/*m_timer.expires_at(m_timer.expires_at() + boost::posix_time::time_duration(0, 0, 10));
-		m_timer.async_wait(boost::bind(&TunnelManager::callback, this, boost::asio::placeholders::error));*/
+		for(auto counter=0; counter < 5; counter++) createTunnel();
+		I2P_LOG(m_log,debug) << m_tunnel_count << " tunnels made";
 	}
 
 	void TunnelManager::createTunnel()
-	{
+	{	
+		
 		I2P_LOG(m_log, debug) << "creating tunnel";
-		std::vector<RouterIdentity> hops = { m_ctx.getDatabase().getRouterInfo("SXnw0C~04DNl~FWY0u1ApL7n-zSc2RIlrnYT6EqoAyU=").getIdentity() };
-		auto t = std::make_shared<OutboundTunnel>(hops, m_ctx.getIdentity().getHash(), 12345);
+		auto hops = m_generator.makeTunnelHops(3);
+		auto t = std::make_shared<InboundTunnel>(hops);
 		m_tunnels[t->getTunnelId()] = t;
 		I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(t->getRecords()));
 		m_ctx.getOutMsgDisp().sendMessage(t->getDownstream(), vtb);
+		m_tunnel_count ++;
 	}
 }

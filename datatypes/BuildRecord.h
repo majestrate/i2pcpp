@@ -27,6 +27,8 @@ namespace i2pcpp {
 			void setHeader(const std::array<unsigned char, 16> &header);
 			const std::array<unsigned char, 16>& getHeader() const;
 
+			const BuildRecord & operator=(BuildRecord & inst);
+
 		protected:
 			std::array<unsigned char, 16> m_header;
 			ByteArray m_data;

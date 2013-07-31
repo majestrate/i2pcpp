@@ -28,7 +28,7 @@ namespace i2pcpp {
 
 		void PacketHandler::handlePacket(PacketPtr const &packet, PeerStatePtr const &state)
 		{
-			I2P_LOG_SCOPED_TAG(m_log, "PS");
+			I2P_LOG_SCOPED_TAG(m_log, "HP_PS");
 
 			if(!packet->verify(state->getCurrentMacKey())) {
 				I2P_LOG(m_log, error) << "packet verification failed";
@@ -59,7 +59,7 @@ namespace i2pcpp {
 
 		void PacketHandler::handlePacket(PacketPtr const &packet, EstablishmentStatePtr const &state)
 		{
-			I2P_LOG_SCOPED_TAG(m_log, "EM");
+			I2P_LOG_SCOPED_TAG(m_log, "HP_EM");
 
 			if(!packet->verify(state->getMacKey())) {
 				I2P_LOG(m_log, error) << "packet verification failed";
@@ -97,7 +97,7 @@ namespace i2pcpp {
 
 		void PacketHandler::handlePacket(PacketPtr &p)
 		{
-			I2P_LOG_SCOPED_TAG(m_log, "N");
+			I2P_LOG_SCOPED_TAG(m_log, "HP_P");
 
 			Endpoint ep = p->getEndpoint();
 
@@ -150,15 +150,20 @@ namespace i2pcpp {
 
 		void PacketHandler::handleSessionCreated(ByteArrayConstItr &begin, ByteArrayConstItr end, EstablishmentStatePtr const &state)
 		{
-			if(state->getState() != EstablishmentState::REQUEST_SENT)
-				return;
 
+			I2P_LOG_SCOPED_TAG(m_log,"SCr");
+			if(state->getState() != EstablishmentState::REQUEST_SENT) {
+				I2P_LOG(m_log,warning) << "invalid state: " << state->getState();
+				return;
+			}
 			state->setTheirDH(begin, begin + 256), begin += 256;
 
 			unsigned char ipSize = *(begin++);
 
-			if(ipSize != 4 && ipSize != 16)
+			if(ipSize != 4 && ipSize != 16) {
+				I2P_LOG(m_log,warning) << "invalid ip address size: " << ipSize;
 				return;
+			}
 
 			ByteArray ip(begin, begin + ipSize);
 			begin += ipSize;
@@ -180,8 +185,11 @@ namespace i2pcpp {
 
 		void PacketHandler::handleSessionConfirmed(ByteArrayConstItr &begin, ByteArrayConstItr end, EstablishmentStatePtr const &state)
 		{
-			if(state->getState() != EstablishmentState::CREATED_SENT)
+			if(state->getState() != EstablishmentState::CREATED_SENT) {
+				I2P_LOG_SCOPED_TAG(m_log,"SCf");
+				I2P_LOG(m_log,warning) << "invalid state: " << state->getState();
 				return;
+			}
 
 			unsigned char info = *(begin++);
 			uint16_t size = (((*(begin++)) << 8) | (*(begin++)));

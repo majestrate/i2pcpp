@@ -16,8 +16,8 @@
 #include "InboundMessageDispatcher.h"
 #include "OutboundMessageDispatcher.h"
 #include "Signals.h"
-#include "ProfileManager.h"
-#include "PeerManager.h"
+#include "CachingProfileManager.h"
+#include "ChiPeerManager.h"
 #include "Log.h"
 
 namespace i2pcpp {
@@ -51,7 +51,7 @@ namespace i2pcpp {
 			Database m_db;
 
 			TunnelManager m_tunnelManager;
-			ProfileManager m_profileManager;
+			CachingProfileManager m_profileManager;
 			PeerManager m_peerManager;
 
 			InboundMessageDispatcher m_inMsgDispatcher;

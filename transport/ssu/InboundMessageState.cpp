@@ -1,4 +1,5 @@
 #include "InboundMessageState.h"
+#include "../../exceptions/SSUException.h"
 
 namespace i2pcpp {
 	namespace SSU {
@@ -8,11 +9,16 @@ namespace i2pcpp {
 
 		void InboundMessageState::addFragment(const uint8_t fragNum, ByteArray const &data, bool isLast)
 		{
-			if(m_gotLast && fragNum > m_lastFragment)
-				return; // TODO Exception -- trying to give us a fragment greater than last
+			if(m_gotLast && fragNum > m_lastFragment) {
+				throw SSUException("peer gave fragment greater than last",m_routerHash);
+				// return; // TODO Exception -- trying to give us a fragment greater than last
+			}
 
-			if(fragNum < m_fragments.size() && m_fragments[fragNum])
-				return; // TODO Exception -- already got thsi fragment
+			if(fragNum < m_fragments.size() && m_fragments[fragNum]) {
+				throw SSUException("already got fragment",m_routerHash);
+				// return; // TODO Exception -- already got thsi fragment
+			}
+
 
 			if(isLast) {
 				m_gotLast = true;

@@ -50,7 +50,8 @@ namespace i2pcpp {
 						m_ios.run();
 						break;
 					} catch(std::exception &e) {
-						I2P_LOG(m_log, error) << "exception thrown: " << e.what();
+						I2P_LOG_SCOPED_EP(m_log,ep);
+						I2P_LOG(m_log, error) << "UDPTransport::start() exception thrown: " << e.what();
 					}
 				}
 			});
@@ -62,46 +63,54 @@ namespace i2pcpp {
 
 	void UDPTransport::connect(RouterInfo const &ri)
 	{
+		if (!ri.verify()) {
+			I2P_LOG_SCOPED_RH(m_log, ri.getIdentity().getHash());
+			I2P_LOG(m_log,warning) << "Invalid Router Identity";
+			return;
+		}
 		try {
+			bool sent = false;
 			for(auto a: ri) {
 				if(a.getTransport() == "SSU") {
+
+					if ( ! a.verify() )	continue;
+				 
 					const Mapping& m = a.getOptions();
-
-					// Skip if the host and port are not valid. TODO Is this the best way?
-					if(!m.getValue("host").size() || !m.getValue("port").size())
-						continue;
-
+					
 					Endpoint ep(m.getValue("host"), stoi(m.getValue("port")));
+					
 					RouterIdentity id = ri.getIdentity();
-
+						
 					if(m_establishmentManager.stateExists(ep) || m_peers.remotePeerExists(ep))
 						return;
-
+						
 					m_establishmentManager.createState(ep, id);
 
 					I2P_LOG_SCOPED_EP(m_log, ep);
-					I2P_LOG_SCOPED_RH(m_log, id.getHash());
+					I2P_LOG_SCOPED_RH(m_log, id.getHash());										
+			
 					I2P_LOG(m_log, debug) << "attempting to establish session";
-
 					break;
 				}
+				
 			}
 		} catch(std::exception &e) {
 			I2P_LOG_SCOPED_TAG(m_log, "channel");
-			I2P_LOG(m_log, error) << "exception thrown: " << e.what();
+			I2P_LOG(m_log, error) << "UDPTransport::connect() " << ri.getIdentity().getHash() << " exception thrown: " << e.what();
 		}
 	}
 
 	void UDPTransport::send(RouterHash const &rh, ByteArray const &data)
 	{
-		using namespace SSU;
-
-		PeerStatePtr ps = m_peers.getRemotePeer(rh);
+		auto ps = m_peers.getRemotePeer(rh);
 
 		if(ps) {
 			m_omf.sendData(ps, data);
 		} else {
-			// TODO Exception
+			I2P_LOG_SCOPED_RH(m_log, rh);
+			I2P_LOG_SCOPED_EP(m_log, ps->getEndpoint());
+			I2P_LOG(m_log,warning) << "failed to send " << data.size() << " bytes, peer state was null";
+			// TODO: exception
 		}
 	}
 
@@ -176,7 +185,7 @@ namespace i2pcpp {
 						)
 					);
 		} else {
-			I2P_LOG(m_log, debug) << "error: " << e.message();
+			I2P_LOG(m_log, warning) << "UPDTransport::dataRecieved() : " << e.message() << " [ " << n << " bytes ]"; 
 		}
 	}
 

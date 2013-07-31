@@ -2,6 +2,8 @@ project(i2pcpp CXX C)
 cmake_minimum_required(VERSION 2.8.9)
 
 set(SRCS
+	ChiPeerManager.cpp
+	CachingProfileManager.cpp
 	Database.cpp
 	InboundMessageDispatcher.cpp
 	Log.cpp
@@ -31,6 +33,7 @@ set(SRCS
 	dht/SearchState.cpp
 	exceptions/FormattingError.cpp
 	exceptions/RecordNotFound.cpp
+	exceptions/SSUException.cpp
 	exceptions/SQLError.cpp
 	exceptions/StatementPrepareError.cpp
 	handlers/DatabaseSearchReply.cpp
@@ -69,6 +72,7 @@ set(SRCS
 	tunnel/TunnelHop.cpp
 	tunnel/TunnelManager.cpp
 	tunnel/TunnelMessage.cpp
+	tunnel/TunnelGenerator.cpp
 	util/Base64.cpp
 	util/I2PDH.cpp
 	util/I2PHMAC.cpp
@@ -179,31 +183,37 @@ target_link_libraries(i2p ${Boost_LIBRARIES} )
 add_definitions(-DBOOST_ALL_DYN_LINK)
 
 # Googletest
-find_path(GTEST_INCLUDE_DIR gtest/gtest.h PATHS "${GTEST_INCLUDE_PREFIX}" NO_DEFAULT_PATH)
-find_library(GTEST_LIBRARY_PATH gtest PATHS "${GTEST_LIBRARY_PREFIX}" NO_DEFAULT_PATH)
-find_library(GTEST_MAIN_LIBRARY_PATH gtest_main PATHS "${GTEST_LIBRARY_PREFIX}" NO_DEFAULT_PATH)
-
-if(GTEST_LIBRARY_PATH AND GTEST_INCLUDE_DIR)
-	message(STATUS "Found gtest: ${GTEST_LIBRARY_PATH}")
-
+if( "${SKIP_TEST}" STREQUAL "YES" )
+	message(STATUS "Skipping Tests")
+else( "${SKIP_TEST}" STREQUAL "YES" )
+	message(STATUS "Will Build Tests")
 	enable_testing()
+	find_package(GTest REQUIRED)
+	#find_path(GTEST_INCLUDE_DIR gtest/gtest.h PATHS "${GTEST_INCLUDE_PREFIX}" NO_DEFAULT_PATH)
+	#find_library(GTEST_LIBRARY_PATH gtest PATHS "${GTEST_LIBRARY_PREFIX}" NO_DEFAULT_PATH)
+	#find_library(GTEST_MAIN_LIBRARY_PATH gtest_main PATHS "${GTEST_LIBRARY_PREFIX}" NO_DEFAULT_PATH)
+	
+	#if(GTEST_LIBRARY_PATH AND GTEST_INCLUDE_DIR)
+	if(GTEST_FOUND)
 
-	find_package(Threads)
-	include_directories("${GTEST_INCLUDE_DIR}")
-	set(GTEST_LINK_STUFF "${GTEST_LIBRARY_PATH}" "${GTEST_MAIN_LIBRARY_PATH}" "${CMAKE_THREAD_LIBS_INIT}" "${Boost_LIBRARIES}" "${BOTAN_LIBRARY_PATH}")
+		find_package(Threads)
+		include_directories("${GTEST_INCLUDE_DIRS}")
+		set(GTEST_LINK_STUFF "${GTEST_LIBRARIES}" "${GTEST_MAIN_LIBRARIES}" "${CMAKE_THREAD_LIBS_INIT}" "${Boost_LIBRARIES}" "${BOTAN_LIBRARY_PATH}")
+		
+		add_executable(testi2p ${TEST_SRCS})
+		target_link_libraries(testi2p ${GTEST_LINK_STUFF})
+		add_test(
+			NAME testi2p
+			COMMAND testi2p
+			)
+	else(GTEST_FOUND)
+		message(STATUS "Google Testing Framework not found... not building tests")
+	endif(GTEST_FOUND)
 
-	add_executable(testi2p ${TEST_SRCS})
-	target_link_libraries(testi2p ${GTEST_LINK_STUFF})
-	add_test(
-		NAME testi2p
-		COMMAND testi2p
-		)
-else(GTEST_LIBRARY_PATH AND GTEST_INCLUDE_DIR)
-	message(STATUS "Google Testing Framework not found... not building tests")
-endif(GTEST_LIBRARY_PATH AND GTEST_INCLUDE_DIR)
+endif( "${SKIP_TEST}" STREQUAL "YES" )
 
 ADD_CUSTOM_COMMAND(
-  TARGET i2py
+  TARGET i2p
   POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy ${i2pcpp_SOURCE_DIR}/py/i2pinit.py i2pinit.py
   )

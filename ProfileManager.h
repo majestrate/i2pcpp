@@ -4,6 +4,7 @@
 #include "datatypes/RouterInfo.h"
 
 namespace i2pcpp {
+
 	class RouterContext;
 
 	class ProfileManager {
@@ -12,9 +13,10 @@ namespace i2pcpp {
 			ProfileManager(const ProfileManager &) = delete;
 			ProfileManager& operator=(ProfileManager &) = delete;
 
-			const RouterInfo getPeer();
+			virtual RouterInfo getPeer();
+			virtual void expungePeer(RouterHash const & rh);
 
-		private:
+		protected:
 			RouterContext& m_ctx;
 	};
 }

@@ -149,29 +149,40 @@ namespace i2pcpp {
 		sqlite3_finalize(statement);
 	}
 
-	RouterHash Database::getRandomRouter()
+	std::vector<RouterHash> Database::getRandomRouters(int count)
 	{
 		std::lock_guard<std::mutex> lock(m_mutex);
 
-		//const std::string select = "SELECT router_id FROM router_options WHERE router_options.name='caps' AND router_options.value LIKE '%f%' ORDER BY RANDOM() LIMIT 1";
-		const std::string select = "SELECT id FROM routers ORDER BY RANDOM() LIMIT 1";
+		// const std::string select = "SELECT router_id FROM router_options WHERE router_options.name='caps' AND router_options.value LIKE '%f%' ORDER BY RANDOM() LIMIT 1";
+		
+		std::vector<RouterHash> ret;
+
+		const std::string select = "SELECT router_id FROM router_options ORDER BY RANDOM() LIMIT "+std::to_string(count);
 		sqlite3_stmt *statement;
 
 		if(sqlite3_prepare_v2(m_db, select.c_str(), -1, &statement, NULL) != SQLITE_OK) throw StatementPrepareError();
+		while( int rc = sqlite3_step(statement) ) {
+			if(rc == SQLITE_ROW) {
+				unsigned char *bytes = (unsigned char *)sqlite3_column_blob(statement, 0);
+				int size = sqlite3_column_bytes(statement, 0);
+				RouterHash rh;
+				std::copy(bytes, bytes + size, rh.begin());
+				
+			// sqlite3_finalize(statement);
+				ret.push_back(rh);
+			} else {
+				break;
+				// throw RecordNotFound("random floodfill");
+			}
 
-		int rc = sqlite3_step(statement);
-		if(rc == SQLITE_ROW) {
-			unsigned char *bytes = (unsigned char *)sqlite3_column_blob(statement, 0);
-			int size = sqlite3_column_bytes(statement, 0);
-			RouterHash rh;
-			std::copy(bytes, bytes + size, rh.begin());
-
-			sqlite3_finalize(statement);
-			return rh;
-		} else {
-			sqlite3_finalize(statement);
-			throw RecordNotFound("random router");
 		}
+		sqlite3_finalize(statement);
+		return ret;
+	}
+
+	RouterHash Database::getRandomRouter()
+	{
+		return getRandomRouters(1)[0];
 	}
 
 	bool Database::routerExists(RouterHash const &routerHash)
@@ -467,14 +478,18 @@ namespace i2pcpp {
 
 		sqlite3_exec(m_db, "BEGIN TRANSACTION", NULL, NULL, NULL);
 
-		for(auto r: routers)
-			setRouterInfo(r, false);
-
+		for(auto r: routers) {
+			if (r.verify()) {
+				setRouterInfo(r, false);
+			}
+		}
+		
 		sqlite3_exec(m_db, "COMMIT TRANSACTION", NULL, NULL, NULL);
 	}
 
 	void Database::setRouterInfo(RouterInfo const &info, bool transaction)
 	{
+
 		sqlite3_stmt *statement;
 
 		try {
@@ -564,6 +579,21 @@ namespace i2pcpp {
 			m_mutex.unlock();
 			throw;
 		}
+	}
+
+	uint32_t Database::countAllHashes()
+	{
+		std::lock_guard<std::mutex> lock(m_mutex);
+		uint32_t ret = 0;
+		const std::string select = "SELECT count(id) FROM routers";
+		sqlite3_stmt * statement;
+		if(sqlite3_prepare_v2(m_db, select.c_str(), -1, &statement, NULL) != SQLITE_OK) throw StatementPrepareError();
+		
+		if(sqlite3_step(statement) == SQLITE_ROW) {
+			ret = sqlite3_column_int(statement, 0);
+		}
+		sqlite3_finalize(statement);
+		return ret;
 	}
 
 	std::forward_list<RouterHash> Database::getAllHashes()

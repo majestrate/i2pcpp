@@ -158,8 +158,8 @@ int main(int argc, char **argv)
 
 					ByteArray info = ByteArray((istreambuf_iterator<char>(f)), istreambuf_iterator<char>());
 					f.close();
-					I2P_LOG(lg, debug) << "importing " << itr->path().string();
 					auto begin = info.cbegin();
+
 					auto ri = RouterInfo(begin, info.cend());
 
 					if(ri.verifySignature())
@@ -179,7 +179,7 @@ int main(int argc, char **argv)
 			}
 
 			r.importRouter(routers);
-			I2P_LOG(lg, info) << "successfully imported " << routers.size() << " routers";
+			I2P_LOG(lg, info) << "Import done. We have " << r.hashCount() << " valid router hashes";
 
 			return EXIT_SUCCESS;
 		}

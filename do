@@ -63,11 +63,13 @@ _build_botan() # build patched botan
 _build_gtest() # build gtest
 {
 		echo "Building GTest..."
-		cd $1
-		./configure --prefix=$2 && make -j$jobs 
+		mkdir -p $1/build
+		cd $1/build
+		cmake $1
+		make -j$jobs
 		cd -
 		echo "Installing GTest"
-		cp -a $1/libs/libgtest_main.la $2/lib
+		cp -a $1/build/lib*.a $2
 }
 
 _build_boost() # build boost with boost-log
@@ -105,15 +107,15 @@ _deps() # grab/build all dependancies
 				echo "`date`" > $base/sqlite3-built
 		fi
 
-		#if [ ! -d $base/gtest ]; then
-		#		get_url https://googletest.googlecode.com/files/gtest-1.6.0.zip $base/gtest.zip
-		#		_e $base/gtest.zip $base/gtest
-		#fi
+		if [ ! -d $prefix/gtest ]; then
+				get_url https://googletest.googlecode.com/files/gtest-1.6.0.zip $base/gtest.zip
+				_e $base/gtest.zip $prefix/gtest
+		fi
 		
-		#if [ ! -e $base/gtest-built ]; then
-		#		_build_gtest $base/gtest $prefix
-		#		echo "`date`" > $base/gtest-built
-		#fi
+		if [ ! -e $base/gtest-built ]; then
+				_build_gtest $prefix/gtest $prefix 
+				echo "`date`" > $base/gtest-built
+		fi
     
 		if [ ! -d $base/botan ]; then
 				get_url http://files.randombit.net/botan/v1.11/Botan-1.11.3.tbz $base/botan.tar.bz2
@@ -149,9 +151,9 @@ _build_i2p() # build i2p itself
     base="$1"
     build="$2"
     prefix="$3"
-		echo "Removing Last build..."
-    rm -rf $build
-    mkdir $build
+		#echo "Removing Last build..."
+    #rm -rf $build
+    mkdir -p $build
     cmake="`which cmake`"
     echo "Building I2P..."
     cd $build
@@ -161,6 +163,11 @@ _build_i2p() # build i2p itself
 				-DBOTAN_INCLUDE_DIR=$prefix/include/botan-1.11/ \
 				-DBOTAN_LIBRARY_PREFIX=$prefix/lib/ \
 				-DBOOST_ROOT=$prefix/boost/ \
+				-DGTEST_ROOT=$prefix/gtest/ \
+				-DGTEST_LIBRARY=$prefix/libgtest.a \
+				-DGTEST_MAIN_LIBRARY=$prefix/libgtest_main.a \
+				-DCMAKE_CXX_COMPILER=$CXX \
+				-DCMAKE_BUILD_TYPE="Debug" \
 				$base
     make -j$jobs
 }
@@ -177,14 +184,17 @@ _ensure_gcc() # make sure we have g++
 
 runit() # run the damn thing :3
 {
+		if [ "`which cmake`" == "" ]; then
+				echo "No Cmake?"
+				exit 1
+		fi
     base=$PWD
-    build="`readlink -f $base/build`"
+		build_base=$2
+    build="`readlink -f $build_base/build`"
     mkdir -p $build
 
     prefix=$build/prefix
     mkdir -p $prefix
-
-    _ensure_gcc
 
     export CC="`which cc`"
     export CXX="`which c++`"
@@ -194,6 +204,10 @@ runit() # run the damn thing :3
     
 		_deps $base $build $prefix
     _build_i2p $base $build/i2p $prefix
+		echo "`cat $base/README.CHI.TXT`"
 }
 
-runit 4
+# run with 4 jobs
+runit 8 $PWD
+
+

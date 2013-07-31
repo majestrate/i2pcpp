@@ -20,7 +20,8 @@ namespace i2pcpp {
 
 			void start();
 			void stop();
-
+			
+			uint32_t hashCount();
 			ByteArray getRouterInfo();
 			void importRouter(RouterInfo const &router);
 			void importRouter(std::vector<RouterInfo> const &routers);

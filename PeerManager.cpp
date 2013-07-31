@@ -41,7 +41,7 @@ namespace i2pcpp {
 			int32_t gap = maxPeers - numPeers;
 			for(int32_t i = 0; i < gap; i++)
 				m_ctx.getOutMsgDisp().getTransport()->connect(m_ctx.getProfileManager().getPeer());
-
+			
 		} catch(std::exception &e) {
 				I2P_LOG(m_log, error) << "exception in PeerManager: " << e.what();
 		}

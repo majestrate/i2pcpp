@@ -1,5 +1,7 @@
+build_win32/
 *~
 \#*
+.\#*
 .\*
 *.pyc
 build/

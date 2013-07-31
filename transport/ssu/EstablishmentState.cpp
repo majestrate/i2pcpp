@@ -39,6 +39,16 @@ namespace i2pcpp {
 		{
 			return m_direction;
 		}
+		
+		uint32_t EstablishmentState::triesLeft()
+		{
+			return EstablishmentState::maxTimeoutRetries - m_retries;
+		}
+
+		bool EstablishmentState::retryConnect() 
+		{
+			return (++m_retries) < EstablishmentState::maxTimeoutRetries;
+		}
 
 		EstablishmentState::State EstablishmentState::getState() const
 		{
@@ -209,6 +219,7 @@ namespace i2pcpp {
 			sigPipe.write(m_theirDH.data(), m_theirDH.size());
 
 			const ByteArray myIP = m_myEndpoint.getRawIP();
+
 			unsigned short myPort =  m_myEndpoint.getPort();
 			sigPipe.write(myIP.data(), myIP.size());
 			sigPipe.write(myPort >> 8);
