@@ -32,7 +32,7 @@ namespace i2pcpp {
 
 			m_inboundMessageStates[msgId] = ims;
 
-			std::shared_ptr<boost::asio::deadline_timer> timer(new boost::asio::deadline_timer(m_ios, boost::posix_time::time_duration(0, 0, 10)));
+			std::shared_ptr<boost::asio::deadline_timer> timer(new boost::asio::deadline_timer(m_ios, boost::posix_time::time_duration(0, 0, 30)));
 			timer->async_wait(boost::bind(&PeerState::inboundTimerCallback, this, boost::asio::placeholders::error, msgId));
 
 			m_inboundTimers[msgId] = timer;
@@ -66,11 +66,15 @@ namespace i2pcpp {
 		void PeerState::inboundTimerCallback(const boost::system::error_code& e, const uint32_t msgId)
 		{
 			std::lock_guard<std::mutex> lock(m_mutex);
-
-			if(!e) {
+			if(!e) {		
 				I2P_LOG(m_log, debug) << "removing IMS due to timeout";
 				m_inboundMessageStates.erase(msgId);
 				m_inboundTimers.erase(msgId);
+			} else if (e != boost::system::errc::operation_canceled ){
+
+				// handle ?
+			 
+				I2P_LOG(m_log, debug) << "IBT callback error: " << e.message();
 			}
 		}
 
@@ -91,7 +95,7 @@ namespace i2pcpp {
 
 			m_outboundMessageStates[msgId] = oms;
 
-			std::shared_ptr<boost::asio::deadline_timer> timer(new boost::asio::deadline_timer(m_ios, boost::posix_time::time_duration(0, 0, 10)));
+			std::shared_ptr<boost::asio::deadline_timer> timer(new boost::asio::deadline_timer(m_ios, boost::posix_time::time_duration(0, 0, 30)));
 			timer->async_wait(boost::bind(&PeerState::outboundTimerCallback, this, boost::asio::placeholders::error, msgId));
 
 			m_outboundTimers[msgId] = timer;
@@ -117,6 +121,10 @@ namespace i2pcpp {
 				I2P_LOG(m_log, debug) << "removing OMS due to timeout";
 				m_outboundMessageStates.erase(msgId);
 				m_outboundTimers.erase(msgId);
+			} else if ( e != boost::system::errc::operation_canceled ) {
+				// handle ?
+			 
+				I2P_LOG(m_log, debug) << "OBT callback error: " << e.message();
 			}
 		}
 

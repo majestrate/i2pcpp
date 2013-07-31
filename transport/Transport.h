@@ -14,6 +14,7 @@ namespace i2pcpp {
 			typedef boost::signals2::signal<void(const RouterHash, const ByteArray)> ReceivedSignal;
 			typedef boost::signals2::signal<void(const RouterHash)> FailureSignal;
 			typedef boost::signals2::signal<void(const RouterHash)> DisconnectedSignal;
+			typedef boost::signals2::signal<void(const RouterInfo)> TimeoutSignal;
 
 			Transport();
 			Transport(const Transport &) = delete;
@@ -30,12 +31,14 @@ namespace i2pcpp {
 			boost::signals2::connection registerReceivedHandler(ReceivedSignal::slot_type const &rh);
 			boost::signals2::connection registerFailureSignal(FailureSignal::slot_type const &fs);
 			boost::signals2::connection registerDisconnectedSignal(DisconnectedSignal::slot_type const &ds);
-
+			boost::signals2::connection registerTimeoutSignal(TimeoutSignal::slot_type const &ts);
+			
 		protected:
 			EstablishedSignal m_establishedSignal;
 			ReceivedSignal m_receivedSignal;
 			FailureSignal m_failureSignal;
 			DisconnectedSignal m_disconnectedSignal;
+			TimeoutSignal m_timeoutSignal;
 	};
 
 	typedef std::shared_ptr<Transport> TransportPtr;

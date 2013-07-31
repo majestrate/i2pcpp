@@ -21,10 +21,10 @@ namespace i2pcpp {
 			auto es = std::make_shared<EstablishmentState>(m_privKey, m_identity, ep);
 			m_stateTable[ep] = es;
 
-			std::shared_ptr<boost::asio::deadline_timer> timer(new boost::asio::deadline_timer(m_transport.m_ios, boost::posix_time::time_duration(0, 0, 10)));
+			/*			std::shared_ptr<boost::asio::deadline_timer> timer(new boost::asio::deadline_timer(m_transport.m_ios, boost::posix_time::time_duration(0, 0, 10)));
 			timer->async_wait(boost::bind(&EstablishmentManager::timeoutCallback, this, boost::asio::placeholders::error, es));
 			m_stateTimers[ep] = timer;
-
+			*/
 			return es;
 		}
 
@@ -36,10 +36,11 @@ namespace i2pcpp {
 			m_stateTable[ep] = es;
 
 			sendRequest(es);
-
+			/*
 			std::shared_ptr<boost::asio::deadline_timer> timer(new boost::asio::deadline_timer(m_transport.m_ios, boost::posix_time::time_duration(0, 0, 10)));
-			timer->async_wait(boost::bind(&EstablishmentManager::timeoutCallback, this, boost::asio::placeholders::error, es));
+			timer->async_wait(boost::bind(&EstablishmentManager::timeoutCallback, this, boost::asio::placeholders::error, es)); 
 			m_stateTimers[ep] = timer;
+			*/
 		}
 
 		bool EstablishmentManager::stateExists(Endpoint const &ep) const
@@ -91,10 +92,18 @@ namespace i2pcpp {
 					I2P_LOG(m_log, debug) << "received session confirmed";
 					processConfirmed(es);
 					break;
-
+			case EstablishmentState::TIMEOUT:
+				if (es->retryConnect()) {
+					I2P_LOG(m_log, debug) << "connection timeout, retrying " << es->triesLeft();
+					sendRequest(es);
+					break;
+				} else {
+					es->setState(EstablishmentState::FAILURE);
+				}
+				// fall through
 				case EstablishmentState::UNKNOWN:
 				case EstablishmentState::FAILURE:
-					I2P_LOG(m_log, error) << "establishment failed";
+					I2P_LOG(m_log, debug) << "establishment failed";
 					m_transport.post(boost::bind(boost::ref(m_transport.m_failureSignal), es->getTheirIdentity().getHash()));
 					delState(ep);
 					break;
@@ -133,7 +142,7 @@ namespace i2pcpp {
 				I2P_LOG_SCOPED_EP(m_log, es->getTheirEndpoint());
 				I2P_LOG(m_log, debug) << "establishment timed out";
 
-				es->setState(EstablishmentState::FAILURE);
+				es->setState(EstablishmentState::TIMEOUT);
 				post(es);
 			}
 		}
@@ -144,9 +153,14 @@ namespace i2pcpp {
 			p->encrypt(state->getSessionKey(), state->getMacKey());
 
 			m_transport.sendPacket(p);
-
-			state->setState(EstablishmentState::REQUEST_SENT);
+			auto ep = state->getTheirEndpoint();
+			std::shared_ptr<boost::asio::deadline_timer> timer(new boost::asio::deadline_timer(m_transport.m_ios, boost::posix_time::time_duration(0, 0, 10)));
+			timer->async_wait(boost::bind(&EstablishmentManager::timeoutCallback, this, boost::asio::placeholders::error, state));
+			m_stateTimers[ep] = timer;
+ 
+ 			state->setState(EstablishmentState::REQUEST_SENT);
 			post(state);
+
 		}
 
 		void EstablishmentManager::processRequest(EstablishmentStatePtr const &state)

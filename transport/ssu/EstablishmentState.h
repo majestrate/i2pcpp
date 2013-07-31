@@ -21,6 +21,7 @@ namespace i2pcpp {
 				EstablishmentState(EstablishmentState const &state) = delete;
 				~EstablishmentState();
 
+				static const uint8_t maxTimeoutRetries = 5;
 				enum Direction {
 					INBOUND,
 					OUTBOUND
@@ -34,10 +35,14 @@ namespace i2pcpp {
 					CREATED_RECEIVED,
 					CONFIRMED_SENT,
 					CONFIRMED_RECEIVED,
-					FAILURE
+					FAILURE,
+					TIMEOUT
 				};
 
 				Direction getDirection() const;
+
+				uint32_t triesLeft();
+				bool retryConnect();
 
 				State getState() const;
 				void setState(State state);
@@ -98,6 +103,7 @@ namespace i2pcpp {
 				uint32_t m_relayTag;
 				uint32_t m_signatureTimestamp;
 				ByteArray m_signature;
+				uint8_t m_retries;
 		};
 
 		typedef std::shared_ptr<EstablishmentState> EstablishmentStatePtr;

@@ -208,6 +208,6 @@ runit() # run the damn thing :3
 }
 
 # run with 4 jobs
-runit 4 $PWD
+runit 8 $PWD
 
 

@@ -33,6 +33,7 @@ set(SRCS
 	dht/SearchState.cpp
 	exceptions/FormattingError.cpp
 	exceptions/RecordNotFound.cpp
+	exceptions/SSUException.cpp
 	exceptions/SQLError.cpp
 	exceptions/StatementPrepareError.cpp
 	handlers/DatabaseSearchReply.cpp
