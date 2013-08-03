@@ -56,14 +56,13 @@ namespace i2pcpp {
 						I2P_LOG(m_log, debug) << "tunnel is operational";
 					} else {
 						I2P_LOG(m_log, debug) << "failed to build tunnel";
-
 						m_tunnels.erase(itr);
 					}
 				} else {
 					I2P_LOG(m_log, debug) << "did not find Tunnel with matching Tunnel ID (participation request)";
 
 					std::lock_guard<std::mutex> lock(m_participatingMutex);
-					if(m_participating.count(hop.getTunnelId()) > 0) {
+					if(m_participating.count(hop.getTunnelId()) > 0 ) {
 						I2P_LOG(m_log, debug) << "rejecting tunnel participation request: tunnel ID in use";
 						// reject
 						return;
@@ -76,7 +75,6 @@ namespace i2pcpp {
 						resp = std::make_shared<BuildResponseRecord>(BuildResponseRecord::PROBABALISTIC_REJECT);
 					} else {
 						m_participating[hop.getTunnelId()] = std::make_shared<TunnelHop>(hop);
-
 						resp = std::make_shared<BuildResponseRecord>(BuildResponseRecord::SUCCESS);
 					}
 
@@ -117,7 +115,7 @@ namespace i2pcpp {
 		if(itr != m_participating.end()) {
 			I2P_LOG(m_log, debug) << "data is for a known tunnel, encrypting and forwarding";
 
-			TunnelHopPtr hop = m_participating[tunnelId];
+			TunnelHopPtr hop = itr->second;
 
 			SessionKey k1 = hop->getTunnelIVKey();
 			Botan::SymmetricKey ivKey(k1.data(), k1.size());
@@ -136,19 +134,38 @@ namespace i2pcpp {
 
 	void TunnelManager::callback(const boost::system::error_code &e)
 	{
-		for(auto counter=0; counter < 5; counter++) createTunnel();
+		expireTunnels();
+		for(auto counter=0; counter < 5; counter++) createTunnel(m_generator.makeTunnelHops(3));
 		I2P_LOG(m_log,debug) << m_tunnel_count << " tunnels made";
+		m_timer.expires_at(m_timer.expires_at() + boost::posix_time::time_duration(0, 0, 5));
+		m_timer.async_wait(boost::bind(&TunnelManager::callback, this, boost::asio::placeholders::error));
 	}
 
-	void TunnelManager::createTunnel()
+	void TunnelManager::expireTunnels()
+	{
+		std::vector<uint32_t> tuns;
+		for(auto & tunnel : m_tunnels) {
+			auto t = tunnel.second;
+			if (t->hasExpired()) tuns.push_back(t->getTunnelId());
+		}
+		for ( auto tid : tuns ) destroyTunnel(tid);
+	}
+
+	void TunnelManager::createTunnel(std::vector<RouterIdentity> const & hops)
 	{	
-		
+		std::lock_guard<std::mutex> lock(m_tunnelsMutex);
 		I2P_LOG(m_log, debug) << "creating tunnel";
-		auto hops = m_generator.makeTunnelHops(3);
 		auto t = std::make_shared<InboundTunnel>(hops);
 		m_tunnels[t->getTunnelId()] = t;
 		I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(t->getRecords()));
 		m_ctx.getOutMsgDisp().sendMessage(t->getDownstream(), vtb);
 		m_tunnel_count ++;
+	}
+
+	void TunnelManager::destroyTunnel(uint32_t const tunnelId)
+	{
+		std::lock_guard<std::mutex> lock0(m_tunnelsMutex);
+		I2P_LOG(m_log,debug) << "Destroy tunnel with id " << tunnelId;
+		m_tunnels.erase(m_tunnels.find(tunnelId));
 	}
 }

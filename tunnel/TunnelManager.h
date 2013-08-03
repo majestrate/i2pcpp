@@ -2,11 +2,13 @@
 #define TUNNELMANAGER_H
 
 #include <mutex>
-#include <unordered_map>
 #include <bitset>
+#include <vector>
 
 #include <boost/asio.hpp>
+#include <boost/unordered_map.hpp>
 
+//#include "../util/ConcurrentMap.h"
 #include "../datatypes/BuildRecord.h"
 #include "../datatypes/BuildRequestRecord.h"
 #include "../datatypes/BuildResponseRecord.h"
@@ -30,17 +32,20 @@ namespace i2pcpp {
 			void receiveRecords(std::list<BuildRecordPtr> records);
 			void receiveGatewayData(uint32_t const tunnelId, ByteArray const data);
 			void receiveData(uint32_t const tunnelId, std::array<unsigned char, 1024> const data);
+			void createTunnel(std::vector<RouterIdentity> const & hops);
+			void destroyTunnel(uint32_t const tunnelId);
 
 		private:
 			void callback(const boost::system::error_code &e);
-			void createTunnel();
+			void expireTunnels();
 
 			boost::asio::io_service &m_ios;
 			RouterContext &m_ctx;
+		
+			std::vector<uint32_t> m_tunnelIds;
 
-			std::unordered_map<uint32_t, TunnelPtr> m_tunnels;
-			std::unordered_map<uint32_t, TunnelHopPtr> m_participating;
-
+			boost::unordered_map<uint32_t, TunnelPtr> m_tunnels;
+			boost::unordered_map<uint32_t, TunnelHopPtr> m_participating;
 			mutable std::mutex m_tunnelsMutex;
 			mutable std::mutex m_participatingMutex;
 

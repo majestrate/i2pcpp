@@ -58,7 +58,7 @@ namespace i2pcpp {
 		u->start(Endpoint(m_ctx.getDatabase().getConfigValue("ssu_bind_ip"), std::stoi(m_ctx.getDatabase().getConfigValue("ssu_bind_port"))));
 
 		m_ctx.getPeerManager().begin();
-		//m_ctx.getTunnelManager().begin();
+		m_ctx.getTunnelManager().begin();
 	}
 
 	void Router::stop()

@@ -3,6 +3,12 @@
 #include "../datatypes/BuildResponseRecord.h"
 
 namespace i2pcpp {
+
+	Tunnel::Tunnel() 
+	{
+		m_expireAt = std::time(NULL) + TUNNEL_LIFESPAN;
+	}
+
 	Tunnel::State Tunnel::getState() const
 	{
 		return m_state;
@@ -67,9 +73,15 @@ namespace i2pcpp {
 			}
 		}
 
-		if(allgood)
+		if(allgood) {
 			m_state = Tunnel::OPERATIONAL;
+		}
 		else
 			m_state = Tunnel::FAILED;
+	}
+
+	bool Tunnel::hasExpired()
+	{
+		return ((int64_t)std::time(NULL)) - ((int64_t) m_expireAt) > 0;
 	}
 }
