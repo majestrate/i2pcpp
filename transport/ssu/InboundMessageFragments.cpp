@@ -68,6 +68,11 @@ namespace i2pcpp {
 			unsigned char numFragments = *(begin++);
 			I2P_LOG(m_log, debug) << "number of fragments: " << std::to_string(numFragments);
 
+			// keep alive
+			if (numFragments == 0) {
+				I2P_LOG(m_log, debug) << "got keepalive";
+			}
+
 			for(int i = 0; i < numFragments; i++) {
 				if((end - begin) < 7) throw FormattingError();
 				uint32_t msgId = (*(begin++) << 24) | (*(begin++) << 16) | (*(begin++) << 8) | *(begin++);

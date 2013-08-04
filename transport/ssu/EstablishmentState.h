@@ -41,9 +41,6 @@ namespace i2pcpp {
 
 				Direction getDirection() const;
 
-				uint32_t triesLeft();
-				bool retryConnect();
-
 				State getState() const;
 				void setState(State state);
 

@@ -13,7 +13,8 @@ namespace i2pcpp {
 		void PacketHandler::packetReceived(PacketPtr p)
 		{
 			I2P_LOG_SCOPED_EP(m_log, p->getEndpoint());
-
+			p->truncate();
+			I2P_LOG(m_log,debug) << "packet truncated to " << p->getData().size() << " bytes"; 
 			PeerStatePtr ps = m_transport.m_peers.getRemotePeer(p->getEndpoint());
 			if(ps) {
 				handlePacket(p, ps);
@@ -42,7 +43,10 @@ namespace i2pcpp {
 			unsigned char flag = *(dataItr++);
 			Packet::PayloadType ptype = (Packet::PayloadType)(flag >> 4);
 
-			dataItr += 4; // TODO validate timestamp
+			uint32_t timestamp = (*dataItr++);
+			timestamp |= (*dataItr++) << 8;
+			timestamp |= (*dataItr++) << 16;
+			timestamp |= (*dataItr++) << 24;
 
 			switch(ptype) {
 				case Packet::DATA:
@@ -77,7 +81,10 @@ namespace i2pcpp {
 			unsigned char flag = *(begin++);
 			Packet::PayloadType ptype = (Packet::PayloadType)(flag >> 4);
 
-			begin += 4; // TODO validate timestamp
+			uint32_t timestamp = (*begin++);
+			timestamp |= (*begin++) << 8;
+			timestamp |= (*begin++) << 16;
+			timestamp |= (*begin++) << 24;
 
 			switch(ptype) {
 				case Packet::SESSION_CREATED:
@@ -115,7 +122,10 @@ namespace i2pcpp {
 			unsigned char flag = *(dataItr++);
 			Packet::PayloadType ptype = (Packet::PayloadType)(flag >> 4);
 
-			dataItr += 4; // TODO validate timestamp
+			uint32_t timestamp = (*dataItr++);
+			timestamp |= (*dataItr++) << 8;
+			timestamp |= (*dataItr++) << 16;
+			timestamp |= (*dataItr++) << 24;
 
 			switch(ptype) {
 				case Packet::SESSION_REQUEST:
@@ -151,9 +161,8 @@ namespace i2pcpp {
 		void PacketHandler::handleSessionCreated(ByteArrayConstItr &begin, ByteArrayConstItr end, EstablishmentStatePtr const &state)
 		{
 
-			I2P_LOG_SCOPED_TAG(m_log,"SCr");
 			if(state->getState() != EstablishmentState::REQUEST_SENT) {
-				I2P_LOG(m_log,warning) << "invalid state: " << state->getState();
+				I2P_LOG(m_log,warning) << "SCr invalid state: " << state->getState();
 				return;
 			}
 			state->setTheirDH(begin, begin + 256), begin += 256;
@@ -186,8 +195,7 @@ namespace i2pcpp {
 		void PacketHandler::handleSessionConfirmed(ByteArrayConstItr &begin, ByteArrayConstItr end, EstablishmentStatePtr const &state)
 		{
 			if(state->getState() != EstablishmentState::CREATED_SENT) {
-				I2P_LOG_SCOPED_TAG(m_log,"SCf");
-				I2P_LOG(m_log,warning) << "invalid state: " << state->getState();
+				I2P_LOG(m_log,warning) << "SCf invalid state: " << state->getState();
 				return;
 			}
 

@@ -14,7 +14,7 @@ namespace i2pcpp {
 	namespace SSU {
 		AcknowledgementScheduler::AcknowledgementScheduler(UDPTransport &transport) :
 			m_transport(transport),
-			m_timer(m_transport.m_ios, boost::posix_time::time_duration(0, 0, 1))
+			m_timer(m_transport.m_ios, boost::posix_time::time_duration(0, 0, 0.1))
 		{
 			m_timer.async_wait(boost::bind(&AcknowledgementScheduler::flushAckCallback, this, boost::asio::placeholders::error));
 		}

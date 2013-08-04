@@ -92,14 +92,7 @@ namespace i2pcpp {
 					I2P_LOG(m_log, debug) << "received session confirmed";
 					processConfirmed(es);
 					break;
-			case EstablishmentState::TIMEOUT:
-				if (es->retryConnect()) {
-					I2P_LOG(m_log, debug) << "connection timeout, retrying " << es->triesLeft();
-					sendRequest(es);
-					break;
-				} else {
-					es->setState(EstablishmentState::FAILURE);
-				}
+				case EstablishmentState::TIMEOUT:
 				// fall through
 				case EstablishmentState::UNKNOWN:
 				case EstablishmentState::FAILURE:

@@ -27,7 +27,7 @@ namespace i2pcpp {
 			void registerTransport(TransportPtr const &t);
 			TransportPtr getTransport() const;
 			void connected(RouterHash const rh);
-
+		 
 			void dhtSuccess(DHT::KademliaKey const k, DHT::KademliaValue const v);
 			void dhtFailure(DHT::KademliaKey const k);
 

@@ -155,8 +155,10 @@ namespace i2pcpp {
 	{	
 		std::lock_guard<std::mutex> lock(m_tunnelsMutex);
 		I2P_LOG(m_log, debug) << "creating tunnel";
+
 		auto t = std::make_shared<InboundTunnel>(hops);
 		m_tunnels[t->getTunnelId()] = t;
+
 		I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(t->getRecords()));
 		m_ctx.getOutMsgDisp().sendMessage(t->getDownstream(), vtb);
 		m_tunnel_count ++;
@@ -165,7 +167,9 @@ namespace i2pcpp {
 	void TunnelManager::destroyTunnel(uint32_t const tunnelId)
 	{
 		std::lock_guard<std::mutex> lock0(m_tunnelsMutex);
+
 		I2P_LOG(m_log,debug) << "Destroy tunnel with id " << tunnelId;
 		m_tunnels.erase(m_tunnels.find(tunnelId));
+		m_tunnel_count--;
 	}
 }

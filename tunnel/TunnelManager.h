@@ -8,7 +8,6 @@
 #include <boost/asio.hpp>
 #include <boost/unordered_map.hpp>
 
-//#include "../util/ConcurrentMap.h"
 #include "../datatypes/BuildRecord.h"
 #include "../datatypes/BuildRequestRecord.h"
 #include "../datatypes/BuildResponseRecord.h"

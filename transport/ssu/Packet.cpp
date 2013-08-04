@@ -17,9 +17,10 @@ namespace i2pcpp {
 		{
 			if(length < MIN_PACKET_LEN)
 				throw std::runtime_error("not enough data to create packet");
-
+			
 			m_data.resize(length);
 			copy(data, data + length, m_data.begin());
+			
 		}
 
 		void Packet::decrypt(SessionKey const &sk)
@@ -101,6 +102,12 @@ namespace i2pcpp {
 			hmacPipe.read(m_data.data(), 16);
 			if(hmacPipe.remaining())
 				throw std::runtime_error("Bytes still remaining in the hmacPipe!?"); // TODO For real
+		}
+
+		void Packet::truncate()
+		{
+			auto size = m_data.size();
+			m_data.resize((size / 16)*16);
 		}
 
 		ByteArray& Packet::getData()

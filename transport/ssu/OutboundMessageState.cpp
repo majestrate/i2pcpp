@@ -96,15 +96,5 @@ namespace i2pcpp {
 		{
 			return m_msgId;
 		}
-
-		void OutboundMessageState::incrementTries()
-		{
-			m_tries++;
-		}
-
-		uint8_t OutboundMessageState::getTries() const
-		{
-			return m_tries;
-		}
 	}
 }

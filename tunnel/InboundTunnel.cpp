@@ -7,9 +7,9 @@ namespace i2pcpp {
 		RouterHash lastRouterHash;
 		TunnelHopPtr h;
 
-		if(hops.size() < 2)
-			throw std::logic_error("Bad input to InboundTunnel ctor");
-
+		if(hops.size() < 2) {
+			throw std::logic_error("Bad input to InboundTunnel ctor: hops="+std::to_string(hops.size()));
+		}
 		for(int i = 0; i < hops.size(); i++) {
 			if(!i) {
 				h = std::make_shared<TunnelHop>(hops[i], RouterHash());

@@ -82,6 +82,6 @@ namespace i2pcpp {
 
 	bool Tunnel::hasExpired()
 	{
-		return ((int64_t)std::time(NULL)) - ((int64_t) m_expireAt) > 0;
+		return ((int64_t)std::time(NULL)) - ((int64_t) m_expireAt) > 0 || m_state == Tunnel::FAILED;
 	}
 }

@@ -20,6 +20,7 @@ namespace i2pcpp {
 				bool verify(SessionKey const &mk);
 				void encrypt(SessionKey const &sk, SessionKey const &mk);
 				void encrypt(Botan::InitializationVector const &iv, SessionKey const &sk, SessionKey const &mk);
+				void truncate();
 
 				ByteArray& getData();
 				Endpoint getEndpoint() const;

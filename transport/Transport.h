@@ -32,7 +32,7 @@ namespace i2pcpp {
 			boost::signals2::connection registerFailureSignal(FailureSignal::slot_type const &fs);
 			boost::signals2::connection registerDisconnectedSignal(DisconnectedSignal::slot_type const &ds);
 			boost::signals2::connection registerTimeoutSignal(TimeoutSignal::slot_type const &ts);
-			
+
 		protected:
 			EstablishedSignal m_establishedSignal;
 			ReceivedSignal m_receivedSignal;

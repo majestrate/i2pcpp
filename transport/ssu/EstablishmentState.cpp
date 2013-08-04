@@ -39,16 +39,6 @@ namespace i2pcpp {
 		{
 			return m_direction;
 		}
-		
-		uint32_t EstablishmentState::triesLeft()
-		{
-			return EstablishmentState::maxTimeoutRetries - m_retries;
-		}
-
-		bool EstablishmentState::retryConnect() 
-		{
-			return (++m_retries) < EstablishmentState::maxTimeoutRetries;
-		}
 
 		EstablishmentState::State EstablishmentState::getState() const
 		{

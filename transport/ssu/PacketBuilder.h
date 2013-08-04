@@ -26,6 +26,7 @@ namespace i2pcpp {
 				static PacketPtr buildSessionConfirmed(EstablishmentStatePtr const &state);
 				static PacketPtr buildData(Endpoint const &ep, bool wantReply, CompleteAckList const &completeAcks, PartialAckList const &incompleteAcks, std::vector<FragmentPtr> const &fragments);
 				static PacketPtr buildSessionDestroyed(Endpoint const &ep);
+				static PacketPtr buildKeepAlive(Endpoint const & ep);
 
 			private:
 				static PacketPtr buildHeader(Endpoint const &ep, unsigned char flag);
