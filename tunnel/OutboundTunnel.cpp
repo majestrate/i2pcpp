@@ -1,6 +1,7 @@
 #include "OutboundTunnel.h"
 
 namespace i2pcpp {
+
 	OutboundTunnel::OutboundTunnel(std::vector<RouterIdentity> const &hops, RouterHash const &replyHash, uint32_t const replyTunnelId)
 	{
 		uint32_t lastTunnelId;

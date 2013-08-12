@@ -48,7 +48,7 @@ namespace i2pcpp {
 		void SearchManager::timeout(const boost::system::error_code& e, KademliaKey const k)
 		{
 			if(!e) {
-				I2P_LOG(m_log, debug) << "timeout for " << Base64::encode(ByteArray(k.cbegin(), k.cend()));
+				I2P_LOG(m_log, debug) << "search timeout for " << Base64::encode(ByteArray(k.cbegin(), k.cend()));
 
 				std::lock_guard<std::mutex> lock(m_searchesMutex);
 				cancel(k);
@@ -87,7 +87,11 @@ namespace i2pcpp {
 
 					I2NP::MessagePtr dbl(new I2NP::DatabaseLookup(ss.goal, m_ctx.getIdentity().getHash(), 0, ss.excluded));
 					m_ctx.getOutMsgDisp().getTransport()->send(rh, dbl->toBytes());
+				} else {
+					I2P_LOG(m_log,debug) << "did not find good SearchState?";
 				}
+			} else {
+				I2P_LOG(m_log,debug) << "did not find RouterHash in pending search table";
 			}
 		}
 

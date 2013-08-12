@@ -49,8 +49,17 @@ namespace i2pcpp {
 				std::map<uint32_t, InboundMessageStatePtr>::iterator begin();
 				std::map<uint32_t, InboundMessageStatePtr>::iterator end();
 
+				void gotKeepAlive();
+				bool keepAliveTimedOut();
+
+				void sentKeepAlive();
+				bool needsKeepAlive();
+				
 			private:
 				boost::asio::io_service &m_ios;
+				
+				std::time_t m_nextIncomingKA;
+				std::time_t m_nextOutgoingKA;
 
 				Endpoint m_endpoint;
 				RouterIdentity m_identity;
@@ -70,7 +79,7 @@ namespace i2pcpp {
 
 				i2p_logger_mt m_log;
 		};
-
+		
 		typedef std::shared_ptr<PeerState> PeerStatePtr;
 	}
 }

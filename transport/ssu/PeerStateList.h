@@ -23,6 +23,8 @@ namespace i2pcpp {
 				bool remotePeerExists(Endpoint const &ep) const;
 				bool remotePeerExists(RouterHash const &rh) const;
 				uint32_t numPeers() const;
+				
+				std::mutex & getMutex();
 
 				std::unordered_map<RouterHash, PeerStatePtr>::const_iterator begin() const;
 				std::unordered_map<RouterHash, PeerStatePtr>::const_iterator end() const;

@@ -4,6 +4,10 @@
 
 #include "../../Log.h"
 
+
+#define SSU_KEEP_ALIVE_INTERVAL (5 )
+#define SSU_KEEP_ALIVE_TIMEOUT (SSU_KEEP_ALIVE_INTERVAL * 5)
+
 namespace i2pcpp {
 	namespace SSU {
 		PeerState::PeerState(boost::asio::io_service &ios, Endpoint const &ep, RouterIdentity const &ri) :
@@ -13,6 +17,8 @@ namespace i2pcpp {
 	 		m_log(boost::log::keywords::channel = "PS")
 		{
 			I2P_LOG_RH(m_log, m_identity.getHash());
+			m_nextIncomingKA = std::time(NULL) + SSU_KEEP_ALIVE_TIMEOUT;
+			m_nextOutgoingKA = std::time(NULL) + SSU_KEEP_ALIVE_INTERVAL;
 		}
 
 		InboundMessageStatePtr PeerState::getInboundMessageState(const uint32_t msgId) const
@@ -192,5 +198,35 @@ namespace i2pcpp {
 		{
 			return m_inboundMessageStates.end();
 		}
+
+		void PeerState::gotKeepAlive()
+		{
+			m_nextIncomingKA  = std::time(NULL) + SSU_KEEP_ALIVE_TIMEOUT;
+			I2P_LOG(m_log,debug) << "got IKA, next IKA=" << m_nextIncomingKA;
+		}
+
+		bool PeerState::keepAliveTimedOut()
+		{
+			auto t = std::time(NULL);
+			auto ret = m_nextIncomingKA < t;
+			if(ret)	I2P_LOG(m_log,debug) << "IKA timeout, IKA=" << m_nextIncomingKA << " now=" << t;
+			return ret;	
+		}
+
+
+		void PeerState::sentKeepAlive()
+		{
+			auto t = std::time(NULL);
+			m_nextOutgoingKA = t + SSU_KEEP_ALIVE_INTERVAL;
+			I2P_LOG(m_log,debug) << "next OKA=" << m_nextOutgoingKA << " now=" << t;
+		}
+
+		bool PeerState::needsKeepAlive() 
+		{
+			auto ret = m_nextOutgoingKA < std::time(NULL);
+			if(ret) I2P_LOG(m_log,debug) << "needs OKA " << ", OKA=" << m_nextOutgoingKA;
+			return ret;
+		}
+
 	}
 }

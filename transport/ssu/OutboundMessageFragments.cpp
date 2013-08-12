@@ -33,10 +33,6 @@ namespace i2pcpp {
 
 				oms->markFragmentSent(fragList[0]->fragNum);
 
-				PacketPtr p = PacketBuilder::buildData(ps->getEndpoint(), false, CompleteAckList(), PartialAckList(), fragList);
-				p->encrypt(ps->getCurrentSessionKey(), ps->getCurrentMacKey());
-				m_transport.sendPacket(p);
-
 				if(!oms->allFragmentsSent())
 					m_transport.post(boost::bind(&OutboundMessageFragments::sendDataCallback, this, ps, oms->getMsgId()));
 			}

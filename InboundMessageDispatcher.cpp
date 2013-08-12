@@ -32,8 +32,9 @@ namespace i2pcpp {
 		for(auto c: data) s << std::setw(2) << std::setfill('0') << std::hex << (int)c;
 		I2P_LOG(m_log, debug) << "received data: " << s.str();
 
+		
 		I2NP::MessagePtr m = I2NP::Message::fromBytes(data);
-		if(m) {
+		if (m) {
 			switch(m->getType())
 			{
 				case I2NP::Message::Type::DELIVERY_STATUS:

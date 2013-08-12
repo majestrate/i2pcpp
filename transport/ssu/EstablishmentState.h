@@ -35,8 +35,7 @@ namespace i2pcpp {
 					CREATED_RECEIVED,
 					CONFIRMED_SENT,
 					CONFIRMED_RECEIVED,
-					FAILURE,
-					TIMEOUT
+					FAILURE
 				};
 
 				Direction getDirection() const;

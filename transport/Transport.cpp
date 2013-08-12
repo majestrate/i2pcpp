@@ -23,4 +23,11 @@ namespace i2pcpp {
 	{
 		return m_disconnectedSignal.connect(ds);
 	}
+
+	boost::signals2::connection Transport::registerTimeoutSignal(TimeoutSignal::slot_type const &ts)
+	{
+		return m_timeoutSignal.connect(ts);
+	}
+
+	void Transport::invokeTimeoutSignal(RouterHash const & rh) {}
 }

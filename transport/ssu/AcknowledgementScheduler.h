@@ -2,6 +2,7 @@
 #define SSUACKNOWLEDGEMENTSCHEDULER_H
 
 #include <boost/asio.hpp>
+#include "../../Log.h"
 
 namespace i2pcpp {
 	class UDPTransport;
@@ -15,10 +16,12 @@ namespace i2pcpp {
 
 			private:
 				void flushAckCallback(const boost::system::error_code& e);
-
+				
 				UDPTransport& m_transport;
 
 				boost::asio::deadline_timer m_timer;
+			
+				i2p_logger_mt m_log;
 		};
 	}
 }

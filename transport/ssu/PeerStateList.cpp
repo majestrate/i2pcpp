@@ -85,5 +85,11 @@ namespace i2pcpp {
 		{
 			return m_remotePeersByHash.cend();
 		}
+		
+		std::mutex & PeerStateList::getMutex()
+		{
+			return m_remotePeersMutex;
+		}
+
 	}
 }

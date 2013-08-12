@@ -31,8 +31,11 @@ namespace i2pcpp {
 			void receiveRecords(std::list<BuildRecordPtr> records);
 			void receiveGatewayData(uint32_t const tunnelId, ByteArray const data);
 			void receiveData(uint32_t const tunnelId, std::array<unsigned char, 1024> const data);
-			void createTunnel(std::vector<RouterIdentity> const & hops);
+		
 			void destroyTunnel(uint32_t const tunnelId);
+
+			void createIBTunnel(std::vector<RouterIdentity> const & hops);
+			void createOBTunnel(std::vector<RouterIdentity> const & hops,RouterHash const & replyTo);
 
 		private:
 			void callback(const boost::system::error_code &e);

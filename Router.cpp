@@ -59,6 +59,7 @@ namespace i2pcpp {
 
 		m_ctx.getPeerManager().begin();
 		m_ctx.getTunnelManager().begin();
+		I2P_LOG(m_log,debug) << "started";
 	}
 
 	void Router::stop()

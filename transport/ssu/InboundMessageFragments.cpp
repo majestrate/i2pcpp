@@ -71,45 +71,46 @@ namespace i2pcpp {
 			// keep alive
 			if (numFragments == 0) {
 				I2P_LOG(m_log, debug) << "got keepalive";
-			}
-
-			for(int i = 0; i < numFragments; i++) {
-				if((end - begin) < 7) throw FormattingError();
-				uint32_t msgId = (*(begin++) << 24) | (*(begin++) << 16) | (*(begin++) << 8) | *(begin++);
-				I2P_LOG(m_log, debug) << "fragment[" << i << "] message id: " << std::hex << msgId << std::dec;
-
-				uint32_t fragInfo = (*(begin++) << 16) | (*(begin++) << 8) | *(begin++);
-
-				uint16_t fragNum = fragInfo >> 17;
-				I2P_LOG(m_log, debug) << "fragment[" << i << "] fragment #: " << fragNum;
-
-				bool isLast = (fragInfo & 0x010000);
-				I2P_LOG(m_log, debug) << "fragment[" << i << "] isLast: " << isLast;
-
-				uint16_t fragSize = fragInfo & ((1 << 14) - 1);
-				I2P_LOG(m_log, debug) << "fragment[" << i << "] size: " << fragSize;
-
-				if((end - begin) < fragSize) throw FormattingError();
-				ByteArray fragData(begin, begin + fragSize);
-				std::stringstream s;
-				s << std::setw(2) << std::setfill('0') << std::hex;
-				for(auto c: fragData) s << (int)c;
-				I2P_LOG(m_log, debug) << "fragment[" << i << "] data: " << s.str();
-
-				std::lock_guard<std::mutex> lock(ps->getMutex());
-				InboundMessageStatePtr ims = ps->getInboundMessageState(msgId);
-				if(!ims) {
-					ims = std::make_shared<InboundMessageState>(ps->getIdentity().getHash(), msgId);
+				ps->gotKeepAlive();
+			} else {
+				for(int i = 0; i < numFragments; i++) {
+					if((end - begin) < 7) throw FormattingError();
+					uint32_t msgId = (*(begin++) << 24) | (*(begin++) << 16) | (*(begin++) << 8) | *(begin++);
+					I2P_LOG(m_log, debug) << "fragment[" << i << "] message id: " << std::hex << msgId << std::dec;
+					
+					uint32_t fragInfo = (*(begin++) << 16) | (*(begin++) << 8) | *(begin++);
+					
+					uint16_t fragNum = fragInfo >> 17;
+					I2P_LOG(m_log, debug) << "fragment[" << i << "] fragment #: " << fragNum;
+					
+					bool isLast = (fragInfo & 0x010000);
+					I2P_LOG(m_log, debug) << "fragment[" << i << "] isLast: " << isLast;
+					
+					uint16_t fragSize = fragInfo & ((1 << 14) - 1);
+					I2P_LOG(m_log, debug) << "fragment[" << i << "] size: " << fragSize;
+					
+					if((end - begin) < fragSize) throw FormattingError();
+					ByteArray fragData(begin, begin + fragSize);
+					std::stringstream s;
+					s << std::setw(2) << std::setfill('0') << std::hex;
+					for(auto c: fragData) s << (int)c;
+					I2P_LOG(m_log, debug) << "fragment[" << i << "] data: " << s.str();
+					
+					std::lock_guard<std::mutex> lock(ps->getMutex());
+					InboundMessageStatePtr ims = ps->getInboundMessageState(msgId);
+					if(!ims) {
+						ims = std::make_shared<InboundMessageState>(ps->getIdentity().getHash(), msgId);
 					ps->addInboundMessageState(ims);
-				}
-
-				// TODO Should throw an exception on error
-				ims->addFragment(fragNum, fragData, isLast);
-
-				if(ims->allFragmentsReceived()) {
-					const ByteArray data = ims->assemble();
-					if(data.size())
-						m_transport.post(boost::bind(boost::ref(m_transport.m_receivedSignal), ims->getRouterHash(), data));
+					}
+					
+					// TODO Should throw an exception on error
+					ims->addFragment(fragNum, fragData, isLast);
+					
+					if(ims->allFragmentsReceived()) {
+						const ByteArray data = ims->assemble();
+						if(data.size())
+							m_transport.post(boost::bind(boost::ref(m_transport.m_receivedSignal), ims->getRouterHash(), data));
+					}
 				}
 			}
 		}

@@ -37,6 +37,8 @@ namespace i2pcpp {
 			uint32_t numPeers() const;
 			bool isConnected(RouterHash const &rh) const;
 			void shutdown();
+		
+			void invokeTimeoutSignal(RouterHash const & rh);
 
 		private:
 			void sendPacket(SSU::PacketPtr const &p);

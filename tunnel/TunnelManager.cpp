@@ -135,14 +135,19 @@ namespace i2pcpp {
 	void TunnelManager::callback(const boost::system::error_code &e)
 	{
 		expireTunnels();
-		for(auto counter=0; counter < 5; counter++) createTunnel(m_generator.makeTunnelHops(3));
+		
+		for(auto count = 1 ; count > 0; count-- ) {
+			createIBTunnel(m_generator.makeTunnelHops(3));
+			createOBTunnel(m_generator.makeTunnelHops(3),m_ctx.getIdentity().getHash());
+		}
 		I2P_LOG(m_log,debug) << m_tunnel_count << " tunnels made";
-		m_timer.expires_at(m_timer.expires_at() + boost::posix_time::time_duration(0, 0, 5));
+		m_timer.expires_at(m_timer.expires_at() + boost::posix_time::time_duration(0, 0, 2));
 		m_timer.async_wait(boost::bind(&TunnelManager::callback, this, boost::asio::placeholders::error));
 	}
 
 	void TunnelManager::expireTunnels()
 	{
+		std::lock_guard<std::mutex> lock(m_tunnelsMutex);
 		std::vector<uint32_t> tuns;
 		for(auto & tunnel : m_tunnels) {
 			auto t = tunnel.second;
@@ -150,15 +155,27 @@ namespace i2pcpp {
 		}
 		for ( auto tid : tuns ) destroyTunnel(tid);
 	}
-
-	void TunnelManager::createTunnel(std::vector<RouterIdentity> const & hops)
+	
+	
+	void TunnelManager::createIBTunnel(std::vector<RouterIdentity> const & hops)
 	{	
 		std::lock_guard<std::mutex> lock(m_tunnelsMutex);
-		I2P_LOG(m_log, debug) << "creating tunnel";
-
+		I2P_LOG(m_log, debug) << "creating inbound tunnel";
 		auto t = std::make_shared<InboundTunnel>(hops);
+		
 		m_tunnels[t->getTunnelId()] = t;
-
+		I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(t->getRecords()));
+		m_ctx.getOutMsgDisp().sendMessage(t->getDownstream(), vtb);
+		m_tunnel_count ++;
+	}
+	
+	void TunnelManager::createOBTunnel(std::vector<RouterIdentity> const & hops, RouterHash const & replyTo)
+	{	
+		std::lock_guard<std::mutex> lock(m_tunnelsMutex);
+		I2P_LOG(m_log, debug) << "creating outbound tunnel";
+		auto t = std::make_shared<OutboundTunnel>(hops,replyTo,((uint32_t)random()));
+		
+		m_tunnels[t->getTunnelId()] = t;
 		I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(t->getRecords()));
 		m_ctx.getOutMsgDisp().sendMessage(t->getDownstream(), vtb);
 		m_tunnel_count ++;
@@ -166,7 +183,6 @@ namespace i2pcpp {
 
 	void TunnelManager::destroyTunnel(uint32_t const tunnelId)
 	{
-		std::lock_guard<std::mutex> lock0(m_tunnelsMutex);
 
 		I2P_LOG(m_log,debug) << "Destroy tunnel with id " << tunnelId;
 		m_tunnels.erase(m_tunnels.find(tunnelId));

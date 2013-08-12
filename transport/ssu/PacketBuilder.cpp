@@ -203,5 +203,14 @@ namespace i2pcpp {
 
 			return s;
 		}
+
+		PacketPtr PacketBuilder::buildKeepAlive(Endpoint const &ep)
+		{
+			CompleteAckList cal;
+			PartialAckList pal;
+			std::vector<PacketBuilder::FragmentPtr> frags;
+			
+			return PacketBuilder::buildData(ep,false,cal,pal,frags);
+		}
 	}
 }

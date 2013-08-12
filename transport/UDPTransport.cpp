@@ -14,7 +14,10 @@ namespace i2pcpp {
 		m_establishmentManager(*this, privKey, ri),
 		m_ackScheduler(*this),
 		m_omf(*this),
-		m_log(boost::log::keywords::channel = "SSU") {}
+		m_log(boost::log::keywords::channel = "SSU") 
+	{
+		registerTimeoutSignal(boost::bind(&UDPTransport::disconnect,boost::ref(*this),_1));
+	}
 
 	UDPTransport::~UDPTransport()
 	{
@@ -116,6 +119,13 @@ namespace i2pcpp {
 
 	void UDPTransport::disconnect(RouterHash const &rh)
 	{
+		I2P_LOG_SCOPED_RH(m_log,rh);
+		I2P_LOG(m_log,debug) << "disconnect";
+		auto ps = m_peers.getRemotePeer(rh);
+		SSU::PacketPtr sdp = SSU::PacketBuilder::buildSessionDestroyed(ps->getEndpoint());
+		sdp->encrypt(ps->getCurrentSessionKey(), ps->getCurrentMacKey());
+		sendPacket(sdp);
+		m_peers.delRemotePeer(rh);
 	}
 
 	uint32_t UDPTransport::numPeers() const
@@ -130,11 +140,8 @@ namespace i2pcpp {
 
 	void UDPTransport::shutdown()
 	{
-		for(auto& pair: m_peers) {
-			SSU::PacketPtr sdp = SSU::PacketBuilder::buildSessionDestroyed(pair.second->getEndpoint());
-			sdp->encrypt(pair.second->getCurrentSessionKey(), pair.second->getCurrentMacKey());
-			sendPacket(sdp);
-		}
+		for(auto& pair: m_peers) disconnect(pair.second->getIdentity().getHash());
+		
 
 		m_ios.stop();
 		if(m_serviceThread.joinable()) m_serviceThread.join();
@@ -144,7 +151,7 @@ namespace i2pcpp {
 	{
 		ByteArray& pdata = p->getData();
 		Endpoint ep = p->getEndpoint();
-
+		
 		m_socket.async_send_to(
 				boost::asio::buffer(pdata.data(), pdata.size()),
 				ep.getUDPEndpoint(),
@@ -197,5 +204,10 @@ namespace i2pcpp {
 	SSU::EstablishmentManager& UDPTransport::getEstablisher()
 	{
 		return m_establishmentManager;
+	}
+
+	void UDPTransport::invokeTimeoutSignal(RouterHash const & rh)
+	{
+		m_ios.post(boost::bind(boost::ref(m_timeoutSignal),rh));
 	}
 }
