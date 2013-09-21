@@ -266,8 +266,6 @@ if [ "$TRACE" != "" ] ; then
 		set -x
 fi
 
-cd ~/src/i2pcpp
-
 # run with 4 jobs
 runit 4 $PWD
 
