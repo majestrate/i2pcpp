@@ -16,6 +16,7 @@ set -e
 
 _e() # extract
 {
+		echo "extract $1 to $2"
     tmp="`mktemp -d`"
     cd $tmp
     case $1 in
@@ -23,7 +24,7 @@ _e() # extract
 				*.bz2) tar -jxf $1 ;;
 				*.zip) unzip $1 ;;
     esac
-    mv * $2
+    cp -rf * $2
     rm -rf $tmp
     cd -
 }
@@ -38,10 +39,14 @@ _ac_build() #build with autotools
 
 get_url() # download url
 {
+		echo "download $1 to $2"
     if [ "`which wget`" != "" ] ; then
 				wget $1 -O $2 --no-check-certificate
     elif [ "`which curl`" != "" ] ; then
 				curl $1 -o $2
+		else
+				echo "dont have wget or curl"
+				exit 1
     fi
 }
 
@@ -87,6 +92,8 @@ _build_boost() # build boost with boost-log
 		cp -a $boostdir $prefix
 }
 
+
+
 _deps() # grab/build all dependancies
 {
     i2psrc="$1"
@@ -97,47 +104,82 @@ _deps() # grab/build all dependancies
 
     echo "Building Dependancies..."
 
+		echo -n "Sqlite3..."
 		if [ ! -d $base/sqlite3 ]; then
+				echo "Not found"
 				get_url https://www.sqlite.org/2013/sqlite-autoconf-3071700.tar.gz $base/sqlite3.tar.gz
 				_e $base/sqlite3.tar.gz $base/sqlite3
+		else
+				echo "Found"
 		fi
 
 		if [ ! -e $base/sqlite3-built ]; then
+				echo "Buidling Sqlite3"
 				_ac_build $base/sqlite3 $prefix
 				echo "`date`" > $base/sqlite3-built
 		fi
 
+
+		echo -n "GTest..."
+
 		if [ ! -d $prefix/gtest ]; then
+				echo "Not found"
 				get_url https://googletest.googlecode.com/files/gtest-1.6.0.zip $base/gtest.zip
 				_e $base/gtest.zip $prefix/gtest
+		else
+				echo "Found"
 		fi
 		
 		if [ ! -e $base/gtest-built ]; then
+				echo "Building Test"
 				_build_gtest $prefix/gtest $prefix 
 				echo "`date`" > $base/gtest-built
 		fi
     
+		echo -n "Botan..."
 		if [ ! -d $base/botan ]; then
+				echo "Not Found"
 				get_url http://files.randombit.net/botan/v1.11/Botan-1.11.3.tbz $base/botan.tar.bz2
 				_e $base/botan.tar.bz2 $base/botan
 				cd $base/botan
 				patch -p0 < $i2psrc/doc/botan-1.11.3.diff
 				cd -
+		else
+				echo "Found"
     fi
 
     if [ ! -e $base/botan-built ]; then
+				echo "Buiding Botan"
 				_build_botan $base/botan $prefix
 				echo "`date`" > $base/botan-built
 		fi
 
+		if [ "$BOOST_REBUILD" != "" ] ; then
+				echo "nuking boost files so we can rebuild"
+				rm -rf $base/boost{,*.tar.gz}
+		fi
+		
+		echo -n "Boost.Log..."
     if [ ! -d $base/boost-log ]; then
-				get_url http://superb-dca2.dl.sourceforge.net/project/boost-log/boost-log-2.0-r862.zip $base/boost-log.zip
-				_e $base/boost-log.zip $base/boost-log
+				echo "Not Found"
+				#get_url http://superb-dca2.dl.sourceforge.net/project/boost-log/boost-log-2.0-r862.zip $base/boost-log.zi[
+				#e $base/boost-log.zip $base/boost-log
+				svn checkout svn://svn.code.sf.net/p/boost-log/code/trunk/boost-log $base/boost-log
+		else
+				echo "Found... Updating"
+				svn update $base/boost-log
     fi
 
-    if [ ! -d $base/boost ]; then	
-				get_url http://superb-dca3.dl.sourceforge.net/project/boost/boost/1.53.0/boost_1_53_0.tar.gz $base/boost.tar.gz
+
+		#boost_version="48"
+		boost_version="54"
+		echo -n "Boost vesrion 1.$boost_version.0..."
+    if [ ! -d $base/boost ] ; then
+				echo "Not Found"
+				get_url "http://superb-dca3.dl.sourceforge.net/project/boost/boost/1.$boost_version.0/boost_1_$boost_version""_0.tar.gz" $base/boost.tar.gz 
 				_e $base/boost.tar.gz $base/boost
+		else
+				echo "Found"
     fi
 
 		if [ ! -e $base/boost-built ] ; then
@@ -148,14 +190,21 @@ _deps() # grab/build all dependancies
 
 _build_i2p() # build i2p itself
 {
+
+    echo "Building I2P..."
     base="$1"
     build="$2"
     prefix="$3"
-		#echo "Removing Last build..."
-    #rm -rf $build
+		if [ "$REBUILD_I2P" != "" ] ; then
+				echo "Nuke Last I2P Build..."
+				rm -rf $build
+		fi
     mkdir -p $build
     cmake="`which cmake`"
-    echo "Building I2P..."
+		if [ "$cmake" == "" ] ; then
+				echo "No cmake!? WTF"
+				exit 1
+		fi
     cd $build
     $cmake \
 				-DSQLITE3_INCLUDE_DIR=$prefix/include/ \
@@ -163,6 +212,8 @@ _build_i2p() # build i2p itself
 				-DBOTAN_INCLUDE_DIR=$prefix/include/botan-1.11/ \
 				-DBOTAN_LIBRARY_PREFIX=$prefix/lib/ \
 				-DBOOST_ROOT=$prefix/boost/ \
+				-DBOOST_LIBRARY_PREFIX=$prefix/boost/stage/lib \
+				-DBOOST_INCLUDE_DIR=$prefix/boost/ \
 				-DGTEST_ROOT=$prefix/gtest/ \
 				-DGTEST_LIBRARY=$prefix/libgtest.a \
 				-DGTEST_MAIN_LIBRARY=$prefix/libgtest_main.a \
@@ -188,9 +239,13 @@ runit() # run the damn thing :3
 				echo "No Cmake?"
 				exit 1
 		fi
-    base=$PWD
 		build_base=$2
     build="`readlink -f $build_base/build`"
+
+		if [ "$REBUILD" != "" ] ; then
+				echo "Nuke Old Build Directory"
+				rm -rf $build
+		fi
     mkdir -p $build
 
     prefix=$build/prefix
@@ -202,12 +257,18 @@ runit() # run the damn thing :3
     export MAKEOPTS="-j$jobs"
     
     
-		_deps $base $build $prefix
-    _build_i2p $base $build/i2p $prefix
-		echo "`cat $base/README.CHI.TXT`"
+		_deps $build_base $build $prefix
+    _build_i2p $build_base $build/i2p $prefix
+		echo "`cat $build_base/README.CHI.TXT`"
 }
 
+if [ "$TRACE" != "" ] ; then
+		set -x
+fi
+
+cd ~/src/i2pcpp
+
 # run with 4 jobs
-runit 8 $PWD
+runit 4 $PWD
 
 
