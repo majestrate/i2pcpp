@@ -87,8 +87,7 @@ namespace i2pcpp {
 				if((end - begin) < fragSize) throw FormattingError();
 				ByteArray fragData(begin, begin + fragSize);
 				std::stringstream s;
-				s << std::setw(2) << std::setfill('0') << std::hex;
-				for(auto c: fragData) s << (int)c;
+				for(auto c: fragData) s << std::setw(2) << std::setfill('0') << std::hex << (int)c;
 				I2P_LOG(m_log, debug) << "fragment[" << i << "] data: " << s.str();
 
 				std::lock_guard<std::mutex> lock(ps->getMutex());
