@@ -126,10 +126,12 @@ int main(int argc, char **argv)
 			ifstream f(file, ios::binary);
 
 			if(f.is_open()) {
-				ByteArray info = ByteArray((istreambuf_iterator<char>(f)), istreambuf_iterator<char>());
+				ByteArray ribytes = ByteArray((istreambuf_iterator<char>(f)), istreambuf_iterator<char>());
 				f.close();
-				auto begin = info.cbegin();
-				r.importRouter(RouterInfo(begin, info.cend()));
+				auto begin = ribytes.cbegin();
+				RouterInfo ri = RouterInfo(begin, ribytes.cend());
+				r.importRouter(ri);
+				I2P_LOG(lg, info) << "successfully imported RouterInfo file with hash " << ri.getIdentity().getHashEncoded();
 
 				return EXIT_SUCCESS;
 			} else {

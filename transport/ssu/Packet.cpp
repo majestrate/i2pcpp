@@ -26,7 +26,7 @@ namespace i2pcpp {
 		{
 			const unsigned char *packetIV = m_data.data() + 16;
 			const unsigned char *packet = m_data.data() + 32;
-			const unsigned int packetSize = m_data.size() - 32;
+			const unsigned int packetSize = ((m_data.size() - 32) / 16) * 16;
 
 			Botan::InitializationVector iv(packetIV, 16);
 			Botan::SymmetricKey key(sk.data(), sk.size());
