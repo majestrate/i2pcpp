@@ -89,9 +89,9 @@ namespace i2pcpp {
 					for(auto& x: records)
 						x->encrypt(hop.getReplyIV(), hop.getReplyKey());
 
-					I2P_LOG(m_log, debug) << "forwarding BRRs to next hop: " << hop.getNextHash();
+					I2P_LOG(m_log, debug) << "forwarding BRRs to next hop: " << hop.getNextHash() << ", tunnel ID: " << hop.getTunnelId() << ", nextMsgId: " << hop.getNextMsgId();
 
-					I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(records));
+					I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(hop.getNextMsgId(), records));
 					m_ctx.getOutMsgDisp().sendMessage(hop.getNextHash(), vtb);
 
 					break;

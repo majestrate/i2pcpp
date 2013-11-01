@@ -26,7 +26,7 @@ namespace i2pcpp {
 
 	void BuildRequestRecord::parse()
 	{
-		uint32_t id;
+		uint32_t id, requestTime, nextMsgId;
 		RouterHash rh;
 		SessionKey sk;
 		auto dataItr = m_data.cbegin();
@@ -55,7 +55,7 @@ namespace i2pcpp {
 		copy(dataItr, dataItr + 32, sk.begin()), dataItr += 32;
 		m_hop.setReplyKey(sk);
 
-		copy(dataItr, dataItr + 32, sk.begin()), dataItr += 32;
+		copy(dataItr, dataItr + 16, sk.begin()), dataItr += 16;
 		m_hop.setReplyIV(sk);
 
 		m_flags = *(dataItr)++;
@@ -66,8 +66,11 @@ namespace i2pcpp {
 		else
 			m_hop.setType(TunnelHop::PARTICIPANT);
 
-		m_requestTime = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
-		m_nextMsgId = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
+		requestTime = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
+		m_hop.setRequestTime(requestTime);
+
+		nextMsgId = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
+		m_hop.setNextMsgId(nextMsgId);
 	}
 
 	void BuildRequestRecord::compile()
@@ -104,15 +107,17 @@ namespace i2pcpp {
 
 		m_data.insert(m_data.end(), static_cast<unsigned char>(m_flags.to_ulong()));
 
-		m_data.insert(m_data.end(), m_requestTime >> 24);
-		m_data.insert(m_data.end(), m_requestTime >> 16);
-		m_data.insert(m_data.end(), m_requestTime >> 8);
-		m_data.insert(m_data.end(), m_requestTime);
+		uint32_t requestTime = m_hop.getRequestTime();
+		m_data.insert(m_data.end(), requestTime >> 24);
+		m_data.insert(m_data.end(), requestTime >> 16);
+		m_data.insert(m_data.end(), requestTime >> 8);
+		m_data.insert(m_data.end(), requestTime);
 
-		m_data.insert(m_data.end(), m_nextMsgId >> 24);
-		m_data.insert(m_data.end(), m_nextMsgId >> 16);
-		m_data.insert(m_data.end(), m_nextMsgId >> 8);
-		m_data.insert(m_data.end(), m_nextMsgId);
+		uint32_t nextMsgId = m_hop.getNextMsgId();
+		m_data.insert(m_data.end(), nextMsgId >> 24);
+		m_data.insert(m_data.end(), nextMsgId >> 16);
+		m_data.insert(m_data.end(), nextMsgId >> 8);
+		m_data.insert(m_data.end(), nextMsgId);
 
 		m_data.insert(m_data.end(), 29, 0x00); // TODO Random padding
 	}

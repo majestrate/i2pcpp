@@ -9,6 +9,10 @@ namespace i2pcpp {
 		VariableTunnelBuild::VariableTunnelBuild(std::list<BuildRecordPtr> const &buildRecords) :
 			m_buildRecords(buildRecords) {}
 
+		VariableTunnelBuild::VariableTunnelBuild(uint32_t msgId, std::list<BuildRecordPtr> const &buildRecords) :
+			Message(msgId),
+			m_buildRecords(buildRecords) {}
+
 		Message::Type VariableTunnelBuild::getType() const
 		{
 			return Message::Type::VARIABLE_TUNNEL_BUILD;

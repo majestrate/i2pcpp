@@ -71,6 +71,16 @@ namespace i2pcpp {
 		m_type = type;
 	}
 
+	void TunnelHop::setRequestTime(uint32_t reqTime)
+	{
+		m_requestTime = reqTime;
+	}
+
+	void TunnelHop::setNextMsgId(uint32_t nextMsgId)
+	{
+		m_nextMsgId = nextMsgId;
+	}
+
 	uint32_t TunnelHop::getTunnelId() const
 	{
 		return m_tunnelId;
@@ -114,6 +124,16 @@ namespace i2pcpp {
 	TunnelHop::Type TunnelHop::getType() const
 	{
 		return m_type;
+	}
+
+	uint32_t TunnelHop::getRequestTime() const
+	{
+		return m_requestTime;
+	}
+
+	uint32_t TunnelHop::getNextMsgId() const
+	{
+		return m_nextMsgId;
 	}
 
 	ByteArray TunnelHop::getEncryptionKey() const

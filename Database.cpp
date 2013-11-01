@@ -553,7 +553,10 @@ namespace i2pcpp {
 			}
 		} catch(SQLError &e) {
 			sqlite3_finalize(statement);
-			m_mutex.unlock();
+
+			if(transaction)
+				m_mutex.unlock();
+
 			throw;
 		}
 	}

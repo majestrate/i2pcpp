@@ -1,5 +1,7 @@
 #include "Message.h"
 
+#include <botan/auto_rng.h>
+
 #include "../exceptions/FormattingError.h"
 
 #include "DeliveryStatus.h"
@@ -71,6 +73,21 @@ namespace i2pcpp {
 				return m;
 			else
 				return MessagePtr();
+		}
+
+		Message::Message()
+		{
+			Botan::AutoSeeded_RNG rng;
+
+			rng.randomize((unsigned char *)&m_msgId, sizeof(m_msgId));
+		}
+
+		Message::Message(uint32_t msgId) :
+			m_msgId(msgId) {}
+
+		uint32_t Message::getMsgId() const
+		{
+			return m_msgId;
 		}
 
 		ByteArray Message::toBytes() const

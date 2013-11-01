@@ -26,6 +26,8 @@ namespace i2pcpp {
 			void setReplyKey(SessionKey const &replyKey);
 			void setReplyIV(SessionKey const &replyIV);
 			void setType(Type type);
+			void setRequestTime(uint32_t reqTime);
+			void setNextMsgId(uint32_t nextMsgId);
 
 			uint32_t getTunnelId() const;
 			uint32_t getNextTunnelId() const;
@@ -36,6 +38,8 @@ namespace i2pcpp {
 			SessionKey getReplyKey() const;
 			SessionKey getReplyIV() const;
 			Type getType() const;
+			uint32_t getRequestTime() const;
+			uint32_t getNextMsgId() const;
 			ByteArray getEncryptionKey() const;
 
 		private:
@@ -50,6 +54,8 @@ namespace i2pcpp {
 			SessionKey m_replyKey;
 			SessionKey m_replyIV;
 			Type m_type = PARTICIPANT;
+			uint32_t m_requestTime;
+			uint32_t m_nextMsgId;
 
 			ByteArray m_encryptionKey;
 	};

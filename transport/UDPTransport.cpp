@@ -92,14 +92,14 @@ namespace i2pcpp {
 		}
 	}
 
-	void UDPTransport::send(RouterHash const &rh, ByteArray const &data)
+	void UDPTransport::send(RouterHash const &rh, uint32_t msgId, ByteArray const &data)
 	{
 		using namespace SSU;
 
 		PeerStatePtr ps = m_peers.getRemotePeer(rh);
 
 		if(ps) {
-			m_omf.sendData(ps, data);
+			m_omf.sendData(ps, msgId, data);
 		} else {
 			// TODO Exception
 		}

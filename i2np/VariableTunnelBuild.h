@@ -13,6 +13,7 @@ namespace i2pcpp {
 			public:
 				VariableTunnelBuild();
 				VariableTunnelBuild(std::list<BuildRecordPtr> const &buildRecords);
+				VariableTunnelBuild(uint32_t msgId, std::list<BuildRecordPtr> const &buildRecords);
 
 				Message::Type getType() const;
 

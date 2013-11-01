@@ -86,7 +86,7 @@ namespace i2pcpp {
 					m_searches.get<1>().modify(itr, ModifyState(SearchState::LOOKUP_SENT));
 
 					I2NP::MessagePtr dbl(new I2NP::DatabaseLookup(ss.goal, m_ctx.getIdentity().getHash(), 0, ss.excluded));
-					m_ctx.getOutMsgDisp().getTransport()->send(rh, dbl->toBytes());
+					m_ctx.getOutMsgDisp().sendMessage(rh, dbl);
 				}
 			}
 		}
