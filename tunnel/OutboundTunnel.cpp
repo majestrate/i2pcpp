@@ -13,6 +13,8 @@ namespace i2pcpp {
 				h = std::make_shared<TunnelHop>(hops[i], replyHash);
 				h->setType(TunnelHop::ENDPOINT);
 				h->setNextTunnelId(replyTunnelId);
+				m_tunnelId = h->getNextTunnelId();
+				m_nextMsgId = h->getNextMsgId();
 			} else
 				h = std::make_shared<TunnelHop>(hops[i], lastRouterHash, lastTunnelId);
 
@@ -21,8 +23,6 @@ namespace i2pcpp {
 
 			m_hops.push_front(h);
 		}
-
-		m_gateway = m_hops.front()->getTunnelId();
 	}
 
 	Tunnel::Direction OutboundTunnel::getDirection() const

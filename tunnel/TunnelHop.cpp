@@ -8,7 +8,8 @@ namespace i2pcpp {
 	TunnelHop::TunnelHop(RouterIdentity const &local, RouterHash const &nextHash) :
 		m_localHash(local.getHash()),
 		m_nextHash(nextHash),
-		m_encryptionKey(local.getEncryptionKey())
+		m_encryptionKey(local.getEncryptionKey()),
+		m_requestTime(std::chrono::duration_cast<std::chrono::hours>(std::chrono::system_clock::now().time_since_epoch()).count())
 	{
 		Botan::AutoSeeded_RNG rng;
 
@@ -21,7 +22,8 @@ namespace i2pcpp {
 		m_localHash(local.getHash()),
 		m_nextHash(nextHash),
 		m_nextTunnelId(nextTunnelId),
-		m_encryptionKey(local.getEncryptionKey())
+		m_encryptionKey(local.getEncryptionKey()),
+		m_requestTime(std::chrono::duration_cast<std::chrono::hours>(std::chrono::system_clock::now().time_since_epoch()).count())
 	{
 		randomize();
 	}
@@ -150,5 +152,6 @@ namespace i2pcpp {
 		rng.randomize(m_tunnelIVKey.data(), m_tunnelIVKey.size());
 		rng.randomize(m_replyKey.data(), m_replyKey.size());
 		rng.randomize(m_replyIV.data(), m_replyIV.size());
+		rng.randomize((unsigned char *)&m_nextMsgId, sizeof(m_nextMsgId));
 	}
 }

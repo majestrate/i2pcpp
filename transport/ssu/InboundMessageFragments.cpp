@@ -103,7 +103,7 @@ namespace i2pcpp {
 				if(ims->allFragmentsReceived()) {
 					const ByteArray data = ims->assemble();
 					if(data.size())
-						m_transport.post(boost::bind(boost::ref(m_transport.m_receivedSignal), ims->getRouterHash(), data));
+						m_transport.post(boost::bind(boost::ref(m_transport.m_receivedSignal), ims->getRouterHash(), msgId, data));
 				}
 			}
 		}

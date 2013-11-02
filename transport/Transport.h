@@ -11,7 +11,7 @@ namespace i2pcpp {
 	class Transport {
 		public:
 			typedef boost::signals2::signal<void(const RouterHash, bool)> EstablishedSignal;
-			typedef boost::signals2::signal<void(const RouterHash, const ByteArray)> ReceivedSignal;
+			typedef boost::signals2::signal<void(const RouterHash, const uint32_t, const ByteArray)> ReceivedSignal;
 			typedef boost::signals2::signal<void(const RouterHash)> FailureSignal;
 			typedef boost::signals2::signal<void(const RouterHash)> DisconnectedSignal;
 

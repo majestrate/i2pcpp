@@ -14,7 +14,7 @@
 
 namespace i2pcpp {
 	namespace I2NP {
-		MessagePtr Message::fromBytes(ByteArray const &data, bool standardHeader)
+		MessagePtr Message::fromBytes(uint32_t const msgId, ByteArray const &data, bool standardHeader)
 		{
 			MessagePtr m;
 
@@ -55,13 +55,14 @@ namespace i2pcpp {
 					return MessagePtr();
 			}
 
-			if(standardHeader) {
-				dataItr += 4; // unused msgId
+			m->m_msgId = msgId;
 
+			if(standardHeader) {
+				m->m_msgId = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
 				m->m_longExpiration = Date(dataItr, data.cend());
 
 				uint16_t size = (*(dataItr++) << 8) | *(dataItr++);
-				uint8_t checksum = *dataItr++;
+				uint8_t checksum = *dataItr++; // TODO verify this
 
 				if(data.cend() - dataItr != size)
 					throw FormattingError();

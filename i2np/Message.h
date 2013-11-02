@@ -27,7 +27,7 @@ namespace i2pcpp {
 					VARIABLE_TUNNEL_BUILD_REPLY = 24
 				};
 
-				static std::shared_ptr<Message> fromBytes(ByteArray const &data, bool standardHeader = false);
+				static std::shared_ptr<Message> fromBytes(uint32_t const msgId, ByteArray const &data, bool standardHeader = false);
 
 				ByteArray toBytes() const;
 				uint32_t getMsgId() const;

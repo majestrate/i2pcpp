@@ -25,7 +25,7 @@ namespace i2pcpp {
 			TunnelManager& operator=(TunnelManager &) = delete;
 
 			void begin();
-			void receiveRecords(std::list<BuildRecordPtr> records);
+			void receiveRecords(uint32_t const msgId, std::list<BuildRecordPtr> records);
 			void receiveGatewayData(uint32_t const tunnelId, ByteArray const data);
 			void receiveData(uint32_t const tunnelId, std::array<unsigned char, 1024> const data);
 
@@ -36,9 +36,11 @@ namespace i2pcpp {
 			boost::asio::io_service &m_ios;
 			RouterContext &m_ctx;
 
+			std::unordered_map<uint32_t, TunnelPtr> m_pending;
 			std::unordered_map<uint32_t, TunnelPtr> m_tunnels;
 			std::unordered_map<uint32_t, TunnelHopPtr> m_participating;
 
+			mutable std::mutex m_pendingMutex;
 			mutable std::mutex m_tunnelsMutex;
 			mutable std::mutex m_participatingMutex;
 

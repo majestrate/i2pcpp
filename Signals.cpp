@@ -11,9 +11,9 @@ namespace i2pcpp {
 		return m_databaseStore.connect(dbsh);
 	}
 
-	void Signals::invokeTunnelRecordsReceived(const std::list<BuildRecordPtr> &records)
+	void Signals::invokeTunnelRecordsReceived(const uint32_t msgId, const std::list<BuildRecordPtr> &records)
 	{
-		m_ios.post(boost::bind(boost::ref(m_buildTunnelRequest), records));
+		m_ios.post(boost::bind(boost::ref(m_buildTunnelRequest), msgId, records));
 	}
 
 	boost::signals2::connection Signals::registerTunnelRecordsReceived(BuildTunnelRequest::slot_type const &btrh)

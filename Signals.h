@@ -11,7 +11,7 @@ namespace i2pcpp {
 	class Signals {
 		public:
 			typedef boost::signals2::signal<void(const RouterHash, const std::array<unsigned char, 32>, bool)> DatabaseStore;
-			typedef boost::signals2::signal<void(std::list<BuildRecordPtr>)> BuildTunnelRequest;
+			typedef boost::signals2::signal<void(const uint32_t, std::list<BuildRecordPtr>)> BuildTunnelRequest;
 			typedef boost::signals2::signal<void(const RouterHash)> PeerConnected;
 			typedef boost::signals2::signal<void(const RouterHash)> ConnectionFailure;
 			typedef boost::signals2::signal<void(const RouterHash, const std::array<unsigned char, 32>, const std::list<RouterHash>)> SearchReply;
@@ -23,7 +23,7 @@ namespace i2pcpp {
 			void invokeDatabaseStore(RouterHash const &from, std::array<unsigned char, 32> const &k, bool isRouterInfo = true);
 			boost::signals2::connection registerDatabaseStore(DatabaseStore::slot_type const &dbsh);
 
-			void invokeTunnelRecordsReceived(std::list<BuildRecordPtr> const &records);
+			void invokeTunnelRecordsReceived(uint32_t const msgId, std::list<BuildRecordPtr> const &records);
 			boost::signals2::connection registerTunnelRecordsReceived(BuildTunnelRequest::slot_type const &btrh);
 
 			void invokePeerConnected(RouterHash const &rh);

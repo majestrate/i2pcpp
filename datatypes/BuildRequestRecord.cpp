@@ -75,6 +75,8 @@ namespace i2pcpp {
 
 	void BuildRequestRecord::compile()
 	{
+		m_data.clear();
+
 		uint32_t tunnelId = m_hop.getTunnelId();
 		m_data.insert(m_data.end(), tunnelId >> 24);
 		m_data.insert(m_data.end(), tunnelId >> 16);

@@ -43,6 +43,11 @@ namespace i2pcpp {
 		return m_hops.front()->getLocalHash();
 	}
 
+	uint32_t Tunnel::getNextMsgId() const
+	{
+		return m_nextMsgId;
+	}
+
 	void Tunnel::handleResponses(std::list<BuildRecordPtr> const &records)
 	{
 		bool allgood = true;
