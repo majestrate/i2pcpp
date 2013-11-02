@@ -162,7 +162,7 @@ include_directories(BEFORE i2p ${BOTAN_INCLUDE_DIR})
 target_link_libraries(i2p ${BOTAN_LIBRARY_PATH})
 
 # Boost
-find_package(Boost 1.53.0 REQUIRED COMPONENTS system thread filesystem chrono date_time program_options log)
+find_package(Boost 1.54.0 REQUIRED COMPONENTS system thread filesystem chrono date_time program_options log)
 include_directories(BEFORE i2p ${Boost_INCLUDE_DIR})
 target_link_libraries(i2p ${Boost_LIBRARIES})
 add_definitions(-DBOOST_ALL_DYN_LINK)

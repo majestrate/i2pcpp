@@ -1,0 +1,151 @@
+diff -Naur Botan-1.11.4.old/src/filters/compression/bzip2/bzip2.cpp Botan-1.11.4.new/src/filters/compression/bzip2/bzip2.cpp
+--- Botan-1.11.4.old/src/filters/compression/bzip2/bzip2.cpp	2013-07-25 16:15:54.000000000 -0400
++++ Botan-1.11.4.new/src/filters/compression/bzip2/bzip2.cpp	2013-11-01 22:41:30.323886099 -0400
+@@ -14,6 +14,7 @@
+ #include <cstring>
+ #define BZ_NO_STDIO
+ #include <bzlib.h>
++#include <cstdlib>
+ 
+ namespace Botan {
+ 
+diff -Naur Botan-1.11.4.old/src/filters/compression/lzma/lzma.cpp Botan-1.11.4.new/src/filters/compression/lzma/lzma.cpp
+--- Botan-1.11.4.old/src/filters/compression/lzma/lzma.cpp	2013-07-25 16:15:54.000000000 -0400
++++ Botan-1.11.4.new/src/filters/compression/lzma/lzma.cpp	2013-11-01 22:42:01.220714434 -0400
+@@ -14,6 +14,7 @@
+ #include <cstring>
+ #include <map>
+ #include <lzma.h>
++#include <cstdlib>
+ 
+ namespace Botan {
+ 
+diff -Naur Botan-1.11.4.old/src/filters/compression/zlib/zlib.cpp Botan-1.11.4.new/src/filters/compression/zlib/zlib.cpp
+--- Botan-1.11.4.old/src/filters/compression/zlib/zlib.cpp	2013-07-25 16:15:54.000000000 -0400
++++ Botan-1.11.4.new/src/filters/compression/zlib/zlib.cpp	2013-11-01 22:51:33.504674828 -0400
+@@ -13,6 +13,7 @@
+ #include <cstring>
+ #include <map>
+ #include <zlib.h>
++#include <cstdlib>
+ 
+ namespace Botan {
+ 
+@@ -112,7 +113,7 @@
+    int res = deflateInit2(&(zlib->stream),
+                           level,
+                           Z_DEFLATED,
+-                          (raw_deflate ? -15 : 15),
++                          (raw_deflate ? -15 : (MAX_WBITS + 16)),
+                           8,
+                           Z_DEFAULT_STRATEGY);
+ 
+@@ -215,7 +216,7 @@
+    clear();
+    zlib = new Zlib_Stream;
+ 
+-   if(inflateInit2(&(zlib->stream), (raw_deflate ? -15 : 15)) != Z_OK)
++   if(inflateInit2(&(zlib->stream), (raw_deflate ? -15 : (MAX_WBITS + 32))) != Z_OK)
+       throw Memory_Exhaustion();
+    }
+ 
+@@ -257,7 +258,12 @@
+       if(rc == Z_STREAM_END)
+          {
+          size_t read_from_block = length - zlib->stream.avail_in;
+-         start_msg();
++
++         clear();
++         zlib = new Zlib_Stream;
++         if(inflateInit2(&(zlib->stream), (raw_deflate ? -15 : (MAX_WBITS + 32))) != Z_OK) {
++           throw Memory_Exhaustion();
++         }
+ 
+          zlib->stream.next_in = input + read_from_block;
+          zlib->stream.avail_in = length - read_from_block;
+diff -Naur Botan-1.11.4.old/src/filters/pk_filts/pk_filts.cpp Botan-1.11.4.new/src/filters/pk_filts/pk_filts.cpp
+--- Botan-1.11.4.old/src/filters/pk_filts/pk_filts.cpp	2013-07-25 16:15:54.000000000 -0400
++++ Botan-1.11.4.new/src/filters/pk_filts/pk_filts.cpp	2013-11-01 22:46:34.941026629 -0400
+@@ -9,6 +9,11 @@
+ 
+ namespace Botan {
+ 
++std::string PK_Encryptor_Filter::name() const
++   {
++   return "PK_Encryptor_Filter";
++   }
++
+ /*
+ * Append to the buffer
+ */
+@@ -26,6 +31,11 @@
+    buffer.clear();
+    }
+ 
++std::string PK_Decryptor_Filter::name() const
++   {
++   return "PK_Decryptor_Filter";
++   }
++
+ /*
+ * Append to the buffer
+ */
+@@ -43,6 +53,11 @@
+    buffer.clear();
+    }
+ 
++std::string PK_Signer_Filter::name() const
++   {
++   return "PK_Signer_Filter";
++   }
++
+ /*
+ * Add more data
+ */
+@@ -59,6 +74,11 @@
+    send(signer->signature(rng));
+    }
+ 
++std::string PK_Verifier_Filter::name() const
++   {
++   return "PK_Verifier_Filter";
++   }
++
+ /*
+ * Add more data
+ */
+diff -Naur Botan-1.11.4.old/src/filters/pk_filts/pk_filts.h Botan-1.11.4.new/src/filters/pk_filts/pk_filts.h
+--- Botan-1.11.4.old/src/filters/pk_filts/pk_filts.h	2013-07-25 16:15:54.000000000 -0400
++++ Botan-1.11.4.new/src/filters/pk_filts/pk_filts.h	2013-11-01 22:47:13.189692481 -0400
+@@ -19,6 +19,7 @@
+ class BOTAN_DLL PK_Encryptor_Filter : public Filter
+    {
+    public:
++      std::string name() const;
+       void write(const byte[], size_t);
+       void end_msg();
+       PK_Encryptor_Filter(PK_Encryptor* c,
+@@ -37,6 +38,7 @@
+ class BOTAN_DLL PK_Decryptor_Filter : public Filter
+    {
+    public:
++      std::string name() const;
+       void write(const byte[], size_t);
+       void end_msg();
+       PK_Decryptor_Filter(PK_Decryptor* c) : cipher(c) {}
+@@ -52,6 +54,7 @@
+ class BOTAN_DLL PK_Signer_Filter : public Filter
+    {
+    public:
++      std::string name() const;
+       void write(const byte[], size_t);
+       void end_msg();
+ 
+@@ -71,6 +74,7 @@
+ class BOTAN_DLL PK_Verifier_Filter : public Filter
+    {
+    public:
++      std::string name() const;
+       void write(const byte[], size_t);
+       void end_msg();
+ 
