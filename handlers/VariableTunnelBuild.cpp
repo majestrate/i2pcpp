@@ -22,7 +22,7 @@ namespace i2pcpp {
 			I2P_LOG_SCOPED_RH(m_log, from);
 			I2P_LOG(m_log, debug) << "received VariableTunnelBuild message";
 
-			m_ctx.getSignals().invokeTunnelRecordsReceived(vtb->getRecords());
+			m_ctx.getSignals().invokeTunnelRecordsReceived(vtb->getMsgId(), vtb->getRecords());
 		}
 	}
 }

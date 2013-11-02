@@ -14,7 +14,7 @@ namespace i2pcpp {
 			public:
 				OutboundMessageFragments(UDPTransport &transport);
 
-				void sendData(PeerStatePtr const &ps, ByteArray const &data);
+				void sendData(PeerStatePtr const &ps, uint32_t msgId, ByteArray const &data);
 
 			private:
 				void sendDataCallback(PeerStatePtr ps, uint32_t msgId);

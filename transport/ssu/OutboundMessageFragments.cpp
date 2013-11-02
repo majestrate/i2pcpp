@@ -7,11 +7,11 @@ namespace i2pcpp {
 		OutboundMessageFragments::OutboundMessageFragments(UDPTransport &transport) :
 			m_transport(transport) {}
 
-		void OutboundMessageFragments::sendData(PeerStatePtr const &ps, ByteArray const &data)
+		void OutboundMessageFragments::sendData(PeerStatePtr const &ps, uint32_t msgId, ByteArray const &data)
 		{
 			std::lock_guard<std::mutex> lock(ps->getMutex());
 
-			auto oms = std::make_shared<OutboundMessageState>(data);
+			auto oms = std::make_shared<OutboundMessageState>(msgId, data);
 
 			ps->addOutboundMessageState(oms);
 

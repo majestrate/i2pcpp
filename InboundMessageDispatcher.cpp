@@ -24,7 +24,7 @@ namespace i2pcpp {
 		m_tunnelGatewayHandler(ctx),
 		m_log(boost::log::keywords::channel = "IMD") {}
 
-	void InboundMessageDispatcher::messageReceived(RouterHash const from, ByteArray data)
+	void InboundMessageDispatcher::messageReceived(RouterHash const from, uint32_t const msgId, ByteArray data)
 	{
 		I2P_LOG_SCOPED_RH(m_log, from);
 
@@ -32,7 +32,7 @@ namespace i2pcpp {
 		for(auto c: data) s << std::setw(2) << std::setfill('0') << std::hex << (int)c;
 		I2P_LOG(m_log, debug) << "received data: " << s.str();
 
-		I2NP::MessagePtr m = I2NP::Message::fromBytes(data);
+		I2NP::MessagePtr m = I2NP::Message::fromBytes(msgId, data);
 		if(m) {
 			switch(m->getType())
 			{

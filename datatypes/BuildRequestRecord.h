@@ -25,8 +25,6 @@ namespace i2pcpp {
 		private:
 			TunnelHop m_hop;
 			std::bitset<8> m_flags;
-			uint32_t m_requestTime;
-			uint32_t m_nextMsgId;
 	};
 
 	typedef std::shared_ptr<BuildRequestRecord> BuildRequestRecordPtr;

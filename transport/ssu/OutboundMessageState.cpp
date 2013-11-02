@@ -1,18 +1,12 @@
 #include "OutboundMessageState.h"
 
-#include <botan/auto_rng.h>
-
 #include "../../Log.h"
 
 namespace i2pcpp {
 	namespace SSU {
-		OutboundMessageState::OutboundMessageState(ByteArray const &data) :
-			m_data(data)
-		{
-			Botan::AutoSeeded_RNG rng;
-
-			rng.randomize((unsigned char *)&m_msgId, sizeof(m_msgId));
-		}
+		OutboundMessageState::OutboundMessageState(uint32_t msgId, ByteArray const &data) :
+			m_msgId(msgId),
+			m_data(data) {}
 
 		void OutboundMessageState::fragment()
 		{

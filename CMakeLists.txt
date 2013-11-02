@@ -99,11 +99,11 @@ set(TEST_SRCS
 	)
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -stdlib=libc++ -Wno-constexpr-not-const")
-	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -stdlib=libc++ -Wno-constexpr-not-const")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -stdlib=libc++")
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -stdlib=libc++")
 endif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-constexpr-not-const")
 
 add_executable(i2p main.cpp ${SRCS})
 
@@ -162,7 +162,7 @@ include_directories(BEFORE i2p ${BOTAN_INCLUDE_DIR})
 target_link_libraries(i2p ${BOTAN_LIBRARY_PATH})
 
 # Boost
-find_package(Boost 1.53.0 REQUIRED COMPONENTS system thread filesystem chrono date_time program_options log)
+find_package(Boost 1.54.0 REQUIRED COMPONENTS system thread filesystem chrono date_time program_options log)
 include_directories(BEFORE i2p ${Boost_INCLUDE_DIR})
 target_link_libraries(i2p ${Boost_LIBRARIES})
 add_definitions(-DBOOST_ALL_DYN_LINK)

@@ -14,7 +14,7 @@ namespace i2pcpp {
 	namespace SSU {
 		class OutboundMessageState {
 			public:
-				OutboundMessageState(ByteArray const &data);
+				OutboundMessageState(uint32_t msgId, ByteArray const &data);
 
 				const PacketBuilder::FragmentPtr getNextFragment();
 				const PacketBuilder::FragmentPtr getNextUnackdFragment() const;

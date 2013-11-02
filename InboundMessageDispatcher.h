@@ -21,7 +21,7 @@ namespace i2pcpp {
 			InboundMessageDispatcher(const InboundMessageDispatcher &) = delete;
 			InboundMessageDispatcher& operator=(InboundMessageDispatcher &) = delete;
 
-			void messageReceived(RouterHash const from, ByteArray data);
+			void messageReceived(RouterHash const from, uint32_t const msgId, ByteArray data);
 			void connectionEstablished(RouterHash const rh, bool inbound);
 			void connectionFailure(RouterHash const rh);
 

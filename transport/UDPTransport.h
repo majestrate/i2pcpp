@@ -32,7 +32,7 @@ namespace i2pcpp {
 
 			void start(Endpoint const &ep);
 			void connect(RouterInfo const &ri);
-			void send(RouterHash const &rh, ByteArray const &data);
+			void send(RouterHash const &rh, uint32_t msgId, ByteArray const &data);
 			void disconnect(RouterHash const &rh);
 			uint32_t numPeers() const;
 			bool isConnected(RouterHash const &rh) const;
@@ -51,7 +51,7 @@ namespace i2pcpp {
 			boost::asio::io_service m_ios;
 			boost::asio::ip::udp::socket m_socket;
 			boost::asio::ip::udp::endpoint m_senderEndpoint;
-			std::array<unsigned char, 1024> m_receiveBuf;
+			std::array<unsigned char, 2048> m_receiveBuf;
 
 			std::thread m_serviceThread;
 

@@ -12,7 +12,7 @@ namespace i2pcpp {
 		if(!m_transport) throw std::logic_error("No transport registered");
 
 		if(m_transport->isConnected(to))
-			m_transport->send(to, msg->toBytes());
+			m_transport->send(to, msg->getMsgId(), msg->toBytes());
 		else {
 			I2P_LOG_SCOPED_RH(m_log, to);
 			I2P_LOG(m_log, debug) << "not connected, queueing message";
@@ -67,7 +67,7 @@ namespace i2pcpp {
 		for(auto itr = bucket.first; itr != bucket.second; ++itr) {
 			I2P_LOG(m_log, debug) << "connected to peer, flushing queue";
 
-			m_transport->send(itr->first, itr->second->toBytes());
+			m_transport->send(itr->first, itr->second->getMsgId(), itr->second->toBytes());
 		}
 	}
 

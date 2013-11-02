@@ -27,16 +27,19 @@ namespace i2pcpp {
 					VARIABLE_TUNNEL_BUILD_REPLY = 24
 				};
 
-				static std::shared_ptr<Message> fromBytes(ByteArray const &data, bool standardHeader = false);
+				static std::shared_ptr<Message> fromBytes(uint32_t const msgId, ByteArray const &data, bool standardHeader = false);
 
 				ByteArray toBytes() const;
+				uint32_t getMsgId() const;
 				virtual Type getType() const = 0;
 
 			protected:
-				Message() {}
+				Message();
+				Message(uint32_t msgId);
 				virtual ByteArray getBytes() const = 0;
 				virtual bool parse(ByteArrayConstItr &begin, ByteArrayConstItr end) = 0;
 
+				uint32_t m_msgId;
 				uint32_t m_expiration;
 				Date m_longExpiration;
 		};

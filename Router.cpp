@@ -32,7 +32,7 @@ namespace i2pcpp {
 		});
 
 		TransportPtr t = TransportPtr(new UDPTransport(*m_ctx.getSigningKey(), m_ctx.getIdentity()));
-		t->registerReceivedHandler(boost::bind(&InboundMessageDispatcher::messageReceived, boost::ref(m_ctx.getInMsgDisp()), _1, _2));
+		t->registerReceivedHandler(boost::bind(&InboundMessageDispatcher::messageReceived, boost::ref(m_ctx.getInMsgDisp()), _1, _2, _3));
 		t->registerEstablishedHandler(boost::bind(&InboundMessageDispatcher::connectionEstablished, boost::ref(m_ctx.getInMsgDisp()), _1, _2));
 		t->registerFailureSignal(boost::bind(&InboundMessageDispatcher::connectionFailure, boost::ref(m_ctx.getInMsgDisp()), _1));
 		t->registerDisconnectedSignal(boost::bind(&PeerManager::disconnected, boost::ref(m_ctx.getPeerManager()), _1));
@@ -48,7 +48,7 @@ namespace i2pcpp {
 		m_ctx.getSignals().registerSearchReply(boost::bind(&DHT::SearchManager::searchReply, boost::ref(m_ctx.getSearchManager()), _1, _2, _3));
 		m_ctx.getSignals().registerDatabaseStore(boost::bind(&DHT::SearchManager::databaseStore, boost::ref(m_ctx.getSearchManager()), _1, _2, _3));
 
-		m_ctx.getSignals().registerTunnelRecordsReceived(boost::bind(&TunnelManager::receiveRecords, boost::ref(m_ctx.getTunnelManager()), _1));
+		m_ctx.getSignals().registerTunnelRecordsReceived(boost::bind(&TunnelManager::receiveRecords, boost::ref(m_ctx.getTunnelManager()), _1, _2));
 		m_ctx.getSignals().registerTunnelGatewayData(boost::bind(&TunnelManager::receiveGatewayData, boost::ref(m_ctx.getTunnelManager()), _1, _2));
 		m_ctx.getSignals().registerTunnelData(boost::bind(&TunnelManager::receiveData, boost::ref(m_ctx.getTunnelManager()), _1, _2));
 
@@ -58,8 +58,8 @@ namespace i2pcpp {
 		std::shared_ptr<UDPTransport> u = std::static_pointer_cast<UDPTransport>(t);
 		u->start(Endpoint(m_ctx.getDatabase().getConfigValue("ssu_bind_ip"), std::stoi(m_ctx.getDatabase().getConfigValue("ssu_bind_port"))));
 
-		m_ctx.getPeerManager().begin();
-		//m_ctx.getTunnelManager().begin();
+		//m_ctx.getPeerManager().begin();
+		m_ctx.getTunnelManager().begin();
 	}
 
 	void Router::stop()
