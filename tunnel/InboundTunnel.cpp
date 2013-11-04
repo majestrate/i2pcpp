@@ -21,8 +21,6 @@ namespace i2pcpp {
 				h = std::make_shared<TunnelHop>(hops[i], myHash);
 				m_tunnelId = h->getNextTunnelId();
 				m_nextMsgId = h->getNextMsgId();
-				m_tunnelLayerKey = h->getTunnelLayerKey();
-				m_tunnelIVKey = h->getTunnelIVKey();
 			} else
 				h = std::make_shared<TunnelHop>(hops[i], lastRouterHash, lastTunnelId);
 
@@ -38,15 +36,5 @@ namespace i2pcpp {
 	Tunnel::Direction InboundTunnel::getDirection() const
 	{
 		return Direction::INBOUND;
-	}
-
-	SessionKey InboundTunnel::getTunnelLayerKey() const
-	{
-		return m_tunnelLayerKey;
-	}
-
-	SessionKey InboundTunnel::getTunnelIVKey() const
-	{
-		return m_tunnelIVKey;
 	}
 }

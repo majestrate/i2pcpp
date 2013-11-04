@@ -11,13 +11,6 @@ namespace i2pcpp {
 			InboundTunnel(RouterHash const &myHash, std::vector<RouterIdentity> const &hops = {});
 
 			Tunnel::Direction getDirection() const;
-
-			SessionKey getTunnelLayerKey() const;
-			SessionKey getTunnelIVKey() const;
-
-		private:
-			SessionKey m_tunnelLayerKey;
-			SessionKey m_tunnelIVKey;
 	};
 }
 
