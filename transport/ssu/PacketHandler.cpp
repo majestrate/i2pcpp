@@ -52,6 +52,9 @@ namespace i2pcpp {
 					I2P_LOG(m_log, debug) << "received session destroy";
 					handleSessionDestroyed(state);
 					break;
+
+				default:
+					break;
 			}
 		}
 
@@ -87,6 +90,9 @@ namespace i2pcpp {
 				case Packet::SESSION_DESTROY:
 					I2P_LOG(m_log, debug) << "received session destroy";
 					handleSessionDestroyed(state);
+					break;
+
+				default:
 					break;
 			}
 		}

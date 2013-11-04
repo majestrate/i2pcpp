@@ -37,7 +37,7 @@ i2pcpp should be built out of source:
 
 The following cmake variables are recognized:
 
-* CMAKE_BUILD_TYPE (Debug or Release)
+* CMAKE_BUILD_TYPE (Debug, Release, or MinSizeRel)
 * CMAKE_CXX_COMPILER
 * BOOST_INCLUDEDIR
 * Boost_LIB_PREFIX

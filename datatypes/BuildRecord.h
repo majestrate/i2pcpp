@@ -1,6 +1,7 @@
 #ifndef BUILDRECORD_H
 #define BUILDRECORD_H
 
+#include <bitset>
 #include <memory>
 
 #include <botan/elgamal.h>
