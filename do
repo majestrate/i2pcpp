@@ -162,6 +162,6 @@ if [ "$TRACE" != "" ] ; then
 fi
 
 # run with 4 jobs
-runit 1 $PWD
+runit 4 $PWD
 
 

@@ -95,24 +95,16 @@ set(TEST_SRCS
 	util/I2PHMAC.cpp
 	)
 
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -stdlib=libc++")
-	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -stdlib=libc++")
-	set(CMAKE_CXX_FLAGS_MINSIZEREL "-Oz")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-constexpr-not-const")
-else("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-	message(WARNING "Beware: Only clang is officially supported!")
-endif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+set(CMAKE_CXX_FLAGS_MINSIZEREL "-Os")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-constexpr-not-const")
 
 add_executable(i2p main.cpp ${SRCS})
 
-if("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
-	get_target_property(i2p_LOCATION i2p LOCATION)
-	add_custom_command(
-		TARGET i2p
-		POST_BUILD
-		COMMAND ${CMAKE_STRIP} -s ${i2p_LOCATION})
-endif("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
+get_target_property(i2p_LOCATION i2p LOCATION)
+add_custom_command(
+	TARGET i2p
+	POST_BUILD
+	COMMAND ${CMAKE_STRIP} -s ${i2p_LOCATION})
 
 # Version information
 add_custom_command(
