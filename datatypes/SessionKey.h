@@ -1,21 +1,10 @@
 #ifndef SESSIONKEY_H
 #define SESSIONKEY_H
 
-#include <array>
-
-#include "RouterHash.h"
+#include "StaticByteArray.h"
 
 namespace i2pcpp {
-	class SessionKey : public std::array<unsigned char, 32> {
-		public:
-			SessionKey();
-			SessionKey(std::array<unsigned char, 32> const &a);
-			SessionKey(ByteArray const &b);
-
-			SessionKey& operator=(RouterHash const &rh);
-	};
+	typedef StaticByteArray<32, true> SessionKey;
 }
-
-std::ostream& operator<<(std::ostream &s, i2pcpp::SessionKey const &sk);
 
 #endif

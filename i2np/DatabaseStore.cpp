@@ -4,7 +4,7 @@ namespace i2pcpp {
 	namespace I2NP {
 		DatabaseStore::DatabaseStore() {}
 
-		DatabaseStore::DatabaseStore(std::array<unsigned char, 32> const &key, DataType type, uint32_t replyToken, ByteArray const &data) :
+		DatabaseStore::DatabaseStore(StaticByteArray<32> const &key, DataType type, uint32_t replyToken, ByteArray const &data) :
 			Message(),
 			m_key(key),
 			m_type(type),

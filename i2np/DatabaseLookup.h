@@ -12,7 +12,7 @@ namespace i2pcpp {
 		class DatabaseLookup : public Message {
 			public:
 				DatabaseLookup();
-				DatabaseLookup(std::array<unsigned char, 32> const &key, RouterHash const &from, uint32_t sendReplyTo, std::list<RouterHash> excludedPeers = std::list<RouterHash>());
+				DatabaseLookup(StaticByteArray<32> const &key, RouterHash const &from, uint32_t sendReplyTo, std::list<RouterHash> excludedPeers = std::list<RouterHash>());
 
 				Message::Type getType() const;
 
@@ -21,7 +21,7 @@ namespace i2pcpp {
 				bool parse(ByteArrayConstItr &begin, ByteArrayConstItr end);
 
 			private:
-				std::array<unsigned char, 32> m_key;
+				StaticByteArray<32> m_key;
 				RouterHash m_from;
 				uint32_t m_sendReplyTo;
 				std::list<RouterHash> m_excludedPeers;

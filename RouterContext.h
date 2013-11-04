@@ -45,7 +45,7 @@ namespace i2pcpp {
 		private:
 			Botan::ElGamal_PrivateKey *m_encryptionKey;
 			Botan::DSA_PrivateKey *m_signingKey;
-			RouterIdentity m_identity;
+			RouterIdentity *m_identity;
 
 			Database m_db;
 

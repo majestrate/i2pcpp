@@ -19,7 +19,7 @@ namespace i2pcpp {
 		{
 			std::shared_ptr<I2NP::TunnelGateway> tg = std::dynamic_pointer_cast<I2NP::TunnelGateway>(msg);
 
-			I2P_LOG_SCOPED_RH(m_log, from);
+			I2P_LOG_SCOPED_TAG(m_log, "RouterHash", from);
 			I2P_LOG(m_log, debug) << "received TunnelGateway message";
 
 			m_ctx.getSignals().invokeTunnelGatewayData(tg->getTunnelId(), tg->getData());

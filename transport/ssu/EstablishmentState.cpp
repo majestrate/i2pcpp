@@ -11,7 +11,7 @@ namespace i2pcpp {
 			m_direction(EstablishmentState::INBOUND),
 			m_dsaKey(dsaKey),
 			m_myIdentity(myIdentity),
-			m_sessionKey(myIdentity.getHash()),
+			m_sessionKey((ByteArray)myIdentity.getHash()),
 			m_macKey(m_sessionKey),
 			m_theirEndpoint(ep)
 		{
@@ -22,11 +22,18 @@ namespace i2pcpp {
 		}
 
 		EstablishmentState::EstablishmentState(Botan::DSA_PrivateKey const &dsaKey, RouterIdentity const &myIdentity, Endpoint const &ep, RouterIdentity const &theirIdentity) :
-			EstablishmentState(dsaKey, myIdentity, ep)
+			m_direction(EstablishmentState::OUTBOUND),
+			m_dsaKey(dsaKey),
+			m_myIdentity(myIdentity),
+			m_sessionKey((ByteArray)theirIdentity.getHash()),
+			m_macKey(m_sessionKey),
+			m_theirEndpoint(ep),
+			m_theirIdentity(std::make_shared<RouterIdentity>(theirIdentity))
 		{
-			m_direction = EstablishmentState::OUTBOUND;
-			m_theirIdentity = theirIdentity;
-			m_sessionKey = m_macKey = theirIdentity.getHash();
+			Botan::AutoSeeded_RNG rng;
+			Botan::DL_Group dh_group("modp/ietf/2048");
+
+			m_dhKey = new Botan::DH_PrivateKey(rng, dh_group);
 		}
 
 		EstablishmentState::~EstablishmentState()
@@ -103,12 +110,12 @@ namespace i2pcpp {
 
 		const RouterIdentity& EstablishmentState::getTheirIdentity() const
 		{
-			return m_theirIdentity;
+			return *m_theirIdentity;
 		}
 
 		void EstablishmentState::setTheirIdentity(RouterIdentity const &ri)
 		{
-			m_theirIdentity = ri;
+			m_theirIdentity = std::make_shared<RouterIdentity>(ri);
 		}
 
 		const RouterIdentity& EstablishmentState::getMyIdentity() const
@@ -249,7 +256,7 @@ namespace i2pcpp {
 			Botan::secure_vector<Botan::byte> decryptedSig(decryptedSize);
 			cipherPipe.read(decryptedSig.data(), decryptedSize);
 
-			const ByteArray dsaKeyBytes = m_theirIdentity.getSigningKey();
+			const ByteArray dsaKeyBytes = m_theirIdentity->getSigningKey();
 			Botan::DSA_PublicKey dsaKey(DH::getGroup(), Botan::BigInt(dsaKeyBytes.data(), dsaKeyBytes.size()));
 
 			Botan::Pipe sigPipe(new Botan::Hash_Filter("SHA-1"), new Botan::PK_Verifier_Filter(new Botan::PK_Verifier(dsaKey, "Raw"), decryptedSig));
@@ -291,7 +298,7 @@ namespace i2pcpp {
 
 		bool EstablishmentState::verifyConfirmationSignature() const
 		{
-			const ByteArray dsaKeyBytes = m_theirIdentity.getSigningKey();
+			const ByteArray dsaKeyBytes = m_theirIdentity->getSigningKey();
 			Botan::DSA_PublicKey dsaKey(DH::getGroup(), Botan::BigInt(dsaKeyBytes.data(), dsaKeyBytes.size()));
 
 			Botan::secure_vector<Botan::byte> sig(m_signature.cbegin(), m_signature.cend());

@@ -12,7 +12,7 @@ namespace i2pcpp {
 			m_identity(ri),
 	 		m_log(boost::log::keywords::channel = "PS")
 		{
-			I2P_LOG_RH(m_log, m_identity.getHash());
+			I2P_LOG_TAG(m_log, "RouterHash", m_identity.getHash());
 		}
 
 		InboundMessageStatePtr PeerState::getInboundMessageState(const uint32_t msgId) const

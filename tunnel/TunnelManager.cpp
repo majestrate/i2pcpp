@@ -105,6 +105,8 @@ namespace i2pcpp {
 	{
 		I2P_LOG(m_log, debug) << "received " << data.size() << " bytes for tunnel " << tunnelId;
 
+		/*auto itr = m_participating.find(tunnelId);
+		if(itr != m_participating.end()) {*/
 		I2NP::MessagePtr msg = I2NP::Message::fromBytes(0, data, true);
 		if(msg && msg->getType() == I2NP::Message::VARIABLE_TUNNEL_BUILD_REPLY) {
 			std::shared_ptr<I2NP::VariableTunnelBuildReply> vtbr = std::dynamic_pointer_cast<I2NP::VariableTunnelBuildReply>(msg);

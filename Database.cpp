@@ -241,7 +241,7 @@ namespace i2pcpp {
 
 				sqlite3_finalize(statement);
 			} else
-				throw RecordNotFound(std::string(routerHash));
+				throw RecordNotFound(routerHash);
 
 			Mapping router_options;
 

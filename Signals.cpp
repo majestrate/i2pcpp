@@ -1,7 +1,7 @@
 #include "Signals.h"
 
 namespace i2pcpp {
-	void Signals::invokeDatabaseStore(RouterHash const &from, std::array<unsigned char, 32> const &k, bool isRouterInfo)
+	void Signals::invokeDatabaseStore(RouterHash const &from, StaticByteArray<32> const &k, bool isRouterInfo)
 	{
 		m_ios.post(boost::bind(boost::ref(m_databaseStore), from, k, isRouterInfo));
 	}
@@ -41,7 +41,7 @@ namespace i2pcpp {
 		return m_connectionFailure.connect(cfh);
 	}
 
-	void Signals::invokeSearchReply(RouterHash const &from, std::array<unsigned char, 32> const &query, std::list<RouterHash> const &hashes)
+	void Signals::invokeSearchReply(RouterHash const &from, StaticByteArray<32> const &query, std::list<RouterHash> const &hashes)
 	{
 		m_ios.post(boost::bind(boost::ref(m_searchReply), from, query, hashes));
 	}

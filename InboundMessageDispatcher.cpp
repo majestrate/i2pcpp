@@ -26,11 +26,9 @@ namespace i2pcpp {
 
 	void InboundMessageDispatcher::messageReceived(RouterHash const from, uint32_t const msgId, ByteArray data)
 	{
-		I2P_LOG_SCOPED_RH(m_log, from);
+		I2P_LOG_SCOPED_TAG(m_log, "RouterHash", from);
 
-		std::stringstream s;
-		for(auto c: data) s << std::setw(2) << std::setfill('0') << std::hex << (int)c;
-		I2P_LOG(m_log, debug) << "received data: " << s.str();
+		I2P_LOG(m_log, debug) << "received data: " << data;
 
 		I2NP::MessagePtr m = I2NP::Message::fromBytes(msgId, data);
 		if(m) {
@@ -69,7 +67,7 @@ namespace i2pcpp {
 
 	void InboundMessageDispatcher::connectionEstablished(RouterHash const rh, bool inbound)
 	{
-		I2P_LOG_SCOPED_RH(m_log, rh);
+		I2P_LOG_SCOPED_TAG(m_log, "RouterHash", rh);
 		I2P_LOG(m_log, info) << "session established";
 
 		if(inbound) {
@@ -84,7 +82,7 @@ namespace i2pcpp {
 			Mapping am;
 			am.setValue("caps", "BC");
 			am.setValue("host", m_ctx.getDatabase().getConfigValue("ssu_external_ip"));
-			am.setValue("key", m_ctx.getIdentity().getHashEncoded());
+			am.setValue("key", m_ctx.getIdentity().getHash());
 			am.setValue("port", m_ctx.getDatabase().getConfigValue("ssu_external_port"));
 			RouterAddress a(5, Date(0), "SSU", am);
 

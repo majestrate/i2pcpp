@@ -14,7 +14,7 @@ namespace i2pcpp {
 		if(m_transport->isConnected(to))
 			m_transport->send(to, msg->getMsgId(), msg->toBytes());
 		else {
-			I2P_LOG_SCOPED_RH(m_log, to);
+			I2P_LOG_SCOPED_TAG(m_log, "RouterHash", to);
 			I2P_LOG(m_log, debug) << "not connected, queueing message";
 
 			std::lock_guard<std::mutex> lock(m_mutex);
@@ -76,7 +76,7 @@ namespace i2pcpp {
 		std::lock_guard<std::mutex> lock(m_mutex);
 
 		if(m_pending.count(v)) {
-			I2P_LOG_SCOPED_RH(m_log, v);
+			I2P_LOG_SCOPED_TAG(m_log, "RouterHash", v);
 			I2P_LOG(m_log, debug) << "DHT lookup succeeded, connecting to peer";
 
 			m_transport->connect(m_ctx.getDatabase().getRouterInfo(v));
@@ -88,7 +88,7 @@ namespace i2pcpp {
 		std::lock_guard<std::mutex> lock(m_mutex);
 
 		if(m_pending.count(k)) {
-			I2P_LOG_SCOPED_RH(m_log, k);
+			I2P_LOG_SCOPED_TAG(m_log, "RouterHash", k);
 			I2P_LOG(m_log, debug) << "DHT lookup failed, tossing queued messages";
 
 			m_pending.erase(k);

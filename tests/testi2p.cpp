@@ -135,7 +135,7 @@ TEST(Datatypes, RouterIdentity) {
 
 	auto sample = sample_routerInfo.cbegin();
 	RouterIdentity r1(sample, sample_routerInfo.cend());
-	ASSERT_EQ(r1.getHashEncoded(), "1pp0rQV7hK~XsLib8o8AHX74kWHmRjDsmDqF7aigZD0=");
+	ASSERT_EQ(r1.getHash(), StaticByteArray<32>("1pp0rQV7hK~XsLib8o8AHX74kWHmRjDsmDqF7aigZD0="));
 
 	ASSERT_EQ(r1.serialize(), ByteArray(sample_routerInfo.cbegin(), sample_routerInfo.cbegin() + 256 + 128 + 3));
 
@@ -169,17 +169,6 @@ TEST(Datatypes, RouterInfo) {
 
 	ASSERT_EQ(r1.getOptions().getValue("netdb.knownLeaseSets"), "37");
 	ASSERT_EQ(r1.getOptions().getValue("caps"), "OfR");
-}
-
-TEST(Datatypes, SessionKey) {
-	using namespace i2pcpp;
-
-	ByteArray sk_bytes = { 0x00 };
-	ASSERT_THROW(SessionKey sk(sk_bytes), std::logic_error);
-
-	sk_bytes = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f };
-
-	SessionKey sk(sk_bytes);
 }
 
 TEST(Utils, Base64) {

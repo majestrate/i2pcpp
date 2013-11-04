@@ -5,6 +5,8 @@
 
 #include "../datatypes/BuildRequestRecord.h"
 
+#include "../Log.h"
+
 #include "TunnelHop.h"
 
 namespace i2pcpp {
@@ -36,6 +38,8 @@ namespace i2pcpp {
 			State m_state = REQUESTED;
 			uint32_t m_tunnelId;
 			uint32_t m_nextMsgId;
+
+			i2p_logger_mt m_log;
 	};
 
 	typedef std::shared_ptr<Tunnel> TunnelPtr;

@@ -29,10 +29,10 @@ namespace i2pcpp {
 		signingKeyPublic = m_signingKey->get_y();
 
 		ByteArray encryptionKeyBytes = Botan::BigInt::encode(encryptionKeyPublic), signingKeyBytes = Botan::BigInt::encode(signingKeyPublic);
-		m_identity = RouterIdentity(encryptionKeyBytes, signingKeyBytes, Certificate());
+		m_identity = new RouterIdentity(encryptionKeyBytes, signingKeyBytes, Certificate());
 
 		// Populate the DHT
-		m_dht = std::make_shared<DHT::Kademlia>(m_identity.getHash());
+		m_dht = std::make_shared<DHT::Kademlia>(m_identity->getHash());
 		std::forward_list<RouterHash> hashes = m_db.getAllHashes();
 		for(auto h: hashes)
 			m_dht->insert(DHT::Kademlia::makeKey(h), h);
@@ -42,6 +42,7 @@ namespace i2pcpp {
 	{
 		if(m_encryptionKey) delete m_encryptionKey;
 		if(m_signingKey) delete m_signingKey;
+		if(m_identity) delete m_identity;
 	}
 
 	const Botan::ElGamal_PrivateKey *RouterContext::getEncryptionKey() const
@@ -56,7 +57,7 @@ namespace i2pcpp {
 
 	const RouterIdentity& RouterContext::getIdentity() const
 	{
-		return m_identity;
+		return *m_identity;
 	}
 
 	Database& RouterContext::getDatabase()

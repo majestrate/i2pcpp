@@ -5,6 +5,9 @@
 #include <array>
 #include <memory>
 
+#include <boost/functional/hash.hpp>
+
+#include "../datatypes/StaticByteArray.h"
 #include "../datatypes/RouterHash.h"
 
 #include "DistributedHashTable.h"
@@ -15,7 +18,7 @@
 
 namespace i2pcpp {
 	namespace DHT {
-		typedef std::array<unsigned char, KEY_SIZE> KademliaKey;
+		typedef StaticByteArray<KEY_SIZE> KademliaKey;
 		typedef RouterHash KademliaValue;
 
 		class Kademlia : public DistributedHashTable<KademliaKey, KademliaValue> {
@@ -41,17 +44,8 @@ namespace i2pcpp {
 
 		typedef std::shared_ptr<Kademlia> KademliaPtr;
 	}
+
+	std::size_t hash_value(DHT::KademliaKey const &k);
 }
 
-namespace std {
-	template<>
-	struct hash<i2pcpp::DHT::KademliaKey> {
-		public:
-			size_t operator()(const i2pcpp::DHT::KademliaKey &k) const
-			{
-				hash<string> f;
-				return f(string(k.cbegin(), k.cend()));
-			}
-	};
-}
 #endif

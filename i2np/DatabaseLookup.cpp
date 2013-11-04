@@ -4,7 +4,7 @@ namespace i2pcpp {
 	namespace I2NP {
 		DatabaseLookup::DatabaseLookup() {}
 
-		DatabaseLookup::DatabaseLookup(std::array<unsigned char, 32> const &key, RouterHash const &from, uint32_t sendReplyTo, std::list<RouterHash> excludedPeers) :
+		DatabaseLookup::DatabaseLookup(StaticByteArray<32> const &key, RouterHash const &from, uint32_t sendReplyTo, std::list<RouterHash> excludedPeers) :
 			m_key(key),
 			m_from(from),
 			m_sendReplyTo(sendReplyTo),

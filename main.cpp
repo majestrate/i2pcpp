@@ -17,9 +17,8 @@
 #include "Router.h"
 #include "Version.h"
 
-bool quit = false;
-std::mutex mtx;
-std::condition_variable cv;
+static volatile bool quit = false;
+static std::condition_variable cv;
 
 static void sighandler(int sig)
 {
@@ -39,7 +38,7 @@ int main(int argc, char **argv)
 		i2p_logger_mt lg(boost::log::keywords::channel = "M");
 		Botan::LibraryInitializer init("thread_safe=true");
 
-		if(signal(SIGINT, sighandler) == SIG_ERR) {
+		if(signal(SIGINT, &sighandler) == SIG_ERR) {
 			cerr << "error setting up signal handler" << endl;
 
 			return EXIT_FAILURE;
@@ -131,7 +130,7 @@ int main(int argc, char **argv)
 				auto begin = ribytes.cbegin();
 				RouterInfo ri = RouterInfo(begin, ribytes.cend());
 				r.importRouter(ri);
-				I2P_LOG(lg, info) << "successfully imported RouterInfo file with hash " << ri.getIdentity().getHashEncoded();
+				I2P_LOG(lg, info) << "successfully imported RouterInfo file with hash " << ri.getIdentity().getHash();
 
 				return EXIT_SUCCESS;
 			} else {
@@ -214,7 +213,7 @@ int main(int argc, char **argv)
 		I2P_LOG(lg, info) << "starting router";
 		r.start();
 
-
+		std::mutex mtx;
 		std::unique_lock<std::mutex> lock(mtx);
 		cv.wait(lock, [] { return quit; });
 

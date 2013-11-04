@@ -20,22 +20,23 @@ namespace i2pcpp {
 
 		void DeliveryStatus::handleMessage(RouterHash const from, I2NP::MessagePtr const msg)
 		{
-			I2P_LOG_SCOPED_RH(m_log, from);
+			I2P_LOG_SCOPED_TAG(m_log, "RouterHash", from);
 			I2P_LOG(m_log, debug) << "received DeliveryStatus message, replying with DatabaseStore message";
 
+			// TODO Get this out of here
 			Mapping am;
 			am.setValue("caps", "BC");
 			am.setValue("host", m_ctx.getDatabase().getConfigValue("ssu_external_ip"));
-			am.setValue("key", m_ctx.getIdentity().getHashEncoded());
+			am.setValue("key", m_ctx.getIdentity().getHash());
 			am.setValue("port", m_ctx.getDatabase().getConfigValue("ssu_external_port"));
 			RouterAddress a(5, Date(0), "SSU", am);
 
 			Mapping rm;
-			rm.setValue("coreVersion", "0.9.6");
+			rm.setValue("coreVersion", "0.9.8.1");
 			rm.setValue("netId", "2");
-			rm.setValue("router.version", "0.9.6");
+			rm.setValue("router.version", "0.9.8.1");
 			rm.setValue("stat_uptime", "90m");
-			rm.setValue("caps", "MR");
+			rm.setValue("caps", "OR");
 			RouterInfo myInfo(m_ctx.getIdentity(), Date(), rm);
 			myInfo.addAddress(a);
 			myInfo.sign(m_ctx.getSigningKey());

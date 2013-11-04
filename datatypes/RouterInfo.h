@@ -18,7 +18,6 @@
 namespace i2pcpp {
 	class RouterInfo : public Datatype {
 		public:
-			RouterInfo();
 			RouterInfo(RouterIdentity const &identity, Date const &published, Mapping const &options, ByteArray const &signature = ByteArray(40));
 			RouterInfo(ByteArrayConstItr &begin, ByteArrayConstItr end);
 

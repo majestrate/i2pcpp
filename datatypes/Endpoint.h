@@ -22,6 +22,7 @@ namespace i2pcpp {
 			uint16_t getPort() const;
 
 			bool operator==(const Endpoint& rhs) const;
+			operator std::string() const;
 
 		private:
 			boost::asio::ip::address m_addr;
@@ -38,7 +39,7 @@ namespace std {
 			size_t operator()(const i2pcpp::Endpoint &ep) const
 			{
 				hash<string> f;
-				return f(ep.getIP() + ":" + boost::lexical_cast<std::string>(ep.getPort()));
+				return f(ep);
 			}
 	};
 
