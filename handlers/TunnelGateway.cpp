@@ -22,7 +22,7 @@ namespace i2pcpp {
 			I2P_LOG_SCOPED_TAG(m_log, "RouterHash", from);
 			I2P_LOG(m_log, debug) << "received TunnelGateway message";
 
-			m_ctx.getSignals().invokeTunnelGatewayData(tg->getTunnelId(), tg->getData());
+			m_ctx.getSignals().invokeTunnelGatewayData(from, tg->getTunnelId(), tg->getData());
 		}
 	}
 }

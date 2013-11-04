@@ -44,8 +44,9 @@ namespace i2pcpp {
 
 					std::lock_guard<std::mutex> lock(m_tunnelsMutex);
 					m_tunnels[t->getTunnelId()] = t;
-				} else
+				} else {
 					I2P_LOG(m_log, debug) << "failed to build tunnel";
+				}
 
 				m_pending.erase(itr);
 				return;
@@ -101,30 +102,62 @@ namespace i2pcpp {
 		}
 	}
 
-	void TunnelManager::receiveGatewayData(uint32_t const tunnelId, ByteArray const data)
+	void TunnelManager::receiveGatewayData(RouterHash const from, uint32_t const tunnelId, ByteArray const data)
 	{
-		I2P_LOG(m_log, debug) << "received " << data.size() << " bytes for tunnel " << tunnelId;
+		I2P_LOG_SCOPED_TAG(m_log, "TunnelId", tunnelId);
+		I2P_LOG(m_log, debug) << "received " << data.size() << " bytes as a gateway";
 
-		/*auto itr = m_participating.find(tunnelId);
-		if(itr != m_participating.end()) {*/
-		I2NP::MessagePtr msg = I2NP::Message::fromBytes(0, data, true);
-		if(msg && msg->getType() == I2NP::Message::VARIABLE_TUNNEL_BUILD_REPLY) {
-			std::shared_ptr<I2NP::VariableTunnelBuildReply> vtbr = std::dynamic_pointer_cast<I2NP::VariableTunnelBuildReply>(msg);
-			I2P_LOG(m_log, debug) << "VTBR with " << vtbr->getRecords().size() << " records";
+		{
+			std::lock_guard<std::mutex> lock(m_participatingMutex);
+			auto itr = m_participating.find(tunnelId);
+			if(itr != m_participating.end()) {
+				TunnelHopPtr hop = itr->second;
 
-			receiveRecords(vtbr->getMsgId(), vtbr->getRecords());
+				if(hop->getType() != TunnelHop::GATEWAY) {
+					I2P_LOG(m_log, debug) << "data is for a tunnel which is not a gateway, dropping";
+					return;
+				}
+
+				I2P_LOG(m_log, debug) << "data is for a known tunnel, encrypting and forwarding";
+				SessionKey k1 = hop->getTunnelIVKey();
+				Botan::SymmetricKey ivKey(k1.data(), k1.size());
+				SessionKey k2 = hop->getTunnelLayerKey();
+				Botan::SymmetricKey layerKey(k2.data(), k2.size());
+
+				// TODO Fragment the tunnel message and send it out
+
+				return;
+			}
+		}
+
+		{
+			std::lock_guard<std::mutex> lock(m_tunnelsMutex);
+			auto itr = m_tunnels.find(tunnelId);
+			if(itr != m_tunnels.end()) {
+				TunnelPtr t = itr->second;
+
+				if(t->getDirection() == Tunnel::INBOUND && t->getState() == Tunnel::OPERATIONAL) {
+					I2P_LOG(m_log, debug) << "data is for one of our own tunnels, recirculating";
+					std::shared_ptr<InboundTunnel> ibt = std::dynamic_pointer_cast<InboundTunnel>(t);
+
+					m_ios.post(boost::bind(&InboundMessageDispatcher::messageReceived, boost::ref(m_ctx.getInMsgDisp()), from, 0, data));
+				}
+			}
 		}
 	}
 
-	void TunnelManager::receiveData(uint32_t const tunnelId, std::array<unsigned char, 1024> const data)
+	void TunnelManager::receiveData(RouterHash const from, uint32_t const tunnelId, StaticByteArray<1024, true> const data)
 	{
-		I2P_LOG(m_log, debug) << "received data for tunnel " << tunnelId;
+		std::lock_guard<std::mutex> lock(m_participatingMutex);
+
+		I2P_LOG_SCOPED_TAG(m_log, "TunnelId", tunnelId);
+		I2P_LOG(m_log, debug) << "received " << data.size() << " bytes as a participant";
 
 		auto itr = m_participating.find(tunnelId);
 		if(itr != m_participating.end()) {
 			I2P_LOG(m_log, debug) << "data is for a known tunnel, encrypting and forwarding";
 
-			TunnelHopPtr hop = m_participating[tunnelId];
+			TunnelHopPtr hop = itr->second;
 
 			SessionKey k1 = hop->getTunnelIVKey();
 			Botan::SymmetricKey ivKey(k1.data(), k1.size());
@@ -154,12 +187,10 @@ namespace i2pcpp {
 		I2P_LOG(m_log, debug) << "creating tunnel";
 		std::vector<RouterIdentity> hops = { m_ctx.getProfileManager().getPeer().getIdentity() };
 
-		uint32_t replyTunnelId;
-		Botan::AutoSeeded_RNG rng;
-		rng.randomize((unsigned char *)&replyTunnelId, sizeof(replyTunnelId));
-
-		//auto t = std::make_shared<OutboundTunnel>(hops, m_ctx.getIdentity().getHash(), replyTunnelId);
-		auto t = std::make_shared<InboundTunnel>(m_ctx.getIdentity().getHash(), hops);
+		auto z = std::make_shared<InboundTunnel>(m_ctx.getIdentity().getHash());
+		auto t = std::make_shared<OutboundTunnel>(hops, m_ctx.getIdentity().getHash(), z->getTunnelId());
+		//auto t = std::make_shared<InboundTunnel>(m_ctx.getIdentity().getHash(), hops);
+		m_tunnels[t->getTunnelId()] = z;
 		m_pending[t->getNextMsgId()] = t;
 		I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(t->getRecords()));
 		m_ctx.getOutMsgDisp().sendMessage(t->getDownstream(), vtb);

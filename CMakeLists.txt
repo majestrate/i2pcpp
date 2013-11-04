@@ -38,6 +38,7 @@ set(SRCS
 	handlers/TunnelData.cpp
 	handlers/TunnelGateway.cpp
 	handlers/VariableTunnelBuild.cpp
+	handlers/VariableTunnelBuildReply.cpp
 	i2np/DatabaseLookup.cpp
 	i2np/DatabaseSearchReply.cpp
 	i2np/DatabaseStore.cpp

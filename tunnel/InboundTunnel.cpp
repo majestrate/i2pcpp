@@ -1,5 +1,7 @@
 #include "InboundTunnel.h"
 
+#include <botan/auto_rng.h>
+
 namespace i2pcpp {
 	InboundTunnel::InboundTunnel(RouterHash const &myHash, std::vector<RouterIdentity> const &hops)
 	{
@@ -7,11 +9,20 @@ namespace i2pcpp {
 		RouterHash lastRouterHash;
 		TunnelHopPtr h;
 
+		if(hops.empty()) {
+			Botan::AutoSeeded_RNG rng;
+			rng.randomize((unsigned char *)&m_tunnelId, sizeof(m_tunnelId));
+			m_state = OPERATIONAL;
+			return;
+		}
+
 		for(int i = 0; i < hops.size(); i++) {
 			if(!i) {
 				h = std::make_shared<TunnelHop>(hops[i], myHash);
 				m_tunnelId = h->getNextTunnelId();
 				m_nextMsgId = h->getNextMsgId();
+				m_tunnelLayerKey = h->getTunnelLayerKey();
+				m_tunnelIVKey = h->getTunnelIVKey();
 			} else
 				h = std::make_shared<TunnelHop>(hops[i], lastRouterHash, lastTunnelId);
 
@@ -27,5 +38,15 @@ namespace i2pcpp {
 	Tunnel::Direction InboundTunnel::getDirection() const
 	{
 		return Direction::INBOUND;
+	}
+
+	SessionKey InboundTunnel::getTunnelLayerKey() const
+	{
+		return m_tunnelLayerKey;
+	}
+
+	SessionKey InboundTunnel::getTunnelIVKey() const
+	{
+		return m_tunnelIVKey;
 	}
 }

@@ -5,19 +5,19 @@
 
 #include <botan/symkey.h>
 
-#include "datatypes/ByteArray.h"
+#include "datatypes/StaticByteArray.h"
 
 namespace i2pcpp {
 	class TunnelMessage {
 		public:
-			TunnelMessage(std::array<unsigned char, 1024> const &data);
+			TunnelMessage(StaticByteArray<1024, true> const &data);
 
 			void encrypt(Botan::SymmetricKey const &ivKey, Botan::SymmetricKey const &layerKey);
 			ByteArray compile() const;
 
 		private:
-			std::array<unsigned char, 16> m_iv;
-			std::array<unsigned char, 1008> m_data;
+			StaticByteArray<16, true> m_iv;
+			StaticByteArray<1008, true> m_data;
 	};
 }
 
