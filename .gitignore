@@ -7,3 +7,5 @@ build/
 *.db
 *.swp
 *.tgz
+*~
+*.orig
