@@ -8,8 +8,6 @@
 #include "../exceptions/FormattingError.h"
 
 namespace i2pcpp {
-	RouterIdentity::RouterIdentity() {}
-
 	RouterIdentity::RouterIdentity(ByteArrayConstItr &begin, ByteArrayConstItr end)
 	{
 		if((end - begin) < 256 + 128) throw FormattingError();
@@ -54,6 +52,9 @@ namespace i2pcpp {
 
 	RouterHash RouterIdentity::getHash() const
 	{
+		if(m_hashed)
+			return m_hash;
+
 		Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-256"));
 		hashPipe.start_msg();
 
@@ -61,27 +62,10 @@ namespace i2pcpp {
 
 		hashPipe.end_msg();
 
-		RouterHash hash;
-		hashPipe.read(hash.data(), 32);
+		hashPipe.read(m_hash.data(), 32);
+		m_hashed = true;
 
-		return hash;
-	}
-
-	std::string RouterIdentity::getHashEncoded() const
-	{
-		Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-256"), new Botan::Base64_Encoder);
-
-		hashPipe.start_msg();
-
-		hashPipe.write(serialize());
-
-		hashPipe.end_msg();
-
-		std::string encoded = hashPipe.read_all_as_string(0);
-		replace(encoded.begin(), encoded.end(), '+', '-');
-		replace(encoded.begin(), encoded.end(), '/', '~');
-
-		return encoded;
+		return m_hash;
 	}
 
 	const Certificate& RouterIdentity::getCertificate() const

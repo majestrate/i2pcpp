@@ -29,6 +29,7 @@ namespace i2pcpp {
 		uint32_t id, requestTime, nextMsgId;
 		RouterHash rh;
 		SessionKey sk;
+		StaticByteArray<16, true> iv;
 		auto dataItr = m_data.cbegin();
 
 		if(m_data.size() != 222)
@@ -55,8 +56,8 @@ namespace i2pcpp {
 		copy(dataItr, dataItr + 32, sk.begin()), dataItr += 32;
 		m_hop.setReplyKey(sk);
 
-		copy(dataItr, dataItr + 16, sk.begin()), dataItr += 16;
-		m_hop.setReplyIV(sk);
+		copy(dataItr, dataItr + 16, iv.begin()), dataItr += 16;
+		m_hop.setReplyIV(iv);
 
 		m_flags = *(dataItr)++;
 		if(m_flags[7])
@@ -104,7 +105,7 @@ namespace i2pcpp {
 		SessionKey replyKey = m_hop.getReplyKey();
 		m_data.insert(m_data.end(), replyKey.cbegin(), replyKey.cend());
 
-		SessionKey replyIV = m_hop.getReplyIV();
+		StaticByteArray<16, true> replyIV = m_hop.getReplyIV();
 		m_data.insert(m_data.end(), replyIV.cbegin(), replyIV.cbegin() + 16);
 
 		m_data.insert(m_data.end(), static_cast<unsigned char>(m_flags.to_ulong()));

@@ -4,6 +4,7 @@
 #include <array>
 
 #include "../datatypes/RouterHash.h"
+#include "../datatypes/StaticByteArray.h"
 #include "../datatypes/ByteArray.h"
 
 #include "Message.h"
@@ -18,7 +19,7 @@ namespace i2pcpp {
 				};
 
 				DatabaseStore();
-				DatabaseStore(std::array<unsigned char, 32> const &key, DataType type, uint32_t replyToken, ByteArray const &data);
+				DatabaseStore(StaticByteArray<32> const &key, DataType type, uint32_t replyToken, ByteArray const &data);
 
 				Message::Type getType() const;
 
@@ -31,7 +32,7 @@ namespace i2pcpp {
 				bool parse(ByteArrayConstItr &begin, ByteArrayConstItr end);
 
 			private:
-				std::array<unsigned char, 32> m_key;
+				StaticByteArray<32> m_key;
 				DataType m_type;
 				uint32_t m_replyToken;
 				uint32_t m_replyTunnelId;

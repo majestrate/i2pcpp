@@ -62,8 +62,8 @@ namespace i2pcpp {
 
 					void connected(RouterHash const rh);
 					void connectionFailure(RouterHash const rh);
-					void searchReply(RouterHash const from, std::array<unsigned char, 32> const query, std::list<RouterHash> const hashes);
-					void databaseStore(RouterHash const from, std::array<unsigned char, 32> const k, bool isRouterInfo);
+					void searchReply(RouterHash const from, StaticByteArray<32> const query, std::list<RouterHash> const hashes);
+					void databaseStore(RouterHash const from, StaticByteArray<32> const k, bool isRouterInfo);
 
 				private:
 					void timeout(const boost::system::error_code& e, KademliaKey const k);

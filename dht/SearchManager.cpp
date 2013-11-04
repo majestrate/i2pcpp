@@ -69,7 +69,7 @@ namespace i2pcpp {
 
 		void SearchManager::connected(RouterHash const rh)
 		{
-			I2P_LOG_SCOPED_RH(m_log, rh);
+			I2P_LOG_SCOPED_TAG(m_log, "RouterHash", rh);
 			I2P_LOG(m_log, debug) << "connection established";
 
 			std::lock_guard<std::mutex> lock(m_searchesMutex);
@@ -93,11 +93,12 @@ namespace i2pcpp {
 
 		void SearchManager::connectionFailure(RouterHash const rh)
 		{
+			I2P_LOG_SCOPED_TAG(m_log, "RouterHash", rh);
+			I2P_LOG(m_log, debug) << "connection failed";
+
 			std::lock_guard<std::mutex> lock(m_searchesMutex);
 
 			if(m_searches.get<1>().count(rh)) {
-				I2P_LOG_SCOPED_RH(m_log, rh);
-
 				SearchStateByCurrent::iterator itr = m_searches.get<1>().find(rh);
 				const SearchState& ss = *itr;
 
@@ -151,9 +152,9 @@ namespace i2pcpp {
 			}
 		}
 
-		void SearchManager::searchReply(RouterHash const from, std::array<unsigned char, 32> const query, std::list<RouterHash> const hashes)
+		void SearchManager::searchReply(RouterHash const from, StaticByteArray<32> const query, std::list<RouterHash> const hashes)
 		{
-			I2P_LOG_SCOPED_RH(m_log, from);
+			I2P_LOG_SCOPED_TAG(m_log, "RouterHash", from);
 			I2P_LOG(m_log, debug) << "received search reply";
 
 			std::lock_guard<std::mutex> lock(m_searchesMutex);
@@ -208,9 +209,9 @@ namespace i2pcpp {
 			}
 		}
 
-		void SearchManager::databaseStore(RouterHash const from, std::array<unsigned char, 32> const k, bool isRouterInfo)
+		void SearchManager::databaseStore(RouterHash const from, StaticByteArray<32> const k, bool isRouterInfo)
 		{
-			I2P_LOG_SCOPED_RH(m_log, from);
+			I2P_LOG_SCOPED_TAG(m_log, "RouterHash", from);
 			I2P_LOG(m_log, debug) << "received DatabaseStore";
 
 			std::lock_guard<std::mutex> lock(m_searchesMutex);

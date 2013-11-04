@@ -9,8 +9,6 @@
 #include "../exceptions/FormattingError.h"
 
 namespace i2pcpp {
-	RouterInfo::RouterInfo() {}
-
 	RouterInfo::RouterInfo(RouterIdentity const &identity, Date const &published, Mapping const &options, ByteArray const &signature) :
 		m_identity(identity),
 		m_published(published),
@@ -18,10 +16,9 @@ namespace i2pcpp {
 		m_signature(signature) {}
 
 	RouterInfo::RouterInfo(ByteArrayConstItr &begin, ByteArrayConstItr end) :
-		m_signature(40)
+		m_signature(40),
+		m_identity(begin, end)
 	{
-		m_identity = RouterIdentity(begin, end);
-
 		m_published = Date(begin, end);
 
 		unsigned char size = *(begin++);

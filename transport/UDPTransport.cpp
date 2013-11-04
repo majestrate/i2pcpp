@@ -10,7 +10,7 @@ namespace i2pcpp {
 	UDPTransport::UDPTransport(Botan::DSA_PrivateKey const &privKey, RouterIdentity const &ri) :
 		Transport(),
 		m_socket(m_ios),
-		m_packetHandler(*this, ri.getHash()),
+		m_packetHandler(*this, (SessionKey)(ByteArray)ri.getHash()),
 		m_establishmentManager(*this, privKey, ri),
 		m_ackScheduler(*this),
 		m_omf(*this),
@@ -79,15 +79,14 @@ namespace i2pcpp {
 
 					m_establishmentManager.createState(ep, id);
 
-					I2P_LOG_SCOPED_EP(m_log, ep);
-					I2P_LOG_SCOPED_RH(m_log, id.getHash());
+					I2P_LOG_SCOPED_TAG(m_log, "Endpoint", ep);
+					I2P_LOG_SCOPED_TAG(m_log, "RouterHash", id.getHash());
 					I2P_LOG(m_log, debug) << "attempting to establish session";
 
 					break;
 				}
 			}
 		} catch(std::exception &e) {
-			I2P_LOG_SCOPED_TAG(m_log, "channel");
 			I2P_LOG(m_log, error) << "exception thrown: " << e.what();
 		}
 	}
@@ -154,8 +153,8 @@ namespace i2pcpp {
 		if(!e && n > 0) {
 			Endpoint ep(m_senderEndpoint);
 
-			I2P_LOG_SCOPED_EP(m_log, ep);
-			I2P_LOG(m_log, debug) << "received " << n << " bytes from " << ep;
+			I2P_LOG_SCOPED_TAG(m_log, "Endpoint", ep);
+			I2P_LOG(m_log, debug) << "received " << n << " bytes";
 
 			if(n < SSU::Packet::MIN_PACKET_LEN) {
 				I2P_LOG(m_log, debug) << "dropping short packet";
@@ -182,7 +181,8 @@ namespace i2pcpp {
 
 	void UDPTransport::dataSent(const boost::system::error_code& e, size_t n, boost::asio::ip::udp::endpoint ep)
 	{
-		I2P_LOG(m_log, debug) << "sent " << n << " bytes to " << ep;
+		I2P_LOG_SCOPED_TAG(m_log, "Endpoint", Endpoint(ep));
+		I2P_LOG(m_log, debug) << "sent " << n << " bytes";
 	}
 
 	SSU::EstablishmentManager& UDPTransport::getEstablisher()

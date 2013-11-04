@@ -17,7 +17,7 @@ namespace i2pcpp {
 
 	void Router::start()
 	{
-		I2P_LOG(m_log, info) << "local router hash: " << m_ctx.getIdentity().getHashEncoded();
+		I2P_LOG(m_log, info) << "local router hash: " << m_ctx.getIdentity().getHash();
 
 		m_serviceThread = std::thread([&](){
 			while(1) {
@@ -49,8 +49,8 @@ namespace i2pcpp {
 		m_ctx.getSignals().registerDatabaseStore(boost::bind(&DHT::SearchManager::databaseStore, boost::ref(m_ctx.getSearchManager()), _1, _2, _3));
 
 		m_ctx.getSignals().registerTunnelRecordsReceived(boost::bind(&TunnelManager::receiveRecords, boost::ref(m_ctx.getTunnelManager()), _1, _2));
-		m_ctx.getSignals().registerTunnelGatewayData(boost::bind(&TunnelManager::receiveGatewayData, boost::ref(m_ctx.getTunnelManager()), _1, _2));
-		m_ctx.getSignals().registerTunnelData(boost::bind(&TunnelManager::receiveData, boost::ref(m_ctx.getTunnelManager()), _1, _2));
+		m_ctx.getSignals().registerTunnelGatewayData(boost::bind(&TunnelManager::receiveGatewayData, boost::ref(m_ctx.getTunnelManager()), _1, _2, _3));
+		m_ctx.getSignals().registerTunnelData(boost::bind(&TunnelManager::receiveData, boost::ref(m_ctx.getTunnelManager()), _1, _2, _3));
 
 		m_ctx.getSearchManager().registerSuccess(boost::bind(&OutboundMessageDispatcher::dhtSuccess, boost::ref(m_ctx.getOutMsgDisp()), _1, _2));
 		m_ctx.getSearchManager().registerFailure(boost::bind(&OutboundMessageDispatcher::dhtFailure, boost::ref(m_ctx.getOutMsgDisp()), _1));
@@ -72,7 +72,7 @@ namespace i2pcpp {
 		Mapping am;
 		am.setValue("caps", "BC");
 		am.setValue("host", m_ctx.getDatabase().getConfigValue("ssu_external_ip"));
-		am.setValue("key", m_ctx.getIdentity().getHashEncoded());
+		am.setValue("key", m_ctx.getIdentity().getHash());
 		am.setValue("port", m_ctx.getDatabase().getConfigValue("ssu_external_port"));
 		RouterAddress a(5, Date(0), "SSU", am);
 

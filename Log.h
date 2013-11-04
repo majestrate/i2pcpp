@@ -8,13 +8,8 @@
 #include <boost/log/attributes/scoped_attribute.hpp>
 
 #define I2P_LOG(logger, sev) BOOST_LOG_SEV(logger, sev)
-
-#define I2P_LOG_EP(logger, var) logger.add_attribute("Endpoint", boost::log::attributes::constant<Endpoint>(var))
-#define I2P_LOG_RH(logger, var) logger.add_attribute("RouterHash", boost::log::attributes::constant<RouterHash>(var))
-
-#define I2P_LOG_SCOPED_EP(logger, var) BOOST_LOG_SCOPED_LOGGER_ATTR(logger, "Endpoint", boost::log::attributes::constant<Endpoint>(var))
-#define I2P_LOG_SCOPED_RH(logger, var) BOOST_LOG_SCOPED_LOGGER_ATTR(logger, "RouterHash", boost::log::attributes::constant<RouterHash>(var))
-#define I2P_LOG_SCOPED_TAG(logger, name) BOOST_LOG_SCOPED_LOGGER_TAG(logger, "Scope", name)
+#define I2P_LOG_TAG(logger, name, value) logger.add_attribute(name, boost::log::attributes::make_constant(value))
+#define I2P_LOG_SCOPED_TAG(logger, name, value) BOOST_LOG_SCOPED_LOGGER_TAG(logger, name, value)
 
 namespace i2pcpp {
 	enum severity_level

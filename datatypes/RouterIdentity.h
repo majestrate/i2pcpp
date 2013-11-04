@@ -10,7 +10,6 @@
 namespace i2pcpp {
 	class RouterIdentity : public Datatype {
 		public:
-			RouterIdentity();
 			RouterIdentity(ByteArrayConstItr &begin, ByteArrayConstItr end);
 			RouterIdentity(ByteArray const &encryptionKey, ByteArray const &signingKey, Certificate const &certificate);
 
@@ -18,13 +17,15 @@ namespace i2pcpp {
 			ByteArray getEncryptionKey() const;
 			ByteArray getSigningKey() const;
 			RouterHash getHash() const;
-			std::string getHashEncoded() const;
 			const Certificate& getCertificate() const;
 
 		private:
 			std::array<unsigned char, 256> m_encryptionKey;
 			std::array<unsigned char, 128> m_signingKey;
 			Certificate m_certificate;
+
+			mutable bool m_hashed = false;
+			mutable RouterHash m_hash;
 	};
 }
 

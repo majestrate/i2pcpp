@@ -23,7 +23,7 @@ namespace i2pcpp {
 			try {
 				std::shared_ptr<I2NP::DatabaseStore> dsm = std::dynamic_pointer_cast<I2NP::DatabaseStore>(msg);
 
-				I2P_LOG_SCOPED_RH(m_log, from);
+				I2P_LOG_SCOPED_TAG(m_log, "RouterHash", from);
 				I2P_LOG(m_log, debug) << "received DatabaseStore message";
 
 				Botan::Pipe ungzPipe(new Botan::Zlib_Decompression);

@@ -9,6 +9,7 @@
 #include "handlers/DatabaseStore.h"
 #include "handlers/DatabaseSearchReply.h"
 #include "handlers/VariableTunnelBuild.h"
+#include "handlers/VariableTunnelBuildReply.h"
 #include "handlers/TunnelData.h"
 #include "handlers/TunnelGateway.h"
 
@@ -33,6 +34,7 @@ namespace i2pcpp {
 			Handlers::DatabaseStore m_dbStoreHandler;
 			Handlers::DatabaseSearchReply m_dbSearchReplyHandler;
 			Handlers::VariableTunnelBuild m_variableTunnelBuildHandler;
+			Handlers::VariableTunnelBuildReply m_variableTunnelBuildReplyHandler;
 			Handlers::TunnelData m_tunnelDataHandler;
 			Handlers::TunnelGateway m_tunnelGatewayHandler;
 

@@ -21,6 +21,10 @@ namespace i2pcpp {
 
 		void InboundMessageFragments::receiveData(PeerStatePtr const &ps, ByteArrayConstItr &begin, ByteArrayConstItr end)
 		{
+			std::lock_guard<std::mutex> lock(ps->getMutex());
+
+			I2P_LOG_SCOPED_TAG(m_log, "RouterHash", ps->getIdentity().getHash());
+
 			if((end - begin) < 1) throw FormattingError();
 			std::bitset<8> flag = *(begin++);
 
@@ -31,14 +35,12 @@ namespace i2pcpp {
 
 				while(numAcks--) {
 					uint32_t msgId = (*(begin++) << 24) | (*(begin++) << 16) | (*(begin++) << 8) | *(begin++);
-					std::lock_guard<std::mutex> lock(ps->getMutex());
 
 					ps->delOutboundMessageState(msgId);
 				}
 			}
 
 			if(flag[6]) {
-				std::lock_guard<std::mutex> lock(ps->getMutex());
 
 				unsigned char numFields = *(begin++);
 				while(numFields--) {
@@ -86,11 +88,8 @@ namespace i2pcpp {
 
 				if((end - begin) < fragSize) throw FormattingError();
 				ByteArray fragData(begin, begin + fragSize);
-				std::stringstream s;
-				for(auto c: fragData) s << std::setw(2) << std::setfill('0') << std::hex << (int)c;
-				I2P_LOG(m_log, debug) << "fragment[" << i << "] data: " << s.str();
+				I2P_LOG(m_log, debug) << "fragment[" << i << "] data: " << fragData;
 
-				std::lock_guard<std::mutex> lock(ps->getMutex());
 				InboundMessageStatePtr ims = ps->getInboundMessageState(msgId);
 				if(!ims) {
 					ims = std::make_shared<InboundMessageState>(ps->getIdentity().getHash(), msgId);

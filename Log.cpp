@@ -18,7 +18,6 @@
 #include <boost/log/utility/manipulators/add_value.hpp>
 #include <boost/log/support/exception.hpp>
 
-
 #include "datatypes/Endpoint.h"
 #include "datatypes/RouterHash.h"
 
@@ -94,16 +93,16 @@ namespace i2pcpp {
 		s << '[' << ss.str() << ']';
 
 		s << ' ' << boost::log::extract<std::string>("Channel", rec);
-		if(attrSet.find("Scope") != attrSet.end())
-			s << '(' << boost::log::extract<std::string>("Scope", rec) << ')';
 		s << '/' << boost::log::extract<severity_level>("Severity", rec);
 
+		if(attrSet.find("Endpoint") != attrSet.end())
+			s << " [" << boost::log::extract<Endpoint>("Endpoint", rec) << ']';
 
 		if(attrSet.find("RouterHash") != attrSet.end())
 			s << " [" << boost::log::extract<RouterHash>("RouterHash", rec) << ']';
 
-		if(attrSet.find("Endpoint") != attrSet.end())
-			s << " [" << boost::log::extract<Endpoint>("Endpoint", rec) << ']';
+		if(attrSet.find("TunnelId") != attrSet.end())
+			s << " [" << boost::log::extract<uint32_t>("TunnelId", rec) << ']';
 
 		s << ": " << rec[expr::smessage];
 	}

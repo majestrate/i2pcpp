@@ -20,19 +20,23 @@ namespace i2pcpp {
 		m_dbStoreHandler(ctx),
 		m_dbSearchReplyHandler(ctx),
 		m_variableTunnelBuildHandler(ctx),
+		m_variableTunnelBuildReplyHandler(ctx),
 		m_tunnelDataHandler(ctx),
 		m_tunnelGatewayHandler(ctx),
 		m_log(boost::log::keywords::channel = "IMD") {}
 
 	void InboundMessageDispatcher::messageReceived(RouterHash const from, uint32_t const msgId, ByteArray data)
 	{
-		I2P_LOG_SCOPED_RH(m_log, from);
+		I2P_LOG_SCOPED_TAG(m_log, "RouterHash", from);
 
-		std::stringstream s;
-		for(auto c: data) s << std::setw(2) << std::setfill('0') << std::hex << (int)c;
-		I2P_LOG(m_log, debug) << "received data: " << s.str();
+		I2P_LOG(m_log, debug) << "received data: " << data;
 
-		I2NP::MessagePtr m = I2NP::Message::fromBytes(msgId, data);
+		I2NP::MessagePtr m;
+		if(msgId)
+			m = I2NP::Message::fromBytes(msgId, data);
+		else
+			m = I2NP::Message::fromBytes(0, data, true);
+
 		if(m) {
 			switch(m->getType())
 			{
@@ -52,6 +56,10 @@ namespace i2pcpp {
 					m_ios.post(boost::bind(&Handlers::Message::handleMessage, m_variableTunnelBuildHandler, from, m));
 					break;
 
+				case I2NP::Message::Type::VARIABLE_TUNNEL_BUILD_REPLY:
+					m_ios.post(boost::bind(&Handlers::Message::handleMessage, m_variableTunnelBuildReplyHandler, from, m));
+					break;
+
 				case I2NP::Message::Type::TUNNEL_DATA:
 					m_ios.post(boost::bind(&Handlers::Message::handleMessage, m_tunnelDataHandler, from, m));
 					break;
@@ -69,7 +77,7 @@ namespace i2pcpp {
 
 	void InboundMessageDispatcher::connectionEstablished(RouterHash const rh, bool inbound)
 	{
-		I2P_LOG_SCOPED_RH(m_log, rh);
+		I2P_LOG_SCOPED_TAG(m_log, "RouterHash", rh);
 		I2P_LOG(m_log, info) << "session established";
 
 		if(inbound) {
@@ -84,7 +92,7 @@ namespace i2pcpp {
 			Mapping am;
 			am.setValue("caps", "BC");
 			am.setValue("host", m_ctx.getDatabase().getConfigValue("ssu_external_ip"));
-			am.setValue("key", m_ctx.getIdentity().getHashEncoded());
+			am.setValue("key", m_ctx.getIdentity().getHash());
 			am.setValue("port", m_ctx.getDatabase().getConfigValue("ssu_external_port"));
 			RouterAddress a(5, Date(0), "SSU", am);
 

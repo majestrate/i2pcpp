@@ -11,9 +11,10 @@ namespace i2pcpp {
 	typedef std::shared_ptr<ByteArray> ByteArrayPtr;
 	typedef ByteArray::iterator ByteArrayItr;
 	typedef ByteArray::const_iterator ByteArrayConstItr;
-
-	std::ostream& operator<<(std::ostream &s, ByteArray const &data);
 }
 
+namespace std {
+	std::ostream& operator<<(std::ostream &s, i2pcpp::ByteArray const &data);
+}
 
 #endif

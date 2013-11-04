@@ -12,7 +12,7 @@ namespace i2pcpp {
 
 		void PacketHandler::packetReceived(PacketPtr p)
 		{
-			I2P_LOG_SCOPED_EP(m_log, p->getEndpoint());
+			I2P_LOG_SCOPED_TAG(m_log, "Endpoint", p->getEndpoint());
 
 			PeerStatePtr ps = m_transport.m_peers.getRemotePeer(p->getEndpoint());
 			if(ps) {
@@ -28,8 +28,6 @@ namespace i2pcpp {
 
 		void PacketHandler::handlePacket(PacketPtr const &packet, PeerStatePtr const &state)
 		{
-			I2P_LOG_SCOPED_TAG(m_log, "PS");
-
 			if(!packet->verify(state->getCurrentMacKey())) {
 				I2P_LOG(m_log, error) << "packet verification failed";
 				return;
@@ -59,8 +57,6 @@ namespace i2pcpp {
 
 		void PacketHandler::handlePacket(PacketPtr const &packet, EstablishmentStatePtr const &state)
 		{
-			I2P_LOG_SCOPED_TAG(m_log, "EM");
-
 			if(!packet->verify(state->getMacKey())) {
 				I2P_LOG(m_log, error) << "packet verification failed";
 				return;
@@ -97,8 +93,6 @@ namespace i2pcpp {
 
 		void PacketHandler::handlePacket(PacketPtr &p)
 		{
-			I2P_LOG_SCOPED_TAG(m_log, "N");
-
 			Endpoint ep = p->getEndpoint();
 
 			if(!p->verify(m_inboundKey)) {

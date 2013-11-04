@@ -55,7 +55,7 @@ namespace i2pcpp {
 		void EstablishmentManager::stateChanged(EstablishmentStatePtr es)
 		{
 			const Endpoint &ep = es->getTheirEndpoint();
-			I2P_LOG_SCOPED_EP(m_log, ep);
+			I2P_LOG_SCOPED_TAG(m_log, "Endpoint", ep);
 
 			switch(es->getState())
 			{
@@ -80,7 +80,7 @@ namespace i2pcpp {
 				case EstablishmentState::CONFIRMED_SENT:
 					{
 						const RouterHash &rh = es->getTheirIdentity().getHash();
-						I2P_LOG_SCOPED_RH(m_log, rh);
+						I2P_LOG_SCOPED_TAG(m_log, "RouterHash", rh);
 						I2P_LOG(m_log, debug) << "sent session confirmed";
 						m_transport.post(boost::bind(boost::ref(m_transport.m_establishedSignal), rh, (es->getDirection() == EstablishmentState::INBOUND)));
 						delState(ep);
@@ -130,7 +130,7 @@ namespace i2pcpp {
 		void EstablishmentManager::timeoutCallback(const boost::system::error_code& e, EstablishmentStatePtr es)
 		{
 			if(!e) {
-				I2P_LOG_SCOPED_EP(m_log, es->getTheirEndpoint());
+				I2P_LOG_SCOPED_TAG(m_log, "Endpoint", es->getTheirEndpoint());
 				I2P_LOG(m_log, debug) << "establishment timed out";
 
 				es->setState(EstablishmentState::FAILURE);
@@ -205,7 +205,7 @@ namespace i2pcpp {
 
 		void EstablishmentManager::processConfirmed(EstablishmentStatePtr const &state)
 		{
-			I2P_LOG_RH(m_log, state->getTheirIdentity().getHash());
+			I2P_LOG_SCOPED_TAG(m_log, "RouterHash", state->getTheirIdentity().getHash());
 
 			if(!state->verifyConfirmationSignature()) {
 				I2P_LOG(m_log, error) << "confirmation signature verification failed";

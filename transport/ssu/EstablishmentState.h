@@ -91,7 +91,7 @@ namespace i2pcpp {
 				SessionKey m_sessionKey;
 				SessionKey m_macKey;
 
-				RouterIdentity m_theirIdentity;
+				std::shared_ptr<RouterIdentity> m_theirIdentity;
 				Endpoint m_theirEndpoint;
 				ByteArray m_theirDH;
 

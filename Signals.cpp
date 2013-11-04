@@ -1,7 +1,7 @@
 #include "Signals.h"
 
 namespace i2pcpp {
-	void Signals::invokeDatabaseStore(RouterHash const &from, std::array<unsigned char, 32> const &k, bool isRouterInfo)
+	void Signals::invokeDatabaseStore(RouterHash const &from, StaticByteArray<32> const &k, bool isRouterInfo)
 	{
 		m_ios.post(boost::bind(boost::ref(m_databaseStore), from, k, isRouterInfo));
 	}
@@ -41,7 +41,7 @@ namespace i2pcpp {
 		return m_connectionFailure.connect(cfh);
 	}
 
-	void Signals::invokeSearchReply(RouterHash const &from, std::array<unsigned char, 32> const &query, std::list<RouterHash> const &hashes)
+	void Signals::invokeSearchReply(RouterHash const &from, StaticByteArray<32> const &query, std::list<RouterHash> const &hashes)
 	{
 		m_ios.post(boost::bind(boost::ref(m_searchReply), from, query, hashes));
 	}
@@ -51,9 +51,9 @@ namespace i2pcpp {
 		return m_searchReply.connect(srh);
 	}
 
-	void Signals::invokeTunnelGatewayData(const uint32_t tunnelId, ByteArray const &data)
+	void Signals::invokeTunnelGatewayData(RouterHash const &from, uint32_t const tunnelId, ByteArray const &data)
 	{
-		m_ios.post(boost::bind(boost::ref(m_tunnelGatewayData), tunnelId, data));
+		m_ios.post(boost::bind(boost::ref(m_tunnelGatewayData), from, tunnelId, data));
 	}
 
 	boost::signals2::connection Signals::registerTunnelGatewayData(TunnelGatewayData::slot_type const &tgdh)
@@ -61,9 +61,9 @@ namespace i2pcpp {
 		return m_tunnelGatewayData.connect(tgdh);
 	}
 
-	void Signals::invokeTunnelData(uint32_t const tunnelId, std::array<unsigned char, 1024> const &data)
+	void Signals::invokeTunnelData(RouterHash const &from, uint32_t const tunnelId, StaticByteArray<1024, true> const &data)
 	{
-		m_ios.post(boost::bind(boost::ref(m_tunnelData), tunnelId, data));
+		m_ios.post(boost::bind(boost::ref(m_tunnelData), from, tunnelId, data));
 	}
 
 	boost::signals2::connection Signals::registerTunnelData(TunnelData::slot_type const &tdh)
