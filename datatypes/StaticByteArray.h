@@ -1,12 +1,14 @@
 #ifndef STATICBYTEARRAY_H
 #define STATICBYTEARRAY_H
 
+#include <algorithm>
 #include <array>
 #include <string>
 #include <functional>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+
 
 #include "../util/Base64.h"
 #include "../exceptions/FormattingError.h"
@@ -122,8 +124,8 @@ namespace i2pcpp {
 						return m_b64;
 
 					m_b64 = Base64::encode(ByteArray(m_data.cbegin(), m_data.cend()));
-					replace(m_b64.begin(), m_b64.end(), '+', '-');
-					replace(m_b64.begin(), m_b64.end(), '/', '~');
+					std::replace(m_b64.begin(), m_b64.end(), '+', '-');
+					std::replace(m_b64.begin(), m_b64.end(), '/', '~');
 
 					return m_b64;
 				}

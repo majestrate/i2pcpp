@@ -2,6 +2,7 @@
 #define BUILDREQUESTRECORD_H
 
 #include <memory>
+#include <bitset>
 
 #include <botan/elgamal.h>
 
