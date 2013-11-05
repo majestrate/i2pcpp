@@ -93,6 +93,7 @@ namespace i2pcpp {
 
 		ByteArray Message::toBytes() const
 		{
+			// TODO Standard header support
 			ByteArray b;
 			const ByteArray& m = getBytes();
 
