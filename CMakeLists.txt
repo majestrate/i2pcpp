@@ -68,6 +68,7 @@ set(SRCS
 	tunnel/TunnelHop.cpp
 	tunnel/TunnelManager.cpp
 	tunnel/TunnelMessage.cpp
+	tunnel/TunnelMessageFragments.cpp
 	util/Base64.cpp
 	util/I2PDH.cpp
 	util/I2PHMAC.cpp
