@@ -1,6 +1,8 @@
 i2pcpp license:
 Public domain.
 
+http://mises.org/document/3582
+
 Botan license:
 Copyright (C) 1999-2012 Jack Lloyd
               2001 Peter J Jones

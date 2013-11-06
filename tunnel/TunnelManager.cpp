@@ -105,7 +105,7 @@ namespace i2pcpp {
 	void TunnelManager::receiveGatewayData(RouterHash const from, uint32_t const tunnelId, ByteArray const data)
 	{
 		I2P_LOG_SCOPED_TAG(m_log, "TunnelId", tunnelId);
-		I2P_LOG(m_log, debug) << "received " << data.size() << " bytes as a gateway";
+		I2P_LOG(m_log, debug) << "received " << data.size() << " bytes of gateway data";
 
 		{
 			std::lock_guard<std::mutex> lock(m_participatingMutex);
@@ -151,7 +151,7 @@ namespace i2pcpp {
 		std::lock_guard<std::mutex> lock(m_participatingMutex);
 
 		I2P_LOG_SCOPED_TAG(m_log, "TunnelId", tunnelId);
-		I2P_LOG(m_log, debug) << "received " << data.size() << " bytes as a participant";
+		I2P_LOG(m_log, debug) << "received " << data.size() << " bytes of tunnel data";
 
 		auto itr = m_participating.find(tunnelId);
 		if(itr != m_participating.end()) {
@@ -159,17 +159,31 @@ namespace i2pcpp {
 
 			TunnelHopPtr hop = itr->second;
 
-			SessionKey k1 = hop->getTunnelIVKey();
-			Botan::SymmetricKey ivKey(k1.data(), k1.size());
+			switch(hop->getType()) {
+				case TunnelHop::PARTICIPANT:
+					{
+						SessionKey k1 = hop->getTunnelIVKey();
+						Botan::SymmetricKey ivKey(k1.data(), k1.size());
 
-			SessionKey k2 = hop->getTunnelLayerKey();
-			Botan::SymmetricKey layerKey(k2.data(), k2.size());
+						SessionKey k2 = hop->getTunnelLayerKey();
+						Botan::SymmetricKey layerKey(k2.data(), k2.size());
 
-			TunnelMessage msg(data);
-			msg.encrypt(ivKey, layerKey);
+						TunnelMessage msg(data);
+						msg.encrypt(ivKey, layerKey);
 
-			I2NP::MessagePtr td(new I2NP::TunnelData(hop->getNextTunnelId(), msg.compile()));
-			m_ctx.getOutMsgDisp().sendMessage(hop->getNextHash(), td);
+						I2NP::MessagePtr td(new I2NP::TunnelData(hop->getNextTunnelId(), msg.compile()));
+						m_ctx.getOutMsgDisp().sendMessage(hop->getNextHash(), td);
+					}
+
+					break;
+
+				case TunnelHop::ENDPOINT:
+					// TODO Collect data, format it into a gateway message, and send it out
+					break;
+
+				default:
+					break;
+			}
 		} else
 			I2P_LOG(m_log, debug) << "data is for an unknown tunnel, dropping";
 	}

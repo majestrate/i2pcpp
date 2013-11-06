@@ -14,6 +14,7 @@ namespace i2pcpp {
 
 	void TunnelMessage::encrypt(Botan::SymmetricKey const &ivKey, Botan::SymmetricKey const &layerKey)
 	{
+		// Using the IV key from the BRR, encrypt the IV contained in the tunnel message.
 		Botan::Pipe ivCipherPipe(get_cipher("AES-256/ECB/NoPadding", ivKey, Botan::ENCRYPTION));
 
 		ivCipherPipe.process_msg(m_iv.data(), m_iv.size());
@@ -26,6 +27,9 @@ namespace i2pcpp {
 
 		Botan::InitializationVector iv(v);
 
+		/* We now have an encrypted IV that is used in conjunction with the layer key
+		 * to encrypt the actual content of the message.
+		 */
 		Botan::Pipe dataCipherPipe(get_cipher("AES-256/CBC/NoPadding", layerKey, iv, Botan::ENCRYPTION));
 
 		dataCipherPipe.process_msg(m_data.data(), m_data.size());
@@ -35,6 +39,7 @@ namespace i2pcpp {
 
 		dataCipherPipe.read(m_data.data(), m_data.size());
 
+		// Now encrypt our current IV with the IV key again and overwrite the current IV.
 		Botan::Pipe ivCipherPipe2(get_cipher("AES-256/ECB/NoPadding", ivKey, Botan::ENCRYPTION));
 
 		ivCipherPipe2.process_msg(v);

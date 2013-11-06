@@ -62,12 +62,14 @@ set(SRCS
 	transport/ssu/PeerStateList.cpp
 	transport/Transport.cpp
 	transport/UDPTransport.cpp
+	tunnel/DeliveryInstructions.cpp
 	tunnel/InboundTunnel.cpp
 	tunnel/OutboundTunnel.cpp
 	tunnel/Tunnel.cpp
 	tunnel/TunnelHop.cpp
 	tunnel/TunnelManager.cpp
 	tunnel/TunnelMessage.cpp
+	tunnel/TunnelMessageFragments.cpp
 	util/Base64.cpp
 	util/I2PDH.cpp
 	util/I2PHMAC.cpp
