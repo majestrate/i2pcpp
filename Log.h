@@ -25,6 +25,8 @@ namespace i2pcpp {
 
 	class Log {
 		public:
+			Log() = delete;
+
 			static void initialize();
 			static void logToFile(const std::string &file);
 			static void formatter(boost::log::record_view const &rec, boost::log::formatting_ostream &s);

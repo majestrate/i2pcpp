@@ -13,6 +13,8 @@ namespace i2pcpp {
 	class Database {
 		public:
 			Database(std::string const &file);
+			Database(const Database &) = delete;
+			Database& operator=(Database &) = delete;
 			~Database();
 
 			static void createDb(std::string const &file);

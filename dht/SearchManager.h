@@ -72,7 +72,7 @@ namespace i2pcpp {
 					boost::asio::io_service& m_ios;
 					RouterContext& m_ctx;
 
-					std::map<KademliaKey, std::shared_ptr<boost::asio::deadline_timer>> m_timers;
+					std::map<KademliaKey, std::unique_ptr<boost::asio::deadline_timer>> m_timers;
 
 					SuccessSignal m_successSignal;
 					FailureSignal m_failureSignal;

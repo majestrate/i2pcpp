@@ -13,7 +13,8 @@ namespace i2pcpp {
 			auto dataItr = m_data.cbegin();
 			auto end = m_data.cend();
 
-			if(m_data.size() > 16383 * 127) { /* TODO Exception */ }
+			if(m_data.size() > 16383 * 127)
+				throw std::runtime_error("Outbound packet too large");
 
 			size_t step, i = 0;
 			while(dataItr < end) {

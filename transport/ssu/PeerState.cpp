@@ -2,6 +2,8 @@
 
 #include <boost/bind.hpp>
 
+#include "../../util/make_unique.h"
+
 #include "../../Log.h"
 
 namespace i2pcpp {
@@ -32,18 +34,15 @@ namespace i2pcpp {
 
 			m_inboundMessageStates[msgId] = ims;
 
-			std::shared_ptr<boost::asio::deadline_timer> timer(new boost::asio::deadline_timer(m_ios, boost::posix_time::time_duration(0, 0, 10)));
-			timer->async_wait(boost::bind(&PeerState::inboundTimerCallback, this, boost::asio::placeholders::error, msgId));
-
-			m_inboundTimers[msgId] = timer;
+			m_inboundTimers[msgId] = std::make_unique<boost::asio::deadline_timer>(m_ios, boost::posix_time::time_duration(0, 0, 10));
+			m_inboundTimers[msgId]->async_wait(boost::bind(&PeerState::inboundTimerCallback, this, boost::asio::placeholders::error, msgId));
 		}
 
 		void PeerState::delInboundMessageState(const uint32_t msgId)
 		{
-			std::shared_ptr<boost::asio::deadline_timer> timer = m_inboundTimers[msgId];
-			if(timer) {
+			if(m_inboundTimers[msgId]) {
 				I2P_LOG(m_log, debug) << "canceling IMS timer";
-				timer->cancel();
+				m_inboundTimers[msgId]->cancel();
 				m_inboundTimers.erase(msgId);
 			}
 
@@ -53,10 +52,9 @@ namespace i2pcpp {
 		void PeerState::delInboundMessageState(std::map<uint32_t, InboundMessageStatePtr>::const_iterator itr)
 		{
 			uint32_t msgId = itr->second->getMsgId();
-			std::shared_ptr<boost::asio::deadline_timer> timer = m_inboundTimers[msgId];
-			if(timer) {
+			if(m_inboundTimers[msgId]) {
 				I2P_LOG(m_log, debug) << "canceling IMS timer";
-				timer->cancel();
+				m_inboundTimers[msgId]->cancel();
 				m_inboundTimers.erase(msgId);
 			}
 
@@ -91,18 +89,15 @@ namespace i2pcpp {
 
 			m_outboundMessageStates[msgId] = oms;
 
-			std::shared_ptr<boost::asio::deadline_timer> timer(new boost::asio::deadline_timer(m_ios, boost::posix_time::time_duration(0, 0, 10)));
-			timer->async_wait(boost::bind(&PeerState::outboundTimerCallback, this, boost::asio::placeholders::error, msgId));
-
-			m_outboundTimers[msgId] = timer;
+			m_outboundTimers[msgId] = std::make_unique<boost::asio::deadline_timer>(m_ios, boost::posix_time::time_duration(0, 0, 10));
+			m_outboundTimers[msgId]->async_wait(boost::bind(&PeerState::outboundTimerCallback, this, boost::asio::placeholders::error, msgId));
 		}
 
 		void PeerState::delOutboundMessageState(const uint32_t msgId)
 		{
-			std::shared_ptr<boost::asio::deadline_timer> timer = m_outboundTimers[msgId];
-			if(timer) {
+			if(m_outboundTimers[msgId]) {
 				I2P_LOG(m_log, debug) << "canceling OMS timer";
-				timer->cancel();
+				m_outboundTimers[msgId]->cancel();
 				m_outboundTimers.erase(msgId);
 			}
 

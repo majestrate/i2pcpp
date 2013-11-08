@@ -61,7 +61,7 @@ namespace i2pcpp {
 		return verified;
 	}
 
-	void RouterInfo::sign(const Botan::DSA_PrivateKey * const signingKey)
+	void RouterInfo::sign(std::shared_ptr<const Botan::DSA_PrivateKey> signingKey)
 	{
 		Botan::AutoSeeded_RNG rng;
 		Botan::Pipe sigPipe(new Botan::Hash_Filter("SHA-1"), new Botan::PK_Signer_Filter(new Botan::PK_Signer(*signingKey, "Raw"), rng));

@@ -12,6 +12,10 @@ namespace i2pcpp {
 	namespace SSU {
 		class PeerStateList {
 			public:
+				PeerStateList() {}
+				PeerStateList(const PeerStateList &) = delete;
+				PeerStateList& operator=(PeerStateList &) = delete;
+
 				void addRemotePeer(PeerStatePtr const &ps);
 				PeerStatePtr getRemotePeer(Endpoint const &ep) const;
 				PeerStatePtr getRemotePeer(RouterHash const &rh) const;

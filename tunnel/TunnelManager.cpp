@@ -53,7 +53,7 @@ namespace i2pcpp {
 			}
 		}
 
-		RouterHash myHash = m_ctx.getIdentity().getHash();
+		RouterHash myHash = m_ctx.getIdentity()->getHash();
 		std::array<unsigned char, 16> myTruncatedHash;
 		std::copy(myHash.cbegin(), myHash.cbegin() + 16, myTruncatedHash.begin());
 
@@ -201,8 +201,8 @@ namespace i2pcpp {
 		I2P_LOG(m_log, debug) << "creating tunnel";
 		std::vector<RouterIdentity> hops = { m_ctx.getProfileManager().getPeer().getIdentity() };
 
-		auto z = std::make_shared<InboundTunnel>(m_ctx.getIdentity().getHash());
-		auto t = std::make_shared<OutboundTunnel>(hops, m_ctx.getIdentity().getHash(), z->getTunnelId());
+		auto z = std::make_shared<InboundTunnel>(m_ctx.getIdentity()->getHash());
+		auto t = std::make_shared<OutboundTunnel>(hops, m_ctx.getIdentity()->getHash(), z->getTunnelId());
 		//auto t = std::make_shared<InboundTunnel>(m_ctx.getIdentity().getHash(), hops);
 		m_tunnels[t->getTunnelId()] = z;
 		m_pending[t->getNextMsgId()] = t;

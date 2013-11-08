@@ -33,7 +33,7 @@ namespace i2pcpp {
 			ByteArray dst(m_byteTotal);
 
 			auto itr = dst.begin();
-			for(auto fp: m_fragments)
+			for(auto& fp: m_fragments)
 			{
 				if(fp) {
 					copy(fp->cbegin(), fp->cend(), itr);

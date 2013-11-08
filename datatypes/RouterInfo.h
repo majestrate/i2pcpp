@@ -24,7 +24,7 @@ namespace i2pcpp {
 			ByteArray serialize() const;
 			void addAddress(RouterAddress const &address);
 			bool verifySignature() const;
-			void sign(const Botan::DSA_PrivateKey * const signingKey);
+			void sign(std::shared_ptr<const Botan::DSA_PrivateKey> signingKey);
 
 			const RouterAddress& getAddress(const int index) const;
 			const RouterIdentity& getIdentity() const;

@@ -17,7 +17,7 @@ namespace i2pcpp {
 
 	void Router::start()
 	{
-		I2P_LOG(m_log, info) << "local router hash: " << m_ctx.getIdentity().getHash();
+		I2P_LOG(m_log, info) << "local router hash: " << m_ctx.getIdentity()->getHash();
 
 		m_serviceThread = std::thread([&](){
 			while(1) {
@@ -31,7 +31,7 @@ namespace i2pcpp {
 			}
 		});
 
-		TransportPtr t = TransportPtr(new UDPTransport(*m_ctx.getSigningKey(), m_ctx.getIdentity()));
+		TransportPtr t = TransportPtr(new UDPTransport(*m_ctx.getSigningKey(), *m_ctx.getIdentity()));
 		t->registerReceivedHandler(boost::bind(&InboundMessageDispatcher::messageReceived, boost::ref(m_ctx.getInMsgDisp()), _1, _2, _3));
 		t->registerEstablishedHandler(boost::bind(&InboundMessageDispatcher::connectionEstablished, boost::ref(m_ctx.getInMsgDisp()), _1, _2));
 		t->registerFailureSignal(boost::bind(&InboundMessageDispatcher::connectionFailure, boost::ref(m_ctx.getInMsgDisp()), _1));
@@ -72,7 +72,7 @@ namespace i2pcpp {
 		Mapping am;
 		am.setValue("caps", "BC");
 		am.setValue("host", m_ctx.getDatabase().getConfigValue("ssu_external_ip"));
-		am.setValue("key", m_ctx.getIdentity().getHash());
+		am.setValue("key", m_ctx.getIdentity()->getHash());
 		am.setValue("port", m_ctx.getDatabase().getConfigValue("ssu_external_port"));
 		RouterAddress a(5, Date(0), "SSU", am);
 
@@ -82,7 +82,7 @@ namespace i2pcpp {
 		rm.setValue("router.version", "0.9.8.1");
 		rm.setValue("stat_uptime", "90m");
 		rm.setValue("caps", "OR");
-		RouterInfo myInfo(m_ctx.getIdentity(), Date(), rm);
+		RouterInfo myInfo(*m_ctx.getIdentity(), Date(), rm);
 		myInfo.addAddress(a);
 		myInfo.sign(m_ctx.getSigningKey());
 

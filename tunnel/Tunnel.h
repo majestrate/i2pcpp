@@ -23,6 +23,8 @@ namespace i2pcpp {
 				FAILED
 			};
 
+			virtual ~Tunnel() {}
+
 			virtual Direction getDirection() const = 0;
 
 			State getState() const;

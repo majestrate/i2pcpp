@@ -1,10 +1,10 @@
 #include "SearchManager.h"
 
 #include "../i2np/DatabaseLookup.h"
+#include "../util/Base64.h"
+#include "../util/make_unique.h"
 
 #include "../RouterContext.h"
-
-#include "util/Base64.h"
 
 namespace i2pcpp {
 	namespace DHT {
@@ -37,7 +37,7 @@ namespace i2pcpp {
 
 			m_searches.insert(ss);
 
-			m_timers[k] = std::make_shared<boost::asio::deadline_timer>(m_ios, boost::posix_time::time_duration(0, 2, 0));
+			m_timers[k] = std::make_unique<boost::asio::deadline_timer>(m_ios, boost::posix_time::time_duration(0, 2, 0));
 			m_timers[k]->async_wait(boost::bind(&SearchManager::timeout, this, boost::asio::placeholders::error, k));
 
 			I2P_LOG(m_log, debug) << "created SearchState for " << Base64::encode(ByteArray(k.cbegin(), k.cend())) << " starting with " << start;
@@ -85,7 +85,7 @@ namespace i2pcpp {
 
 					m_searches.get<1>().modify(itr, ModifyState(SearchState::LOOKUP_SENT));
 
-					I2NP::MessagePtr dbl(new I2NP::DatabaseLookup(ss.goal, m_ctx.getIdentity().getHash(), 0, ss.excluded));
+					I2NP::MessagePtr dbl(new I2NP::DatabaseLookup(ss.goal, m_ctx.getIdentity()->getHash(), 0, ss.excluded));
 					m_ctx.getOutMsgDisp().sendMessage(rh, dbl);
 				}
 			}
@@ -195,7 +195,7 @@ namespace i2pcpp {
 
 							m_searches.get<0>().modify(itr, ModifyState(front));
 
-							I2NP::MessagePtr dbl(new I2NP::DatabaseLookup(front, m_ctx.getIdentity().getHash(), 0, ss.excluded));
+							I2NP::MessagePtr dbl(new I2NP::DatabaseLookup(front, m_ctx.getIdentity()->getHash(), 0, ss.excluded));
 							m_ctx.getOutMsgDisp().sendMessage(from, dbl);
 						} else {
 							I2P_LOG(m_log, debug) << "received known peer hash " << front << ", connecting";

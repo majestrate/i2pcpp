@@ -27,7 +27,7 @@ namespace i2pcpp {
 			Mapping am;
 			am.setValue("caps", "BC");
 			am.setValue("host", m_ctx.getDatabase().getConfigValue("ssu_external_ip"));
-			am.setValue("key", m_ctx.getIdentity().getHash());
+			am.setValue("key", m_ctx.getIdentity()->getHash());
 			am.setValue("port", m_ctx.getDatabase().getConfigValue("ssu_external_port"));
 			RouterAddress a(5, Date(0), "SSU", am);
 
@@ -37,7 +37,7 @@ namespace i2pcpp {
 			rm.setValue("router.version", "0.9.8.1");
 			rm.setValue("stat_uptime", "90m");
 			rm.setValue("caps", "OR");
-			RouterInfo myInfo(m_ctx.getIdentity(), Date(), rm);
+			RouterInfo myInfo(*m_ctx.getIdentity(), Date(), rm);
 			myInfo.addAddress(a);
 			myInfo.sign(m_ctx.getSigningKey());
 
