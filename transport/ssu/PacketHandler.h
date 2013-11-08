@@ -15,6 +15,8 @@ namespace i2pcpp {
 		class PacketHandler {
 			public:
 				PacketHandler(UDPTransport &transport, SessionKey const &sk);
+				PacketHandler(const PacketHandler &) = delete;
+				PacketHandler& operator=(PacketHandler &) = delete;
 
 				void packetReceived(PacketPtr p);
 

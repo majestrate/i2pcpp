@@ -18,46 +18,39 @@ namespace i2pcpp {
 
 		std::string encryptingKeyPEM = m_db.getConfigValue("private_encryption_key");
 		Botan::DataSource_Memory dsm((unsigned char *)encryptingKeyPEM.data(), encryptingKeyPEM.size());
-		m_encryptionKey = dynamic_cast<Botan::ElGamal_PrivateKey *>(Botan::PKCS8::load_key(dsm, rng, (std::string)""));
+		m_encryptionKey = std::shared_ptr<Botan::ElGamal_PrivateKey>(dynamic_cast<Botan::ElGamal_PrivateKey *>(Botan::PKCS8::load_key(dsm, rng, (std::string)"")));
 
 		std::string signingKeyPEM = m_db.getConfigValue("private_signing_key");
 		Botan::DataSource_Memory dsm2((unsigned char *)signingKeyPEM.data(), signingKeyPEM.size());
-		m_signingKey = dynamic_cast<Botan::DSA_PrivateKey *>(Botan::PKCS8::load_key(dsm2, rng, (std::string)""));
+		m_signingKey = std::shared_ptr<Botan::DSA_PrivateKey>(dynamic_cast<Botan::DSA_PrivateKey *>(Botan::PKCS8::load_key(dsm2, rng, (std::string)"")));
 
 		Botan::BigInt encryptionKeyPublic, signingKeyPublic;
 		encryptionKeyPublic = m_encryptionKey->get_y();
 		signingKeyPublic = m_signingKey->get_y();
 
 		ByteArray encryptionKeyBytes = Botan::BigInt::encode(encryptionKeyPublic), signingKeyBytes = Botan::BigInt::encode(signingKeyPublic);
-		m_identity = new RouterIdentity(encryptionKeyBytes, signingKeyBytes, Certificate());
+		m_identity = std::make_shared<RouterIdentity>(encryptionKeyBytes, signingKeyBytes, Certificate());
 
 		// Populate the DHT
 		m_dht = std::make_shared<DHT::Kademlia>(m_identity->getHash());
 		std::forward_list<RouterHash> hashes = m_db.getAllHashes();
-		for(auto h: hashes)
+		for(auto& h: hashes)
 			m_dht->insert(DHT::Kademlia::makeKey(h), h);
 	}
 
-	RouterContext::~RouterContext()
-	{
-		if(m_encryptionKey) delete m_encryptionKey;
-		if(m_signingKey) delete m_signingKey;
-		if(m_identity) delete m_identity;
-	}
-
-	const Botan::ElGamal_PrivateKey *RouterContext::getEncryptionKey() const
+	std::shared_ptr<const Botan::ElGamal_PrivateKey> RouterContext::getEncryptionKey() const
 	{
 		return m_encryptionKey;
 	}
 
-	const Botan::DSA_PrivateKey *RouterContext::getSigningKey() const
+	std::shared_ptr<const Botan::DSA_PrivateKey> RouterContext::getSigningKey() const
 	{
 		return m_signingKey;
 	}
 
-	const RouterIdentity& RouterContext::getIdentity() const
+	std::shared_ptr<const RouterIdentity> RouterContext::getIdentity() const
 	{
-		return *m_identity;
+		return m_identity;
 	}
 
 	Database& RouterContext::getDatabase()

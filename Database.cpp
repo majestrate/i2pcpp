@@ -459,7 +459,7 @@ namespace i2pcpp {
 
 		sqlite3_exec(m_db, "BEGIN TRANSACTION", NULL, NULL, NULL);
 
-		for(auto r: routers)
+		for(auto& r: routers)
 			setRouterInfo(r, false);
 
 		sqlite3_exec(m_db, "COMMIT TRANSACTION", NULL, NULL, NULL);

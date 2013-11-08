@@ -15,7 +15,8 @@ namespace i2pcpp {
 	class Router {
 		public:
 			Router(std::string const &dbFile);
-
+			Router(const Router &) = delete;
+			Router& operator=(Router &) = delete;
 			~Router();
 
 			void start();

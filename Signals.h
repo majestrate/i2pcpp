@@ -19,6 +19,8 @@ namespace i2pcpp {
 			typedef boost::signals2::signal<void(const RouterHash, const uint32_t, const StaticByteArray<1024, true>)> TunnelData;
 
 			Signals(boost::asio::io_service &ios) : m_ios(ios) {}
+			Signals(const Signals &) = delete;
+			Signals& operator=(Signals &) = delete;
 
 			void invokeDatabaseStore(RouterHash const &from, StaticByteArray<32> const &k, bool isRouterInfo = true);
 			boost::signals2::connection registerDatabaseStore(DatabaseStore::slot_type const &dbsh);

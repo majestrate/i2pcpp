@@ -15,13 +15,14 @@ namespace i2pcpp {
 		public:
 			BuildRecord();
 			BuildRecord(ByteArrayConstItr &begin, ByteArrayConstItr end);
+			virtual ~BuildRecord() {}
 
 			BuildRecord& operator=(BuildRecord const &rec);
 
 			ByteArray serialize() const;
 
 			void encrypt(ByteArray const &encryptionKey);
-			void decrypt(Botan::ElGamal_PrivateKey const *key);
+			void decrypt(std::shared_ptr<const Botan::ElGamal_PrivateKey> key);
 			void encrypt(StaticByteArray<16, true> const &iv, SessionKey const &key);
 			void decrypt(StaticByteArray<16, true>  const &iv, SessionKey const &key);
 

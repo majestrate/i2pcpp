@@ -43,7 +43,7 @@ namespace i2pcpp {
 				RouterIdentity m_identity;
 
 				std::unordered_map<Endpoint, EstablishmentStatePtr> m_stateTable;
-				std::unordered_map<Endpoint, std::shared_ptr<boost::asio::deadline_timer>> m_stateTimers;
+				std::unordered_map<Endpoint, std::unique_ptr<boost::asio::deadline_timer>> m_stateTimers;
 				mutable std::mutex m_stateTableMutex;
 
 				i2p_logger_mt m_log;

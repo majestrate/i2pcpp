@@ -23,11 +23,12 @@ namespace i2pcpp {
 	class RouterContext {
 		public:
 			RouterContext(std::string const &dbFile, boost::asio::io_service &ios);
-			~RouterContext();
+			RouterContext(const RouterContext &) = delete;
+			RouterContext& operator=(RouterContext &) = delete;
 
-			const Botan::ElGamal_PrivateKey *getEncryptionKey() const;
-			const Botan::DSA_PrivateKey *getSigningKey() const;
-			const RouterIdentity& getIdentity() const;
+			std::shared_ptr<const Botan::ElGamal_PrivateKey> getEncryptionKey() const;
+			std::shared_ptr<const Botan::DSA_PrivateKey> getSigningKey() const;
+			std::shared_ptr<const RouterIdentity> getIdentity() const;
 
 			Database& getDatabase();
 
@@ -43,9 +44,9 @@ namespace i2pcpp {
 			DHT::SearchManager& getSearchManager();
 
 		private:
-			Botan::ElGamal_PrivateKey *m_encryptionKey;
-			Botan::DSA_PrivateKey *m_signingKey;
-			RouterIdentity *m_identity;
+			std::shared_ptr<Botan::ElGamal_PrivateKey> m_encryptionKey;
+			std::shared_ptr<Botan::DSA_PrivateKey> m_signingKey;
+			std::shared_ptr<RouterIdentity> m_identity;
 
 			Database m_db;
 

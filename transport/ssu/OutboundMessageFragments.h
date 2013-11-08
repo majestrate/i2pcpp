@@ -13,6 +13,8 @@ namespace i2pcpp {
 		class OutboundMessageFragments {
 			public:
 				OutboundMessageFragments(UDPTransport &transport);
+				OutboundMessageFragments(const OutboundMessageFragments &) = delete;
+				OutboundMessageFragments& operator=(OutboundMessageFragments &) = delete;
 
 				void sendData(PeerStatePtr const &ps, uint32_t msgId, ByteArray const &data);
 

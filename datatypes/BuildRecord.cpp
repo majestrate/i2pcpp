@@ -69,7 +69,7 @@ namespace i2pcpp {
 		encPipe.read(m_data.data(), size);
 	}
 
-	void BuildRecord::decrypt(Botan::ElGamal_PrivateKey const *key)
+	void BuildRecord::decrypt(std::shared_ptr<const Botan::ElGamal_PrivateKey> key)
 	{
 		Botan::DL_Group group("modp/ietf/2048");
 		Botan::Pipe decPipe(new Botan::PK_Decryptor_Filter(new Botan::PK_Decryptor_EME(*key, "Raw")));

@@ -61,10 +61,10 @@ namespace i2pcpp {
 				SessionKey m_nextMacKey;
 
 				std::map<uint32_t, InboundMessageStatePtr> m_inboundMessageStates;
-				std::map<uint32_t, std::shared_ptr<boost::asio::deadline_timer>> m_inboundTimers;
+				std::map<uint32_t, std::unique_ptr<boost::asio::deadline_timer>> m_inboundTimers;
 
 				std::map<uint32_t, OutboundMessageStatePtr> m_outboundMessageStates;
-				std::map<uint32_t, std::shared_ptr<boost::asio::deadline_timer>> m_outboundTimers;
+				std::map<uint32_t, std::unique_ptr<boost::asio::deadline_timer>> m_outboundTimers;
 
 				mutable std::mutex m_mutex;
 

@@ -20,6 +20,12 @@ namespace i2pcpp {
 		class StaticByteArray {
 			public:
 				StaticByteArray() {}
+
+				StaticByteArray(const StaticByteArray &) = default;
+				StaticByteArray& operator=(const StaticByteArray &) = default;
+				StaticByteArray(StaticByteArray &&) = default;
+				StaticByteArray& operator=(StaticByteArray &&) = default;
+
 				~StaticByteArray()
 				{
 					if(S)
