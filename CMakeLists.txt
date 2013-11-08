@@ -96,16 +96,17 @@ set(TEST_SRCS
 	util/I2PHMAC.cpp
 	)
 
-set(CMAKE_CXX_FLAGS_MINSIZEREL "-Os")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-constexpr-not-const")
 
 add_executable(i2p main.cpp ${SRCS})
 
 get_target_property(i2p_LOCATION i2p LOCATION)
-add_custom_command(
-	TARGET i2p
-	POST_BUILD
-	COMMAND ${CMAKE_STRIP} -s ${i2p_LOCATION})
+
+# don't strip debugging info
+#add_custom_command(
+#	TARGET i2p
+#	POST_BUILD
+#	COMMAND ${CMAKE_STRIP} -s ${i2p_LOCATION})
 
 # Version information
 add_custom_command(
