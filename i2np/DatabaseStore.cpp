@@ -36,7 +36,7 @@ namespace i2pcpp {
 			ByteArray b;
 
 			b.insert(b.end(), m_key.cbegin(), m_key.cend());
-			b.insert(b.end(), m_type);
+			b.insert(b.end(), (unsigned char)m_type);
 
 			b.insert(b.end(), m_replyToken >> 24);
 			b.insert(b.end(), m_replyToken >> 16);

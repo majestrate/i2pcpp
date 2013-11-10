@@ -7,7 +7,7 @@
 namespace i2pcpp {
 	class TunnelHop {
 		public:
-			enum Type {
+			enum class Type {
 				PARTICIPANT,
 				GATEWAY,
 				ENDPOINT
@@ -53,7 +53,7 @@ namespace i2pcpp {
 			SessionKey m_tunnelIVKey;
 			SessionKey m_replyKey;
 			StaticByteArray<16, true> m_replyIV;
-			Type m_type = PARTICIPANT;
+			Type m_type = Type::PARTICIPANT;
 			uint32_t m_requestTime;
 			uint32_t m_nextMsgId;
 

@@ -16,31 +16,31 @@ namespace i2pcpp {
 
 		ModifyState::ModifyState(SearchState::CurrentState const state) :
 			m_state(state),
-			m_type(STATE) {}
+			m_type(UpdateType::STATE) {}
 
 		ModifyState::ModifyState(RouterHash const &next) :
 			m_next(next),
-			m_type(NEXT) {}
+			m_type(UpdateType::NEXT) {}
 
 		ModifyState::ModifyState(RouterHash const &current, RouterHash const &exclude) :
 			m_current(current),
 			m_exclude(exclude),
-			m_type(NEW_CONNECTION) {}
+			m_type(UpdateType::NEW_CONNECTION) {}
 
 		void ModifyState::operator()(SearchState &ss)
 		{
 			switch(m_type) {
-				case STATE:
+				case UpdateType::STATE:
 					ss.state = m_state;
 					break;
 
-				case NEXT:
+				case UpdateType::NEXT:
 					ss.next = m_next;
 					break;
 
-				case NEW_CONNECTION:
+				case UpdateType::NEW_CONNECTION:
 					ss.current = m_current;
-					ss.state = SearchState::CONNECTING;
+					ss.state = SearchState::CurrentState::CONNECTING;
 					ss.next = RouterHash();
 					ss.excluded.push_back(m_exclude);
 					ss.alternates.pop();

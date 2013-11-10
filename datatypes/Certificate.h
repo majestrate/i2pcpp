@@ -6,7 +6,7 @@
 namespace i2pcpp {
 	class Certificate : public Datatype {
 		public:
-			enum Type {
+			enum class Type {
 				NIL,
 				HASHCASH,
 				HIDDEN,

@@ -1,6 +1,7 @@
 #include "TunnelMessage.h"
 
 #include <stdexcept>
+#include <cmath>
 
 #include <botan/pipe.h>
 #include <botan/lookup.h>
@@ -10,6 +11,82 @@ namespace i2pcpp {
 	{
 		std::copy(data.cbegin(), data.cbegin() + 16, m_iv.begin());
 		std::copy(data.cbegin() + 16, data.cbegin() + 16 + 1008, m_data.begin());
+	}
+
+	void TunnelMessage::fragment(I2NP::MessagePtr const &msg)
+	{
+		ByteArray data = msg->toBytes();
+
+		uint8_t headerSize = 3;
+		unsigned char flag = 0x00;
+		if(data.size() > (1003 - headerSize)) {
+			// Too big, can't do it all in one fragment
+			headerSize += 4; // msgId
+			flag |= (1 << 3); // set fragmented bit
+		}
+
+		std::list<ByteArrayPtr> fragments;
+		fragments.push_back(std::make_shared<ByteArray>());
+		ByteArrayPtr initial = fragments.back();
+
+		initial->insert(initial->end(), flag);
+
+		uint32_t msgId = msg->getMsgId();
+		if(flag & (1 << 3)) { // if the fragment bit is set
+			initial->insert(initial->end(), msgId >> 24);
+			initial->insert(initial->end(), msgId >> 16);
+			initial->insert(initial->end(), msgId >> 8);
+			initial->insert(initial->end(), msgId);
+		}
+
+		// Extended options not implemented
+
+		uint16_t size;
+		if(flag & (1 << 3))
+			size = (1003 - initial->size() - 2); // -2 to account for the size itself
+		else
+			size = data.size();
+
+		initial->insert(initial->end(), size >> 8);
+		initial->insert(initial->end(), size);
+
+		if(flag & (1 << 3)) {
+			uint16_t index = size;
+			initial->insert(initial->end(), data.cbegin(), data.cbegin() + index);
+
+			unsigned char frag = 0;
+			uint16_t numFragments = std::ceil((data.size() - index) / 996.0);
+			if(numFragments > 63)
+				throw std::runtime_error("message too big to fragment");
+
+			for(int i = 0; i < numFragments; ++i) {
+				fragments.push_back(std::make_shared<ByteArray>());
+				ByteArrayPtr fof = fragments.back();;
+
+				frag = (1 << 7);
+				frag |= (i << 1);
+				frag |= (i == (numFragments - 1));
+				fof->insert(fof->end(), frag);
+
+				fof->insert(fof->end(), msgId >> 24);
+				fof->insert(fof->end(), msgId >> 16);
+				fof->insert(fof->end(), msgId >> 8);
+				fof->insert(fof->end(), msgId);
+
+				if(i == (numFragments - 1)) {
+					uint8_t fofSize = (data.size() - index) % 996;
+					fof->insert(fof->end(), fofSize >> 8);
+					fof->insert(fof->end(), fofSize);
+					fof->insert(fof->end(), data.cbegin() + index, data.cbegin() + index + fofSize);
+				} else {
+					fof->insert(fof->end(), 996 >> 8);
+					fof->insert(fof->end(), (unsigned char)996);
+					fof->insert(fof->end(), data.cbegin() + index, data.cbegin() + index + 996);
+					index += 996;
+				}
+			}
+		} else
+			initial->insert(initial->end(), data.cbegin(), data.cend());
 	}
 
 	void TunnelMessage::encrypt(Botan::SymmetricKey const &ivKey, Botan::SymmetricKey const &layerKey)

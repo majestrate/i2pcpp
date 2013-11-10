@@ -7,15 +7,15 @@ namespace i2pcpp {
 		m_hop(*hop)
 	{
 		switch(m_hop.getType()) {
-			case TunnelHop::GATEWAY:
+			case TunnelHop::Type::GATEWAY:
 				m_flags[7] = true;
 				break;
 
-			case TunnelHop::ENDPOINT:
+			case TunnelHop::Type::ENDPOINT:
 				m_flags[6] = true;
 				break;
 
-			case TunnelHop::PARTICIPANT:
+			case TunnelHop::Type::PARTICIPANT:
 				m_flags = 0;
 				break;
 		}
@@ -61,11 +61,11 @@ namespace i2pcpp {
 
 		m_flags = *(dataItr)++;
 		if(m_flags[7])
-			m_hop.setType(TunnelHop::GATEWAY);
+			m_hop.setType(TunnelHop::Type::GATEWAY);
 		else if(m_flags[6])
-			m_hop.setType(TunnelHop::ENDPOINT);
+			m_hop.setType(TunnelHop::Type::ENDPOINT);
 		else
-			m_hop.setType(TunnelHop::PARTICIPANT);
+			m_hop.setType(TunnelHop::Type::PARTICIPANT);
 
 		requestTime = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
 		m_hop.setRequestTime(requestTime);

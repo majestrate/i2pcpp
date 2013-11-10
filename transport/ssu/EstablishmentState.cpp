@@ -8,7 +8,7 @@
 namespace i2pcpp {
 	namespace SSU {
 		EstablishmentState::EstablishmentState(Botan::DSA_PrivateKey const &dsaKey, RouterIdentity const &myIdentity, Endpoint const &ep) :
-			m_direction(EstablishmentState::INBOUND),
+			m_direction(EstablishmentState::Direction::INBOUND),
 			m_dsaKey(dsaKey),
 			m_myIdentity(myIdentity),
 			m_sessionKey((ByteArray)myIdentity.getHash()),
@@ -22,7 +22,7 @@ namespace i2pcpp {
 		}
 
 		EstablishmentState::EstablishmentState(Botan::DSA_PrivateKey const &dsaKey, RouterIdentity const &myIdentity, Endpoint const &ep, RouterIdentity const &theirIdentity) :
-			m_direction(EstablishmentState::OUTBOUND),
+			m_direction(EstablishmentState::Direction::OUTBOUND),
 			m_dsaKey(dsaKey),
 			m_myIdentity(myIdentity),
 			m_sessionKey((ByteArray)theirIdentity.getHash()),

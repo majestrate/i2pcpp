@@ -4,13 +4,13 @@
 
 namespace i2pcpp {
 	Certificate::Certificate() :
-		m_type(NIL) {}
+		m_type(Certificate::Type::NIL) {}
 
 	Certificate::Certificate(ByteArrayConstItr &begin, ByteArrayConstItr end)
 	{
 		m_type = (Type)*(begin++);
 
-		if(m_type < 0 || m_type > 4) throw FormattingError();
+		if(m_type < (Type)0 || m_type > (Type)4) throw FormattingError();
 	
 		uint16_t size = (*(begin++) << 8) | *(begin++);
 		if((end - begin) < size) throw FormattingError();

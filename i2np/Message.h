@@ -12,7 +12,7 @@ namespace i2pcpp {
 			public:
 				virtual ~Message() {}
 
-				enum Type {
+				enum class Type {
 					DB_STORE = 1,
 					DB_LOOKUP = 2,
 					DB_SEARCH_REPLY = 3,
