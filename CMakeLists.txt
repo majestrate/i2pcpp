@@ -104,6 +104,13 @@ else("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 	message(WARNING "Beware: Only clang is officially supported!")
 endif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
+	set(CMAKE_CXX_FLAGS_MINSIZEREL "-Oz")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-constexpr-not-const")
+endif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+
 add_executable(i2p main.cpp ${SRCS})
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
