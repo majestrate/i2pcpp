@@ -59,43 +59,45 @@ namespace i2pcpp {
 
 			switch(es->getState())
 			{
-				case EstablishmentState::REQUEST_SENT:
+				case EstablishmentState::State::REQUEST_SENT:
 					I2P_LOG(m_log, debug) << "sent session request";
 					break;
 
-				case EstablishmentState::REQUEST_RECEIVED:
+				case EstablishmentState::State::REQUEST_RECEIVED:
 					I2P_LOG(m_log, debug) << "received session request";
 					processRequest(es);
 					break;
 
-				case EstablishmentState::CREATED_SENT:
+				case EstablishmentState::State::CREATED_SENT:
 					I2P_LOG(m_log, debug) << "sent session created";
 					break;
 
-				case EstablishmentState::CREATED_RECEIVED:
+				case EstablishmentState::State::CREATED_RECEIVED:
 					I2P_LOG(m_log, debug) << "received session created";
 					processCreated(es);
 					break;
 
-				case EstablishmentState::CONFIRMED_SENT:
+				case EstablishmentState::State::CONFIRMED_SENT:
 					{
 						const RouterHash &rh = es->getTheirIdentity().getHash();
 						I2P_LOG_SCOPED_TAG(m_log, "RouterHash", rh);
 						I2P_LOG(m_log, debug) << "sent session confirmed";
-						m_transport.post(boost::bind(boost::ref(m_transport.m_establishedSignal), rh, (es->getDirection() == EstablishmentState::INBOUND)));
+						m_transport.post(boost::bind(boost::ref(m_transport.m_establishedSignal), rh, (es->getDirection() == EstablishmentState::Direction::INBOUND)));
 						delState(ep);
 					}
 					break;
 
-				case EstablishmentState::CONFIRMED_RECEIVED:
+				case EstablishmentState::State::CONFIRMED_RECEIVED:
 					I2P_LOG(m_log, debug) << "received session confirmed";
 					processConfirmed(es);
 					break;
 
-				case EstablishmentState::UNKNOWN:
-				case EstablishmentState::FAILURE:
+				case EstablishmentState::State::UNKNOWN:
+				case EstablishmentState::State::FAILURE:
 					I2P_LOG(m_log, error) << "establishment failed";
-					m_transport.post(boost::bind(boost::ref(m_transport.m_failureSignal), es->getTheirIdentity().getHash()));
+					if(es->getDirection() == EstablishmentState::Direction::OUTBOUND)
+						m_transport.post(boost::bind(boost::ref(m_transport.m_failureSignal), es->getTheirIdentity().getHash()));
+
 					delState(ep);
 					break;
 			}
@@ -132,7 +134,7 @@ namespace i2pcpp {
 				I2P_LOG_SCOPED_TAG(m_log, "Endpoint", es->getTheirEndpoint());
 				I2P_LOG(m_log, debug) << "establishment timed out";
 
-				es->setState(EstablishmentState::FAILURE);
+				es->setState(EstablishmentState::State::FAILURE);
 				post(es);
 			}
 		}
@@ -144,7 +146,7 @@ namespace i2pcpp {
 
 			m_transport.sendPacket(p);
 
-			state->setState(EstablishmentState::REQUEST_SENT);
+			state->setState(EstablishmentState::State::REQUEST_SENT);
 			post(state);
 		}
 
@@ -165,7 +167,7 @@ namespace i2pcpp {
 
 			m_transport.sendPacket(p);
 
-			state->setState(EstablishmentState::CREATED_SENT);
+			state->setState(EstablishmentState::State::CREATED_SENT);
 			post(state);
 		}
 
@@ -175,7 +177,7 @@ namespace i2pcpp {
 
 			if(!state->verifyCreationSignature()) {
 				I2P_LOG(m_log, error) << "creation signature verification failed";
-				state->setState(EstablishmentState::FAILURE);
+				state->setState(EstablishmentState::State::FAILURE);
 				return;
 			}
 
@@ -198,7 +200,7 @@ namespace i2pcpp {
 
 			m_transport.sendPacket(p);
 
-			state->setState(EstablishmentState::CONFIRMED_SENT);
+			state->setState(EstablishmentState::State::CONFIRMED_SENT);
 			post(state);
 		}
 
@@ -208,7 +210,7 @@ namespace i2pcpp {
 
 			if(!state->verifyConfirmationSignature()) {
 				I2P_LOG(m_log, error) << "confirmation signature verification failed";
-				state->setState(EstablishmentState::FAILURE);
+				state->setState(EstablishmentState::State::FAILURE);
 				post(state);
 
 				return;
@@ -223,7 +225,7 @@ namespace i2pcpp {
 
 			delState(ep);
 
-			m_transport.post(boost::bind(boost::ref(m_transport.m_establishedSignal), state->getTheirIdentity().getHash(), (state->getDirection() == EstablishmentState::INBOUND)));
+			m_transport.post(boost::bind(boost::ref(m_transport.m_establishedSignal), state->getTheirIdentity().getHash(), (state->getDirection() == EstablishmentState::Direction::INBOUND)));
 		}
 	}
 }

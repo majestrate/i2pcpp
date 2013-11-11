@@ -25,7 +25,7 @@ namespace i2pcpp {
 
 		PacketPtr PacketBuilder::buildSessionRequest(EstablishmentStatePtr const &state)
 		{
-			PacketPtr s = buildHeader(state->getTheirEndpoint(), Packet::PayloadType::SESSION_REQUEST << 4);
+			PacketPtr s = buildHeader(state->getTheirEndpoint(), (unsigned char)Packet::PayloadType::SESSION_REQUEST << 4);
 
 			ByteArray& sr = s->getData();
 
@@ -44,7 +44,7 @@ namespace i2pcpp {
 
 		PacketPtr PacketBuilder::buildSessionCreated(EstablishmentStatePtr const &state)
 		{
-			PacketPtr s = buildHeader(state->getTheirEndpoint(), Packet::PayloadType::SESSION_CREATED << 4);
+			PacketPtr s = buildHeader(state->getTheirEndpoint(), (unsigned char)Packet::PayloadType::SESSION_CREATED << 4);
 
 			ByteArray& sc = s->getData();
 
@@ -78,7 +78,7 @@ namespace i2pcpp {
 
 		PacketPtr PacketBuilder::buildSessionConfirmed(EstablishmentStatePtr const &state)
 		{
-			PacketPtr s = buildHeader(state->getTheirEndpoint(), Packet::PayloadType::SESSION_CONFIRMED << 4);
+			PacketPtr s = buildHeader(state->getTheirEndpoint(), (unsigned char)Packet::PayloadType::SESSION_CONFIRMED << 4);
 
 			ByteArray& sc = s->getData();
 
@@ -107,7 +107,7 @@ namespace i2pcpp {
 
 		PacketPtr PacketBuilder::buildData(Endpoint const &ep, bool wantReply, CompleteAckList const &completeAcks, PartialAckList const &incompleteAcks, std::vector<PacketBuilder::FragmentPtr> const &fragments)
 		{
-			PacketPtr s = buildHeader(ep, Packet::PayloadType::DATA << 4);
+			PacketPtr s = buildHeader(ep, (unsigned char)Packet::PayloadType::DATA << 4);
 
 			ByteArray& d = s->getData();
 
@@ -134,7 +134,7 @@ namespace i2pcpp {
 				ba.insert(ba.end(), m.first);
 
 				size_t numBits = m.second.size();
-				size_t steps = ceil(numBits / 7.0);
+				size_t steps = std::ceil(numBits / 7.0);
 
 				for(size_t i = 0; i < steps; i++) {
 					uint8_t byte = 0;
@@ -199,7 +199,7 @@ namespace i2pcpp {
 
 		PacketPtr PacketBuilder::buildSessionDestroyed(Endpoint const &ep)
 		{
-			PacketPtr s = buildHeader(ep, Packet::PayloadType::SESSION_DESTROY << 4);
+			PacketPtr s = buildHeader(ep, (unsigned char)Packet::PayloadType::SESSION_DESTROY << 4);
 
 			return s;
 		}

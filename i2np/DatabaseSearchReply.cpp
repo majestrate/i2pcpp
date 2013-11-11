@@ -11,6 +11,7 @@ namespace i2pcpp {
 
 		ByteArray DatabaseSearchReply::getBytes() const
 		{
+			// TODO
 			return ByteArray();
 		}
 

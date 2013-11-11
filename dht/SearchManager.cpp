@@ -80,10 +80,10 @@ namespace i2pcpp {
 				SearchStateByCurrent::iterator itr = m_searches.get<1>().find(rh);
 				const SearchState& ss = *itr;
 
-				if(ss.state == SearchState::CONNECTING) {
+				if(ss.state == SearchState::CurrentState::CONNECTING) {
 					I2P_LOG(m_log, debug) << "found good SearchState, sending DatabaseLookup";
 
-					m_searches.get<1>().modify(itr, ModifyState(SearchState::LOOKUP_SENT));
+					m_searches.get<1>().modify(itr, ModifyState(SearchState::CurrentState::LOOKUP_SENT));
 
 					I2NP::MessagePtr dbl(new I2NP::DatabaseLookup(ss.goal, m_ctx.getIdentity()->getHash(), 0, ss.excluded));
 					m_ctx.getOutMsgDisp().sendMessage(rh, dbl);
@@ -165,7 +165,7 @@ namespace i2pcpp {
 				SearchStateByGoal::iterator itr = m_searches.get<0>().find(query);
 				const SearchState& ss = *itr;
 
-				if(ss.state == SearchState::LOOKUP_SENT) {
+				if(ss.state == SearchState::CurrentState::LOOKUP_SENT) {
 					m_searches.get<0>().modify(itr, InsertTried(from));
 
 					for(auto h: hashes) {

@@ -62,7 +62,7 @@ namespace i2pcpp {
 			for(auto r: records) {
 				BuildResponseRecord resp = *r;
 				if(resp.parse()) {
-					if(resp.getReply() == BuildResponseRecord::SUCCESS) {
+					if(resp.getReply() == BuildResponseRecord::Reply::SUCCESS) {
 						// TODO Record the success in the router's profile.
 					} else {
 						// TODO Record the failure in the router's profile.
@@ -73,8 +73,8 @@ namespace i2pcpp {
 		}
 
 		if(allgood)
-			m_state = Tunnel::OPERATIONAL;
+			m_state = Tunnel::State::OPERATIONAL;
 		else
-			m_state = Tunnel::FAILED;
+			m_state = Tunnel::State::FAILED;
 	}
 }

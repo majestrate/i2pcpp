@@ -59,7 +59,7 @@ namespace i2pcpp {
 		u->start(Endpoint(m_ctx.getDatabase().getConfigValue("ssu_bind_ip"), std::stoi(m_ctx.getDatabase().getConfigValue("ssu_bind_port"))));
 
 		//m_ctx.getPeerManager().begin();
-		m_ctx.getTunnelManager().begin();
+		//m_ctx.getTunnelManager().begin();
 	}
 
 	void Router::stop()
@@ -69,6 +69,7 @@ namespace i2pcpp {
 
 	ByteArray Router::getRouterInfo()
 	{
+		// TODO Get this out of here
 		Mapping am;
 		am.setValue("caps", "BC");
 		am.setValue("host", m_ctx.getDatabase().getConfigValue("ssu_external_ip"));

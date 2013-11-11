@@ -7,7 +7,7 @@
 namespace i2pcpp {
 	class BuildResponseRecord : public BuildRecord {
 		public:
-			enum Reply {
+			enum class Reply {
 				SUCCESS = 0,
 				PROBABALISTIC_REJECT = 10,
 				TRANSIENT_OVERLOAD = 20,
