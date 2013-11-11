@@ -12,18 +12,6 @@ set(SRCS
 	RouterContext.cpp
 	Signals.cpp
 	Version.cpp
-	datatypes/Certificate.cpp
-	datatypes/ByteArray.cpp
-	datatypes/BuildRecord.cpp
-	datatypes/BuildRequestRecord.cpp
-	datatypes/BuildResponseRecord.cpp
-	datatypes/Datatype.cpp
-	datatypes/Date.cpp
-	datatypes/Endpoint.cpp
-	datatypes/Mapping.cpp
-	datatypes/RouterAddress.cpp
-	datatypes/RouterIdentity.cpp
-	datatypes/RouterInfo.cpp
 	dht/Kademlia.cpp
 	dht/SearchManager.cpp
 	dht/SearchState.cpp
@@ -111,6 +99,47 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-constexpr-not-const")
 endif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 
+##############################
+# Find and include libraries #
+##############################
+
+# Boost
+find_package(Boost 1.54.0 REQUIRED COMPONENTS system thread filesystem chrono date_time program_options log)
+include_directories(BEFORE i2p ${Boost_INCLUDE_DIR})
+add_definitions(-DBOOST_ALL_DYN_LINK)
+
+# Botan TODO: use find_package here, write a module for that
+find_path(BOTAN_INCLUDE_DIR botan/botan.h PATHS "${BOTAN_INCLUDE_PREFIX}" NO_DEFAULT_PATH)
+find_path(BOTAN_INCLUDE_DIR botan/botan.h)
+find_library(BOTAN_LIBRARY_PATH botan-1.11 PATHS "${BOTAN_LIBRARY_PREFIX}" NO_DEFAULT_PATH)
+find_library(BOTAN_LIBRARY_PATH botan-1.11)
+
+if(BOTAN_LIBRARY_PATH AND BOTAN_INCLUDE_DIR)
+	message(STATUS "Found botan: ${BOTAN_LIBRARY_PATH}")
+else(BOTAN_LIBRARY_PATH AND BOTAN_INCLUDE_DIR)
+	message(FATAL_ERROR "Botan 1.11 not found")
+endif(BOTAN_LIBRARY_PATH AND BOTAN_INCLUDE_DIR)
+
+include_directories(BEFORE i2p ${BOTAN_INCLUDE_DIR})
+
+# Sqlite3 TODO: use find package here, write a module for that
+find_path(SQLITE3_INCLUDE_DIR sqlite3.h PATHS "${SQLITE3_INCLUDE_PREFIX}" NO_DEFAULT_PATH)
+find_path(SQLITE3_INCLUDE_DIR sqlite3.h)
+find_library(SQLITE3_LIBRARY_PATH sqlite3 PATHS "${SQLITE3_LIBRARY_PREFIX}" NO_DEFAULT_PATH)
+find_library(SQLITE3_LIBRARY_PATH sqlite3)
+
+if(SQLITE3_LIBRARY_PATH AND SQLITE3_INCLUDE_DIR)
+	message(STATUS "Found sqlite3: ${SQLITE3_LIBRARY_PATH}")
+else(SQLITE3_LIBRARY_PATH AND SQLITE3_INCLUDE_DIR)
+	message(FATAL_ERROR "Sqlite3 not found")
+endif(SQLITE3_LIBRARY_PATH AND SQLITE3_INCLUDE_DIR)
+
+include_directories(BEFORE i2p "${SQLITE3_INCLUDE_DIR}")
+##############################
+
+# Setup library "datatypes"
+add_subdirectory(datatypes)
+include_directories(datatypes)
 add_executable(i2p main.cpp ${SRCS})
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
@@ -145,43 +174,25 @@ target_link_libraries(i2p "${CMAKE_CURRENT_BINARY_DIR}/schema.sql.o")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-# Sqlite3
-find_path(SQLITE3_INCLUDE_DIR sqlite3.h PATHS "${SQLITE3_INCLUDE_PREFIX}" NO_DEFAULT_PATH)
-find_path(SQLITE3_INCLUDE_DIR sqlite3.h)
-find_library(SQLITE3_LIBRARY_PATH sqlite3 PATHS "${SQLITE3_LIBRARY_PREFIX}" NO_DEFAULT_PATH)
-find_library(SQLITE3_LIBRARY_PATH sqlite3)
 
-if(SQLITE3_LIBRARY_PATH AND SQLITE3_INCLUDE_DIR)
-	message(STATUS "Found sqlite3: ${SQLITE3_LIBRARY_PATH}")
-else(SQLITE3_LIBRARY_PATH AND SQLITE3_INCLUDE_DIR)
-	message(FATAL_ERROR "Sqlite3 not found")
-endif(SQLITE3_LIBRARY_PATH AND SQLITE3_INCLUDE_DIR)
-
-include_directories(BEFORE i2p "${SQLITE3_INCLUDE_DIR}")
-target_link_libraries(i2p "${SQLITE3_LIBRARY_PATH}")
+################################
+# Link libraries to executable #
+################################
 
 # Botan
-find_path(BOTAN_INCLUDE_DIR botan/botan.h PATHS "${BOTAN_INCLUDE_PREFIX}" NO_DEFAULT_PATH)
-find_path(BOTAN_INCLUDE_DIR botan/botan.h)
-find_library(BOTAN_LIBRARY_PATH botan-1.11 PATHS "${BOTAN_LIBRARY_PREFIX}" NO_DEFAULT_PATH)
-find_library(BOTAN_LIBRARY_PATH botan-1.11)
-
-if(BOTAN_LIBRARY_PATH AND BOTAN_INCLUDE_DIR)
-	message(STATUS "Found botan: ${BOTAN_LIBRARY_PATH}")
-else(BOTAN_LIBRARY_PATH AND BOTAN_INCLUDE_DIR)
-	message(FATAL_ERROR "Botan 1.11 not found")
-endif(BOTAN_LIBRARY_PATH AND BOTAN_INCLUDE_DIR)
-
-include_directories(BEFORE i2p ${BOTAN_INCLUDE_DIR})
 target_link_libraries(i2p ${BOTAN_LIBRARY_PATH})
-
 # Boost
-find_package(Boost 1.54.0 REQUIRED COMPONENTS system thread filesystem chrono date_time program_options log)
-include_directories(BEFORE i2p ${Boost_INCLUDE_DIR})
 target_link_libraries(i2p ${Boost_LIBRARIES})
-add_definitions(-DBOOST_ALL_DYN_LINK)
+# SQLite3    
+target_link_libraries(i2p "${SQLITE3_LIBRARY_PATH}")
+# Dataypes library
+target_link_libraries(i2p datatypes)
 
-# Googletest
+################################
+
+#############################
+# Setup testing environment #
+#############################
 find_path(GTEST_INCLUDE_DIR gtest/gtest.h PATHS "${GTEST_INCLUDE_PREFIX}" NO_DEFAULT_PATH)
 find_library(GTEST_LIBRARY_PATH gtest PATHS "${GTEST_LIBRARY_PREFIX}" NO_DEFAULT_PATH)
 find_library(GTEST_MAIN_LIBRARY_PATH gtest_main PATHS "${GTEST_LIBRARY_PREFIX}" NO_DEFAULT_PATH)

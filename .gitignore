@@ -1,6 +1,5 @@
 build/
 *.sh
-*.txt
 *.bak
 *.log
 *.core
