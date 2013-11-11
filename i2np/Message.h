@@ -36,7 +36,7 @@ namespace i2pcpp {
 			protected:
 				Message();
 				Message(uint32_t msgId);
-				virtual ByteArray getBytes() const = 0;
+				virtual ByteArray getBytes() const;
 				virtual bool parse(ByteArrayConstItr &begin, ByteArrayConstItr end) = 0;
 
 				uint32_t m_msgId;

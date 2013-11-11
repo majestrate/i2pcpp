@@ -113,7 +113,6 @@ _build_i2p() # build i2p itself
 				-DBOTAN_LIBRARY_PREFIX=$prefix/lib/ \
 				-DCMAKE_CXX_COMPILER=$CXX \
 				-DCMAKE_BUILD_TYPE="Debug" \
-						-DCMAKE_CXX_FLAGS="-std=c++11 -Os" \
 				$base
     make -j$jobs
 }

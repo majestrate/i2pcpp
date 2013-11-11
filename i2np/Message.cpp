@@ -91,6 +91,11 @@ namespace i2pcpp {
 			return m_msgId;
 		}
 
+		ByteArray Message::getBytes() const
+		{
+			throw std::runtime_error("cannot obtain bytes of unknown I2NP message");
+		}
+
 		ByteArray Message::toBytes() const
 		{
 			// TODO Standard header support
