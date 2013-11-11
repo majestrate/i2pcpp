@@ -10,7 +10,6 @@
 #include <iomanip>
 
 #include "../util/Base64.h"
-#include "../exceptions/FormattingError.h"
 
 #include "ByteArray.h"
 
@@ -42,7 +41,7 @@ namespace i2pcpp {
 				StaticByteArray(std::string const &s)
 				{
 					ByteArray b = Base64::decode(s);
-					if(b.size() != L) throw FormattingError();
+					if(b.size() != L) throw std::runtime_error("input string not correct size for StaticByteArray");
 					std::copy(b.cbegin(), b.cbegin() + L, m_data.begin());
 				}
 

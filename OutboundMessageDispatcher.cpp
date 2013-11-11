@@ -11,6 +11,12 @@ namespace i2pcpp {
 	{
 		if(!m_transport) throw std::logic_error("No transport registered");
 
+		if(to == m_ctx.getIdentity()->getHash()) {
+			I2P_LOG(m_log, debug) << "message is for myself, sending to IMD";
+			m_ctx.getInMsgDisp().messageReceived(to, msg->getMsgId(), msg->toBytes(true));
+			return;
+		}
+
 		if(m_transport->isConnected(to))
 			m_transport->send(to, msg->getMsgId(), msg->toBytes());
 		else {

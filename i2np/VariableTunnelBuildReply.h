@@ -6,7 +6,12 @@
 namespace i2pcpp {
 	namespace I2NP {
 		class VariableTunnelBuildReply : public VariableTunnelBuild {
-			Message::Type getType() const;
+			public:
+				VariableTunnelBuildReply();
+				VariableTunnelBuildReply(std::list<BuildRecordPtr> const &buildRecords);
+				VariableTunnelBuildReply(uint32_t msgId, std::list<BuildRecordPtr> const &buildRecords);
+
+				Message::Type getType() const;
 		};
 	}
 }

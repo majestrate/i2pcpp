@@ -1,5 +1,7 @@
 #include "Message.h"
 
+#include <botan/pipe.h>
+#include <botan/lookup.h>
 #include <botan/auto_rng.h>
 
 #include "../exceptions/FormattingError.h"
@@ -91,18 +93,42 @@ namespace i2pcpp {
 			return m_msgId;
 		}
 
-		ByteArray Message::toBytes() const
+		ByteArray Message::toBytes(bool standardHeader) const
 		{
-			// TODO Standard header support
 			ByteArray b(getBytes());
 
-			// m_expiration?
-			uint32_t expiration = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count() + 60;
+			if(standardHeader) {
+				Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-256"));
+				hashPipe.start_msg();
 
-			b.insert(b.begin(), expiration);
-			b.insert(b.begin(), expiration >> 8);
-			b.insert(b.begin(), expiration >> 16);
-			b.insert(b.begin(), expiration >> 24);
+				hashPipe.write(b);
+
+				hashPipe.end_msg();
+
+				unsigned char checksum;
+				hashPipe.read(&checksum, 1);
+				uint16_t size = b.size();
+
+				b.insert(b.begin(), checksum);
+				b.insert(b.begin(), size);
+				b.insert(b.begin(), size >> 8);
+
+				ByteArray d(Date().serialize());
+				b.insert(b.begin(), d.cbegin(), d.cend());
+
+				b.insert(b.begin(), m_msgId);
+				b.insert(b.begin(), m_msgId >> 8);
+				b.insert(b.begin(), m_msgId >> 16);
+				b.insert(b.begin(), m_msgId >> 24);
+			} else {
+				// m_expiration?
+				uint32_t expiration = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count() + 60;
+
+				b.insert(b.begin(), expiration);
+				b.insert(b.begin(), expiration >> 8);
+				b.insert(b.begin(), expiration >> 16);
+				b.insert(b.begin(), expiration >> 24);
+			}
 
 			b.insert(b.begin(), (unsigned char)getType());
 

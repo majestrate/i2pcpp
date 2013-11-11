@@ -29,7 +29,7 @@ namespace i2pcpp {
 
 				static std::shared_ptr<Message> fromBytes(uint32_t const msgId, ByteArray const &data, bool standardHeader = false);
 
-				ByteArray toBytes() const;
+				ByteArray toBytes(bool standardHeader = false) const;
 				uint32_t getMsgId() const;
 				virtual Type getType() const = 0;
 
