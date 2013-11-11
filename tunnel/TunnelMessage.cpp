@@ -5,6 +5,7 @@
 
 #include <botan/pipe.h>
 #include <botan/lookup.h>
+#include <botan/auto_rng.h>
 
 namespace i2pcpp {
 	TunnelMessage::TunnelMessage(StaticByteArray<1024, true> const &data)
@@ -13,7 +14,39 @@ namespace i2pcpp {
 		std::copy(data.cbegin() + 16, data.cbegin() + 16 + 1008, m_data.begin());
 	}
 
-	void TunnelMessage::fragment(I2NP::MessagePtr const &msg)
+	TunnelMessage::TunnelMessage(std::list<ByteArrayPtr> const &fragments)
+	{
+		ByteArray data;
+
+		auto r = fragments.crbegin();
+		for(; r != fragments.crend(); ++r)
+			data.insert(data.begin(), (*r)->cbegin(), (*r)->cend());
+
+		data.insert(data.begin(), 0);
+		data.insert(data.begin(), (1008 - data.size() - 4), 0xFF);
+
+		Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-256"));
+		hashPipe.start_msg();
+
+		hashPipe.write(data);
+
+		hashPipe.end_msg();
+
+		ByteArray checksum(4);
+		hashPipe.read(checksum.data(), 4);
+
+		data.insert(data.begin(), checksum.cbegin(), checksum.cend());
+
+		if(data.size() != 1008)
+			throw std::runtime_error("tunnel message data not 1008 bytes");
+
+		m_data = data;
+
+		Botan::AutoSeeded_RNG rng;
+		rng.randomize(m_iv.data(), m_iv.size());
+	}
+
+	std::list<ByteArrayPtr> TunnelMessage::fragment(I2NP::MessagePtr const &msg)
 	{
 		ByteArray data = msg->toBytes();
 
@@ -54,18 +87,19 @@ namespace i2pcpp {
 			uint16_t index = size;
 			initial->insert(initial->end(), data.cbegin(), data.cbegin() + index);
 
-			unsigned char frag = 0;
 			uint16_t numFragments = std::ceil((data.size() - index) / 996.0);
 			if(numFragments > 63)
 				throw std::runtime_error("message too big to fragment");
 
-			for(int i = 0; i < numFragments; ++i) {
+			unsigned char frag;
+			// FOFs start at 1. The initial fragment is 0
+			for(int i = 1; i <= numFragments; ++i) {
 				fragments.push_back(std::make_shared<ByteArray>());
 				ByteArrayPtr fof = fragments.back();;
 
 				frag = (1 << 7);
 				frag |= (i << 1);
-				frag |= (i == (numFragments - 1));
+				frag |= (i == numFragments);
 				fof->insert(fof->end(), frag);
 
 				fof->insert(fof->end(), msgId >> 24);
@@ -73,7 +107,7 @@ namespace i2pcpp {
 				fof->insert(fof->end(), msgId >> 8);
 				fof->insert(fof->end(), msgId);
 
-				if(i == (numFragments - 1)) {
+				if(i == numFragments) {
 					uint8_t fofSize = (data.size() - index) % 996;
 					fof->insert(fof->end(), fofSize >> 8);
 					fof->insert(fof->end(), fofSize);
@@ -87,6 +121,8 @@ namespace i2pcpp {
 			}
 		} else
 			initial->insert(initial->end(), data.cbegin(), data.cend());
+
+		return fragments;
 	}
 
 	void TunnelMessage::encrypt(Botan::SymmetricKey const &ivKey, Botan::SymmetricKey const &layerKey)

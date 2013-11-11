@@ -75,8 +75,8 @@ namespace i2pcpp {
 
 				BuildResponseRecordPtr resp;
 
-				if(hop.getType() != TunnelHop::Type::PARTICIPANT) {
-					I2P_LOG(m_log, debug) << "rejecting tunnel participation request: gateways and endpoints not implemented yet";
+				if(hop.getType() == TunnelHop::Type::ENDPOINT) {
+					I2P_LOG(m_log, debug) << "rejecting tunnel participation request: endpoints not implemented yet";
 
 					resp = std::make_shared<BuildResponseRecord>(BuildResponseRecord::Reply::PROBABALISTIC_REJECT);
 				} else {
@@ -124,7 +124,15 @@ namespace i2pcpp {
 				SessionKey k2 = hop->getTunnelLayerKey();
 				Botan::SymmetricKey layerKey(k2.data(), k2.size());
 
-				// TODO Fragment the tunnel message and send it out
+				I2NP::MessagePtr msg = I2NP::Message::fromBytes(0, data, true);
+				std::list<ByteArrayPtr> fragments = TunnelMessage::fragment(msg);
+				// TODO Implement mixing (not trivial)
+				for(auto& f: fragments) {
+					TunnelMessage msg({f});
+					msg.encrypt(ivKey, layerKey);
+					I2NP::MessagePtr td(new I2NP::TunnelData(hop->getNextTunnelId(), msg.compile()));
+					m_ctx.getOutMsgDisp().sendMessage(hop->getNextHash(), td);
+				}
 
 				return;
 			}

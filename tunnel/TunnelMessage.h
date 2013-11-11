@@ -15,16 +15,15 @@ namespace i2pcpp {
 		public:
 			TunnelMessage() {}
 			TunnelMessage(StaticByteArray<1024, true> const &data);
+			TunnelMessage(std::list<ByteArrayPtr> const &fragments);
 
-			static void fragment(I2NP::MessagePtr const &msg);
+			static std::list<ByteArrayPtr> fragment(I2NP::MessagePtr const &msg);
 			void encrypt(Botan::SymmetricKey const &ivKey, Botan::SymmetricKey const &layerKey);
 			ByteArray compile() const;
 
 		private:
 			StaticByteArray<16, true> m_iv;
 			StaticByteArray<1008, true> m_data;
-
-			std::list<ByteArrayPtr> m_fragments;
 	};
 }
 

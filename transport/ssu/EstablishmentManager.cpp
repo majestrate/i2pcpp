@@ -95,7 +95,9 @@ namespace i2pcpp {
 				case EstablishmentState::State::UNKNOWN:
 				case EstablishmentState::State::FAILURE:
 					I2P_LOG(m_log, error) << "establishment failed";
-					m_transport.post(boost::bind(boost::ref(m_transport.m_failureSignal), es->getTheirIdentity().getHash()));
+					if(es->getDirection() == EstablishmentState::Direction::OUTBOUND)
+						m_transport.post(boost::bind(boost::ref(m_transport.m_failureSignal), es->getTheirIdentity().getHash()));
+
 					delState(ep);
 					break;
 			}
