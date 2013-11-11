@@ -10,7 +10,7 @@ namespace i2pcpp {
 
 		ByteArray TunnelData::getBytes() const
 		{
-			ByteArray b(4 + 1024);
+			ByteArray b;
 
 			b.insert(b.end(), m_tunnelId >> 24);
 			b.insert(b.end(), m_tunnelId >> 16);

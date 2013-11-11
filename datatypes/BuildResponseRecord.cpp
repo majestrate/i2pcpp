@@ -44,7 +44,7 @@ namespace i2pcpp {
 
 		ByteArray response(496);
 		rng.randomize(response.data(), 495);
-		response[495] = m_reply;
+		response[495] = (unsigned char)m_reply;
 
 		Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-256"));
 		hashPipe.start_msg();

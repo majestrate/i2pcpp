@@ -94,19 +94,17 @@ namespace i2pcpp {
 		ByteArray Message::toBytes() const
 		{
 			// TODO Standard header support
-			ByteArray b;
-			const ByteArray& m = getBytes();
-
-			b.insert(b.end(), getType());
+			ByteArray b(getBytes());
 
 			// m_expiration?
 			uint32_t expiration = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count() + 60;
-			b.insert(b.end(), expiration >> 24);
-			b.insert(b.end(), expiration >> 16);
-			b.insert(b.end(), expiration >> 8);
-			b.insert(b.end(), expiration);
 
-			b.insert(b.end(), m.cbegin(), m.cend());
+			b.insert(b.begin(), expiration);
+			b.insert(b.begin(), expiration >> 8);
+			b.insert(b.begin(), expiration >> 16);
+			b.insert(b.begin(), expiration >> 24);
+
+			b.insert(b.begin(), (unsigned char)getType());
 
 			return b;
 		}

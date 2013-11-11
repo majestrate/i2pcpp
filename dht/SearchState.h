@@ -15,7 +15,7 @@
 namespace i2pcpp {
 	namespace DHT {
 		struct SearchState {
-			enum CurrentState {
+			enum class CurrentState {
 				CONNECTING,
 				LOOKUP_SENT
 			};
@@ -26,7 +26,7 @@ namespace i2pcpp {
 			std::list<RouterHash> excluded;
 			std::queue<RouterHash> alternates;
 			std::set<RouterHash> tried;
-			CurrentState state = CONNECTING;
+			CurrentState state = CurrentState::CONNECTING;
 		};
 
 		class PopAlternates {
@@ -56,7 +56,7 @@ namespace i2pcpp {
 
 		class ModifyState {
 			private:
-				enum UpdateType {
+				enum class UpdateType {
 					STATE,
 					NEXT,
 					NEW_CONNECTION

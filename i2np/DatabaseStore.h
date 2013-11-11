@@ -13,7 +13,7 @@ namespace i2pcpp {
 	namespace I2NP {
 		class DatabaseStore : public Message {
 			public:
-				enum DataType {
+				enum class DataType {
 					ROUTER_INFO = 0,
 					LEASE_SET = 1
 				};

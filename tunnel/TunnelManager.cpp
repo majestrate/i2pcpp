@@ -32,14 +32,14 @@ namespace i2pcpp {
 			if(itr != m_pending.end()) {
 				TunnelPtr t = itr->second;
 
-				if(t->getState() != Tunnel::REQUESTED) {
+				if(t->getState() != Tunnel::State::REQUESTED) {
 					I2P_LOG(m_log, debug) << "found Tunnel with matching tunnel ID, but was not requested";
 					// reject
 					return;
 				}
 
 				t->handleResponses(records);
-				if(t->getState() == Tunnel::OPERATIONAL) {
+				if(t->getState() == Tunnel::State::OPERATIONAL) {
 					I2P_LOG(m_log, debug) << "tunnel is operational";
 
 					std::lock_guard<std::mutex> lock(m_tunnelsMutex);
@@ -75,14 +75,14 @@ namespace i2pcpp {
 
 				BuildResponseRecordPtr resp;
 
-				if(hop.getType() != TunnelHop::PARTICIPANT) {
-					I2P_LOG(m_log, debug) << "rejecting tunnel participation request: gateways and endpoints not implemented yet";
+				if(hop.getType() == TunnelHop::Type::ENDPOINT) {
+					I2P_LOG(m_log, debug) << "rejecting tunnel participation request: endpoints not implemented yet";
 
-					resp = std::make_shared<BuildResponseRecord>(BuildResponseRecord::PROBABALISTIC_REJECT);
+					resp = std::make_shared<BuildResponseRecord>(BuildResponseRecord::Reply::PROBABALISTIC_REJECT);
 				} else {
 					m_participating[hop.getTunnelId()] = std::make_shared<TunnelHop>(hop);
 
-					resp = std::make_shared<BuildResponseRecord>(BuildResponseRecord::SUCCESS);
+					resp = std::make_shared<BuildResponseRecord>(BuildResponseRecord::Reply::SUCCESS);
 				}
 
 				resp->compile();
@@ -113,7 +113,7 @@ namespace i2pcpp {
 			if(itr != m_participating.end()) {
 				TunnelHopPtr hop = itr->second;
 
-				if(hop->getType() != TunnelHop::GATEWAY) {
+				if(hop->getType() != TunnelHop::Type::GATEWAY) {
 					I2P_LOG(m_log, debug) << "data is for a tunnel which is not a gateway, dropping";
 					return;
 				}
@@ -124,7 +124,15 @@ namespace i2pcpp {
 				SessionKey k2 = hop->getTunnelLayerKey();
 				Botan::SymmetricKey layerKey(k2.data(), k2.size());
 
-				// TODO Fragment the tunnel message and send it out
+				I2NP::MessagePtr msg = I2NP::Message::fromBytes(0, data, true);
+				std::list<ByteArrayPtr> fragments = TunnelMessage::fragment(msg);
+				// TODO Implement mixing (not trivial)
+				for(auto& f: fragments) {
+					TunnelMessage msg({f});
+					msg.encrypt(ivKey, layerKey);
+					I2NP::MessagePtr td(new I2NP::TunnelData(hop->getNextTunnelId(), msg.compile()));
+					m_ctx.getOutMsgDisp().sendMessage(hop->getNextHash(), td);
+				}
 
 				return;
 			}
@@ -136,7 +144,7 @@ namespace i2pcpp {
 			if(itr != m_tunnels.end()) {
 				TunnelPtr t = itr->second;
 
-				if(t->getDirection() == Tunnel::INBOUND && t->getState() == Tunnel::OPERATIONAL) {
+				if(t->getDirection() == Tunnel::Direction::INBOUND && t->getState() == Tunnel::State::OPERATIONAL) {
 					I2P_LOG(m_log, debug) << "data is for one of our own tunnels, recirculating";
 					std::shared_ptr<InboundTunnel> ibt = std::dynamic_pointer_cast<InboundTunnel>(t);
 
@@ -160,7 +168,7 @@ namespace i2pcpp {
 			TunnelHopPtr hop = itr->second;
 
 			switch(hop->getType()) {
-				case TunnelHop::PARTICIPANT:
+				case TunnelHop::Type::PARTICIPANT:
 					{
 						SessionKey k1 = hop->getTunnelIVKey();
 						Botan::SymmetricKey ivKey(k1.data(), k1.size());
@@ -177,7 +185,7 @@ namespace i2pcpp {
 
 					break;
 
-				case TunnelHop::ENDPOINT:
+				case TunnelHop::Type::ENDPOINT:
 					// TODO Collect data, format it into a gateway message, and send it out
 					break;
 
@@ -206,6 +214,7 @@ namespace i2pcpp {
 		//auto t = std::make_shared<InboundTunnel>(m_ctx.getIdentity().getHash(), hops);
 		m_tunnels[t->getTunnelId()] = z;
 		m_pending[t->getNextMsgId()] = t;
+
 		I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(t->getRecords()));
 		m_ctx.getOutMsgDisp().sendMessage(t->getDownstream(), vtb);
 	}
