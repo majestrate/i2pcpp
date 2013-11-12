@@ -36,21 +36,7 @@ set(SRCS
 	i2np/TunnelGateway.cpp
 	i2np/VariableTunnelBuild.cpp
 	i2np/VariableTunnelBuildReply.cpp
-	transport/ssu/AcknowledgementScheduler.cpp
-	transport/ssu/EstablishmentManager.cpp
-	transport/ssu/EstablishmentState.cpp
-	transport/ssu/InboundMessageFragments.cpp
-	transport/ssu/InboundMessageState.cpp
-	transport/ssu/OutboundMessageFragments.cpp
-	transport/ssu/OutboundMessageState.cpp
-	transport/ssu/Packet.cpp
-	transport/ssu/PacketBuilder.cpp
-	transport/ssu/PacketHandler.cpp
-	transport/ssu/PeerState.cpp
-	transport/ssu/PeerStateList.cpp
-	transport/Transport.cpp
-	transport/UDPTransport.cpp
-	tunnel/InboundTunnel.cpp
+    	tunnel/InboundTunnel.cpp
 	tunnel/OutboundTunnel.cpp
 	tunnel/Tunnel.cpp
 	tunnel/TunnelHop.cpp
@@ -58,26 +44,13 @@ set(SRCS
 	tunnel/TunnelMessage.cpp
 	util/Base64.cpp
 	util/I2PDH.cpp
-	util/I2PHMAC.cpp
-	)
+	util/I2PHMAC.cpp)
 
 set(TEST_SRCS
-	datatypes/Certificate.cpp
-	datatypes/ByteArray.cpp
-	datatypes/Datatype.cpp
-	datatypes/Date.cpp
-	datatypes/Endpoint.cpp
-	datatypes/Mapping.cpp
-	datatypes/RouterAddress.cpp
-	datatypes/RouterIdentity.cpp
-	datatypes/RouterInfo.cpp
 	dht/Kademlia.cpp
 	exceptions/FormattingError.cpp
 	exceptions/RecordNotFound.cpp
 	tests/testi2p.cpp
-	transport/ssu/EstablishmentState.cpp
-	transport/ssu/Packet.cpp
-	transport/ssu/PacketBuilder.cpp
 	util/Base64.cpp
 	util/I2PDH.cpp
 	util/I2PHMAC.cpp
@@ -135,11 +108,17 @@ else(SQLITE3_LIBRARY_PATH AND SQLITE3_INCLUDE_DIR)
 endif(SQLITE3_LIBRARY_PATH AND SQLITE3_INCLUDE_DIR)
 
 include_directories(BEFORE i2p "${SQLITE3_INCLUDE_DIR}")
-##############################
 
 # Setup library "datatypes"
 add_subdirectory(datatypes)
 include_directories(datatypes)
+
+# Setup library "transport"
+add_subdirectory(transport)
+include_directories(transport)
+
+##############################
+
 add_executable(i2p main.cpp ${SRCS})
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
@@ -187,6 +166,8 @@ target_link_libraries(i2p ${Boost_LIBRARIES})
 target_link_libraries(i2p "${SQLITE3_LIBRARY_PATH}")
 # Dataypes library
 target_link_libraries(i2p datatypes)
+# Transport library
+target_link_libraries(i2p transport)
 
 ################################
 
@@ -207,7 +188,7 @@ if(GTEST_LIBRARY_PATH AND GTEST_INCLUDE_DIR)
 	set(GTEST_LINK_STUFF "${GTEST_LIBRARY_PATH}" "${GTEST_MAIN_LIBRARY_PATH}" "${CMAKE_THREAD_LIBS_INIT}" "${Boost_LIBRARIES}" "${BOTAN_LIBRARY_PATH}")
 
 	add_executable(testi2p ${TEST_SRCS})
-	target_link_libraries(testi2p ${GTEST_LINK_STUFF})
+	target_link_libraries(testi2p ${GTEST_LINK_STUFF} transport datatypes)
 	add_test(
 		NAME testi2p
 		COMMAND testi2p
