@@ -4,6 +4,7 @@
 
 #include "RouterContext.h"
 
+
 namespace i2pcpp {
 	PeerManager::PeerManager(boost::asio::io_service &ios, RouterContext &ctx) :
 		m_ios(ios),
@@ -13,6 +14,7 @@ namespace i2pcpp {
 
 	void PeerManager::begin()
 	{
+		I2P_LOG(m_log,info) << "PeerManager beginning";
 		m_timer.async_wait(boost::bind(&PeerManager::callback, this, boost::asio::placeholders::error));
 	}
 

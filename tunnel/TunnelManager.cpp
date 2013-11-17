@@ -22,6 +22,7 @@ namespace i2pcpp {
 
 	void TunnelManager::begin()
 	{
+		I2P_LOG(m_log,info) << "TunnelManager beginning";
 		m_timer.async_wait(boost::bind(&TunnelManager::callback, this, boost::asio::placeholders::error));
 	}
 
@@ -126,7 +127,7 @@ namespace i2pcpp {
 
 				I2NP::MessagePtr msg = I2NP::Message::fromBytes(0, data, true);
 				if(!msg) {
-					I2P_LOG(m_log, warn) << "dropping message with unknown type";
+					I2P_LOG(m_log, warning) << "dropping message with unknown type";
 					return;
 				}
 
