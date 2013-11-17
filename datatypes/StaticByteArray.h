@@ -11,7 +11,6 @@
 
 
 #include "../util/Base64.h"
-#include "../exceptions/FormattingError.h"
 
 #include "ByteArray.h"
 
@@ -43,7 +42,7 @@ namespace i2pcpp {
 				StaticByteArray(std::string const &s)
 				{
 					ByteArray b = Base64::decode(s);
-					if(b.size() != L) throw FormattingError();
+					if(b.size() != L) throw std::runtime_error("input string not correct size for StaticByteArray");
 					std::copy(b.cbegin(), b.cbegin() + L, m_data.begin());
 				}
 
@@ -54,12 +53,10 @@ namespace i2pcpp {
 
 				std::string toHex() const
 				{
-					if(!m_hex.empty())
-						return m_hex;
 
 					std::stringstream s;
 					for(auto c: m_data) s << std::setw(2) << std::setfill('0') << std::hex << (int)c;
-					m_hex = s.str();
+					std::string m_hex = s.str();
 
 					return m_hex;
 				}
@@ -126,10 +123,7 @@ namespace i2pcpp {
 
 				operator std::string() const
 				{
-					if(!m_b64.empty())
-						return m_b64;
-
-					m_b64 = Base64::encode(ByteArray(m_data.cbegin(), m_data.cend()));
+					std::string m_b64 = Base64::encode(ByteArray(m_data.cbegin(), m_data.cend()));
 					std::replace(m_b64.begin(), m_b64.end(), '+', '-');
 					std::replace(m_b64.begin(), m_b64.end(), '/', '~');
 
@@ -138,8 +132,7 @@ namespace i2pcpp {
 
 			private:
 				std::array<unsigned char, L> m_data;
-				mutable std::string m_hex;
-				mutable std::string m_b64;
+
 		};
 
 	template<unsigned int L>

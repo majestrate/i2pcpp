@@ -5,6 +5,7 @@
 #include "../i2np/VariableTunnelBuild.h"
 #include "../i2np/VariableTunnelBuildReply.h"
 #include "../i2np/TunnelData.h"
+#include "../i2np/TunnelGateway.h"
 
 #include "../RouterContext.h"
 
@@ -21,6 +22,7 @@ namespace i2pcpp {
 
 	void TunnelManager::begin()
 	{
+		I2P_LOG(m_log,info) << "TunnelManager beginning";
 		m_timer.async_wait(boost::bind(&TunnelManager::callback, this, boost::asio::placeholders::error));
 	}
 
@@ -73,29 +75,28 @@ namespace i2pcpp {
 					return;
 				}
 
+				m_participating[hop.getTunnelId()] = std::make_shared<TunnelHop>(hop);
+
 				BuildResponseRecordPtr resp;
-
-				if(hop.getType() == TunnelHop::Type::ENDPOINT) {
-					I2P_LOG(m_log, debug) << "rejecting tunnel participation request: endpoints not implemented yet";
-
-					resp = std::make_shared<BuildResponseRecord>(BuildResponseRecord::Reply::PROBABALISTIC_REJECT);
-				} else {
-					m_participating[hop.getTunnelId()] = std::make_shared<TunnelHop>(hop);
-
-					resp = std::make_shared<BuildResponseRecord>(BuildResponseRecord::Reply::SUCCESS);
-				}
-
+				resp = std::make_shared<BuildResponseRecord>(BuildResponseRecord::Reply::SUCCESS);
 				resp->compile();
-
 				r = resp; // Replace the request record with our response
 
 				for(auto& x: records)
 					x->encrypt(hop.getReplyIV(), hop.getReplyKey());
 
-				I2P_LOG(m_log, debug) << "forwarding BRRs to next hop: " << hop.getNextHash() << ", tunnel ID: " << hop.getTunnelId() << ", nextMsgId: " << hop.getNextMsgId();
+				if(hop.getType() == TunnelHop::Type::ENDPOINT) {
+					I2P_LOG(m_log, debug) << "forwarding BRRs to IBGW: " << hop.getNextHash() << ", tunnel ID: " << hop.getNextTunnelId() << ", nextMsgId: " << hop.getNextMsgId();
 
-				I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(hop.getNextMsgId(), records));
-				m_ctx.getOutMsgDisp().sendMessage(hop.getNextHash(), vtb);
+					I2NP::MessagePtr vtbr(new I2NP::VariableTunnelBuildReply(hop.getNextMsgId(), records));
+					I2NP::MessagePtr tg(new I2NP::TunnelGateway(hop.getNextTunnelId(), vtbr->toBytes(true)));
+					m_ctx.getOutMsgDisp().sendMessage(hop.getNextHash(), tg);
+				} else {
+					I2P_LOG(m_log, debug) << "forwarding BRRs to next hop: " << hop.getNextHash() << ", tunnel ID: " << hop.getNextTunnelId() << ", nextMsgId: " << hop.getNextMsgId();
+
+					I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(hop.getNextMsgId(), records));
+					m_ctx.getOutMsgDisp().sendMessage(hop.getNextHash(), vtb);
+				}
 
 				break;
 			}
@@ -125,6 +126,11 @@ namespace i2pcpp {
 				Botan::SymmetricKey layerKey(k2.data(), k2.size());
 
 				I2NP::MessagePtr msg = I2NP::Message::fromBytes(0, data, true);
+				if(!msg) {
+					I2P_LOG(m_log, warning) << "dropping message with unknown type";
+					return;
+				}
+
 				std::list<ByteArrayPtr> fragments = TunnelMessage::fragment(msg);
 				// TODO Implement mixing (not trivial)
 				for(auto& f: fragments) {
