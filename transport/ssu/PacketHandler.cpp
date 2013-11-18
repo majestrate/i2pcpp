@@ -43,12 +43,12 @@ namespace i2pcpp {
 			dataItr += 4; // TODO validate timestamp
 
 			switch(ptype) {
-				case Packet::DATA:
+				case Packet::PayloadType::DATA:
 					I2P_LOG(m_log, debug) << "data packet received";
 					m_imf.receiveData(state, dataItr, data.cend());
 					break;
 
-				case Packet::SESSION_DESTROY:
+				case Packet::PayloadType::SESSION_DESTROY:
 					I2P_LOG(m_log, debug) << "received session destroy";
 					handleSessionDestroyed(state);
 					break;
@@ -66,7 +66,7 @@ namespace i2pcpp {
 			}
 
 			ByteArray &data = packet->getData();
-			if(state->getDirection() == EstablishmentState::OUTBOUND)
+			if(state->getDirection() == EstablishmentState::Direction::OUTBOUND)
 				state->setIV(data.begin() + 16, data.begin() + 32);
 
 			packet->decrypt(state->getSessionKey());
@@ -79,15 +79,15 @@ namespace i2pcpp {
 			begin += 4; // TODO validate timestamp
 
 			switch(ptype) {
-				case Packet::SESSION_CREATED:
+				case Packet::PayloadType::SESSION_CREATED:
 					handleSessionCreated(begin, data.cend(), state);
 					break;
 
-				case Packet::SESSION_CONFIRMED:
+				case Packet::PayloadType::SESSION_CONFIRMED:
 					handleSessionConfirmed(begin, data.cend(), state);
 					break;
 
-				case Packet::SESSION_DESTROY:
+				case Packet::PayloadType::SESSION_DESTROY:
 					I2P_LOG(m_log, debug) << "received session destroy";
 					handleSessionDestroyed(state);
 					break;
@@ -118,7 +118,7 @@ namespace i2pcpp {
 			dataItr += 4; // TODO validate timestamp
 
 			switch(ptype) {
-				case Packet::SESSION_REQUEST:
+				case Packet::PayloadType::SESSION_REQUEST:
 					handleSessionRequest(dataItr, end, m_transport.getEstablisher().createState(ep));
 					break;
 
@@ -144,13 +144,13 @@ namespace i2pcpp {
 
 			state->setRelayTag(0); // TODO Relay support
 
-			state->setState(EstablishmentState::REQUEST_RECEIVED);
+			state->setState(EstablishmentState::State::REQUEST_RECEIVED);
 			m_transport.getEstablisher().post(state);
 		}
 
 		void PacketHandler::handleSessionCreated(ByteArrayConstItr &begin, ByteArrayConstItr end, EstablishmentStatePtr const &state)
 		{
-			if(state->getState() != EstablishmentState::REQUEST_SENT)
+			if(state->getState() != EstablishmentState::State::REQUEST_SENT)
 				return;
 
 			state->setTheirDH(begin, begin + 256), begin += 256;
@@ -174,13 +174,13 @@ namespace i2pcpp {
 
 			state->setSignature(begin, begin + 48);
 
-			state->setState(EstablishmentState::CREATED_RECEIVED);
+			state->setState(EstablishmentState::State::CREATED_RECEIVED);
 			m_transport.getEstablisher().post(state);
 		}
 
 		void PacketHandler::handleSessionConfirmed(ByteArrayConstItr &begin, ByteArrayConstItr end, EstablishmentStatePtr const &state)
 		{
-			if(state->getState() != EstablishmentState::CREATED_SENT)
+			if(state->getState() != EstablishmentState::State::CREATED_SENT)
 				return;
 
 			unsigned char info = *(begin++);
@@ -195,7 +195,7 @@ namespace i2pcpp {
 
 			state->setSignature(end - 40, end);
 
-			state->setState(EstablishmentState::CONFIRMED_RECEIVED);
+			state->setState(EstablishmentState::State::CONFIRMED_RECEIVED);
 			m_transport.getEstablisher().post(state);
 		}
 
@@ -207,7 +207,7 @@ namespace i2pcpp {
 
 		void PacketHandler::handleSessionDestroyed(EstablishmentStatePtr const &state)
 		{
-			state->setState(EstablishmentState::FAILURE);
+			state->setState(EstablishmentState::State::FAILURE);
 			m_transport.getEstablisher().post(state);
 		}
 	}

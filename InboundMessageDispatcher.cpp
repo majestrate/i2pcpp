@@ -69,7 +69,7 @@ namespace i2pcpp {
 					break;
 
 				default:
-					I2P_LOG(m_log, error) << "dropping unhandled message of type " << m->getType();
+					I2P_LOG(m_log, error) << "dropping unhandled message of type " << (int)m->getType();
 					break;
 			}
 		}

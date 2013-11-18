@@ -65,10 +65,10 @@ set(SRCS
 	tunnel/InboundTunnel.cpp
 	tunnel/OutboundTunnel.cpp
 	tunnel/Tunnel.cpp
+	tunnel/TunnelFragmentState.cpp
 	tunnel/TunnelHop.cpp
 	tunnel/TunnelManager.cpp
 	tunnel/TunnelMessage.cpp
-	tunnel/TunnelMessageFragments.cpp
 	util/Base64.cpp
 	util/I2PDH.cpp
 	util/I2PHMAC.cpp

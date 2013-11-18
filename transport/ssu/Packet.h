@@ -24,7 +24,7 @@ namespace i2pcpp {
 				ByteArray& getData();
 				Endpoint getEndpoint() const;
 
-				enum PayloadType {
+				enum class PayloadType {
 					SESSION_REQUEST = 0,
 					SESSION_CREATED = 1,
 					SESSION_CONFIRMED = 2,

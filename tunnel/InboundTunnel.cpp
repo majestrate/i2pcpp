@@ -12,7 +12,7 @@ namespace i2pcpp {
 		if(hops.empty()) {
 			Botan::AutoSeeded_RNG rng;
 			rng.randomize((unsigned char *)&m_tunnelId, sizeof(m_tunnelId));
-			m_state = OPERATIONAL;
+			m_state = State::OPERATIONAL;
 			return;
 		}
 
@@ -30,7 +30,7 @@ namespace i2pcpp {
 			m_hops.push_front(h);
 		}
 
-		m_hops.front()->setType(TunnelHop::GATEWAY);
+		m_hops.front()->setType(TunnelHop::Type::GATEWAY);
 	}
 
 	Tunnel::Direction InboundTunnel::getDirection() const

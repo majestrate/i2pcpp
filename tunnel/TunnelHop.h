@@ -1,13 +1,17 @@
 #ifndef TUNNELHOP_H
 #define TUNNELHOP_H
 
+#include <unordered_map>
+
 #include "../datatypes/RouterIdentity.h"
 #include "../datatypes/SessionKey.h"
+
+#include "TunnelFragmentState.h"
 
 namespace i2pcpp {
 	class TunnelHop {
 		public:
-			enum Type {
+			enum class Type {
 				PARTICIPANT,
 				GATEWAY,
 				ENDPOINT
@@ -53,11 +57,13 @@ namespace i2pcpp {
 			SessionKey m_tunnelIVKey;
 			SessionKey m_replyKey;
 			StaticByteArray<16, true> m_replyIV;
-			Type m_type = PARTICIPANT;
+			Type m_type = Type::PARTICIPANT;
 			uint32_t m_requestTime;
 			uint32_t m_nextMsgId;
 
 			ByteArray m_encryptionKey;
+
+			std::unordered_map<uint32_t, TunnelFragmentState> m_fragments;
 	};
 
 	typedef std::shared_ptr<TunnelHop> TunnelHopPtr;

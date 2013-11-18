@@ -21,12 +21,12 @@ namespace i2pcpp {
 				EstablishmentState(EstablishmentState const &state) = delete;
 				~EstablishmentState();
 
-				enum Direction {
+				enum class Direction {
 					INBOUND,
 					OUTBOUND
 				};
 
-				enum State {
+				enum class State {
 					UNKNOWN,
 					REQUEST_SENT,
 					REQUEST_RECEIVED,
@@ -78,7 +78,7 @@ namespace i2pcpp {
 				const ByteArray& getDHSecret() const;
 
 			private:
-				State m_state = UNKNOWN;
+				State m_state = State::UNKNOWN;
 				Direction m_direction;
 
 				const Botan::DSA_PrivateKey& m_dsaKey;

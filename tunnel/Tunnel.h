@@ -12,12 +12,12 @@
 namespace i2pcpp {
 	class Tunnel {
 		public:
-			enum Direction {
+			enum class Direction {
 				INBOUND,
 				OUTBOUND
 			};
 
-			enum State {
+			enum class State {
 				REQUESTED,
 				OPERATIONAL,
 				FAILED
@@ -37,7 +37,7 @@ namespace i2pcpp {
 		protected:
 			Tunnel() {}
 			std::list<TunnelHopPtr> m_hops;
-			State m_state = REQUESTED;
+			State m_state = State::REQUESTED;
 			uint32_t m_tunnelId;
 			uint32_t m_nextMsgId;
 

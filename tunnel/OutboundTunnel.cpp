@@ -11,7 +11,7 @@ namespace i2pcpp {
 
 			if(i == hops.size() - 1) {
 				h = std::make_shared<TunnelHop>(hops[i], replyHash);
-				h->setType(TunnelHop::ENDPOINT);
+				h->setType(TunnelHop::Type::ENDPOINT);
 				h->setNextTunnelId(replyTunnelId);
 				m_tunnelId = h->getNextTunnelId();
 				m_nextMsgId = h->getNextMsgId();

@@ -5,7 +5,7 @@ namespace i2pcpp {
 		ByteArray TunnelGateway::getBytes() const
 		{
 			uint16_t size = m_data.size();
-			ByteArray b(6 + size);
+			ByteArray b;
 
 			b.insert(b.end(), m_tunnelId >> 24);
 			b.insert(b.end(), m_tunnelId >> 16);
