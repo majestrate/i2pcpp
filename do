@@ -154,7 +154,7 @@ runit() # run the damn thing :3
     
 		_deps $build_base $build $prefix
     _build_i2p $build_base $build/i2p $prefix
-		echo "`cat $build_base/README.CHI.TXT`"
+		#echo "`cat $build_base/README.CHI.TXT`"
 }
 
 if [ "$TRACE" != "" ] ; then
