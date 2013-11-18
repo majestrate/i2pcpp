@@ -126,7 +126,7 @@ namespace i2pcpp {
 					std::string m_b64 = Base64::encode(ByteArray(m_data.cbegin(), m_data.cend()));
 					std::replace(m_b64.begin(), m_b64.end(), '+', '-');
 					std::replace(m_b64.begin(), m_b64.end(), '/', '~');
-
+ 
 					return m_b64;
 				}
 
