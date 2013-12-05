@@ -6,8 +6,6 @@
 #include "../datatypes/RouterIdentity.h"
 #include "../datatypes/SessionKey.h"
 
-#include "TunnelFragmentState.h"
-
 namespace i2pcpp {
 	class TunnelHop {
 		public:
@@ -62,8 +60,6 @@ namespace i2pcpp {
 			uint32_t m_nextMsgId;
 
 			ByteArray m_encryptionKey;
-
-			std::unordered_map<uint32_t, TunnelFragmentState> m_fragments;
 	};
 
 	typedef std::shared_ptr<TunnelHop> TunnelHopPtr;

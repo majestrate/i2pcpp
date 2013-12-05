@@ -12,6 +12,7 @@
 #include "InboundTunnel.h"
 #include "OutboundTunnel.h"
 #include "TunnelMessage.h"
+#include "TunnelFragment.h"
 
 namespace i2pcpp {
 	TunnelManager::TunnelManager(boost::asio::io_service &ios, RouterContext &ctx) :
@@ -64,8 +65,7 @@ namespace i2pcpp {
 
 				BuildRequestRecord req = *r;
 				req.decrypt(m_ctx.getEncryptionKey());
-				req.parse();
-				TunnelHop& hop = req.getHop();
+				TunnelHop hop = req.parse();
 
 				std::lock_guard<std::mutex> lock(m_participatingMutex);
 				if(m_participating.count(hop.getTunnelId()) > 0) {
@@ -79,7 +79,7 @@ namespace i2pcpp {
 				BuildResponseRecordPtr resp;
 				resp = std::make_shared<BuildResponseRecord>(BuildResponseRecord::Reply::SUCCESS);
 				resp->compile();
-				r = resp; // Replace the request record with our response
+				r = std::move(resp); // Replace the request record with our response
 
 				for(auto& x: records)
 					x->encrypt(hop.getReplyIV(), hop.getReplyKey());
@@ -130,10 +130,12 @@ namespace i2pcpp {
 					return;
 				}
 
-				std::list<ByteArrayPtr> fragments = TunnelMessage::fragment(msg);
-				// TODO Implement mixing (not trivial)
-				for(auto& f: fragments) {
-					TunnelMessage msg({f});
+				auto fragments = TunnelFragment::fragmentMessage(msg);
+
+				I2P_LOG(m_log, debug) << "we have " << fragments.size() << " fragments";
+				for(auto itr = fragments.cbegin(); itr != fragments.cend(); ++itr) {
+					TunnelMessage msg({std::make_shared<ByteArray>((*itr)->compile())});
+					I2P_LOG(m_log, debug) << "fragment: " << (*itr)->compile();
 					msg.encrypt(ivKey, layerKey);
 					I2NP::MessagePtr td(new I2NP::TunnelData(hop->getNextTunnelId(), msg.compile()));
 					m_ctx.getOutMsgDisp().sendMessage(hop->getNextHash(), td);

@@ -18,14 +18,14 @@ namespace i2pcpp {
 		std::list<BuildRecordPtr> recs;
 
 		for(auto h = m_hops.cbegin(); h != m_hops.cend(); ++h) {
-			auto record = std::make_shared<BuildRequestRecord>(*h);
+			auto record = std::make_shared<BuildRequestRecord>();
 
 			const RouterHash hopHash = (*h)->getLocalHash();
 			std::array<unsigned char, 16> truncatedHash;
 			std::copy(hopHash.cbegin(), hopHash.cbegin() + 16, truncatedHash.begin());
 			record->setHeader(truncatedHash);
 
-			record->compile();
+			record->compile(**h);
 			record->encrypt((*h)->getEncryptionKey());
 
 			std::list<TunnelHopPtr>::const_reverse_iterator r(h);
