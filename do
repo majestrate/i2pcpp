@@ -149,11 +149,8 @@ runit() # run the damn thing :3
     export CXX="`which c++`"
     export jobs="$1"
     export MAKEOPTS="-j$jobs"
-    
-    
-		_deps $build_base $build $prefix
+    _deps $build_base $build $prefix
     _build_i2p $build_base $build/i2p $prefix
-		#echo "`cat $build_base/README.CHI.TXT`"
 }
 
 if [ "$TRACE" != "" ] ; then

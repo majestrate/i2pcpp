@@ -17,7 +17,6 @@ namespace i2pcpp {
 			TunnelMessage(StaticByteArray<1024, true> const &data);
 			TunnelMessage(std::list<ByteArrayPtr> const &fragments);
 
-			static std::list<ByteArrayPtr> fragment(I2NP::MessagePtr const &msg);
 			void encrypt(Botan::SymmetricKey const &ivKey, Botan::SymmetricKey const &layerKey);
 			ByteArray compile() const;
 

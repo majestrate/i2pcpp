@@ -15,16 +15,13 @@
 namespace i2pcpp {
 	class BuildRequestRecord : public BuildRecord {
 		public:
-			BuildRequestRecord(TunnelHopPtr const &hop);
+			BuildRequestRecord() = default;
 			BuildRequestRecord(BuildRecord const &r);
 
-			void parse();
-			void compile();
-
-			TunnelHop& getHop();
+			TunnelHop parse();
+			void compile(TunnelHop const &hop);
 
 		private:
-			TunnelHop m_hop;
 			std::bitset<8> m_flags;
 	};
 

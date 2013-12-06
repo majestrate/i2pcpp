@@ -65,7 +65,9 @@ set(SRCS
 	tunnel/InboundTunnel.cpp
 	tunnel/OutboundTunnel.cpp
 	tunnel/Tunnel.cpp
-	tunnel/TunnelFragmentState.cpp
+	tunnel/TunnelFragment.cpp
+	tunnel/FirstFragment.cpp
+	tunnel/FollowOnFragment.cpp
 	tunnel/TunnelHop.cpp
 	tunnel/TunnelManager.cpp
 	tunnel/TunnelMessage.cpp

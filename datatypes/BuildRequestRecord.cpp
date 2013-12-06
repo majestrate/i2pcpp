@@ -3,10 +3,97 @@
 #include "../exceptions/FormattingError.h"
 
 namespace i2pcpp {
-	BuildRequestRecord::BuildRequestRecord(TunnelHopPtr const &hop) :
-		m_hop(*hop)
+	BuildRequestRecord::BuildRequestRecord(BuildRecord const &r) :
+		BuildRecord(r) {}
+
+	TunnelHop BuildRequestRecord::parse()
 	{
-		switch(m_hop.getType()) {
+		uint32_t id, requestTime, nextMsgId;
+		RouterHash rh;
+		SessionKey sk;
+		StaticByteArray<16, true> iv;
+		auto dataItr = m_data.cbegin();
+
+		if(m_data.size() != 222)
+			throw FormattingError();
+
+		TunnelHop hop;
+		id = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
+		hop.setTunnelId(id);
+
+		copy(dataItr, dataItr + 32, rh.begin()), dataItr += 32;
+		hop.setLocalHash(rh);
+
+		id = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
+		hop.setNextTunnelId(id);
+
+		copy(dataItr, dataItr + 32, rh.begin()), dataItr += 32;
+		hop.setNextHash(rh);
+
+		copy(dataItr, dataItr + 32, sk.begin()), dataItr += 32;
+		hop.setTunnelLayerKey(sk);
+
+		copy(dataItr, dataItr + 32, sk.begin()), dataItr += 32;
+		hop.setTunnelIVKey(sk);
+
+		copy(dataItr, dataItr + 32, sk.begin()), dataItr += 32;
+		hop.setReplyKey(sk);
+
+		copy(dataItr, dataItr + 16, iv.begin()), dataItr += 16;
+		hop.setReplyIV(iv);
+
+		m_flags = *(dataItr)++;
+		if(m_flags[7])
+			hop.setType(TunnelHop::Type::GATEWAY);
+		else if(m_flags[6])
+			hop.setType(TunnelHop::Type::ENDPOINT);
+		else
+			hop.setType(TunnelHop::Type::PARTICIPANT);
+
+		requestTime = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
+		hop.setRequestTime(requestTime);
+
+		nextMsgId = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
+		hop.setNextMsgId(nextMsgId);
+
+		return hop;
+	}
+
+	void BuildRequestRecord::compile(TunnelHop const &hop)
+	{
+		m_data.clear();
+
+		uint32_t tunnelId = hop.getTunnelId();
+		m_data.insert(m_data.end(), tunnelId >> 24);
+		m_data.insert(m_data.end(), tunnelId >> 16);
+		m_data.insert(m_data.end(), tunnelId >> 8);
+		m_data.insert(m_data.end(), tunnelId);
+
+		RouterHash localHash = hop.getLocalHash();
+		m_data.insert(m_data.end(), localHash.cbegin(), localHash.cend());
+
+		uint32_t nextTunnelId = hop.getNextTunnelId();
+		m_data.insert(m_data.end(), nextTunnelId >> 24);
+		m_data.insert(m_data.end(), nextTunnelId >> 16);
+		m_data.insert(m_data.end(), nextTunnelId >> 8);
+		m_data.insert(m_data.end(), nextTunnelId);
+
+		RouterHash nextHash = hop.getNextHash();
+		m_data.insert(m_data.end(), nextHash.cbegin(), nextHash.cend());
+
+		SessionKey tunnelLayerKey = hop.getTunnelLayerKey();
+		m_data.insert(m_data.end(), tunnelLayerKey.cbegin(), tunnelLayerKey.cend());
+
+		SessionKey tunnelIVKey = hop.getTunnelIVKey();
+		m_data.insert(m_data.end(), tunnelIVKey.cbegin(), tunnelIVKey.cend());
+
+		SessionKey replyKey = hop.getReplyKey();
+		m_data.insert(m_data.end(), replyKey.cbegin(), replyKey.cend());
+
+		StaticByteArray<16, true> replyIV = hop.getReplyIV();
+		m_data.insert(m_data.end(), replyIV.cbegin(), replyIV.cbegin() + 16);
+
+		switch(hop.getType()) {
 			case TunnelHop::Type::GATEWAY:
 				m_flags[7] = true;
 				break;
@@ -19,114 +106,21 @@ namespace i2pcpp {
 				m_flags = 0;
 				break;
 		}
-	}
-
-	BuildRequestRecord::BuildRequestRecord(BuildRecord const &r) :
-		BuildRecord(r) {}
-
-	void BuildRequestRecord::parse()
-	{
-		uint32_t id, requestTime, nextMsgId;
-		RouterHash rh;
-		SessionKey sk;
-		StaticByteArray<16, true> iv;
-		auto dataItr = m_data.cbegin();
-
-		if(m_data.size() != 222)
-			throw FormattingError();
-
-		id = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
-		m_hop.setTunnelId(id);
-
-		copy(dataItr, dataItr + 32, rh.begin()), dataItr += 32;
-		m_hop.setLocalHash(rh);
-
-		id = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
-		m_hop.setNextTunnelId(id);
-
-		copy(dataItr, dataItr + 32, rh.begin()), dataItr += 32;
-		m_hop.setNextHash(rh);
-
-		copy(dataItr, dataItr + 32, sk.begin()), dataItr += 32;
-		m_hop.setTunnelLayerKey(sk);
-
-		copy(dataItr, dataItr + 32, sk.begin()), dataItr += 32;
-		m_hop.setTunnelIVKey(sk);
-
-		copy(dataItr, dataItr + 32, sk.begin()), dataItr += 32;
-		m_hop.setReplyKey(sk);
-
-		copy(dataItr, dataItr + 16, iv.begin()), dataItr += 16;
-		m_hop.setReplyIV(iv);
-
-		m_flags = *(dataItr)++;
-		if(m_flags[7])
-			m_hop.setType(TunnelHop::Type::GATEWAY);
-		else if(m_flags[6])
-			m_hop.setType(TunnelHop::Type::ENDPOINT);
-		else
-			m_hop.setType(TunnelHop::Type::PARTICIPANT);
-
-		requestTime = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
-		m_hop.setRequestTime(requestTime);
-
-		nextMsgId = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
-		m_hop.setNextMsgId(nextMsgId);
-	}
-
-	void BuildRequestRecord::compile()
-	{
-		m_data.clear();
-
-		uint32_t tunnelId = m_hop.getTunnelId();
-		m_data.insert(m_data.end(), tunnelId >> 24);
-		m_data.insert(m_data.end(), tunnelId >> 16);
-		m_data.insert(m_data.end(), tunnelId >> 8);
-		m_data.insert(m_data.end(), tunnelId);
-
-		RouterHash localHash = m_hop.getLocalHash();
-		m_data.insert(m_data.end(), localHash.cbegin(), localHash.cend());
-
-		uint32_t nextTunnelId = m_hop.getNextTunnelId();
-		m_data.insert(m_data.end(), nextTunnelId >> 24);
-		m_data.insert(m_data.end(), nextTunnelId >> 16);
-		m_data.insert(m_data.end(), nextTunnelId >> 8);
-		m_data.insert(m_data.end(), nextTunnelId);
-
-		RouterHash nextHash = m_hop.getNextHash();
-		m_data.insert(m_data.end(), nextHash.cbegin(), nextHash.cend());
-
-		SessionKey tunnelLayerKey = m_hop.getTunnelLayerKey();
-		m_data.insert(m_data.end(), tunnelLayerKey.cbegin(), tunnelLayerKey.cend());
-
-		SessionKey tunnelIVKey = m_hop.getTunnelIVKey();
-		m_data.insert(m_data.end(), tunnelIVKey.cbegin(), tunnelIVKey.cend());
-
-		SessionKey replyKey = m_hop.getReplyKey();
-		m_data.insert(m_data.end(), replyKey.cbegin(), replyKey.cend());
-
-		StaticByteArray<16, true> replyIV = m_hop.getReplyIV();
-		m_data.insert(m_data.end(), replyIV.cbegin(), replyIV.cbegin() + 16);
 
 		m_data.insert(m_data.end(), static_cast<unsigned char>(m_flags.to_ulong()));
 
-		uint32_t requestTime = m_hop.getRequestTime();
+		uint32_t requestTime = hop.getRequestTime();
 		m_data.insert(m_data.end(), requestTime >> 24);
 		m_data.insert(m_data.end(), requestTime >> 16);
 		m_data.insert(m_data.end(), requestTime >> 8);
 		m_data.insert(m_data.end(), requestTime);
 
-		uint32_t nextMsgId = m_hop.getNextMsgId();
+		uint32_t nextMsgId = hop.getNextMsgId();
 		m_data.insert(m_data.end(), nextMsgId >> 24);
 		m_data.insert(m_data.end(), nextMsgId >> 16);
 		m_data.insert(m_data.end(), nextMsgId >> 8);
 		m_data.insert(m_data.end(), nextMsgId);
 
 		m_data.insert(m_data.end(), 29, 0x00); // TODO Random padding
-	}
-
-	TunnelHop& BuildRequestRecord::getHop()
-	{
-		return m_hop;
 	}
 }
