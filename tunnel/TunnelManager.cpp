@@ -22,6 +22,7 @@ namespace i2pcpp {
 
 	void TunnelManager::begin()
 	{
+		I2P_LOG(m_log,info) << "TunnelManager beginning";
 		m_timer.async_wait(boost::bind(&TunnelManager::callback, this, boost::asio::placeholders::error));
 	}
 
