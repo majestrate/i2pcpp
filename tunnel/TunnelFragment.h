@@ -14,11 +14,11 @@ namespace i2pcpp {
 			virtual ~TunnelFragment() = default;
 
 			void setMsgId(uint32_t id);
-			void setPayload(ByteArrayConstItr &begin, ByteArrayConstItr end, uint16_t n);
+			ByteArrayConstItr setPayload(ByteArrayConstItr begin, ByteArrayConstItr end, uint16_t max);
 
 			virtual ByteArray compile() const = 0;
 
-			static std::vector<std::unique_ptr<TunnelFragment>> fragmentMessage(I2NP::MessagePtr const &msg);
+			static std::vector<std::unique_ptr<TunnelFragment>> fragmentMessage(ByteArray const &data);
 			static std::unique_ptr<TunnelFragment> parse(ByteArrayConstItr &begin, ByteArrayConstItr end);
 
 		protected:

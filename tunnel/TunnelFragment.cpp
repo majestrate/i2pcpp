@@ -13,40 +13,45 @@ namespace i2pcpp {
 		m_msgId = id;
 	}
 
-	void TunnelFragment::setPayload(ByteArrayConstItr &begin, ByteArrayConstItr end, uint16_t n)
+	ByteArrayConstItr TunnelFragment::setPayload(ByteArrayConstItr begin, ByteArrayConstItr end, uint16_t max)
 	{
-		size_t totalSize = headerSize() + std::distance(begin, end);
+		uint8_t headerLen = headerSize();
+		auto payloadLen = std::distance(begin, end);
 
-		if(totalSize < n)
-			n = std::distance(begin, end);
+		if(headerLen + payloadLen > max) {
+			payloadLen = max - headerLen;
+			end = begin + payloadLen;
+		}
 
 		m_payload.clear();
-		m_payload.resize(n);
-		std::copy(begin, begin += n, m_payload.begin());
+		m_payload.resize(payloadLen);
+		std::copy(begin, end, m_payload.begin());
+
+		return end;
 	}
 
-	std::vector<TunnelFragmentPtr> TunnelFragment::fragmentMessage(I2NP::MessagePtr const &msg)
+	std::vector<TunnelFragmentPtr> TunnelFragment::fragmentMessage(ByteArray const &data)
 	{
+		constexpr uint16_t maxSize = 1003;
+
 		std::vector<TunnelFragmentPtr> fragments;
 
-		ByteArray data = msg->toBytes();
-		ByteArrayConstItr pos = data.cbegin();
-
 		std::unique_ptr<FirstFragment> first = std::make_unique<FirstFragment>();
-		first->setPayload(pos, data.cend(), 1003);
-		if(pos != data.cend()) {
+		if(first->mustFragment(data.size(), maxSize)) {
 			first->setFragmented(true);
 
 			uint32_t msgId = 0;
 			Botan::AutoSeeded_RNG rng;
 			rng.randomize((unsigned char *)&msgId, sizeof(msgId));
 			first->setMsgId(msgId);
+
+			auto pos = first->setPayload(data.cbegin(), data.cend(), maxSize);
 			fragments.push_back(std::move(first));
 
 			uint8_t fragNum = 1;
 			while(pos != data.cend()) {
 				std::unique_ptr<FollowOnFragment> followup = std::make_unique<FollowOnFragment>(msgId, fragNum++);
-				followup->setPayload(pos, data.cend(), 1003);
+				pos = followup->setPayload(pos, data.cend(), maxSize);
 
 				if(pos == data.cend())
 					followup->setLast(true);
@@ -54,6 +59,7 @@ namespace i2pcpp {
 				fragments.push_back(std::move(followup));
 			}
 		} else {
+			first->setPayload(data.cbegin(), data.cend(), maxSize);
 			fragments.push_back(std::move(first));
 		}
 

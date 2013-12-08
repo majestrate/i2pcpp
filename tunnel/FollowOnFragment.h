@@ -16,7 +16,7 @@ namespace i2pcpp {
 			uint8_t headerSize() const;
 
 			uint8_t m_fragNum;
-			bool m_isLast;
+			bool m_isLast = false;
 	};
 }
 

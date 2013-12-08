@@ -52,14 +52,10 @@ namespace i2pcpp {
 
 				std::string toHex() const
 				{
-					if(!m_hex.empty())
-						return m_hex;
-
 					std::stringstream s;
 					for(auto c: m_data) s << std::setw(2) << std::setfill('0') << std::hex << (int)c;
-					m_hex = s.str();
 
-					return m_hex;
+					return s.str();
 				}
 
 				typename std::array<unsigned char, L>::iterator begin()
@@ -124,20 +120,16 @@ namespace i2pcpp {
 
 				operator std::string() const
 				{
-					if(!m_b64.empty())
-						return m_b64;
+					std::string b64;
+					b64 = Base64::encode(ByteArray(m_data.cbegin(), m_data.cend()));
+					std::replace(b64.begin(), b64.end(), '+', '-');
+					std::replace(b64.begin(), b64.end(), '/', '~');
 
-					m_b64 = Base64::encode(ByteArray(m_data.cbegin(), m_data.cend()));
-					std::replace(m_b64.begin(), m_b64.end(), '+', '-');
-					std::replace(m_b64.begin(), m_b64.end(), '/', '~');
-
-					return m_b64;
+					return b64;
 				}
 
 			private:
 				std::array<unsigned char, L> m_data;
-				mutable std::string m_hex;
-				mutable std::string m_b64;
 		};
 
 	template<unsigned int L>

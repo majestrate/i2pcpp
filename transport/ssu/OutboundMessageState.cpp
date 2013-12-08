@@ -10,6 +10,8 @@ namespace i2pcpp {
 
 		void OutboundMessageState::fragment()
 		{
+			constexpr size_t maxFragmentSize = 1024;
+
 			auto dataItr = m_data.cbegin();
 			auto end = m_data.cend();
 
@@ -18,12 +20,12 @@ namespace i2pcpp {
 
 			size_t step, i = 0;
 			while(dataItr < end) {
-				step = std::min((size_t)(end - dataItr), (size_t)512);
+				step = std::min((size_t)(end - dataItr), maxFragmentSize);
 
 				auto f = std::make_shared<PacketBuilder::Fragment>();
 				f->msgId = m_msgId;
 				f->fragNum = i++;
-				f->isLast = (step < 512);
+				f->isLast = (step < maxFragmentSize);
 				f->data = ByteArray(dataItr, dataItr + step);
 
 				m_fragments.push_back(f);
