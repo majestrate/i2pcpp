@@ -25,13 +25,13 @@ namespace i2pcpp {
 		flag |= (unsigned char)m_isLast;
 		output.insert(output.end(), flag);
 
-		output.insert(output.end(), m_msgId << 24);
-		output.insert(output.end(), m_msgId << 16);
-		output.insert(output.end(), m_msgId << 8);
+		output.insert(output.end(), m_msgId >> 24);
+		output.insert(output.end(), m_msgId >> 16);
+		output.insert(output.end(), m_msgId >> 8);
 		output.insert(output.end(), m_msgId);
 
 		uint16_t size = (uint16_t)m_payload.size();
-		output.insert(output.end(), size << 8);
+		output.insert(output.end(), size >> 8);
 		output.insert(output.end(), size);
 
 		output.insert(output.end(), m_payload.cbegin(), m_payload.cend());

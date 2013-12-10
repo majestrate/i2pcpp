@@ -107,6 +107,7 @@ namespace i2pcpp {
 	{
 		I2P_LOG_SCOPED_TAG(m_log, "TunnelId", tunnelId);
 		I2P_LOG(m_log, debug) << "received " << data.size() << " bytes of gateway data";
+		I2P_LOG(m_log, debug) << "gateway data: " << data;
 
 		{
 			std::lock_guard<std::mutex> lock(m_participatingMutex);
@@ -125,13 +126,7 @@ namespace i2pcpp {
 				SessionKey k2 = hop->getTunnelLayerKey();
 				Botan::SymmetricKey layerKey(k2.data(), k2.size());
 
-				I2NP::MessagePtr msg = I2NP::Message::fromBytes(0, data, true);
-				if(!msg) {
-					I2P_LOG(m_log, warning) << "dropping message with unknown type";
-					return;
-				}
-
-				auto fragments = TunnelFragment::fragmentMessage(msg);
+				auto fragments = TunnelFragment::fragmentMessage(data);
 
 				I2P_LOG(m_log, debug) << "we have " << fragments.size() << " fragments";
 				for(auto itr = fragments.cbegin(); itr != fragments.cend(); ++itr) {

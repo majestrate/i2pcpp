@@ -12,17 +12,16 @@ namespace i2pcpp {
 				ROUTER = 0x02
 			};
 
-			FirstFragment();
-
 			ByteArray compile() const;
+			bool mustFragment(uint16_t desiredSize, uint16_t max) const;
 
 			void setFragmented(bool f);
 
 		private:
 			uint8_t headerSize() const;
 
-			DeliveryMode m_mode;
-			bool m_fragmented;
+			DeliveryMode m_mode = DeliveryMode::LOCAL;
+			bool m_fragmented = false;
 	};
 }
 

@@ -1,9 +1,6 @@
 #include "FirstFragment.h"
 
 namespace i2pcpp {
-	FirstFragment::FirstFragment() :
-		m_mode(DeliveryMode::LOCAL) {}
-
 	ByteArray FirstFragment::compile() const
 	{
 		ByteArray output;
@@ -19,19 +16,24 @@ namespace i2pcpp {
 		}
 
 		if(m_fragmented) {
-			output.insert(output.end(), m_msgId << 24);
-			output.insert(output.end(), m_msgId << 16);
-			output.insert(output.end(), m_msgId << 8);
+			output.insert(output.end(), m_msgId >> 24);
+			output.insert(output.end(), m_msgId >> 16);
+			output.insert(output.end(), m_msgId >> 8);
 			output.insert(output.end(), m_msgId);
 		}
 
 		uint16_t size = (uint16_t)m_payload.size();
-		output.insert(output.end(), size << 8);
+		output.insert(output.end(), size >> 8);
 		output.insert(output.end(), size);
 
 		output.insert(output.end(), m_payload.cbegin(), m_payload.cend());
 
 		return output;
+	}
+
+	bool FirstFragment::mustFragment(uint16_t desiredSize, uint16_t max) const
+	{
+		return (headerSize() + desiredSize > max);
 	}
 
 	uint8_t FirstFragment::headerSize() const
