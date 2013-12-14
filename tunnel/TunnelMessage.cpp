@@ -18,21 +18,24 @@ namespace i2pcpp {
 
 	TunnelMessage::TunnelMessage(std::list<ByteArrayPtr> const &fragments)
 	{
-		ByteArray data;
+		Botan::AutoSeeded_RNG rng;
+		rng.randomize(m_iv.data(), m_iv.size());
 
+		ByteArray data;
 		auto r = fragments.crbegin();
 		for(; r != fragments.crend(); ++r)
 			data.insert(data.begin(), (*r)->cbegin(), (*r)->cend());
-
-		data.insert(data.begin(), 0);
-		data.insert(data.begin(), (1008 - data.size() - 4), 0xFF);
 
 		Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-256"));
 		hashPipe.start_msg();
 
 		hashPipe.write(data);
+		hashPipe.write(m_iv.data(), m_iv.size());
 
 		hashPipe.end_msg();
+
+		data.insert(data.begin(), 0);
+		data.insert(data.begin(), (1008 - data.size() - 4), 0xFF);
 
 		ByteArray checksum(4);
 		hashPipe.read(checksum.data(), 4);
@@ -43,9 +46,6 @@ namespace i2pcpp {
 			throw std::runtime_error("tunnel message data not 1008 bytes");
 
 		m_data = data;
-
-		Botan::AutoSeeded_RNG rng;
-		rng.randomize(m_iv.data(), m_iv.size());
 	}
 
 	void TunnelMessage::encrypt(Botan::SymmetricKey const &ivKey, Botan::SymmetricKey const &layerKey)

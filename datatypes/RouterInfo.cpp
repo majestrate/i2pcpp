@@ -112,9 +112,9 @@ namespace i2pcpp {
 	{
 		ByteArray b;
 
-		const ByteArray&& idBytes = m_identity.serialize();
-		const ByteArray&& pubBytes = m_published.serialize();
-		const ByteArray&& optBytes = m_options.serialize();
+		ByteArray idBytes = m_identity.serialize();
+		ByteArray pubBytes = m_published.serialize();
+		ByteArray optBytes = m_options.serialize();
 
 		b.insert(b.end(), idBytes.cbegin(), idBytes.cend());
 
