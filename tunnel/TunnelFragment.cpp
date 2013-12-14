@@ -66,8 +66,21 @@ namespace i2pcpp {
 		return fragments;
 	}
 
-	TunnelFragmentPtr TunnelFragment::parse(ByteArrayConstItr &begin, ByteArrayConstItr end)
+	std::pair<TunnelFragmentPtr, ByteArrayConstItr> TunnelFragment::parse(ByteArrayConstItr begin, ByteArrayConstItr end)
 	{
-		return TunnelFragmentPtr();
+		TunnelFragmentPtr fragment;
+
+		size_t size = end - begin;
+
+		if(size < 3)
+			throw std::runtime_error("could not parse TunnelFragment");
+
+		unsigned char flag = *begin++;
+		/*if(flag & 0x80) {
+			fragment = std::make_unique<FollowOnFragment>();
+		} else
+			fragment = std::make_unique<FirstFragment>();*/
+
+		return {TunnelFragmentPtr(), begin};
 	}
 }

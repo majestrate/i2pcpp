@@ -24,6 +24,10 @@ namespace i2pcpp {
 		{
 			m_tunnelId = (*(begin++) << 24) | (*(begin++) << 16) | (*(begin++) << 8) | *(begin++);
 			uint16_t size = (*(begin++) << 8) | *(begin++);
+
+			if(size > (end - begin))
+				return false; // handle this better
+
 			m_data.resize(size);
 			m_data = ByteArray(begin, begin + size);
 

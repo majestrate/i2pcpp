@@ -59,45 +59,42 @@ namespace i2pcpp {
 		std::array<unsigned char, 16> myTruncatedHash;
 		std::copy(myHash.cbegin(), myHash.cbegin() + 16, myTruncatedHash.begin());
 
-		for(auto& r: records) {
-			if(myTruncatedHash == r->getHeader()) {
-				I2P_LOG(m_log, debug) << "found BRR with our identity";
+		auto itr = std::find_if(records.begin(), records.end(), [myTruncatedHash](BuildRecordPtr const &r) { return (myTruncatedHash == r->getHeader()); });
+		if(itr != records.end()) {
+			I2P_LOG(m_log, debug) << "found BRR with our identity";
 
-				BuildRequestRecord req = *r;
-				req.decrypt(m_ctx.getEncryptionKey());
-				TunnelHop hop = req.parse();
+			BuildRequestRecord req = **itr;
+			req.decrypt(m_ctx.getEncryptionKey());
+			TunnelHop hop = req.parse();
 
-				std::lock_guard<std::mutex> lock(m_participatingMutex);
-				if(m_participating.count(hop.getTunnelId()) > 0) {
-					I2P_LOG(m_log, debug) << "rejecting tunnel participation request: tunnel ID in use";
-					// reject
-					return;
-				}
+			std::lock_guard<std::mutex> lock(m_participatingMutex);
+			if(m_participating.count(hop.getTunnelId()) > 0) {
+				I2P_LOG(m_log, debug) << "rejecting tunnel participation request: tunnel ID in use";
+				// reject
+				return;
+			}
 
-				m_participating[hop.getTunnelId()] = std::make_shared<TunnelHop>(hop);
+			m_participating[hop.getTunnelId()] = std::make_shared<TunnelHop>(hop);
 
-				BuildResponseRecordPtr resp;
-				resp = std::make_shared<BuildResponseRecord>(BuildResponseRecord::Reply::SUCCESS);
-				resp->compile();
-				r = std::move(resp); // Replace the request record with our response
+			BuildResponseRecordPtr resp;
+			resp = std::make_shared<BuildResponseRecord>(BuildResponseRecord::Reply::SUCCESS);
+			resp->compile();
+			*itr = std::move(resp); // Replace the request record with our response
 
-				for(auto& x: records)
-					x->encrypt(hop.getReplyIV(), hop.getReplyKey());
+			for(auto& x: records)
+				x->encrypt(hop.getReplyIV(), hop.getReplyKey());
 
-				if(hop.getType() == TunnelHop::Type::ENDPOINT) {
-					I2P_LOG(m_log, debug) << "forwarding BRRs to IBGW: " << hop.getNextHash() << ", tunnel ID: " << hop.getNextTunnelId() << ", nextMsgId: " << hop.getNextMsgId();
+			if(hop.getType() == TunnelHop::Type::ENDPOINT) {
+				I2P_LOG(m_log, debug) << "forwarding BRRs to IBGW: " << hop.getNextHash() << ", tunnel ID: " << hop.getNextTunnelId() << ", nextMsgId: " << hop.getNextMsgId();
 
-					I2NP::MessagePtr vtbr(new I2NP::VariableTunnelBuildReply(hop.getNextMsgId(), records));
-					I2NP::MessagePtr tg(new I2NP::TunnelGateway(hop.getNextTunnelId(), vtbr->toBytes(true)));
-					m_ctx.getOutMsgDisp().sendMessage(hop.getNextHash(), tg);
-				} else {
-					I2P_LOG(m_log, debug) << "forwarding BRRs to next hop: " << hop.getNextHash() << ", tunnel ID: " << hop.getNextTunnelId() << ", nextMsgId: " << hop.getNextMsgId();
+				I2NP::MessagePtr vtbr(new I2NP::VariableTunnelBuildReply(hop.getNextMsgId(), records));
+				I2NP::MessagePtr tg(new I2NP::TunnelGateway(hop.getNextTunnelId(), vtbr->toBytes(true)));
+				m_ctx.getOutMsgDisp().sendMessage(hop.getNextHash(), tg);
+			} else {
+				I2P_LOG(m_log, debug) << "forwarding BRRs to next hop: " << hop.getNextHash() << ", tunnel ID: " << hop.getNextTunnelId() << ", nextMsgId: " << hop.getNextMsgId();
 
-					I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(hop.getNextMsgId(), records));
-					m_ctx.getOutMsgDisp().sendMessage(hop.getNextHash(), vtb);
-				}
-
-				break;
+				I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(hop.getNextMsgId(), records));
+				m_ctx.getOutMsgDisp().sendMessage(hop.getNextHash(), vtb);
 			}
 		}
 	}
@@ -106,7 +103,6 @@ namespace i2pcpp {
 	{
 		I2P_LOG_SCOPED_TAG(m_log, "TunnelId", tunnelId);
 		I2P_LOG(m_log, debug) << "received " << data.size() << " bytes of gateway data";
-		I2P_LOG(m_log, debug) << "gateway data: " << data;
 
 		{
 			std::lock_guard<std::mutex> lock(m_participatingMutex);

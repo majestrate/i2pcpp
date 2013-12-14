@@ -19,7 +19,7 @@ namespace i2pcpp {
 			virtual ByteArray compile() const = 0;
 
 			static std::vector<std::unique_ptr<TunnelFragment>> fragmentMessage(ByteArray const &data);
-			static std::unique_ptr<TunnelFragment> parse(ByteArrayConstItr &begin, ByteArrayConstItr end);
+			static std::pair<std::unique_ptr<TunnelFragment>, ByteArrayConstItr> parse(ByteArrayConstItr begin, ByteArrayConstItr end);
 
 		protected:
 			uint32_t m_msgId;
