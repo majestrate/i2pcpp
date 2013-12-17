@@ -58,7 +58,7 @@ namespace i2pcpp {
 		std::shared_ptr<UDPTransport> u = std::static_pointer_cast<UDPTransport>(t);
 		u->start(Endpoint(m_ctx.getDatabase().getConfigValue("ssu_bind_ip"), std::stoi(m_ctx.getDatabase().getConfigValue("ssu_bind_port"))));
 
-		//m_ctx.getPeerManager().begin();
+		m_ctx.getPeerManager().begin();
 		//m_ctx.getTunnelManager().begin();
 	}
 

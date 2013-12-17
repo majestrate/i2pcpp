@@ -65,12 +65,14 @@ set(SRCS
 	tunnel/InboundTunnel.cpp
 	tunnel/OutboundTunnel.cpp
 	tunnel/Tunnel.cpp
-	tunnel/TunnelFragment.cpp
+	tunnel/Fragment.cpp
 	tunnel/FirstFragment.cpp
 	tunnel/FollowOnFragment.cpp
+	tunnel/FragmentHandler.cpp
+	tunnel/FragmentState.cpp
 	tunnel/TunnelHop.cpp
 	tunnel/TunnelManager.cpp
-	tunnel/TunnelMessage.cpp
+	tunnel/Message.cpp
 	util/Base64.cpp
 	util/I2PDH.cpp
 	util/I2PHMAC.cpp
@@ -172,7 +174,7 @@ include_directories(BEFORE i2p ${BOTAN_INCLUDE_DIR})
 target_link_libraries(i2p ${BOTAN_LIBRARY_PATH})
 
 # Boost
-find_package(Boost 1.54.0 REQUIRED COMPONENTS system thread filesystem chrono date_time program_options log)
+find_package(Boost 1.55.0 REQUIRED COMPONENTS system thread filesystem chrono date_time program_options log)
 include_directories(BEFORE i2p ${Boost_INCLUDE_DIR})
 target_link_libraries(i2p ${Boost_LIBRARIES})
 add_definitions(-DBOOST_ALL_DYN_LINK)

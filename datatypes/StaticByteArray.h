@@ -17,7 +17,13 @@ namespace i2pcpp {
 	template<unsigned int L, bool S = false>
 		class StaticByteArray {
 			public:
-				StaticByteArray() {}
+				typedef unsigned char value_type;
+				typedef typename std::array<value_type, L>::size_type size_type;
+
+				StaticByteArray()
+				{
+					m_data.fill(0);
+				}
 
 				StaticByteArray(const StaticByteArray &) = default;
 				StaticByteArray& operator=(const StaticByteArray &) = default;
@@ -45,7 +51,7 @@ namespace i2pcpp {
 					std::copy(b.cbegin(), b.cbegin() + L, m_data.begin());
 				}
 
-				StaticByteArray(std::array<unsigned char, L> const &a)
+				StaticByteArray(std::array<value_type, L> const &a)
 				{
 					std::copy(a.cbegin(), a.cbegin() + L, m_data.begin());
 				}
@@ -58,37 +64,37 @@ namespace i2pcpp {
 					return s.str();
 				}
 
-				typename std::array<unsigned char, L>::iterator begin()
+				typename std::array<value_type, L>::iterator begin()
 				{
 					return m_data.begin();
 				}
 
-				typename std::array<unsigned char, L>::iterator end()
+				typename std::array<value_type, L>::iterator end()
 				{
 					return m_data.end();
 				}
 
-				typename std::array<unsigned char, L>::const_iterator cbegin() const
+				typename std::array<value_type, L>::const_iterator cbegin() const
 				{
 					return m_data.cbegin();
 				}
 
-				typename std::array<unsigned char, L>::const_iterator cend() const
+				typename std::array<value_type, L>::const_iterator cend() const
 				{
 					return m_data.cend();
 				}
 
-				typename std::array<unsigned char, L>::pointer data()
+				typename std::array<value_type, L>::pointer data()
 				{
 					return m_data.data();
 				}
 
-				typename std::array<unsigned char, L>::const_pointer data() const
+				typename std::array<value_type, L>::const_pointer data() const
 				{
 					return m_data.data();
 				}
 
-				typename std::array<unsigned char, L>::size_type size() const
+				typename std::array<value_type, L>::size_type size() const
 				{
 					return m_data.size();
 				}
@@ -98,7 +104,12 @@ namespace i2pcpp {
 					return m_data < sba.m_data;
 				}
 
-				typename std::array<unsigned char, L>::const_reference operator[](typename std::array<unsigned char, L>::size_type n) const
+				typename std::array<value_type, L>::reference operator[](typename std::array<value_type, L>::size_type n)
+				{
+					return m_data[n];
+				}
+
+				typename std::array<value_type, L>::const_reference operator[](typename std::array<value_type, L>::size_type n) const
 				{
 					return m_data[n];
 				}
@@ -129,7 +140,7 @@ namespace i2pcpp {
 				}
 
 			private:
-				std::array<unsigned char, L> m_data;
+				std::array<value_type, L> m_data;
 		};
 
 	template<unsigned int L>

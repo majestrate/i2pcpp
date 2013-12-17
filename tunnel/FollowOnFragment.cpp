@@ -15,6 +15,11 @@ namespace i2pcpp {
 		m_isLast = isLast;
 	}
 
+	bool FollowOnFragment::isLast() const
+	{
+		return m_isLast;
+	}
+
 	ByteArray FollowOnFragment::compile() const
 	{
 		ByteArray output;
@@ -37,6 +42,27 @@ namespace i2pcpp {
 		output.insert(output.end(), m_payload.cbegin(), m_payload.cend());
 
 		return output;
+	}
+
+	FollowOnFragment FollowOnFragment::parse(ByteArrayConstItr &begin, ByteArrayConstItr end)
+	{
+		unsigned char flag = *begin++;
+		uint8_t fragNum = ((flag & 0x7e) >> 1);
+		uint32_t msgId = (begin[0] << 24) | (begin[1] << 16) | (begin[2] << 8) | (begin[3]);
+		begin += 4;
+
+		FollowOnFragment fof(msgId, fragNum);
+		fof.m_isLast = flag & 0x01;
+
+		uint16_t size = (begin[0] << 8) | (begin[1]);
+		begin += 2;
+		if((end - begin) < size)
+			throw std::runtime_error("malformed followon fragment");
+
+		fof.m_payload = ByteArray(begin, begin + size);
+		begin += size;
+
+		return fof;
 	}
 
 	uint8_t FollowOnFragment::headerSize() const

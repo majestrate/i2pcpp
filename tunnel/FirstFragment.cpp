@@ -12,7 +12,12 @@ namespace i2pcpp {
 		output.insert(output.end(), flag);
 
 		if(m_mode == DeliveryMode::TUNNEL) {
-			// TODO tunnel ID and router hash
+			output.insert(output.end(), m_tunnelId >> 24);
+			output.insert(output.end(), m_tunnelId >> 16);
+			output.insert(output.end(), m_tunnelId >> 8);
+			output.insert(output.end(), m_tunnelId);
+
+			output.insert(output.end(), m_toHash.cbegin(), m_toHash.cend());
 		}
 
 		if(m_fragmented) {
@@ -36,6 +41,53 @@ namespace i2pcpp {
 		return (headerSize() + desiredSize > max);
 	}
 
+	void FirstFragment::setFragmented(bool f)
+	{
+		m_fragmented = f;
+	}
+
+	bool FirstFragment::isFragmented() const
+	{
+		return m_fragmented;
+	}
+
+	FirstFragment FirstFragment::parse(ByteArrayConstItr &begin, ByteArrayConstItr end)
+	{
+		FirstFragment ff;
+
+		unsigned char flag = *(begin++);
+		ff.m_mode = (DeliveryMode)((flag >> 5) & 0x03);
+		ff.m_fragmented = flag >> 3;
+
+		switch(ff.m_mode) {
+			case DeliveryMode::TUNNEL:
+				ff.m_tunnelId = (begin[0] << 24) | (begin[1] << 16) | (begin[2] << 8) | (begin[3]);
+				begin += 4;
+				std::copy(begin, begin + 32, ff.m_toHash.begin());
+				begin += 32;
+
+				break;
+
+			default: // TODO
+				break;
+		};
+
+		if(ff.m_fragmented) {
+			ff.m_msgId = (begin[0] << 24) | (begin[1] << 16) | (begin[2] << 8) | (begin[3]);
+			begin += 4;
+		}
+
+		uint16_t size = (begin[0] << 8) | (begin[1]);
+		begin += 2;
+		if((end - begin) < size)
+			throw std::runtime_error("malformed first fragment");
+
+		ff.m_payload = ByteArray(begin, begin + size);
+		begin += size;
+
+		return ff;
+	}
+
 	uint8_t FirstFragment::headerSize() const
 	{
 		switch(m_mode) {
@@ -54,10 +106,5 @@ namespace i2pcpp {
 			default:
 				throw std::logic_error("Unimplemented FirstFragment delivery mode");
 		}
-	}
-
-	void FirstFragment::setFragmented(bool f)
-	{
-		m_fragmented = f;
 	}
 }
