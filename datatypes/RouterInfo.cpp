@@ -1,3 +1,7 @@
+/**
+ * @file RouterInfo.cpp
+ * @brief Implements RouterInfo.h.
+ */
 #include "RouterInfo.h"
 
 #include <botan/pipe.h>

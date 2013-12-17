@@ -1,3 +1,8 @@
+/**
+ * @file ByteArray.h
+ * @brief Defines teh i2pcpp::ByteArray type, as well as a number of useful
+ *  typedefs and operators.
+ */
 #ifndef BYTEARRAY_H
 #define BYTEARRAY_H
 
@@ -7,6 +12,9 @@
 #include <vector>
 
 namespace i2pcpp {
+    /**
+     * An i2pcpp::ByteArray is a std::vector<unisgned char>.
+     */
 	typedef std::vector<unsigned char> ByteArray;
 	typedef std::shared_ptr<ByteArray> ByteArrayPtr;
 	typedef ByteArray::iterator ByteArrayItr;

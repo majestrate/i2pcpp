@@ -4,7 +4,6 @@ set(datatypes_sources
     BuildRecord.cpp
     BuildRequestRecord.cpp
     BuildResponseRecord.cpp
-    Datatype.cpp
     Date.cpp
     Endpoint.cpp
     Mapping.cpp

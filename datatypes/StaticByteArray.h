@@ -1,3 +1,7 @@
+/**
+ * @file StaticByteArray.h
+ * @brief Defines the i2pcpp::StaticByteArray type, which is an utility type.
+ */
 #ifndef STATICBYTEARRAY_H
 #define STATICBYTEARRAY_H
 
@@ -15,131 +19,190 @@
 #include "ByteArray.h"
 
 namespace i2pcpp {
-	template<unsigned int L, bool S = false>
-		class StaticByteArray {
-			public:
-				StaticByteArray() {}
 
-				StaticByteArray(const StaticByteArray &) = default;
-				StaticByteArray& operator=(const StaticByteArray &) = default;
-				StaticByteArray(StaticByteArray &&) = default;
-				StaticByteArray& operator=(StaticByteArray &&) = default;
+    /**
+     * Provides a std::array with additional utility functions.
+     */
+    template<unsigned int L, bool S = false>
+	class StaticByteArray {
+		public:
+			StaticByteArray() = default;
 
-				~StaticByteArray()
-				{
-					if(S)
-						m_data.fill(0);
-				}
+			StaticByteArray(const StaticByteArray &) = default;
+			StaticByteArray& operator=(const StaticByteArray &) = default;
+			StaticByteArray(StaticByteArray &&) = default;
+			StaticByteArray& operator=(StaticByteArray &&) = default;
 
-				StaticByteArray(ByteArray const &b)
-				{
-					if(b.size() < L)
-						std::copy(b.cbegin(), b.cbegin() + b.size(), m_data.begin());
-					else
-						std::copy(b.cbegin(), b.cbegin() + L, m_data.begin());
-				}
+            /**
+             * If this is a "safe" static byte array, the underlying data is cleared.
+             */
+			~StaticByteArray()
+			{
+				if(S)
+					m_data.fill(0);
+			}
 
-				StaticByteArray(std::string const &s)
-				{
-					ByteArray b = Base64::decode(s);
-					if(b.size() != L) throw FormattingError();
+            /**
+             * Constrcuts from an i2pcpp::ByteArray.
+             */
+			StaticByteArray(ByteArray const &b)
+			{
+				if(b.size() < L)
+					std::copy(b.cbegin(), b.cbegin() + b.size(), m_data.begin());
+				else
 					std::copy(b.cbegin(), b.cbegin() + L, m_data.begin());
-				}
+			}
 
-				StaticByteArray(std::array<unsigned char, L> const &a)
-				{
-					std::copy(a.cbegin(), a.cbegin() + L, m_data.begin());
-				}
+            /**
+             * Constructs from a std::string.
+             */
+			StaticByteArray(std::string const &s)
+			{
+				ByteArray b = Base64::decode(s);
+				if(b.size() != L) throw FormattingError();
+				std::copy(b.cbegin(), b.cbegin() + L, m_data.begin());
+			}
 
-				std::string toHex() const
-				{
-					if(!m_hex.empty())
-						return m_hex;
+            /**
+             * Constructs from a std::array.
+             */
+			StaticByteArray(std::array<unsigned char, L> const &a)
+			{
+				std::copy(a.cbegin(), a.cbegin() + L, m_data.begin());
+			}
 
-					std::stringstream s;
-					for(auto c: m_data) s << std::setw(2) << std::setfill('0') << std::hex << (int)c;
-					m_hex = s.str();
-
+            /**
+             * @return a hexadecimal string representing the underlying data
+             */
+			std::string toHex() const
+			{
+				if(!m_hex.empty())
 					return m_hex;
-				}
 
-				typename std::array<unsigned char, L>::iterator begin()
-				{
-					return m_data.begin();
-				}
+				std::stringstream s;
+				for(auto c: m_data) s << std::setw(2) << std::setfill('0') << std::hex << (int)c;
+				m_hex = s.str();
 
-				typename std::array<unsigned char, L>::iterator end()
-				{
-					return m_data.end();
-				}
+				return m_hex;
+			}
 
-				typename std::array<unsigned char, L>::const_iterator cbegin() const
-				{
-					return m_data.cbegin();
-				}
+            /**
+             * @return an iterator to the begin of the underlying std::array object.
+             */
+			typename std::array<unsigned char, L>::iterator begin()
+			{
+				return m_data.begin();
+			}
 
-				typename std::array<unsigned char, L>::const_iterator cend() const
-				{
-					return m_data.cend();
-				}
+            /**
+             * @return an iterator to the end of the underlying std::array object.
+             */
+			typename std::array<unsigned char, L>::iterator end()
+			{
+				return m_data.end();
+			}
 
-				typename std::array<unsigned char, L>::pointer data()
-				{
-					return m_data.data();
-				}
+            /**
+             * @return a constant iterator to the begin of the underlying std::array object.
+             */
+			typename std::array<unsigned char, L>::const_iterator cbegin() const
+			{
+				return m_data.cbegin();
+			}
 
-				typename std::array<unsigned char, L>::const_pointer data() const
-				{
-					return m_data.data();
-				}
+            /**
+             * @return a constant iterator to the end of the underlying std::array object.
+             */
+			typename std::array<unsigned char, L>::const_iterator cend() const
+			{
+				return m_data.cend();
+			}
 
-				typename std::array<unsigned char, L>::size_type size() const
-				{
-					return m_data.size();
-				}
+            /**
+             * @return a pointer to the data of the underlying std::array
+             */
+			typename std::array<unsigned char, L>::pointer data()
+			{
+				return m_data.data();
+			}
 
-				bool operator<(const StaticByteArray<L> &sba) const
-				{
-					return m_data < sba.m_data;
-				}
+            /**
+             * @return a constant pointer to the data of the underlying std::array
+             */
+			typename std::array<unsigned char, L>::const_pointer data() const
+			{
+				return m_data.data();
+			}
 
-				typename std::array<unsigned char, L>::const_reference operator[](typename std::array<unsigned char, L>::size_type n) const
-				{
-					return m_data[n];
-				}
+            /**
+             * @return the size of the underlying std::array
+             */
+			typename std::array<unsigned char, L>::size_type size() const
+			{
+				return m_data.size();
+			}
 
-				bool operator!=(const StaticByteArray<L> &sba) const
-				{
-					return m_data != sba.m_data;
-				}
+            /**
+             * Compares to i2pcpp::StaticByteArray objects lexicographically.
+             */
+			bool operator<(const StaticByteArray<L> &sba) const
+			{
+				return m_data < sba.m_data;
+			}
 
-				bool operator==(const StaticByteArray<L> &sba) const
-				{
-					return m_data == sba.m_data;
-				}
+            /**
+             * Subscripting operator for element access.
+             */
+			typename std::array<unsigned char, L>::const_reference operator[](typename std::array<unsigned char, L>::size_type n) const
+			{
+				return m_data[n];
+			}
 
-				operator ByteArray() const
-				{
-					return ByteArray(m_data.cbegin(), m_data.cend());
-				}
+            /**
+             * @see i2pcpp::StaticByteArray::operator==
+             */
+			bool operator!=(const StaticByteArray<L> &sba) const
+			{
+				return m_data != sba.m_data;
+			}
 
-				operator std::string() const
-				{
-					if(!m_b64.empty())
-						return m_b64;
+            /**
+             * Defines equality of two i2pcpp::StaticByteArray objects as
+             *  containing the same data.
+             */
+			bool operator==(const StaticByteArray<L> &sba) const
+			{
+				return m_data == sba.m_data;
+			}
 
-					m_b64 = Base64::encode(ByteArray(m_data.cbegin(), m_data.cend()));
-					std::replace(m_b64.begin(), m_b64.end(), '+', '-');
-					std::replace(m_b64.begin(), m_b64.end(), '/', '~');
+            /**
+             * Conversion to an i2pcpp::ByteArray.
+             */
+			operator ByteArray() const
+			{
+				return ByteArray(m_data.cbegin(), m_data.cend());
+			}
 
+            /**
+             * Converts to a std::string, by using base64 encoding.
+             */
+			operator std::string() const
+			{
+				if(!m_b64.empty())
 					return m_b64;
-				}
 
-			private:
-				std::array<unsigned char, L> m_data;
-				mutable std::string m_hex;
-				mutable std::string m_b64;
-		};
+				m_b64 = Base64::encode(ByteArray(m_data.cbegin(), m_data.cend()));
+				std::replace(m_b64.begin(), m_b64.end(), '+', '-');
+				std::replace(m_b64.begin(), m_b64.end(), '/', '~');
+
+				return m_b64;
+			}
+
+		private:
+			std::array<unsigned char, L> m_data;
+			mutable std::string m_hex;
+			mutable std::string m_b64;
+	};
 
 	template<unsigned int L>
 	std::ostream& operator<<(std::ostream &s, StaticByteArray<L> const &sba)

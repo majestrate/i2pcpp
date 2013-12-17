@@ -1,3 +1,7 @@
+/**
+ * @file RouterAddress.cpp
+ * @brief Implements RouterAddress.h.
+ */
 #include "RouterAddress.h"
 
 #include "../exceptions/FormattingError.h"

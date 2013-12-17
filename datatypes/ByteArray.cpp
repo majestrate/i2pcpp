@@ -1,3 +1,7 @@
+/**
+ * @file ByteArray.cpp
+ * @brief Implements ByteArray.h.
+ */
 #include "ByteArray.h"
 
 #include <iomanip>

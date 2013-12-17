@@ -1,3 +1,7 @@
+/**
+ * @file BuildRecord.cpp
+ * @brief Implements BuildRecord.h, specifically i2pcpp::BuildRecord.
+ */
 #include "BuildRecord.h"
 
 #include <botan/auto_rng.h>
@@ -8,10 +12,6 @@
 #include "../exceptions/FormattingError.h"
 
 namespace i2pcpp {
-	BuildRecord::BuildRecord() :
-		m_header({}),
-		m_data({}) {}
-
 	BuildRecord::BuildRecord(ByteArrayConstItr &begin, ByteArrayConstItr end)
 	{
 		if((end - begin) < 528)

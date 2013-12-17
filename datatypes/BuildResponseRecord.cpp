@@ -1,3 +1,7 @@
+/**
+ * @file BuildResponseRecord.cpp
+ * @brief implements BuildReponseRecord.h
+ */
 #include "BuildResponseRecord.h"
 
 #include <stdexcept>

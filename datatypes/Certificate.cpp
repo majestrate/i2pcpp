@@ -1,3 +1,7 @@
+/**
+ * @file Certificate.cpp
+ * @brief Implements Certificate.h.
+ */
 #include "Certificate.h"
 
 #include "../exceptions/FormattingError.h"

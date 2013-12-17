@@ -1,3 +1,7 @@
+/**
+ * @file SessionKey.h
+ * @brief Defines the i2pcpp::SessionKey typedef.
+ */
 #ifndef SESSIONKEY_H
 #define SESSIONKEY_H
 
