@@ -11,17 +11,16 @@ namespace i2pcpp {
 	namespace I2NP {
 		class DatabaseSearchReply : public Message {
 			public:
-				DatabaseSearchReply();
-
-				Message::Type getType() const;
-
 				const std::array<unsigned char, 32>& getKey() const;
 				const std::list<RouterHash>& getHashes() const;
 				const RouterHash& getFrom() const;
 
+				static DatabaseSearchReply parse(ByteArrayConstItr &begin, ByteArrayConstItr end);
+
 			protected:
-				ByteArray getBytes() const;
-				bool parse(ByteArrayConstItr &begin, ByteArrayConstItr end);
+				DatabaseSearchReply() = default;
+
+				ByteArray compile() const;
 
 			private:
 				std::array<unsigned char, 32> m_key;

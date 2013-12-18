@@ -61,7 +61,7 @@ namespace i2pcpp {
 		return m_tunnelGatewayData.connect(tgdh);
 	}
 
-	void Signals::invokeTunnelData(RouterHash const &from, uint32_t const tunnelId, StaticByteArray<1024, true> const &data)
+	void Signals::invokeTunnelData(RouterHash const &from, uint32_t const tunnelId, StaticByteArray<1024> const &data)
 	{
 		m_ios.post(boost::bind(boost::ref(m_tunnelData), from, tunnelId, data));
 	}

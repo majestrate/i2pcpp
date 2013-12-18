@@ -16,7 +16,7 @@ namespace i2pcpp {
 			typedef boost::signals2::signal<void(const RouterHash)> ConnectionFailure;
 			typedef boost::signals2::signal<void(const RouterHash, const StaticByteArray<32>, const std::list<RouterHash>)> SearchReply;
 			typedef boost::signals2::signal<void(const RouterHash, const uint32_t, const ByteArray)> TunnelGatewayData;
-			typedef boost::signals2::signal<void(const RouterHash, const uint32_t, const StaticByteArray<1024, true>)> TunnelData;
+			typedef boost::signals2::signal<void(const RouterHash, const uint32_t, const StaticByteArray<1024>)> TunnelData;
 
 			Signals(boost::asio::io_service &ios) : m_ios(ios) {}
 			Signals(const Signals &) = delete;
@@ -40,7 +40,7 @@ namespace i2pcpp {
 			void invokeTunnelGatewayData(RouterHash const &from, uint32_t const tunnelId, ByteArray const &data);
 			boost::signals2::connection registerTunnelGatewayData(TunnelGatewayData::slot_type const &tgdh);
 
-			void invokeTunnelData(RouterHash const &from, uint32_t const tunnelId, StaticByteArray<1024, true> const &data);
+			void invokeTunnelData(RouterHash const &from, uint32_t const tunnelId, StaticByteArray<1024> const &data);
 			boost::signals2::connection registerTunnelData(TunnelData::slot_type const &tdh);
 
 		private:

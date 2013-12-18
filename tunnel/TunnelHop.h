@@ -26,7 +26,7 @@ namespace i2pcpp {
 			void setTunnelLayerKey(SessionKey const &tunnelLayerKey);
 			void setTunnelIVKey(SessionKey const &tunnelIVKey);
 			void setReplyKey(SessionKey const &replyKey);
-			void setReplyIV(StaticByteArray<16, true> const &replyIV);
+			void setReplyIV(StaticByteArray<16> const &replyIV);
 			void setType(Type type);
 			void setRequestTime(uint32_t reqTime);
 			void setNextMsgId(uint32_t nextMsgId);
@@ -38,7 +38,7 @@ namespace i2pcpp {
 			SessionKey getTunnelLayerKey() const;
 			SessionKey getTunnelIVKey() const;
 			SessionKey getReplyKey() const;
-			StaticByteArray<16, true> getReplyIV() const;
+			StaticByteArray<16> getReplyIV() const;
 			Type getType() const;
 			uint32_t getRequestTime() const;
 			uint32_t getNextMsgId() const;
@@ -54,7 +54,7 @@ namespace i2pcpp {
 			SessionKey m_tunnelLayerKey;
 			SessionKey m_tunnelIVKey;
 			SessionKey m_replyKey;
-			StaticByteArray<16, true> m_replyIV;
+			StaticByteArray<16> m_replyIV;
 			Type m_type = Type::PARTICIPANT;
 			uint32_t m_requestTime;
 			uint32_t m_nextMsgId;

@@ -10,7 +10,7 @@
 #include "../util/make_unique.h"
 
 namespace i2pcpp {
-	Message::Message(StaticByteArray<1024, true> const &data)
+	Message::Message(StaticByteArray<1024> const &data)
 	{
 		auto pos = data.cbegin();
 
@@ -52,9 +52,9 @@ namespace i2pcpp {
 		return fragments;
 	}
 
-	StaticByteArray<1024, true> Message::getEncryptedData() const
+	StaticByteArray<1024> Message::getEncryptedData() const
 	{
-		StaticByteArray<1024, true> payload;
+		StaticByteArray<1024> payload;
 		std::copy(m_iv.cbegin(), m_iv.cend(), payload.begin());
 		std::copy(m_encrypted.cbegin(), m_encrypted.cend(), payload.begin() + 16);
 
@@ -110,7 +110,7 @@ namespace i2pcpp {
 		Botan::AutoSeeded_RNG rng;
 		auto padStart = m_encrypted.begin() + 4;
 		auto padEnd = padStart + (1008 - 4 - 1 - m_payloadSize);
-		rng.randomize((StaticByteArray<1008, true>::value_type *)padStart, padEnd - padStart);
+		rng.randomize((StaticByteArray<1008>::value_type *)padStart, padEnd - padStart);
 		std::replace_if(padStart, padEnd, [](const ByteArray::value_type &x) { return x == 0x00; }, 0xff);
 		*padEnd = 0x00; // last byte must be zero
 		auto pos = padEnd + 1;

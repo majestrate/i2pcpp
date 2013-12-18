@@ -9,14 +9,14 @@ namespace i2pcpp {
 	namespace I2NP {
 		class DeliveryStatus : public Message {
 			public:
-				DeliveryStatus();
 				DeliveryStatus(uint32_t msgId, Date timestamp);
 
-				Message::Type getType() const;
+				static DeliveryStatus parse(ByteArrayConstItr &begin, ByteArrayConstItr end);
 
 			protected:
-				ByteArray getBytes() const;
-				bool parse(ByteArrayConstItr &begin, ByteArrayConstItr end);
+				DeliveryStatus() = default;
+
+				ByteArray compile() const;
 
 			private:
 				uint32_t m_msgId;

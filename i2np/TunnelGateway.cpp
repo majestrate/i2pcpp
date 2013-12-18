@@ -2,7 +2,21 @@
 
 namespace i2pcpp {
 	namespace I2NP {
-		ByteArray TunnelGateway::getBytes() const
+		TunnelGateway::TunnelGateway(uint32_t const tunnelId, ByteArray const &data) :
+			m_tunnelId(tunnelId),
+			m_data(data) {}
+
+		uint32_t TunnelGateway::getTunnelId() const
+		{
+			return m_tunnelId;
+		}
+
+		const ByteArray& TunnelGateway::getData() const
+		{
+			return m_data;
+		}
+
+		ByteArray TunnelGateway::compile() const
 		{
 			uint16_t size = m_data.size();
 			ByteArray b;
@@ -20,18 +34,22 @@ namespace i2pcpp {
 			return b;
 		}
 
-		bool TunnelGateway::parse(ByteArrayConstItr &begin, ByteArrayConstItr end)
+		TunnelGateway TunnelGateway::parse(ByteArrayConstItr &begin, ByteArrayConstItr end)
 		{
-			m_tunnelId = (*(begin++) << 24) | (*(begin++) << 16) | (*(begin++) << 8) | *(begin++);
-			uint16_t size = (*(begin++) << 8) | *(begin++);
+			TunnelGateway tg;
 
+			tg.m_tunnelId = (begin[0] << 24) | (begin[1] << 16) | (begin[2] << 8) | (begin[3]);
+			begin += 4;
+
+			uint16_t size = (begin[0] << 8) | (begin[1]);
+			size += 2;
 			if(size > (end - begin))
-				return false; // handle this better
+				throw std::runtime_error("invalid tunnel gateway message");
 
-			m_data.resize(size);
-			m_data = ByteArray(begin, begin + size);
+			tg.m_data.resize(size);
+			tg.m_data = ByteArray(begin, begin + size);
 
-			return true;
+			return tg;
 		}
 	}
 }

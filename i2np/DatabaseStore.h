@@ -18,18 +18,18 @@ namespace i2pcpp {
 					LEASE_SET = 1
 				};
 
-				DatabaseStore();
 				DatabaseStore(StaticByteArray<32> const &key, DataType type, uint32_t replyToken, ByteArray const &data);
-
-				Message::Type getType() const;
 
 				DataType getDataType() const;
 				uint32_t getReplyToken() const;
 				const ByteArray& getData() const;
 
+				static DatabaseStore parse(ByteArrayConstItr &begin, ByteArrayConstItr end);
+
 			protected:
-				ByteArray getBytes() const;
-				bool parse(ByteArrayConstItr &begin, ByteArrayConstItr end);
+				DatabaseStore() = default;
+
+				ByteArray compile() const;
 
 			private:
 				StaticByteArray<32> m_key;

@@ -11,14 +11,14 @@ namespace i2pcpp {
 	namespace I2NP {
 		class DatabaseLookup : public Message {
 			public:
-				DatabaseLookup();
 				DatabaseLookup(StaticByteArray<32> const &key, RouterHash const &from, uint32_t sendReplyTo, std::list<RouterHash> excludedPeers = std::list<RouterHash>());
 
-				Message::Type getType() const;
+				static DatabaseLookup parse(ByteArrayConstItr &begin, ByteArrayConstItr end);
 
 			protected:
-				ByteArray getBytes() const;
-				bool parse(ByteArrayConstItr &begin, ByteArrayConstItr end);
+				DatabaseLookup() = default;
+
+				ByteArray compile() const;
 
 			private:
 				StaticByteArray<32> m_key;

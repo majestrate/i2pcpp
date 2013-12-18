@@ -107,7 +107,7 @@ namespace i2pcpp {
 		m_data = toHash;
 	}
 
-	void BuildRecord::encrypt(StaticByteArray<16, true> const &iv, SessionKey const &key)
+	void BuildRecord::encrypt(StaticByteArray<16> const &iv, SessionKey const &key)
 	{
 		Botan::InitializationVector biv(iv.data(), 16);
 		Botan::SymmetricKey bkey(key.data(), key.size());
@@ -127,7 +127,7 @@ namespace i2pcpp {
 		cipherPipe.read(m_data.data(), encryptedSize - 16);
 	}
 
-	void BuildRecord::decrypt(StaticByteArray<16, true> const &iv, SessionKey const &key)
+	void BuildRecord::decrypt(StaticByteArray<16> const &iv, SessionKey const &key)
 	{
 		Botan::InitializationVector biv(iv.data(), 16);
 		Botan::SymmetricKey bkey(key.data(), key.size());
