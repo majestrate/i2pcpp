@@ -44,6 +44,7 @@ set(SRCS
 	i2np/DatabaseStore.cpp
 	i2np/DeliveryStatus.cpp
 	i2np/Message.cpp
+	i2np/Garlic.cpp
 	i2np/TunnelData.cpp
 	i2np/TunnelGateway.cpp
 	i2np/VariableTunnelBuild.cpp

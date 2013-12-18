@@ -15,11 +15,11 @@
 namespace i2pcpp {
 	class Message {
 		public:
-			Message(StaticByteArray<1024, true> const &data);
+			Message(StaticByteArray<1024> const &data);
 			Message(std::list<FragmentPtr> &fragments);
 
 			std::list<FragmentPtr> parse() const;
-			StaticByteArray<1024, true> getEncryptedData() const;
+			StaticByteArray<1024> getEncryptedData() const;
 			void encrypt(Botan::SymmetricKey const &ivKey, Botan::SymmetricKey const &layerKey);
 			void compile();
 
@@ -31,8 +31,8 @@ namespace i2pcpp {
 			std::list<FragmentPtr> m_fragments;
 			uint16_t m_payloadSize = 0;
 
-			StaticByteArray<16, true> m_iv;
-			StaticByteArray<1008, true> m_encrypted;
+			StaticByteArray<16> m_iv;
+			StaticByteArray<1008> m_encrypted;
 	};
 }
 

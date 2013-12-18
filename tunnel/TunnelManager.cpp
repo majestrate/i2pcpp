@@ -90,7 +90,7 @@ namespace i2pcpp {
 				I2P_LOG(m_log, debug) << "forwarding BRRs to IBGW: " << hop.getNextHash() << ", tunnel ID: " << hop.getNextTunnelId() << ", nextMsgId: " << hop.getNextMsgId();
 
 				I2NP::MessagePtr vtbr(new I2NP::VariableTunnelBuildReply(hop.getNextMsgId(), records));
-				I2NP::MessagePtr tg(new I2NP::TunnelGateway(hop.getNextTunnelId(), vtbr->toBytes(true)));
+				I2NP::MessagePtr tg(new I2NP::TunnelGateway(hop.getNextTunnelId(), vtbr->toBytes()));
 				m_ctx.getOutMsgDisp().sendMessage(hop.getNextHash(), tg);
 			} else {
 				I2P_LOG(m_log, debug) << "forwarding BRRs to next hop: " << hop.getNextHash() << ", tunnel ID: " << hop.getNextTunnelId() << ", nextMsgId: " << hop.getNextMsgId();
@@ -159,7 +159,7 @@ namespace i2pcpp {
 		}
 	}
 
-	void TunnelManager::receiveData(RouterHash const from, uint32_t const tunnelId, StaticByteArray<1024, true> const data)
+	void TunnelManager::receiveData(RouterHash const from, uint32_t const tunnelId, StaticByteArray<1024> const data)
 	{
 		std::lock_guard<std::mutex> lock(m_participatingMutex);
 

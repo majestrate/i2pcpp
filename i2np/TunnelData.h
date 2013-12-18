@@ -1,7 +1,7 @@
 #ifndef I2NPTUNNELDATA_H
 #define I2NPTUNNELDATA_H
 
-#include <array>
+#include "../datatypes/StaticByteArray.h"
 
 #include "Message.h"
 
@@ -9,21 +9,21 @@ namespace i2pcpp {
 	namespace I2NP {
 		class TunnelData : public Message {
 			public:
-				TunnelData() {}
 				TunnelData(uint32_t const tunnelId, ByteArray const &data);
 
-				Message::Type getType() const { return Message::Type::TUNNEL_DATA; }
+				uint32_t getTunnelId() const;
+				const StaticByteArray<1024>& getData() const;
 
-				uint32_t getTunnelId() const { return m_tunnelId; }
-				const std::array<unsigned char, 1024>& getData() const { return m_data; }
+				static TunnelData parse(ByteArrayConstItr &begin, ByteArrayConstItr end);
 
 			protected:
-				ByteArray getBytes() const;
-				bool parse(ByteArrayConstItr &begin, ByteArrayConstItr end);
+				TunnelData() = default;
+
+				ByteArray compile() const;
 
 			private:
 				uint32_t m_tunnelId;
-				std::array<unsigned char, 1024> m_data;
+				StaticByteArray<1024> m_data;
 		};
 	}
 }

@@ -4,8 +4,6 @@
 
 namespace i2pcpp {
 	namespace I2NP {
-		VariableTunnelBuild::VariableTunnelBuild() {}
-
 		VariableTunnelBuild::VariableTunnelBuild(std::list<BuildRecordPtr> const &buildRecords) :
 			m_buildRecords(buildRecords) {}
 
@@ -13,17 +11,12 @@ namespace i2pcpp {
 			Message(msgId),
 			m_buildRecords(buildRecords) {}
 
-		Message::Type VariableTunnelBuild::getType() const
-		{
-			return Message::Type::VARIABLE_TUNNEL_BUILD;
-		}
-
 		std::list<BuildRecordPtr> VariableTunnelBuild::getRecords() const
 		{
 			return m_buildRecords;
 		}
 
-		ByteArray VariableTunnelBuild::getBytes() const
+		ByteArray VariableTunnelBuild::compile() const
 		{
 			ByteArray b;
 
@@ -36,14 +29,16 @@ namespace i2pcpp {
 			return b;
 		}
 
-		bool VariableTunnelBuild::parse(ByteArrayConstItr &begin, ByteArrayConstItr end)
+		VariableTunnelBuild VariableTunnelBuild::parse(ByteArrayConstItr &begin, ByteArrayConstItr end)
 		{
+			VariableTunnelBuild vtb;
+
 			unsigned char size = *begin++;
 
 			for(int i = 0; i < size; i++)
-				m_buildRecords.emplace_back(std::make_shared<BuildRecord>(begin, end));
+				vtb.m_buildRecords.emplace_back(std::make_shared<BuildRecord>(begin, end));
 
-			return true;
+			return vtb;
 		}
 	}
 }

@@ -68,6 +68,9 @@ namespace i2pcpp {
 					m_ios.post(boost::bind(&Handlers::Message::handleMessage, m_tunnelGatewayHandler, from, m));
 					break;
 
+				case I2NP::Message::Type::GARLIC:
+					break;
+
 				default:
 					I2P_LOG(m_log, error) << "dropping unhandled message of type " << (int)m->getType();
 					break;

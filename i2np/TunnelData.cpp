@@ -8,7 +8,17 @@ namespace i2pcpp {
 			std::copy(data.cbegin(), data.cbegin() + 1024, m_data.begin());
 		}
 
-		ByteArray TunnelData::getBytes() const
+		uint32_t TunnelData::getTunnelId() const
+		{
+			return m_tunnelId;
+		}
+
+		const StaticByteArray<1024>& TunnelData::getData() const
+		{
+			return m_data;
+		}
+
+		ByteArray TunnelData::compile() const
 		{
 			ByteArray b;
 
@@ -22,15 +32,19 @@ namespace i2pcpp {
 			return b;
 		}
 
-		bool TunnelData::parse(ByteArrayConstItr &begin, ByteArrayConstItr end)
+		TunnelData TunnelData::parse(ByteArrayConstItr &begin, ByteArrayConstItr end)
 		{
-			if(end - begin < 4 + 1024)
-				return false;
+			TunnelData td;
 
-			m_tunnelId = (*(begin++) << 24) | (*(begin++) << 16) | (*(begin++) << 8) | *(begin++);
-			std::copy(begin, begin + 1024, m_data.begin());
+			if(end - begin < (4 + 1024))
+				throw std::runtime_error("invalid tunnel data message");
 
-			return true;
+			td.m_tunnelId = (begin[0] << 24) | (begin[1] << 16) | (begin[2] << 8) | (begin[3]);
+			begin += 4;
+
+			std::copy(begin, begin + 1024, td.m_data.begin());
+
+			return td;
 		}
 	}
 }

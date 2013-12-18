@@ -11,7 +11,7 @@ namespace i2pcpp {
 		uint32_t id, requestTime, nextMsgId;
 		RouterHash rh;
 		SessionKey sk;
-		StaticByteArray<16, true> iv;
+		StaticByteArray<16> iv;
 		auto dataItr = m_data.cbegin();
 
 		if(m_data.size() != 222)
@@ -90,7 +90,7 @@ namespace i2pcpp {
 		SessionKey replyKey = hop.getReplyKey();
 		m_data.insert(m_data.end(), replyKey.cbegin(), replyKey.cend());
 
-		StaticByteArray<16, true> replyIV = hop.getReplyIV();
+		StaticByteArray<16> replyIV = hop.getReplyIV();
 		m_data.insert(m_data.end(), replyIV.cbegin(), replyIV.cbegin() + 16);
 
 		switch(hop.getType()) {

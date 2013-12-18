@@ -86,6 +86,7 @@ namespace i2pcpp {
 						I2NP::MessagePtr msg = I2NP::Message::fromBytes(msgId, m_states[msgId].compile(), true);
 						if(!msg)
 							throw std::runtime_error("error sending router message as an endpoint");
+
 						m_ctx.getOutMsgDisp().sendMessage(ff->getToHash(), msg);
 					}
 

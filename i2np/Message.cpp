@@ -13,89 +13,13 @@
 #include "VariableTunnelBuildReply.h"
 #include "TunnelData.h"
 #include "TunnelGateway.h"
+#include "Garlic.h"
 
 namespace i2pcpp {
 	namespace I2NP {
-		MessagePtr Message::fromBytes(uint32_t const msgId, ByteArray const &data, bool standardHeader)
-		{
-			MessagePtr m;
-
-			auto dataItr = data.cbegin();
-			Type mtype = (Type)*(dataItr++);
-
-			switch(mtype)
-			{
-				case Type::DELIVERY_STATUS:
-					m = std::make_shared<DeliveryStatus>();
-					break;
-
-				case Type::DB_STORE:
-					m = std::make_shared<DatabaseStore>();
-					break;
-
-				case Type::DB_SEARCH_REPLY:
-					m = std::make_shared<DatabaseSearchReply>();
-					break;
-
-				case Type::VARIABLE_TUNNEL_BUILD:
-					m = std::make_shared<VariableTunnelBuild>();
-					break;
-
-				case Type::VARIABLE_TUNNEL_BUILD_REPLY:
-					m = std::make_shared<VariableTunnelBuildReply>();
-					break;
-
-				case Type::TUNNEL_DATA:
-					m = std::make_shared<TunnelData>();
-					break;
-
-				case Type::TUNNEL_GATEWAY:
-					m = std::make_shared<TunnelGateway>();
-					break;
-
-				default:
-					return MessagePtr();
-			}
-
-			m->m_msgId = msgId;
-
-			if(standardHeader) {
-				m->m_msgId = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
-				m->m_longExpiration = Date(dataItr, data.cend());
-
-				uint16_t size = (*(dataItr++) << 8) | *(dataItr++);
-				uint8_t checksum = *dataItr++; // TODO verify this
-
-				if(data.cend() - dataItr != size)
-					throw FormattingError();
-			} else {
-				m->m_expiration = (*(dataItr++) << 24) | (*(dataItr++) << 16) | (*(dataItr++) << 8) | *(dataItr++);
-			}
-
-			if(m->parse(dataItr, data.cend()))
-				return m;
-			else
-				return MessagePtr();
-		}
-
-		Message::Message()
-		{
-			Botan::AutoSeeded_RNG rng;
-
-			rng.randomize((unsigned char *)&m_msgId, sizeof(m_msgId));
-		}
-
-		Message::Message(uint32_t msgId) :
-			m_msgId(msgId) {}
-
-		uint32_t Message::getMsgId() const
-		{
-			return m_msgId;
-		}
-
 		ByteArray Message::toBytes(bool standardHeader) const
 		{
-			ByteArray b(getBytes());
+			ByteArray b(compile());
 
 			if(standardHeader) {
 				Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-256"));
@@ -134,5 +58,125 @@ namespace i2pcpp {
 
 			return b;
 		}
+
+		uint32_t Message::getMsgId() const
+		{
+			return m_msgId;
+		}
+
+		Message::Type Message::getType() const
+		{
+			auto& ti = typeid(*this);
+
+			if(ti == typeid(DeliveryStatus))
+				return Type::DELIVERY_STATUS;
+
+			if(ti == typeid(DatabaseStore))
+				return Type::DB_STORE;
+
+			if(ti == typeid(DatabaseSearchReply))
+				return Type::DB_SEARCH_REPLY;
+
+			if(ti == typeid(VariableTunnelBuild))
+				return Type::VARIABLE_TUNNEL_BUILD;
+
+			if(ti == typeid(VariableTunnelBuildReply))
+				return Type::VARIABLE_TUNNEL_BUILD_REPLY;
+
+			if(ti == typeid(TunnelData))
+				return Type::TUNNEL_DATA;
+
+			if(ti == typeid(TunnelGateway))
+				return Type::TUNNEL_GATEWAY;
+
+			if(ti == typeid(Garlic))
+				return Type::GARLIC;
+
+			throw std::runtime_error("couldn't identify myself");
+		}
+
+		MessagePtr Message::fromBytes(uint32_t msgId, ByteArray const &data, bool standardHeader)
+		{
+			MessagePtr m;
+
+			auto dataItr = data.cbegin();
+			auto end = data.cend();
+
+			Type mtype = (Type)*(dataItr++);
+			Date longExpiration;
+			uint32_t expiration;
+
+			if(standardHeader) {
+				msgId = (dataItr[0] << 24) | (dataItr[1] << 16) | (dataItr[2] << 8) | (dataItr[3]);
+				dataItr += 4;
+
+				longExpiration = Date(dataItr, data.cend());
+
+				uint16_t size = (dataItr[0] << 8) | (dataItr[1]);
+				dataItr += 2;
+
+				uint8_t checksum = *dataItr++; // TODO verify this
+
+				if(data.cend() - dataItr != size)
+					throw std::runtime_error("error parsing I2NP message");
+			} else {
+				expiration = (dataItr[0] << 24) | (dataItr[1] << 16) | (dataItr[2] << 8) | (dataItr[3]);
+				dataItr += 4;
+			}
+
+			switch(mtype)
+			{
+				case Type::DELIVERY_STATUS:
+					m = std::make_shared<DeliveryStatus>(DeliveryStatus::parse(dataItr, end));
+					break;
+
+				case Type::DB_STORE:
+					m = std::make_shared<DatabaseStore>(DatabaseStore::parse(dataItr, end));
+					break;
+
+				case Type::DB_SEARCH_REPLY:
+					m = std::make_shared<DatabaseSearchReply>(DatabaseSearchReply::parse(dataItr, end));
+					break;
+
+				case Type::VARIABLE_TUNNEL_BUILD:
+					m = std::make_shared<VariableTunnelBuild>(VariableTunnelBuild::parse(dataItr, end));
+					break;
+
+				case Type::VARIABLE_TUNNEL_BUILD_REPLY:
+					m = std::make_shared<VariableTunnelBuildReply>(VariableTunnelBuildReply::parse(dataItr, end));
+					break;
+
+				case Type::TUNNEL_DATA:
+					m = std::make_shared<TunnelData>(TunnelData::parse(dataItr, end));
+					break;
+
+				case Type::TUNNEL_GATEWAY:
+					m = std::make_shared<TunnelGateway>(TunnelGateway::parse(dataItr, end));
+					break;
+
+				case Type::GARLIC:
+					m = std::make_shared<Garlic>(Garlic::parse(dataItr, end));
+					break;
+
+				default:
+					return MessagePtr();
+			}
+
+			m->m_msgId = msgId;
+			m->m_longExpiration = longExpiration;
+			m->m_expiration = expiration;
+
+			return m;
+		}
+
+		Message::Message()
+		{
+			Botan::AutoSeeded_RNG rng;
+
+			rng.randomize((unsigned char *)&m_msgId, sizeof(m_msgId));
+		}
+
+		Message::Message(uint32_t msgId) :
+			m_msgId(msgId) {}
 	}
 }

@@ -15,7 +15,7 @@ namespace i2pcpp {
 		public:
 			BuildRecord();
 			BuildRecord(ByteArrayConstItr &begin, ByteArrayConstItr end);
-			virtual ~BuildRecord() {}
+			virtual ~BuildRecord() = default;
 
 			BuildRecord& operator=(BuildRecord const &rec);
 
@@ -23,8 +23,8 @@ namespace i2pcpp {
 
 			void encrypt(ByteArray const &encryptionKey);
 			void decrypt(std::shared_ptr<const Botan::ElGamal_PrivateKey> key);
-			void encrypt(StaticByteArray<16, true> const &iv, SessionKey const &key);
-			void decrypt(StaticByteArray<16, true>  const &iv, SessionKey const &key);
+			void encrypt(StaticByteArray<16> const &iv, SessionKey const &key);
+			void decrypt(StaticByteArray<16>  const &iv, SessionKey const &key);
 
 			void setHeader(const std::array<unsigned char, 16> &header);
 			const std::array<unsigned char, 16>& getHeader() const;

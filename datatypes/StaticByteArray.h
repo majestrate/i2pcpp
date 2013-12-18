@@ -14,7 +14,7 @@
 #include "ByteArray.h"
 
 namespace i2pcpp {
-	template<unsigned int L, bool S = false>
+	template<unsigned int L>
 		class StaticByteArray {
 			public:
 				typedef unsigned char value_type;
@@ -32,8 +32,7 @@ namespace i2pcpp {
 
 				~StaticByteArray()
 				{
-					if(S)
-						m_data.fill(0);
+					m_data.fill(0);
 				}
 
 				StaticByteArray(ByteArray const &b)
