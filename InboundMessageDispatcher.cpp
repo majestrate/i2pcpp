@@ -33,9 +33,9 @@ namespace i2pcpp {
 
 		I2NP::MessagePtr m;
 		if(msgId)
-			m = I2NP::Message::fromBytes(msgId, data);
+			m = I2NP::Message::fromBytes(msgId, data, false);
 		else
-			m = I2NP::Message::fromBytes(0, data, true);
+			m = I2NP::Message::fromBytes(0, data);
 
 		if(m) {
 			switch(m->getType())

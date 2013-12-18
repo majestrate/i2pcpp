@@ -9,6 +9,7 @@
 #include "DeliveryStatus.h"
 #include "DatabaseStore.h"
 #include "DatabaseSearchReply.h"
+#include "DatabaseLookup.h"
 #include "VariableTunnelBuild.h"
 #include "VariableTunnelBuildReply.h"
 #include "TunnelData.h"
@@ -67,6 +68,9 @@ namespace i2pcpp {
 		Message::Type Message::getType() const
 		{
 			auto& ti = typeid(*this);
+
+			if(ti == typeid(DatabaseLookup))
+				return Type::DB_LOOKUP;
 
 			if(ti == typeid(DeliveryStatus))
 				return Type::DELIVERY_STATUS;
@@ -128,6 +132,10 @@ namespace i2pcpp {
 			{
 				case Type::DELIVERY_STATUS:
 					m = std::make_shared<DeliveryStatus>(DeliveryStatus::parse(dataItr, end));
+					break;
+
+				case Type::DB_LOOKUP:
+					m = std::make_shared<DatabaseLookup>(DatabaseLookup::parse(dataItr, end));
 					break;
 
 				case Type::DB_STORE:
