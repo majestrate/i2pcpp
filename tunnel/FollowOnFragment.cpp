@@ -20,6 +20,11 @@ namespace i2pcpp {
 		return m_isLast;
 	}
 
+	uint8_t FollowOnFragment::getFragNum() const
+	{
+		return m_fragNum;
+	}
+
 	ByteArray FollowOnFragment::compile() const
 	{
 		ByteArray output;

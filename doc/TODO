@@ -17,3 +17,4 @@ Upgrade to Boost 1.55.
 Handle edge cases in --importdir.
 Add exceptions with backtrace support.
 #define uint32_t operations
+Get rid of getType() in favor of typeid() where needed.

@@ -3,13 +3,24 @@
 
 #include <list>
 
-#include "Fragment.h"
+#include "FirstFragment.h"
+#include "FollowOnFragment.h"
 
 namespace i2pcpp {
 	class FragmentState {
 		public:
+			void setFirstFragment(std::unique_ptr<FirstFragment> ff);
+			void addFollowOnFragment(FollowOnFragment fof);
+
+			bool isComplete() const;
+			ByteArray compile();
+			const std::unique_ptr<FirstFragment>& getFirstFragment() const;
+
 		private:
-			std::list<FragmentPtr> m_fragments;
+			uint8_t m_lastFragNum = 0;
+
+			std::unique_ptr<FirstFragment> m_firstFragment = nullptr;
+			std::list<FollowOnFragment> m_followOnFragments;
 	};
 }
 
