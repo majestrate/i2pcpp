@@ -11,8 +11,9 @@
 
 #include "InboundTunnel.h"
 #include "OutboundTunnel.h"
-#include "TunnelMessage.h"
-#include "TunnelFragment.h"
+#include "Message.h"
+#include "Fragment.h"
+#include "FragmentHandler.h"
 
 namespace i2pcpp {
 	TunnelManager::TunnelManager(boost::asio::io_service &ios, RouterContext &ctx) :
@@ -122,14 +123,19 @@ namespace i2pcpp {
 				SessionKey k2 = hop->getTunnelLayerKey();
 				Botan::SymmetricKey layerKey(k2.data(), k2.size());
 
-				auto fragments = TunnelFragment::fragmentMessage(data);
-
+				auto fragments = Fragment::fragmentMessage(data);
 				I2P_LOG(m_log, debug) << "we have " << fragments.size() << " fragments";
-				for(auto itr = fragments.cbegin(); itr != fragments.cend(); ++itr) {
-					TunnelMessage msg({std::make_shared<ByteArray>((*itr)->compile())});
-					I2P_LOG(m_log, debug) << "fragment: " << (*itr)->compile();
+
+				for(auto& f: fragments) {
+					I2P_LOG(m_log, debug) << "fragment: " << f->compile();
+
+					std::list<FragmentPtr> x;
+					x.push_back(std::move(f)); // This may or may not be unsafe
+
+					Message msg(x);
+					msg.compile();
 					msg.encrypt(ivKey, layerKey);
-					I2NP::MessagePtr td(new I2NP::TunnelData(hop->getNextTunnelId(), msg.compile()));
+					I2NP::MessagePtr td(new I2NP::TunnelData(hop->getNextTunnelId(), msg.getEncryptedData()));
 					m_ctx.getOutMsgDisp().sendMessage(hop->getNextHash(), td);
 				}
 
@@ -162,30 +168,37 @@ namespace i2pcpp {
 
 		auto itr = m_participating.find(tunnelId);
 		if(itr != m_participating.end()) {
-			I2P_LOG(m_log, debug) << "data is for a known tunnel, encrypting and forwarding";
+			I2P_LOG(m_log, debug) << "data is for a known tunnel";
 
 			TunnelHopPtr hop = itr->second;
+
+			SessionKey k1 = hop->getTunnelIVKey();
+			Botan::SymmetricKey ivKey(k1.data(), k1.size());
+
+			SessionKey k2 = hop->getTunnelLayerKey();
+			Botan::SymmetricKey layerKey(k2.data(), k2.size());
+
+			Message msg(data);
+			msg.encrypt(ivKey, layerKey);
 
 			switch(hop->getType()) {
 				case TunnelHop::Type::PARTICIPANT:
 					{
-						SessionKey k1 = hop->getTunnelIVKey();
-						Botan::SymmetricKey ivKey(k1.data(), k1.size());
+						I2P_LOG(m_log, debug) << "we are a participant, forwarding";
 
-						SessionKey k2 = hop->getTunnelLayerKey();
-						Botan::SymmetricKey layerKey(k2.data(), k2.size());
-
-						TunnelMessage msg(data);
-						msg.encrypt(ivKey, layerKey);
-
-						I2NP::MessagePtr td(new I2NP::TunnelData(hop->getNextTunnelId(), msg.compile()));
+						I2NP::MessagePtr td(new I2NP::TunnelData(hop->getNextTunnelId(), msg.getEncryptedData()));
 						m_ctx.getOutMsgDisp().sendMessage(hop->getNextHash(), td);
 					}
 
 					break;
 
 				case TunnelHop::Type::ENDPOINT:
-					// TODO Collect data, format it into a gateway message, and send it out
+					{
+						I2P_LOG(m_log, debug) << "we are an endpoint, sending to fragment handler";
+
+						m_fragmentHandler.receiveFragments(msg.parse());
+					}
+
 					break;
 
 				default:

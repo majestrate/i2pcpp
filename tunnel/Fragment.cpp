@@ -1,4 +1,4 @@
-#include "TunnelFragment.h"
+#include "Fragment.h"
 
 #include <botan/auto_rng.h>
 
@@ -8,12 +8,17 @@
 #include "FollowOnFragment.h"
 
 namespace i2pcpp {
-	void TunnelFragment::setMsgId(uint32_t id)
+	void Fragment::setMsgId(uint32_t id)
 	{
 		m_msgId = id;
 	}
 
-	ByteArrayConstItr TunnelFragment::setPayload(ByteArrayConstItr begin, ByteArrayConstItr end, uint16_t max)
+	uint32_t Fragment::getMsgId() const
+	{
+		return m_msgId;
+	}
+
+	void Fragment::setPayload(ByteArrayConstItr &begin, ByteArrayConstItr end, uint16_t max)
 	{
 		uint8_t headerLen = headerSize();
 		auto payloadLen = std::distance(begin, end);
@@ -27,14 +32,24 @@ namespace i2pcpp {
 		m_payload.resize(payloadLen);
 		std::copy(begin, end, m_payload.begin());
 
-		return end;
+		begin = end;
 	}
 
-	std::vector<TunnelFragmentPtr> TunnelFragment::fragmentMessage(ByteArray const &data)
+	const ByteArray& Fragment::getPayload() const
+	{
+		return m_payload;
+	}
+
+	uint16_t Fragment::size() const
+	{
+		return headerSize() + m_payload.size();
+	}
+
+	std::vector<FragmentPtr> Fragment::fragmentMessage(ByteArray const &data)
 	{
 		constexpr uint16_t maxSize = 1003;
 
-		std::vector<TunnelFragmentPtr> fragments;
+		std::vector<FragmentPtr> fragments;
 
 		std::unique_ptr<FirstFragment> first = std::make_unique<FirstFragment>();
 		if(first->mustFragment(data.size(), maxSize)) {
@@ -45,42 +60,42 @@ namespace i2pcpp {
 			rng.randomize((unsigned char *)&msgId, sizeof(msgId));
 			first->setMsgId(msgId);
 
-			auto pos = first->setPayload(data.cbegin(), data.cend(), maxSize);
+			auto pos = data.cbegin();
+			auto end = data.cend();
+			first->setPayload(pos, data.cend(), maxSize);
 			fragments.push_back(std::move(first));
 
 			uint8_t fragNum = 1;
-			while(pos != data.cend()) {
+			while(pos != end) {
 				std::unique_ptr<FollowOnFragment> followup = std::make_unique<FollowOnFragment>(msgId, fragNum++);
-				pos = followup->setPayload(pos, data.cend(), maxSize);
+				followup->setPayload(pos, end, maxSize);
 
-				if(pos == data.cend())
+				if(pos == end)
 					followup->setLast(true);
 
 				fragments.push_back(std::move(followup));
 			}
 		} else {
-			first->setPayload(data.cbegin(), data.cend(), maxSize);
+			auto pos = data.cbegin();
+			first->setPayload(pos, data.cend(), maxSize);
 			fragments.push_back(std::move(first));
 		}
 
 		return fragments;
 	}
 
-	std::pair<TunnelFragmentPtr, ByteArrayConstItr> TunnelFragment::parse(ByteArrayConstItr begin, ByteArrayConstItr end)
+	FragmentPtr Fragment::parse(ByteArrayConstItr &begin, ByteArrayConstItr end)
 	{
-		TunnelFragmentPtr fragment;
-
 		size_t size = end - begin;
 
 		if(size < 3)
-			throw std::runtime_error("could not parse TunnelFragment");
+			throw std::runtime_error("could not parse fragment");
 
-		unsigned char flag = *begin++;
-		/*if(flag & 0x80) {
-			fragment = std::make_unique<FollowOnFragment>();
-		} else
-			fragment = std::make_unique<FirstFragment>();*/
-
-		return {TunnelFragmentPtr(), begin};
+		unsigned char flag = *begin;
+		if(flag & 0x80) {
+			return std::make_unique<FollowOnFragment>(FollowOnFragment::parse(begin, end));
+		} else {
+			return std::make_unique<FirstFragment>(FirstFragment::parse(begin, end));
+		}
 	}
 }

@@ -14,6 +14,7 @@
 
 #include "Tunnel.h"
 #include "TunnelHop.h"
+#include "FragmentHandler.h"
 
 namespace i2pcpp {
 	class RouterContext;
@@ -43,6 +44,8 @@ namespace i2pcpp {
 			mutable std::mutex m_pendingMutex;
 			mutable std::mutex m_tunnelsMutex;
 			mutable std::mutex m_participatingMutex;
+
+			FragmentHandler m_fragmentHandler;
 
 			boost::asio::deadline_timer m_timer;
 
