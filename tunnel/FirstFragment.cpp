@@ -51,13 +51,28 @@ namespace i2pcpp {
 		return m_fragmented;
 	}
 
+	uint32_t FirstFragment::getTunnelId() const
+	{
+		return m_tunnelId;
+	}
+
+	const RouterHash& FirstFragment::getToHash() const
+	{
+		return m_toHash;
+	}
+
+	FirstFragment::DeliveryMode FirstFragment::getDeliveryMode() const
+	{
+		return m_mode;
+	}
+
 	FirstFragment FirstFragment::parse(ByteArrayConstItr &begin, ByteArrayConstItr end)
 	{
 		FirstFragment ff;
 
 		unsigned char flag = *(begin++);
 		ff.m_mode = (DeliveryMode)((flag >> 5) & 0x03);
-		ff.m_fragmented = flag >> 3;
+		ff.m_fragmented = flag & (1 << 3);
 
 		switch(ff.m_mode) {
 			case DeliveryMode::TUNNEL:
@@ -68,8 +83,14 @@ namespace i2pcpp {
 
 				break;
 
-			default: // TODO
+			case DeliveryMode::ROUTER:
+				std::copy(begin, begin + 32, ff.m_toHash.begin());
+				begin += 32;
+
 				break;
+
+			default:
+				throw std::runtime_error("unhandled first fragment delivery mode");
 		};
 
 		if(ff.m_fragmented) {

@@ -11,6 +11,8 @@ namespace i2pcpp {
 			void setLast(bool isLast);
 			bool isLast() const;
 
+			uint8_t getFragNum() const;
+
 			ByteArray compile() const;
 
 			static FollowOnFragment parse(ByteArrayConstItr &begin, ByteArrayConstItr end);

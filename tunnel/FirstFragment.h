@@ -14,13 +14,16 @@ namespace i2pcpp {
 				ROUTER = 0x02
 			};
 
-			FirstFragment() = default;
-
 			ByteArray compile() const;
 
 			bool mustFragment(uint16_t desiredSize, uint16_t max) const;
 			void setFragmented(bool f);
 			bool isFragmented() const;
+
+			uint32_t getTunnelId() const;
+			const RouterHash& getToHash() const;
+
+			DeliveryMode getDeliveryMode() const;
 
 			static FirstFragment parse(ByteArrayConstItr &begin, ByteArrayConstItr end);
 

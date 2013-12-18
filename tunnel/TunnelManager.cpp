@@ -19,6 +19,7 @@ namespace i2pcpp {
 	TunnelManager::TunnelManager(boost::asio::io_service &ios, RouterContext &ctx) :
 		m_ios(ios),
 		m_ctx(ctx),
+		m_fragmentHandler(ctx),
 		m_timer(m_ios, boost::posix_time::time_duration(0, 0, 1)),
 		m_log(boost::log::keywords::channel = "TM") {}
 
