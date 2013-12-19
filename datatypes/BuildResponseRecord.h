@@ -18,7 +18,7 @@ namespace i2pcpp {
 			BuildResponseRecord(Reply r);
 			BuildResponseRecord(const BuildRecord &r);
 
-			bool parse();
+			void parse();
 			void compile();
 
 			Reply getReply() const;

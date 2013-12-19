@@ -15,11 +15,12 @@
 #include "ByteArray.h"
 
 namespace i2pcpp {
-	template<unsigned int L>
+	template<std::size_t L>
 		class StaticByteArray {
 			public:
 				typedef unsigned char value_type;
 				typedef typename std::array<value_type, L>::size_type size_type;
+				typedef typename std::array<value_type, L>::pointer pointer;
 
 				StaticByteArray()
 				{
@@ -39,7 +40,7 @@ namespace i2pcpp {
 				StaticByteArray(ByteArray const &b)
 				{
 					if(b.size() < L)
-						std::copy(b.cbegin(), b.cbegin() + b.size(), m_data.begin());
+						std::copy(b.cbegin(), b.cend(), m_data.begin());
 					else
 						std::copy(b.cbegin(), b.cbegin() + L, m_data.begin());
 				}
@@ -143,7 +144,7 @@ namespace i2pcpp {
 				std::array<value_type, L> m_data;
 		};
 
-	template<unsigned int L>
+	template<std::size_t L>
 	std::ostream& operator<<(std::ostream &s, StaticByteArray<L> const &sba)
 	{
 		s << std::string(sba);
@@ -152,7 +153,7 @@ namespace i2pcpp {
 }
 
 namespace std {
-	template<unsigned int L>
+	template<std::size_t L>
 		struct hash<i2pcpp::StaticByteArray<L>> {
 			public:
 				size_t operator()(const i2pcpp::StaticByteArray<L> &sba) const

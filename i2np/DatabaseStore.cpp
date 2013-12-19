@@ -67,7 +67,7 @@ namespace i2pcpp {
 			}
 
 			uint16_t size = (begin[0] << 8) | (begin[1]);
-			size += 2;
+			begin += 2;
 
 			ds.m_data = ByteArray(begin, begin + size);
 

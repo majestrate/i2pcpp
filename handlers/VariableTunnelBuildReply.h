@@ -9,7 +9,6 @@ namespace i2pcpp {
 			public:
 				VariableTunnelBuildReply(RouterContext &ctx);
 
-				I2NP::Message::Type getType() const;
 				void handleMessage(RouterHash const from, I2NP::MessagePtr const msg);
 
 			private:

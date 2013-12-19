@@ -145,50 +145,46 @@ namespace i2pcpp {
 
 		ByteArray EstablishmentState::calculateCreationSignature(const uint32_t signedOn)
 		{
-			Botan::AutoSeeded_RNG rng;
+			Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-1"));
 
-			Botan::Pipe sigPipe(
-					new Botan::Hash_Filter("SHA-1"),
-					new Botan::PK_Signer_Filter(
-						new Botan::PK_Signer(m_dsaKey, "Raw"),
-						rng
-						));
+			hashPipe.start_msg();
 
-			sigPipe.start_msg();
-
-			sigPipe.write(m_theirDH.data(), m_theirDH.size());
+			hashPipe.write(m_theirDH.data(), m_theirDH.size());
 			const ByteArray myDH(m_dhKey->public_value());
-			sigPipe.write(myDH.data(), myDH.size());
+			hashPipe.write(myDH.data(), myDH.size());
 
 			const ByteArray theirIP = m_theirEndpoint.getRawIP();
 			unsigned short theirPort = m_theirEndpoint.getPort();
-			sigPipe.write(theirIP.data(), theirIP.size());
-			sigPipe.write(theirPort >> 8);
-			sigPipe.write(theirPort);
+			hashPipe.write(theirIP.data(), theirIP.size());
+			hashPipe.write(theirPort >> 8);
+			hashPipe.write(theirPort);
 
 			const ByteArray myIP = m_myEndpoint.getRawIP();
 			unsigned short myPort =  m_myEndpoint.getPort();
-			sigPipe.write(myIP.data(), myIP.size());
-			sigPipe.write(myPort >> 8);
-			sigPipe.write(myPort);
+			hashPipe.write(myIP.data(), myIP.size());
+			hashPipe.write(myPort >> 8);
+			hashPipe.write(myPort);
 
-			sigPipe.write(m_relayTag >> 24);
-			sigPipe.write(m_relayTag >> 16);
-			sigPipe.write(m_relayTag >> 8);
-			sigPipe.write(m_relayTag);
+			hashPipe.write(m_relayTag >> 24);
+			hashPipe.write(m_relayTag >> 16);
+			hashPipe.write(m_relayTag >> 8);
+			hashPipe.write(m_relayTag);
 
-			sigPipe.write(signedOn >> 24);
-			sigPipe.write(signedOn >> 16);
-			sigPipe.write(signedOn >> 8);
-			sigPipe.write(signedOn);
+			hashPipe.write(signedOn >> 24);
+			hashPipe.write(signedOn >> 16);
+			hashPipe.write(signedOn >> 8);
+			hashPipe.write(signedOn);
 
-			sigPipe.end_msg();
+			hashPipe.end_msg();
 
-			size_t size = sigPipe.remaining();
-			ByteArray signature(size);
-			sigPipe.read(signature.data(), size);
+			ByteArray hash(20);
+			hashPipe.read(hash.data(), 20);
 
-			unsigned char padSize = 16 - (size % 16);
+			Botan::AutoSeeded_RNG rng;
+			Botan::PK_Signer *pks = new Botan::PK_Signer(m_dsaKey, "Raw");
+			ByteArray signature = pks->sign_message(hash, rng);
+
+			unsigned char padSize = 16 - (signature.size() % 16);
 			if(padSize < 16)
 				signature.insert(signature.end(), padSize, padSize);
 
@@ -197,7 +193,7 @@ namespace i2pcpp {
 			Botan::Pipe encPipe(get_cipher("AES-256/CBC/NoPadding", encKey, m_iv, Botan::ENCRYPTION));
 			encPipe.process_msg(signature.data(), signature.size());
 
-			size = encPipe.remaining();
+			size_t size = encPipe.remaining();
 			ByteArray encSignature(size);
 			encPipe.read(encSignature.data(), size);
 
@@ -206,41 +202,44 @@ namespace i2pcpp {
 
 		ByteArray EstablishmentState::calculateConfirmationSignature(const uint32_t signedOn) const
 		{
-			Botan::AutoSeeded_RNG rng;
+			Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-1"));
 
-			Botan::Pipe sigPipe(new Botan::Hash_Filter("SHA-1"), new Botan::PK_Signer_Filter(new Botan::PK_Signer(m_dsaKey, "Raw"), rng));
-			sigPipe.start_msg();
+			hashPipe.start_msg();
 
 			const ByteArray myDH(m_dhKey->public_value());
-			sigPipe.write(myDH.data(), myDH.size());
-			sigPipe.write(m_theirDH.data(), m_theirDH.size());
+			hashPipe.write(myDH.data(), myDH.size());
+			hashPipe.write(m_theirDH.data(), m_theirDH.size());
 
 			const ByteArray myIP = m_myEndpoint.getRawIP();
 			unsigned short myPort =  m_myEndpoint.getPort();
-			sigPipe.write(myIP.data(), myIP.size());
-			sigPipe.write(myPort >> 8);
-			sigPipe.write(myPort);
+			hashPipe.write(myIP.data(), myIP.size());
+			hashPipe.write(myPort >> 8);
+			hashPipe.write(myPort);
 
 			const ByteArray theirIP = m_theirEndpoint.getRawIP();
 			unsigned short theirPort = m_theirEndpoint.getPort();
-			sigPipe.write(theirIP.data(), theirIP.size());
-			sigPipe.write(theirPort >> 8);
-			sigPipe.write(theirPort);
+			hashPipe.write(theirIP.data(), theirIP.size());
+			hashPipe.write(theirPort >> 8);
+			hashPipe.write(theirPort);
 
-			sigPipe.write(m_relayTag >> 24);
-			sigPipe.write(m_relayTag >> 16);
-			sigPipe.write(m_relayTag >> 8);
-			sigPipe.write(m_relayTag);
+			hashPipe.write(m_relayTag >> 24);
+			hashPipe.write(m_relayTag >> 16);
+			hashPipe.write(m_relayTag >> 8);
+			hashPipe.write(m_relayTag);
 
-			sigPipe.write(signedOn >> 24);
-			sigPipe.write(signedOn >> 16);
-			sigPipe.write(signedOn >> 8);
-			sigPipe.write(signedOn);
+			hashPipe.write(signedOn >> 24);
+			hashPipe.write(signedOn >> 16);
+			hashPipe.write(signedOn >> 8);
+			hashPipe.write(signedOn);
 
-			sigPipe.end_msg();
+			hashPipe.end_msg();
 
-			ByteArray signature(sigPipe.remaining());
-			sigPipe.read(signature.data(), sigPipe.remaining());
+			ByteArray hash(20);
+			hashPipe.read(hash.data(), 20);
+
+			Botan::AutoSeeded_RNG rng;
+			Botan::PK_Signer *pks = new Botan::PK_Signer(m_dsaKey, "Raw");
+			ByteArray signature = pks->sign_message(hash, rng);
 
 			return signature;
 		}
@@ -259,41 +258,44 @@ namespace i2pcpp {
 			const ByteArray dsaKeyBytes = m_theirIdentity->getSigningKey();
 			Botan::DSA_PublicKey dsaKey(DH::getGroup(), Botan::BigInt(dsaKeyBytes.data(), dsaKeyBytes.size()));
 
-			Botan::Pipe sigPipe(new Botan::Hash_Filter("SHA-1"), new Botan::PK_Verifier_Filter(new Botan::PK_Verifier(dsaKey, "Raw"), decryptedSig));
-			sigPipe.start_msg();
+			Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-1"));
+			hashPipe.start_msg();
 
 			const ByteArray& myDH(m_dhKey->public_value());
-			sigPipe.write(myDH.data(), myDH.size());
-			sigPipe.write(m_theirDH.data(), m_theirDH.size());
+			hashPipe.write(myDH.data(), myDH.size());
+			hashPipe.write(m_theirDH.data(), m_theirDH.size());
 
 			const ByteArray myIP = m_myEndpoint.getRawIP();
 			unsigned short myPort =  m_myEndpoint.getPort();
-			sigPipe.write(myIP.data(), myIP.size());
-			sigPipe.write(myPort >> 8);
-			sigPipe.write(myPort);
+			hashPipe.write(myIP.data(), myIP.size());
+			hashPipe.write(myPort >> 8);
+			hashPipe.write(myPort);
 
 			const ByteArray theirIP = m_theirEndpoint.getRawIP();
 			unsigned short theirPort = m_theirEndpoint.getPort();
-			sigPipe.write(theirIP.data(), theirIP.size());
-			sigPipe.write(theirPort >> 8);
-			sigPipe.write(theirPort);
+			hashPipe.write(theirIP.data(), theirIP.size());
+			hashPipe.write(theirPort >> 8);
+			hashPipe.write(theirPort);
 
-			sigPipe.write(m_relayTag >> 24);
-			sigPipe.write(m_relayTag >> 16);
-			sigPipe.write(m_relayTag >> 8);
-			sigPipe.write(m_relayTag);
+			hashPipe.write(m_relayTag >> 24);
+			hashPipe.write(m_relayTag >> 16);
+			hashPipe.write(m_relayTag >> 8);
+			hashPipe.write(m_relayTag);
 
-			sigPipe.write(m_signatureTimestamp >> 24);
-			sigPipe.write(m_signatureTimestamp >> 16);
-			sigPipe.write(m_signatureTimestamp >> 8);
-			sigPipe.write(m_signatureTimestamp);
+			hashPipe.write(m_signatureTimestamp >> 24);
+			hashPipe.write(m_signatureTimestamp >> 16);
+			hashPipe.write(m_signatureTimestamp >> 8);
+			hashPipe.write(m_signatureTimestamp);
 
-			sigPipe.end_msg();
+			hashPipe.end_msg();
 
-			unsigned char verified;
-			sigPipe.read(&verified, 1);
+			ByteArray hash(20);
+			hashPipe.read(hash.data(), 20);
 
-			return verified;
+			Botan::AutoSeeded_RNG rng;
+			Botan::PK_Verifier *pkv = new Botan::PK_Verifier(dsaKey, "Raw");
+
+			return pkv->verify_message(hash, decryptedSig);
 		}
 
 		bool EstablishmentState::verifyConfirmationSignature() const
@@ -301,42 +303,43 @@ namespace i2pcpp {
 			const ByteArray dsaKeyBytes = m_theirIdentity->getSigningKey();
 			Botan::DSA_PublicKey dsaKey(DH::getGroup(), Botan::BigInt(dsaKeyBytes.data(), dsaKeyBytes.size()));
 
-			Botan::secure_vector<Botan::byte> sig(m_signature.cbegin(), m_signature.cend());
-			Botan::Pipe sigPipe(new Botan::Hash_Filter("SHA-1"), new Botan::PK_Verifier_Filter(new Botan::PK_Verifier(dsaKey, "Raw"), sig));
-			sigPipe.start_msg();
+			Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-1"));
+			hashPipe.start_msg();
 
-			sigPipe.write(m_theirDH.data(), m_theirDH.size());
+			hashPipe.write(m_theirDH.data(), m_theirDH.size());
 			const ByteArray& myDH(m_dhKey->public_value());
-			sigPipe.write(myDH.data(), myDH.size());
+			hashPipe.write(myDH.data(), myDH.size());
 
 			const ByteArray theirIP = m_theirEndpoint.getRawIP();
 			unsigned short theirPort = m_theirEndpoint.getPort();
-			sigPipe.write(theirIP.data(), theirIP.size());
-			sigPipe.write(theirPort >> 8);
-			sigPipe.write(theirPort);
+			hashPipe.write(theirIP.data(), theirIP.size());
+			hashPipe.write(theirPort >> 8);
+			hashPipe.write(theirPort);
 
 			const ByteArray myIP = m_myEndpoint.getRawIP();
 			unsigned short myPort =  m_myEndpoint.getPort();
-			sigPipe.write(myIP.data(), myIP.size());
-			sigPipe.write(myPort >> 8);
-			sigPipe.write(myPort);
+			hashPipe.write(myIP.data(), myIP.size());
+			hashPipe.write(myPort >> 8);
+			hashPipe.write(myPort);
 
-			sigPipe.write(m_relayTag >> 24);
-			sigPipe.write(m_relayTag >> 16);
-			sigPipe.write(m_relayTag >> 8);
-			sigPipe.write(m_relayTag);
+			hashPipe.write(m_relayTag >> 24);
+			hashPipe.write(m_relayTag >> 16);
+			hashPipe.write(m_relayTag >> 8);
+			hashPipe.write(m_relayTag);
 
-			sigPipe.write(m_signatureTimestamp >> 24);
-			sigPipe.write(m_signatureTimestamp >> 16);
-			sigPipe.write(m_signatureTimestamp >> 8);
-			sigPipe.write(m_signatureTimestamp);
+			hashPipe.write(m_signatureTimestamp >> 24);
+			hashPipe.write(m_signatureTimestamp >> 16);
+			hashPipe.write(m_signatureTimestamp >> 8);
+			hashPipe.write(m_signatureTimestamp);
 
-			sigPipe.end_msg();
+			hashPipe.end_msg();
 
-			unsigned char verified;
-			sigPipe.read(&verified, 1);
+			ByteArray hash(20);
+			hashPipe.read(hash.data(), 20);
 
-			return verified;
+			Botan::PK_Verifier *pkv = new Botan::PK_Verifier(dsaKey, "Raw");
+
+			return pkv->verify_message(hash, m_signature);
 		}
 
 		void EstablishmentState::calculateDHSecret()

@@ -25,7 +25,7 @@ namespace i2pcpp {
 					VARIABLE_TUNNEL_BUILD_REPLY = 24
 				};
 
-				virtual ~Message() = default;
+				virtual ~Message() {}
 
 				ByteArray toBytes(bool standardHeader = true) const;
 				uint32_t getMsgId() const;

@@ -15,50 +15,40 @@ namespace i2pcpp {
 	BuildResponseRecord::BuildResponseRecord(Reply r) :
 		m_reply(r) {}
 
-	bool BuildResponseRecord::parse()
+	void BuildResponseRecord::parse()
 	{
-		m_reply = (Reply)m_data.back();
-
 		Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-256"));
 		hashPipe.start_msg();
-		hashPipe.write(m_data.data() + 16, m_data.size() - 16);
+		hashPipe.write(m_data.data() + 16, 496);
 		hashPipe.end_msg();
 
-		size_t size = hashPipe.remaining();
-		ByteArray calcHash(size);
-		hashPipe.read(calcHash.data(), size);
+		std::array<unsigned char, 32> calcHash;
+		hashPipe.read(calcHash.data(), 32);
 
-		ByteArray givenHash(32);
+		std::array<unsigned char, 32> givenHash;
 		std::copy(m_header.cbegin(), m_header.cend(), givenHash.begin());
 		std::copy(m_data.cbegin(), m_data.cbegin() + 16, givenHash.begin() + m_header.size());
 
 		if(givenHash != calcHash)
-			return false;
+			throw std::runtime_error("hash verification failed in BuildResponseRecord");
 
-		return true;
+		m_reply = (Reply)m_data[527];
 	}
 
 	void BuildResponseRecord::compile()
 	{
 		Botan::AutoSeeded_RNG rng;
 
-		ByteArray response(496);
-		rng.randomize(response.data(), 495);
-		response[495] = (unsigned char)m_reply;
+		rng.randomize(m_data.data() + 16, 495);
+		m_data[527] = (unsigned char)m_reply;
 
 		Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-256"));
 		hashPipe.start_msg();
-		hashPipe.write(response.data(), response.size());
+		hashPipe.write(m_data.data() + 16, 496);
 		hashPipe.end_msg();
 
-		size_t size = hashPipe.remaining();
-		if(size != 32)
-			throw std::runtime_error("hash is not 32 bytes");
-
 		hashPipe.read(m_header.data(), 16);
-		m_data.resize(512);
 		hashPipe.read(m_data.data(), 16);
-		std::copy(response.cbegin(), response.cend(), m_data.begin() + 16);
 	}
 
 	BuildResponseRecord::Reply BuildResponseRecord::getReply() const

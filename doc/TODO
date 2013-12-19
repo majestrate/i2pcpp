@@ -1,8 +1,3 @@
-Do not use PK_Encryptor_Filter since it is abstract.
-Roll my own Zlib_(De)compression class.
-After the above two are complete, remove the need to patch Botan.
-Remove typedefs for iterators.
-Make the begin/end iterator stuff more flexible (return an iterator instead of passing by reference).
 Comment/document the code.
 Convert shared_ptr --> unique_ptr where necessary.
 Double check locking requirements. Ensure that locking is initiated by the object which owns the data to be locked (etc).
@@ -11,10 +6,6 @@ JSON-RPC and HTML5 control panel.
 Convert everything in tunnel/ to its own namespace.
 Investigate text based configuration.
 Identify and use c++11 algorithms where possible.
-Separate out the parsing/compiling code to mimick the style of std::cout.
-Investigate the use of Boost.MSM for SSU.
-Upgrade to Boost 1.55.
 Handle edge cases in --importdir.
 Add exceptions with backtrace support.
-#define uint32_t operations
-Get rid of getType() in favor of typeid() where needed.
+Write unit tests.

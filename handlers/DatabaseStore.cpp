@@ -1,8 +1,8 @@
 #include "DatabaseStore.h"
 
 #include <botan/pipe.h>
-#include <botan/zlib.h>
 
+#include "../util/gzip.h"
 #include "../i2np/DatabaseStore.h"
 
 #include "../RouterContext.h"
@@ -13,11 +13,6 @@ namespace i2pcpp {
 			Message(ctx),
 			m_log(boost::log::keywords::channel = "H[DSto]") {}
 
-		I2NP::Message::Type DatabaseStore::getType() const
-		{
-			return I2NP::Message::Type::DB_STORE;
-		}
-
 		void DatabaseStore::handleMessage(RouterHash const from, I2NP::MessagePtr const msg)
 		{
 			try {
@@ -26,7 +21,7 @@ namespace i2pcpp {
 				I2P_LOG_SCOPED_TAG(m_log, "RouterHash", from);
 				I2P_LOG(m_log, debug) << "received DatabaseStore message";
 
-				Botan::Pipe ungzPipe(new Botan::Zlib_Decompression);
+				Botan::Pipe ungzPipe(new Gzip_Decompression);
 
 				switch(dsm->getDataType()) {
 					case I2NP::DatabaseStore::DataType::ROUTER_INFO:
@@ -61,7 +56,7 @@ namespace i2pcpp {
 						break;
 				}
 			} catch(Botan::Decoding_Error &e) {
-				I2P_LOG(m_log, error) << "problem decompressing data";
+				I2P_LOG(m_log, error) << "problem decompressing data: " << e.what();
 			}
 		}
 	}

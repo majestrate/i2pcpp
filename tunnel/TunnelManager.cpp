@@ -59,7 +59,7 @@ namespace i2pcpp {
 		}
 
 		RouterHash myHash = m_ctx.getIdentity()->getHash();
-		std::array<unsigned char, 16> myTruncatedHash;
+		StaticByteArray<16> myTruncatedHash;
 		std::copy(myHash.cbegin(), myHash.cbegin() + 16, myTruncatedHash.begin());
 
 		auto itr = std::find_if(records.begin(), records.end(), [myTruncatedHash](BuildRecordPtr const &r) { return (myTruncatedHash == r->getHeader()); });

@@ -77,6 +77,7 @@ set(SRCS
 	util/Base64.cpp
 	util/I2PDH.cpp
 	util/I2PHMAC.cpp
+	util/gzip.cpp
 	)
 
 set(TEST_SRCS

@@ -21,7 +21,7 @@ namespace i2pcpp {
 			auto record = std::make_shared<BuildRequestRecord>();
 
 			const RouterHash hopHash = (*h)->getLocalHash();
-			std::array<unsigned char, 16> truncatedHash;
+			StaticByteArray<16> truncatedHash;
 			std::copy(hopHash.cbegin(), hopHash.cbegin() + 16, truncatedHash.begin());
 			record->setHeader(truncatedHash);
 
@@ -61,13 +61,12 @@ namespace i2pcpp {
 
 			for(auto r: records) {
 				BuildResponseRecord resp = *r;
-				if(resp.parse()) {
-					if(resp.getReply() == BuildResponseRecord::Reply::SUCCESS) {
-						// TODO Record the success in the router's profile.
-					} else {
-						// TODO Record the failure in the router's profile.
-						allgood = false;
-					}
+				resp.parse();
+				if(resp.getReply() == BuildResponseRecord::Reply::SUCCESS) {
+					// TODO Record the success in the router's profile.
+				} else {
+					// TODO Record the failure in the router's profile.
+					allgood = false;
 				}
 			}
 		}

@@ -12,8 +12,8 @@ i2pcpp is an I2P router written in C++11 by orion. It is targeted for the advanc
 
 To compile, you will require the following components:
 
-* [Botan 1.11.4][1]
-* [boost 1.54.0][2]
+* [Botan 1.11.5][1]
+* [boost 1.55.0][2]
 * [cmake 2.8.11.2][3] or greater
 * [sqlite 3.8.0.2][4] or greater
 
@@ -22,10 +22,6 @@ Optional components:
 * [googletest][5] for unit testing
 
 clang 3.3+ is the only officially supported compiler, but there is an honest effort to be compatible with g++. i2pcpp will always work on the latest version of FreeBSD.
-
-### Patches
-
-Certain small changes to the botan library were required to fix compilation errors and prevent crashes. These changes are stored in a patch file in the `doc/` directory. You must have botan compiled with zlib support.
 
 ### Using cmake
 
