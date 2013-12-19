@@ -160,6 +160,11 @@ endif(SQLITE3_LIBRARY_PATH AND SQLITE3_INCLUDE_DIR)
 include_directories(BEFORE i2p "${SQLITE3_INCLUDE_DIR}")
 target_link_libraries(i2p "${SQLITE3_LIBRARY_PATH}")
 
+# zlib
+find_package(ZLIB REQUIRED)
+include_directories(BEFORE i2p ${ZLIB_INCLUDE_DIR}) 
+target_link_libraries(i2p ${ZLIB_LIBRARIES})
+
 # Botan
 find_path(BOTAN_INCLUDE_DIR botan/botan.h PATHS "${BOTAN_INCLUDE_PREFIX}" NO_DEFAULT_PATH)
 find_path(BOTAN_INCLUDE_DIR botan/botan.h)
