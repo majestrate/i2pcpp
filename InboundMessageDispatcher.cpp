@@ -5,8 +5,8 @@
 #include <boost/bind.hpp>
 
 #include <botan/auto_rng.h>
-#include <botan/zlib.h>
 
+#include "util/gzip.h"
 #include "i2np/DeliveryStatus.h"
 #include "i2np/DatabaseStore.h"
 
@@ -100,16 +100,16 @@ namespace i2pcpp {
 			RouterAddress a(5, Date(0), "SSU", am);
 
 			Mapping rm;
-			rm.setValue("coreVersion", "0.9.8.1");
+			rm.setValue("coreVersion", "0.9.9");
 			rm.setValue("netId", "2");
-			rm.setValue("router.version", "0.9.8.1");
+			rm.setValue("router.version", "0.9.9");
 			rm.setValue("stat_uptime", "90m");
 			rm.setValue("caps", "OR");
 			RouterInfo myInfo(*m_ctx.getIdentity(), Date(), rm);
 			myInfo.addAddress(a);
 			myInfo.sign(m_ctx.getSigningKey());
 
-			Botan::Pipe gzPipe(new Botan::Zlib_Compression);
+			Botan::Pipe gzPipe(new Gzip_Compression);
 			gzPipe.start_msg();
 			gzPipe.write(myInfo.serialize());
 			gzPipe.end_msg();

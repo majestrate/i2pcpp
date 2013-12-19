@@ -11,7 +11,7 @@
 namespace i2pcpp {
 	class Fragment {
 		public:
-			virtual ~Fragment() = default;
+			virtual ~Fragment() {}
 
 			void setMsgId(uint32_t id);
 			uint32_t getMsgId() const;

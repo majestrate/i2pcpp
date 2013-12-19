@@ -48,29 +48,34 @@ namespace i2pcpp {
 
 	bool RouterInfo::verifySignature() const
 	{
-		const ByteArray&& dsaKeyBytes = m_identity.getSigningKey();
+		Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-1"));
+		hashPipe.start_msg();
+		hashPipe.write(getSignedBytes());
+		hashPipe.end_msg();
+
+		ByteArray hash(20);
+		hashPipe.read(hash.data(), 20);
+
+		const ByteArray& dsaKeyBytes = m_identity.getSigningKey();
 		Botan::DSA_PublicKey dsaKey(DH::getGroup(), Botan::BigInt(dsaKeyBytes.data(), dsaKeyBytes.size()));
-		Botan::Pipe sigPipe(new Botan::Hash_Filter("SHA-1"), new Botan::PK_Verifier_Filter(new Botan::PK_Verifier(dsaKey, "Raw"), m_signature.data(), m_signature.size()));
-		sigPipe.start_msg();
-		sigPipe.write(getSignedBytes());
-		sigPipe.end_msg();
+		Botan::PK_Verifier *pkv = new Botan::PK_Verifier(dsaKey, "Raw");
 
-		unsigned char verified;
-		sigPipe.read(&verified, 1);
-
-		return verified;
+		return pkv->verify_message(hash, m_signature);
 	}
 
 	void RouterInfo::sign(std::shared_ptr<const Botan::DSA_PrivateKey> signingKey)
 	{
+		Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-1"));
+		hashPipe.start_msg();
+		hashPipe.write(getSignedBytes());
+		hashPipe.end_msg();
+
+		ByteArray hash(20);
+		hashPipe.read(hash.data(), 20);
+
 		Botan::AutoSeeded_RNG rng;
-		Botan::Pipe sigPipe(new Botan::Hash_Filter("SHA-1"), new Botan::PK_Signer_Filter(new Botan::PK_Signer(*signingKey, "Raw"), rng));
-
-		sigPipe.start_msg();
-		sigPipe.write(getSignedBytes());
-		sigPipe.end_msg();
-
-		sigPipe.read(m_signature.data(), 40);
+		Botan::PK_Signer *pks = new Botan::PK_Signer(*signingKey, "Raw");
+		m_signature = pks->sign_message(hash, rng);
 	}
 
 	const RouterAddress& RouterInfo::getAddress(const int index) const
@@ -122,7 +127,7 @@ namespace i2pcpp {
 
 		b.insert(b.end(), m_addresses.size());
 		for(auto& a: m_addresses) {
-			const ByteArray&& addr = a.serialize();
+			const ByteArray& addr = a.serialize();
 			b.insert(b.end(), addr.cbegin(), addr.cend());
 		}
 

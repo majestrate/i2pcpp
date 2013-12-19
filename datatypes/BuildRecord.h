@@ -13,11 +13,9 @@
 namespace i2pcpp {
 	class BuildRecord : public Datatype {
 		public:
-			BuildRecord();
+			BuildRecord() = default;
 			BuildRecord(ByteArrayConstItr &begin, ByteArrayConstItr end);
-			virtual ~BuildRecord() = default;
-
-			BuildRecord& operator=(BuildRecord const &rec);
+			virtual ~BuildRecord() {}
 
 			ByteArray serialize() const;
 
@@ -26,12 +24,12 @@ namespace i2pcpp {
 			void encrypt(StaticByteArray<16> const &iv, SessionKey const &key);
 			void decrypt(StaticByteArray<16>  const &iv, SessionKey const &key);
 
-			void setHeader(const std::array<unsigned char, 16> &header);
-			const std::array<unsigned char, 16>& getHeader() const;
+			void setHeader(StaticByteArray<16> const &header);
+			const StaticByteArray<16>& getHeader() const;
 
 		protected:
-			std::array<unsigned char, 16> m_header;
-			ByteArray m_data;
+			StaticByteArray<16> m_header;
+			StaticByteArray<512> m_data;
 	};
 
 	typedef std::shared_ptr<BuildRecord> BuildRecordPtr;
