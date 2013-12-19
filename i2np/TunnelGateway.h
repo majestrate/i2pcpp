@@ -9,17 +9,17 @@ namespace i2pcpp {
 	namespace I2NP {
 		class TunnelGateway : public Message {
 			public:
-				TunnelGateway() {}
-				TunnelGateway(uint32_t const tunnelId, ByteArray const &data) : m_tunnelId(tunnelId), m_data(data) {}
+				TunnelGateway(uint32_t const tunnelId, ByteArray const &data);
 
-				Message::Type getType() const { return Message::Type::TUNNEL_GATEWAY; }
+				uint32_t getTunnelId() const;
+				const ByteArray& getData() const;
 
-				uint32_t getTunnelId() const { return m_tunnelId; }
-				const ByteArray& getData() const { return m_data; }
+				static TunnelGateway parse(ByteArrayConstItr &begin, ByteArrayConstItr end);
 
 			protected:
-				ByteArray getBytes() const;
-				bool parse(ByteArrayConstItr &begin, ByteArrayConstItr end);
+				TunnelGateway() = default;
+
+				ByteArray compile() const;
 
 			private:
 				uint32_t m_tunnelId;

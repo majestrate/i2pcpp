@@ -63,7 +63,7 @@ namespace i2pcpp {
 		m_replyKey = replyKey;
 	}
 
-	void TunnelHop::setReplyIV(StaticByteArray<16, true> const &replyIV)
+	void TunnelHop::setReplyIV(StaticByteArray<16> const &replyIV)
 	{
 		m_replyIV = replyIV;
 	}
@@ -118,7 +118,7 @@ namespace i2pcpp {
 		return m_replyKey;
 	}
 
-	StaticByteArray<16, true> TunnelHop::getReplyIV() const
+	StaticByteArray<16> TunnelHop::getReplyIV() const
 	{
 		return m_replyIV;
 	}

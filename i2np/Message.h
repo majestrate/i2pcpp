@@ -10,8 +10,6 @@ namespace i2pcpp {
 	namespace I2NP {
 		class Message {
 			public:
-				virtual ~Message() {}
-
 				enum class Type {
 					DB_STORE = 1,
 					DB_LOOKUP = 2,
@@ -27,17 +25,19 @@ namespace i2pcpp {
 					VARIABLE_TUNNEL_BUILD_REPLY = 24
 				};
 
-				static std::shared_ptr<Message> fromBytes(uint32_t const msgId, ByteArray const &data, bool standardHeader = false);
+				virtual ~Message() = default;
 
-				ByteArray toBytes() const;
+				ByteArray toBytes(bool standardHeader = true) const;
 				uint32_t getMsgId() const;
-				virtual Type getType() const = 0;
+				Type getType() const;
+
+				static std::shared_ptr<Message> fromBytes(uint32_t msgId, ByteArray const &data, bool standardHeader = true);
 
 			protected:
 				Message();
 				Message(uint32_t msgId);
-				virtual ByteArray getBytes() const = 0;
-				virtual bool parse(ByteArrayConstItr &begin, ByteArrayConstItr end) = 0;
+
+				virtual ByteArray compile() const = 0;
 
 				uint32_t m_msgId;
 				uint32_t m_expiration;

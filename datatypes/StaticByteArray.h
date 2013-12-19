@@ -14,7 +14,6 @@
 #include <iomanip>
 
 #include "../util/Base64.h"
-#include "../exceptions/FormattingError.h"
 
 #include "ByteArray.h"
 
@@ -23,10 +22,16 @@ namespace i2pcpp {
     /**
      * Provides a std::array with additional utility functions.
      */
-    template<unsigned int L, bool S = false>
+    template<unsigned int L>
 	class StaticByteArray {
 		public:
-			StaticByteArray() = default;
+            typedef unsigned char value_type;
+            typedef typename std::array<value_type, L>::size_type size_type;
+
+			StaticByteArray()
+            {
+                m_data.fill(0);
+            }
 
 			StaticByteArray(const StaticByteArray &) = default;
 			StaticByteArray& operator=(const StaticByteArray &) = default;
@@ -34,12 +39,11 @@ namespace i2pcpp {
 			StaticByteArray& operator=(StaticByteArray &&) = default;
 
             /**
-             * If this is a "safe" static byte array, the underlying data is cleared.
+             * Clears the underlying data.
              */
 			~StaticByteArray()
 			{
-				if(S)
-					m_data.fill(0);
+				m_data.fill(0);
 			}
 
             /**
@@ -54,12 +58,14 @@ namespace i2pcpp {
 			}
 
             /**
-             * Constructs from a std::string.
+             * Constructs from a base64-encoded std::string.
+             * @throw std::runtime_error
              */
 			StaticByteArray(std::string const &s)
-			{
-				ByteArray b = Base64::decode(s);
-				if(b.size() != L) throw FormattingError();
+			{		
+                ByteArray b = Base64::decode(s);
+				ff(b.size() != L)
+                    throw std::runtime_error("input string not correct size for StaticByteArray");
 				std::copy(b.cbegin(), b.cbegin() + L, m_data.begin());
 			}
 
@@ -74,17 +80,14 @@ namespace i2pcpp {
             /**
              * @return a hexadecimal string representing the underlying data
              */
-			std::string toHex() const
-			{
-				if(!m_hex.empty())
-					return m_hex;
+            std::string toHex() const
+		    {
+		    	std::stringstream s;
+		    	for(const auto& c: m_data)
+                    s << std::setw(2) << std::setfill('0') << std::hex << (int)c;
 
-				std::stringstream s;
-				for(auto c: m_data) s << std::setw(2) << std::setfill('0') << std::hex << (int)c;
-				m_hex = s.str();
-
-				return m_hex;
-			}
+		    	return s.str();
+		    }
 
             /**
              * @return an iterator to the begin of the underlying std::array object.
@@ -188,20 +191,15 @@ namespace i2pcpp {
              */
 			operator std::string() const
 			{
-				if(!m_b64.empty())
-					return m_b64;
+                std::string b64 = Base64::encode(ByteArray(m_data.cbegin(), m_data.cend()));
+			    std::replace(b64.begin(), b64.end(), '+', '-');
+			    std::replace(b64.begin(), b64.end(), '/', '~');
 
-				m_b64 = Base64::encode(ByteArray(m_data.cbegin(), m_data.cend()));
-				std::replace(m_b64.begin(), m_b64.end(), '+', '-');
-				std::replace(m_b64.begin(), m_b64.end(), '/', '~');
-
-				return m_b64;
+			    return b64;
 			}
 
 		private:
-			std::array<unsigned char, L> m_data;
-			mutable std::string m_hex;
-			mutable std::string m_b64;
+			std::array<value_type, L> m_data;
 	};
 
 	template<unsigned int L>

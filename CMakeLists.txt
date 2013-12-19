@@ -32,6 +32,7 @@ set(SRCS
 	i2np/DatabaseStore.cpp
 	i2np/DeliveryStatus.cpp
 	i2np/Message.cpp
+	i2np/Garlic.cpp
 	i2np/TunnelData.cpp
 	i2np/TunnelGateway.cpp
 	i2np/VariableTunnelBuild.cpp
@@ -39,9 +40,14 @@ set(SRCS
     	tunnel/InboundTunnel.cpp
 	tunnel/OutboundTunnel.cpp
 	tunnel/Tunnel.cpp
+	tunnel/Fragment.cpp
+	tunnel/FirstFragment.cpp
+	tunnel/FollowOnFragment.cpp
+	tunnel/FragmentHandler.cpp
+	tunnel/FragmentState.cpp
 	tunnel/TunnelHop.cpp
 	tunnel/TunnelManager.cpp
-	tunnel/TunnelMessage.cpp
+	tunnel/Message.cpp
 	util/Base64.cpp
 	util/I2PDH.cpp
 	util/I2PHMAC.cpp)

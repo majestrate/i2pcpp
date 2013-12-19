@@ -27,7 +27,7 @@ namespace i2pcpp {
              *  to its begin and end.
              */
 			BuildRecord(ByteArrayConstItr &begin, ByteArrayConstItr end);
-			virtual ~BuildRecord() {}
+			virtual ~BuildRecord() = default;
 
 			BuildRecord& operator=(BuildRecord const &rec);
 
@@ -54,14 +54,14 @@ namespace i2pcpp {
              * @param iv the 16 byte initialization vector for AES
              * @param key the i2pcpp::SessionKey to be used
              */
-			void encrypt(StaticByteArray<16, true> const &iv, SessionKey const &key);
+			void encrypt(StaticByteArray<16> const &iv, SessionKey const &key);
 
             /**
              * Preforms AES decryption on the build record data.
              * @param iv the 16 byte initialization vector for AES
              * @param key the i2pcpp::SessionKey to be used
              */
-			void decrypt(StaticByteArray<16, true>  const &iv, SessionKey const &key);
+			void decrypt(StaticByteArray<16>  const &iv, SessionKey const &key);
             
             /**
              * Sets the header of the encrypted message, that is the first

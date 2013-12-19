@@ -21,15 +21,15 @@ namespace i2pcpp {
      */
 	class BuildRequestRecord : public BuildRecord {
 		public:
+			BuildRequestRecord() = default;
+
             /**
-             * Constructs from a pointer to a i2pcpp::TunnelHop.
-             * @param hop pointer to the tunnel hop
+             * Constructs from an i2pcpp::BuilRecord.
              */
-			BuildRequestRecord(TunnelHopPtr const &hop);
 			BuildRequestRecord(BuildRecord const &r);
 
-			void parse();
-			void compile();
+			TunnelHop parse();
+			void compile(TunnelHop const &hop);
 
             /**
              * Returns a reference to the associated i2pcpp::TunnelHop.
@@ -37,7 +37,6 @@ namespace i2pcpp {
 			TunnelHop& getHop();
 
 		private:
-			TunnelHop m_hop;
 			std::bitset<8> m_flags;
 	};
 

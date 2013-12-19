@@ -2,18 +2,11 @@
 
 namespace i2pcpp {
 	namespace I2NP {
-		DeliveryStatus::DeliveryStatus() {}
-
-		Message::Type DeliveryStatus::getType() const
-		{
-			return Message::Type::DELIVERY_STATUS;
-		}
-
 		DeliveryStatus::DeliveryStatus(uint32_t msgId, Date timestamp) :
 			m_msgId(msgId),
 			m_timestamp(timestamp) {}
 
-		ByteArray DeliveryStatus::getBytes() const
+		ByteArray DeliveryStatus::compile() const
 		{
 			ByteArray b;
 
@@ -28,12 +21,16 @@ namespace i2pcpp {
 			return b;
 		}
 
-		bool DeliveryStatus::parse(ByteArrayConstItr &begin, ByteArrayConstItr end)
+		DeliveryStatus DeliveryStatus::parse(ByteArrayConstItr &begin, ByteArrayConstItr end)
 		{
-			m_msgId = (*(begin++) << 24) | (*(begin++) << 16) | (*(begin++) << 8) | *(begin++);
-			m_timestamp = Date(begin, end);
+			DeliveryStatus ds;
 
-			return true;
+			ds.m_msgId = (begin[0] << 24) | (begin[1] << 16) | (begin[2] << 8) | (begin[3]);
+			begin += 4;
+
+			ds.m_timestamp = Date(begin, end);
+
+			return ds;
 		}
 	}
 }

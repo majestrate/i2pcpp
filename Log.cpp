@@ -14,7 +14,7 @@
 #include <boost/log/attributes/current_thread_id.hpp>
 #include <boost/log/attributes/named_scope.hpp>
 #include <boost/log/attributes/value_extraction.hpp>
-#include <boost/log/utility/empty_deleter.hpp>
+#include <boost/utility/empty_deleter.hpp>
 #include <boost/log/utility/manipulators/add_value.hpp>
 #include <boost/log/support/exception.hpp>
 
@@ -52,7 +52,7 @@ namespace i2pcpp {
 		typedef sinks::synchronous_sink<sinks::text_ostream_backend> sink_t;
 
 		boost::shared_ptr<sinks::text_ostream_backend> backend = boost::make_shared<sinks::text_ostream_backend>();
-		backend->add_stream(boost::shared_ptr<std::ostream>(&std::clog, boost::log::empty_deleter()));
+		backend->add_stream(boost::shared_ptr<std::ostream>(&std::clog, boost::empty_deleter()));
 
 		boost::shared_ptr<sink_t> sink(new sink_t(backend));
 		boost::log::core::get()->add_sink(sink);

@@ -2,19 +2,12 @@
 
 namespace i2pcpp {
 	namespace I2NP {
-		DatabaseStore::DatabaseStore() {}
-
 		DatabaseStore::DatabaseStore(StaticByteArray<32> const &key, DataType type, uint32_t replyToken, ByteArray const &data) :
 			Message(),
 			m_key(key),
 			m_type(type),
 			m_replyToken(replyToken),
 			m_data(data) {}
-
-		Message::Type DatabaseStore::getType() const
-		{
-			return Message::Type::DB_STORE;
-		}
 
 		DatabaseStore::DataType DatabaseStore::getDataType() const
 		{
@@ -31,7 +24,7 @@ namespace i2pcpp {
 			return m_data;
 		}
 
-		ByteArray DatabaseStore::getBytes() const
+		ByteArray DatabaseStore::compile() const
 		{
 			ByteArray b;
 
@@ -54,24 +47,31 @@ namespace i2pcpp {
 			return b;
 		}
 
-		bool DatabaseStore::parse(ByteArrayConstItr &begin, ByteArrayConstItr end)
+		DatabaseStore DatabaseStore::parse(ByteArrayConstItr &begin, ByteArrayConstItr end)
 		{
-			copy(begin, begin + 32, m_key.begin());
+			DatabaseStore ds;
+
+			std::copy(begin, begin + 32, ds.m_key.begin());
 			begin += 32;
 
-			m_type = (DataType)*(begin++);
-			m_replyToken = (*(begin++) << 24) | (*(begin++) << 16) | (*(begin++) << 8) | *(begin++);
+			ds.m_type = (DataType)*(begin++);
+			ds.m_replyToken = (begin[0] << 24) | (begin[1] << 16) | (begin[2] << 8) | (begin[3]);
+			begin += 4;
 
-			if(m_replyToken) {
-				m_replyTunnelId = (*(begin++) << 24) | (*(begin++) << 16) | (*(begin++) << 8) | *(begin++);
-				copy(begin, begin + 32, m_replyGateway.begin());
+			if(ds.m_replyToken) {
+				ds.m_replyTunnelId = (begin[0] << 24) | (begin[1] << 16) | (begin[2] << 8) | (begin[3]);
+				begin += 4;
+
+				std::copy(begin, begin + 32, ds.m_replyGateway.begin());
 				begin += 32;
 			}
 
-			uint16_t size = (*(begin++) << 8) | *(begin++);
-			m_data = ByteArray(begin, begin + size);
+			uint16_t size = (begin[0] << 8) | (begin[1]);
+			size += 2;
 
-			return true;
+			ds.m_data = ByteArray(begin, begin + size);
+
+			return ds;
 		}
 	}
 }

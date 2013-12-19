@@ -14,6 +14,7 @@
 
 #include "Tunnel.h"
 #include "TunnelHop.h"
+#include "FragmentHandler.h"
 
 namespace i2pcpp {
 	class RouterContext;
@@ -27,7 +28,7 @@ namespace i2pcpp {
 			void begin();
 			void receiveRecords(uint32_t const msgId, std::list<BuildRecordPtr> records);
 			void receiveGatewayData(RouterHash const from, uint32_t const tunnelId, ByteArray const data);
-			void receiveData(RouterHash const from, uint32_t const tunnelId, StaticByteArray<1024, true> const data);
+			void receiveData(RouterHash const from, uint32_t const tunnelId, StaticByteArray<1024> const data);
 
 		private:
 			void callback(const boost::system::error_code &e);
@@ -43,6 +44,8 @@ namespace i2pcpp {
 			mutable std::mutex m_pendingMutex;
 			mutable std::mutex m_tunnelsMutex;
 			mutable std::mutex m_participatingMutex;
+
+			FragmentHandler m_fragmentHandler;
 
 			boost::asio::deadline_timer m_timer;
 
