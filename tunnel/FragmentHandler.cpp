@@ -1,6 +1,6 @@
 #include "FragmentHandler.h"
 
-#include "../i2np/TunnelData.h"
+#include "../i2np/TunnelGateway.h"
 
 #include "RouterContext.h"
 
@@ -25,7 +25,7 @@ namespace i2pcpp {
 					I2P_LOG(m_log, debug) << "not fragmented";
 
 					// We received a first fragment with no further fragments -- send it right out
-					I2NP::MessagePtr tg(new I2NP::TunnelData(ff->getTunnelId(), ff->getPayload()));
+					I2NP::MessagePtr tg(new I2NP::TunnelGateway(ff->getTunnelId(), ff->getPayload()));
 					m_ctx.getOutMsgDisp().sendMessage(ff->getToHash(), tg);
 				} else {
 					I2P_LOG(m_log, debug) << "fragmented";
@@ -73,7 +73,7 @@ namespace i2pcpp {
 					{
 						I2P_LOG(m_log, debug) << "destination: tunnel";
 
-						I2NP::MessagePtr tg(new I2NP::TunnelData(ff->getTunnelId(), m_states[msgId].compile()));
+						I2NP::MessagePtr tg(new I2NP::TunnelGateway(ff->getTunnelId(), m_states[msgId].compile()));
 						m_ctx.getOutMsgDisp().sendMessage(ff->getToHash(), tg);
 					}
 
