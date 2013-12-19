@@ -50,11 +50,12 @@ namespace i2pcpp {
 						m_ios.run();
 						break;
 					} catch(std::exception &e) {
-						I2P_LOG(m_log, error) << "exception thrown: " << e.what();
+						I2P_LOG(m_log, error) << "exception thrown in transport: " << e.what();
 					}
 				}
 			});
 		} catch(boost::system::system_error &e) {
+			I2P_LOG(m_log, error) << "system error in transport: " << e.what();
 			shutdown();
 			throw;
 		}
@@ -120,6 +121,7 @@ namespace i2pcpp {
 
 	void UDPTransport::shutdown()
 	{
+		I2P_LOG(m_log, info) << "shutdown transport";
 		for(auto& pair: m_peers) {
 			SSU::PacketPtr sdp = SSU::PacketBuilder::buildSessionDestroyed(pair.second->getEndpoint());
 			sdp->encrypt(pair.second->getCurrentSessionKey(), pair.second->getCurrentMacKey());
@@ -175,7 +177,7 @@ namespace i2pcpp {
 						)
 					);
 		} else {
-			I2P_LOG(m_log, debug) << "error: " << e.message();
+			I2P_LOG(m_log, debug) << "error when recieving: " << e.message();
 		}
 	}
 

@@ -1,6 +1,10 @@
 #include "DatabaseStore.h"
 
+<<<<<<< Updated upstream
 #include <botan/pipe.h>
+=======
+#include "../util/gzip.h"
+>>>>>>> Stashed changes
 
 #include "../util/gzip.h"
 #include "../i2np/DatabaseStore.h"
@@ -26,13 +30,12 @@ namespace i2pcpp {
 				switch(dsm->getDataType()) {
 					case I2NP::DatabaseStore::DataType::ROUTER_INFO:
 						{
-							ungzPipe.start_msg();
-							ungzPipe.write(dsm->getData());
-							ungzPipe.end_msg();
-
-							unsigned int size = ungzPipe.remaining();
+							
+							ungz.write(dsm->getData());
+							
+							unsigned int size = ungz.size();
 							ByteArray inflatedData(size);
-							ungzPipe.read(inflatedData.data(), size);
+							ungz.read(inflatedData.data(), size);
 
 							auto begin = inflatedData.cbegin();
 							RouterInfo ri(begin, inflatedData.cend());
