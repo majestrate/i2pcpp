@@ -1,4 +1,5 @@
 #include "TunnelGateway.h"
+#include <stdexcept>
 
 namespace i2pcpp {
 	namespace I2NP {

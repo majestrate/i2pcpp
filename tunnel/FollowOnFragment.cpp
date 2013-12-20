@@ -1,4 +1,5 @@
 #include "FollowOnFragment.h"
+#include <stdexcept>
 
 namespace i2pcpp {
 	FollowOnFragment::FollowOnFragment(uint32_t msgId, uint8_t n) :
