@@ -8,7 +8,7 @@ namespace i2pcpp {
 	Router::Router(std::string const &dbFile) :
 		m_work(m_ios),
 		m_ctx(dbFile, m_ios),
-		m_log(boost::log::keywords::channel = "R") {}
+		m_log(I2P_LOG_CHANNEL("R")) {}
 
 	Router::~Router()
 	{

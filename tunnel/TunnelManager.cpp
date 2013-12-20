@@ -21,7 +21,7 @@ namespace i2pcpp {
 		m_ctx(ctx),
 		m_fragmentHandler(ctx),
 		m_timer(m_ios, boost::posix_time::time_duration(0, 0, 1)),
-		m_log(boost::log::keywords::channel = "TM") {}
+		m_log(I2P_LOG_CHANNEL("TM")) {}
 
 	void TunnelManager::begin()
 	{

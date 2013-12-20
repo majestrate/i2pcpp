@@ -10,7 +10,7 @@ namespace i2pcpp {
 		m_ios(ios),
 		m_ctx(ctx),
 		m_timer(m_ios, boost::posix_time::time_duration(0, 0, 5)),
-		m_log(boost::log::keywords::channel = "PM") {}
+		m_log(I2P_LOG_CHANNEL("PM")) {}
 
 	void PeerManager::begin()
 	{

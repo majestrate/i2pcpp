@@ -12,7 +12,7 @@ namespace i2pcpp {
 			m_ios(ios),
 			m_endpoint(ep),
 			m_identity(ri),
-	 		m_log(boost::log::keywords::channel = "PS")
+	 		m_log(I2P_LOG_CHANNEL("PS"))
 		{
 			I2P_LOG_TAG(m_log, "RouterHash", m_identity.getHash());
 		}

@@ -14,7 +14,7 @@ namespace i2pcpp {
 			m_transport(transport),
 			m_privKey(privKey),
 			m_identity(ri),
-			m_log(boost::log::keywords::channel = "EM") {}
+			m_log(I2P_LOG_CHANNEL("EM")) {}
 
 		EstablishmentStatePtr EstablishmentManager::createState(Endpoint const &ep)
 		{

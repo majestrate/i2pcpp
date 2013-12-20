@@ -102,7 +102,10 @@ set(TEST_SRCS
 	util/I2PHMAC.cpp
 	)
 
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-constexpr-not-const")
+
+
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
@@ -186,7 +189,17 @@ include_directories(BEFORE i2p ${BOTAN_INCLUDE_DIR})
 target_link_libraries(i2p ${BOTAN_LIBRARY_PATH})
 
 # Boost
-find_package(Boost 1.54.0 REQUIRED COMPONENTS system thread filesystem chrono date_time program_options log)
+
+
+if("${NO_BOOST_LOG}" STREQUAL "1")
+	message(STATUS "Not using Boost Log")
+	find_package(Boost 1.49.0 REQUIRED COMPONENTS system thread filesystem chrono date_time program_options)
+else("${NO_BOOST_LOG}" STREQUAL "1")
+	message(STATUS "Using Boost Log")
+	find_package(Boost 1.55.0 REQUIRED COMPONENTS system thread filesystem chrono date_time program_options log)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_BOOST_LOG")
+endif("${NO_BOOST_LOG}" STREQUAL "1")
+
 include_directories(BEFORE i2p ${Boost_INCLUDE_DIR})
 target_link_libraries(i2p ${Boost_LIBRARIES})
 add_definitions(-DBOOST_ALL_DYN_LINK)

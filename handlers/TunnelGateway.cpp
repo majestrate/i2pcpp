@@ -8,7 +8,7 @@ namespace i2pcpp {
 	namespace Handlers {
 		TunnelGateway::TunnelGateway(RouterContext &ctx) :
 			Message(ctx),
-			m_log(boost::log::keywords::channel = "H[TG]") {}
+			m_log(I2P_LOG_CHANNEL("H[TG]")) {}
 
 		void TunnelGateway::handleMessage(RouterHash const from, I2NP::MessagePtr const msg)
 		{

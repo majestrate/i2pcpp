@@ -8,7 +8,7 @@ namespace i2pcpp {
 	namespace Handlers {
 		VariableTunnelBuild::VariableTunnelBuild(RouterContext &ctx) :
 			Message(ctx),
-			m_log(boost::log::keywords::channel = "H[VTB]") {}
+			m_log(I2P_LOG_CHANNEL("H[VTB]")) {}
 
 		void VariableTunnelBuild::handleMessage(RouterHash const from, I2NP::MessagePtr const msg)
 		{

@@ -9,7 +9,7 @@ namespace i2pcpp {
 	namespace Handlers {
 		DatabaseSearchReply::DatabaseSearchReply(RouterContext &ctx) :
 			Message(ctx),
-			m_log(boost::log::keywords::channel = "H[DSR]") {}
+			m_log(I2P_LOG_CHANNEL("H[DSR]")) {}
 
 		void DatabaseSearchReply::handleMessage(RouterHash const from, I2NP::MessagePtr const msg)
 		{

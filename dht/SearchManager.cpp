@@ -11,7 +11,7 @@ namespace i2pcpp {
 		SearchManager::SearchManager(boost::asio::io_service &ios, RouterContext &ctx) :
 			m_ios(ios),
 			m_ctx(ctx),
-			m_log(boost::log::keywords::channel = "SM") {}
+			m_log(I2P_LOG_CHANNEL("SM")) {}
 
 		SearchManager::~SearchManager() {}
 

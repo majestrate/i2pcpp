@@ -35,7 +35,7 @@ int main(int argc, char **argv)
 		string dbFile;
 
 		Log::initialize();
-		i2p_logger_mt lg(boost::log::keywords::channel = "M");
+		i2p_logger_mt lg(I2P_LOG_CHANNEL("M"));
 		Botan::LibraryInitializer init("thread_safe=true");
 
 		if(signal(SIGINT, &sighandler) == SIG_ERR) {

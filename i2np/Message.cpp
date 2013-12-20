@@ -114,14 +114,14 @@ namespace i2pcpp {
 				msgId = (dataItr[0] << 24) | (dataItr[1] << 16) | (dataItr[2] << 8) | (dataItr[3]);
 				dataItr += 4;
 
-				longExpiration = Date(dataItr, data.cend());
+				longExpiration = Date(dataItr, end);
 
 				uint16_t size = (dataItr[0] << 8) | (dataItr[1]);
 				dataItr += 2;
 
 				uint8_t checksum = *dataItr++; // TODO verify this
 
-				if(data.cend() - dataItr != size)
+				if(end - dataItr != size)
 					throw std::runtime_error("error parsing I2NP message");
 			} else {
 				expiration = (dataItr[0] << 24) | (dataItr[1] << 16) | (dataItr[2] << 8) | (dataItr[3]);

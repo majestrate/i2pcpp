@@ -9,7 +9,7 @@
 namespace i2pcpp {
 	FragmentHandler::FragmentHandler(RouterContext &ctx) :
 		m_ctx(ctx),
-		m_log(boost::log::keywords::channel = "FH") {}
+		m_log(I2P_LOG_CHANNEL("FH")) {}
 
 	void FragmentHandler::receiveFragments(std::list<FragmentPtr> fragments)
 	{
