@@ -106,20 +106,25 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-constexpr-not-const")
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
-	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
-	set(CMAKE_CXX_FLAGS_MINSIZEREL "-Oz")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-constexpr-not-const")
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Os")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -lpthread -Wno-constexpr-not-const")
 endif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 
 add_executable(i2p main.cpp ${SRCS})
 
 get_target_property(i2p_LOCATION i2p LOCATION)
 
-# don't strip debugging info
-#add_custom_command(
-#	TARGET i2p
-#	POST_BUILD
-#	COMMAND ${CMAKE_STRIP} -s ${i2p_LOCATION})
+if("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+add_custom_command(
+	TARGET i2p
+	POST_BUILD
+	COMMAND ${CMAKE_STRIP} -s ${i2p_LOCATION})
+endif("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+
+add_custom_command(
+	TARGET i2p
+	POST_BUILD
+	COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/py/i2pinit.py ${CMAKE_CURRENT_BINARY_DIR})
 
 # Version information
 add_custom_command(
@@ -166,7 +171,7 @@ include_directories(BEFORE i2p ${ZLIB_INCLUDE_DIR})
 target_link_libraries(i2p ${ZLIB_LIBRARIES})
 
 # Botan
-find_path(BOTAN_INCLUDE_DIR botan/botan.h PATHS "${BOTAN_INCLUDE_PREFIX}" NO_DEFAULT_PATH)
+find_path(BOTAN_INCLUDE_DIR botan/botan.h PATHS "${BOTAN_INCLUDE_PREFIX}" /usr/include/botan-1.11 /usr/local/include/botan-1.11)
 find_path(BOTAN_INCLUDE_DIR botan/botan.h)
 find_library(BOTAN_LIBRARY_PATH botan-1.11 PATHS "${BOTAN_LIBRARY_PREFIX}" NO_DEFAULT_PATH)
 find_library(BOTAN_LIBRARY_PATH botan-1.11)
