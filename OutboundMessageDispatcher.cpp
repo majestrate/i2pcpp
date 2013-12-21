@@ -13,7 +13,7 @@ namespace i2pcpp {
 
 		if(to == m_ctx.getIdentity()->getHash()) {
 			I2P_LOG(m_log, debug) << "message is for myself, sending to IMD";
-			m_ctx.getInMsgDisp().messageReceived(to, msg->getMsgId(), msg->toBytes());
+			m_ctx.getInMsgDisp().messageReceived(to, msg->getMsgId(), msg->toBytes(false));
 			return;
 		}
 

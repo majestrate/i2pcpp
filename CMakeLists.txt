@@ -50,7 +50,9 @@ set(SRCS
 	tunnel/Message.cpp
 	util/Base64.cpp
 	util/I2PDH.cpp
-	util/I2PHMAC.cpp)
+	util/I2PHMAC.cpp
+	util/gzip.cpp
+)
 
 set(TEST_SRCS
 	dht/Kademlia.cpp
@@ -170,6 +172,8 @@ target_link_libraries(i2p ${BOTAN_LIBRARY_PATH})
 target_link_libraries(i2p ${Boost_LIBRARIES})
 # SQLite3    
 target_link_libraries(i2p "${SQLITE3_LIBRARY_PATH}")
+# zlib
+target_link_libraries(i2p z)
 # Dataypes library
 target_link_libraries(i2p datatypes)
 # Transport library

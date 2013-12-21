@@ -10,11 +10,6 @@ namespace i2pcpp {
 			Message(ctx),
 			m_log(boost::log::keywords::channel = "H[VTBR]") {}
 
-		I2NP::Message::Type VariableTunnelBuildReply::getType() const
-		{
-			return I2NP::Message::Type::VARIABLE_TUNNEL_BUILD_REPLY;
-		}
-
 		void VariableTunnelBuildReply::handleMessage(RouterHash const from, I2NP::MessagePtr const msg)
 		{
 			std::shared_ptr<I2NP::VariableTunnelBuildReply> vtbr = std::dynamic_pointer_cast<I2NP::VariableTunnelBuildReply>(msg);

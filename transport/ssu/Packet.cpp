@@ -15,11 +15,8 @@ namespace i2pcpp {
 		Packet::Packet(Endpoint const &endpoint, const unsigned char *data, size_t length) :
 			m_endpoint(endpoint)
 		{
-			if(length < MIN_PACKET_LEN)
-				throw std::runtime_error("not enough data to create packet");
-
 			m_data.resize(length);
-			copy(data, data + length, m_data.begin());
+			std::copy(data, data + length, m_data.begin());
 		}
 
 		void Packet::decrypt(SessionKey const &sk)

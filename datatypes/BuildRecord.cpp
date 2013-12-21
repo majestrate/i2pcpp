@@ -12,148 +12,125 @@
 #include "../exceptions/FormattingError.h"
 
 namespace i2pcpp {
-	BuildRecord::BuildRecord(ByteArrayConstItr &begin, ByteArrayConstItr end)
-	{
-		if((end - begin) < 528)
-			throw FormattingError();
+    BuildRecord::BuildRecord(ByteArrayConstItr &begin, ByteArrayConstItr end)
+    {
+        if((end - begin) < 528)
+            throw FormattingError();
 
-		std::copy(begin, begin + 16, m_header.begin()), begin += 16;
-		m_data.resize(512);
-		std::copy(begin, begin + 512, m_data.begin()), begin += 512;
-	}
+        std::copy(begin, begin + 16, m_header.begin()), begin += 16;
+        std::copy(begin, begin + 512, m_data.begin()), begin += 512;
+    }
 
-	BuildRecord& BuildRecord::operator=(BuildRecord const &rec)
-	{
-		m_data.clear();
-		m_data.resize(rec.m_data.size());
+    ByteArray BuildRecord::serialize() const
+    {
+        ByteArray b(m_header.size() + m_data.size());
+        std::copy(m_header.cbegin(), m_header.cend(), b.begin());
+        std::copy(m_data.cbegin(), m_data.cend(), b.begin() + m_header.size());
 
-		std::copy(rec.m_header.cbegin(), rec.m_header.cend(), m_header.begin());
-		std::copy(rec.m_data.cbegin(), rec.m_data.cend(), m_data.begin());
+        return b;
+    }
 
-		return *this;
-	}
+    void BuildRecord::encrypt(ByteArray const &encryptionKey)
+    {
+        // First hash the data
+        Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-256"));
+        hashPipe.start_msg();
+        hashPipe.write(m_data.data(), 222);
+        hashPipe.end_msg();
 
-	ByteArray BuildRecord::serialize() const
-	{
-		ByteArray b(m_header.size() + m_data.size());
-		std::copy(m_header.cbegin(), m_header.cend(), b.begin());
-		std::copy(m_data.cbegin(), m_data.cend(), b.begin() + m_header.size());
+        std::array<unsigned char, 32> hash;
+        hashPipe.read(hash.data(), 32);
 
-		return b;
-	}
+        // Create a vector containing the bytes to encrypt
+        Botan::secure_vector<Botan::byte> toEncrypt = { 0xFF }; // 0xFF is the non-zero byte
+        toEncrypt.insert(toEncrypt.end(), hash.cbegin(), hash.cend());
+        toEncrypt.insert(toEncrypt.end(), m_data.cbegin(), m_data.cbegin() + 222);
 
-	void BuildRecord::encrypt(ByteArray const &encryptionKey)
-	{
-		Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-256"));
-		hashPipe.start_msg();
-		hashPipe.write(m_data.data(), m_data.size());
-		hashPipe.end_msg();
+        // Perform the encryption
+        Botan::AutoSeeded_RNG rng;
+        Botan::DL_Group group("modp/ietf/2048");
+        Botan::ElGamal_PublicKey elgKey(group, Botan::BigInt(encryptionKey.data(), encryptionKey.size()));
+        Botan::PK_Encryptor *pke = new Botan::PK_Encryptor_EME(elgKey, "Raw");
+        m_data = pke->encrypt(toEncrypt, rng);
+    }
 
-		size_t size = hashPipe.remaining();
-		ByteArray hash(size);
-		hashPipe.read(hash.data(), size);
+    void BuildRecord::decrypt(std::shared_ptr<const Botan::ElGamal_PrivateKey> key)
+    {
+        // Decrypt
+        Botan::DL_Group group("modp/ietf/2048");
+        Botan::PK_Decryptor *pkd = new Botan::PK_Decryptor_EME(*key, "Raw");
+        Botan::secure_vector<Botan::byte> decrypted = pkd->decrypt(m_data.data(), 512);
 
-		Botan::AutoSeeded_RNG rng;
-		Botan::DL_Group group("modp/ietf/2048");
-		Botan::ElGamal_PublicKey elgKey(group, Botan::BigInt(encryptionKey.data(), encryptionKey.size()));
-		Botan::Pipe encPipe(new Botan::PK_Encryptor_Filter(new Botan::PK_Encryptor_EME(elgKey, "Raw"), rng));
+        // Parse
+        auto dataItr = decrypted.cbegin();
 
-		encPipe.start_msg();
-		encPipe.write(0xFF);
-		encPipe.write(hash.data(), hash.size());
-		encPipe.write(m_data.data(), m_data.size());
-		encPipe.end_msg();
+        ++dataItr; // Non zero byte
 
-		size = encPipe.remaining();
-		m_data.resize(size);
-		encPipe.read(m_data.data(), size);
-	}
+        std::array<unsigned char, 32> givenHash;
+        std::copy(dataItr, dataItr + 32, givenHash.begin());
+        dataItr += 32;
 
-	void BuildRecord::decrypt(std::shared_ptr<const Botan::ElGamal_PrivateKey> key)
-	{
-		Botan::DL_Group group("modp/ietf/2048");
-		Botan::Pipe decPipe(new Botan::PK_Decryptor_Filter(new Botan::PK_Decryptor_EME(*key, "Raw")));
+        std::move(dataItr, dataItr + 222, m_data.begin());
 
-		decPipe.start_msg();
-		decPipe.write(m_data.data(), m_data.size());
-		decPipe.end_msg();
+        // Hash
+        Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-256"));
+        hashPipe.start_msg();
+        hashPipe.write(m_data.cbegin(), 222);
+        hashPipe.end_msg();
 
-		size_t size = decPipe.remaining();
-		if(size != 255)
-			throw FormattingError();
+        std::array<unsigned char, 32> calcHash;
+        hashPipe.read(calcHash.data(), 32);
 
-		ByteArray record(size);
-		decPipe.read(record.data(), size);
+        // Verify that the hashes are the same
+        if(calcHash != givenHash)
+            throw std::runtime_error("hash mismatch in BuildRecord");
+    }
 
-		auto dataItr = record.cbegin();
+    void BuildRecord::encrypt(StaticByteArray<16> const &iv, SessionKey const &key)
+    {
+        Botan::InitializationVector biv(iv.data(), 16);
+        Botan::SymmetricKey bkey(key.data(), key.size());
+        Botan::Pipe cipherPipe(get_cipher("AES-256/CBC/NoPadding", bkey, biv, Botan::ENCRYPTION));
 
-		dataItr++; // Non zero byte
+        cipherPipe.start_msg();
+        cipherPipe.write(m_header.data(), m_header.size());
+        cipherPipe.write(m_data.data(), m_data.size());
+        cipherPipe.end_msg();
 
-		std::array<unsigned char, 32> givenHash;
-		std::copy(dataItr, dataItr + 32, givenHash.begin()), dataItr += 32;
+        size_t encryptedSize = cipherPipe.remaining();
+        if(encryptedSize != (16 + 512))
+            throw std::runtime_error("error AES encrypting BuildRecord");
 
-		ByteArray toHash(dataItr, record.cend());
+        cipherPipe.read(m_header.data(), 16);
+        cipherPipe.read(m_data.data(), 512);
+    }
 
-		Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-256"));
-		hashPipe.start_msg();
-		hashPipe.write(toHash.data(), toHash.size());
-		hashPipe.end_msg();
+    void BuildRecord::decrypt(StaticByteArray<16> const &iv, SessionKey const &key)
+    {
+        Botan::InitializationVector biv(iv.data(), 16);
+        Botan::SymmetricKey bkey(key.data(), key.size());
+        Botan::Pipe cipherPipe(get_cipher("AES-256/CBC/NoPadding", bkey, biv, Botan::DECRYPTION));
 
-		std::array<unsigned char, 32> calcHash;
-		hashPipe.read(calcHash.data(), 32);
-		if(givenHash != calcHash)
-			throw FormattingError();
+        cipherPipe.start_msg();
+        cipherPipe.write(m_header.data(), m_header.size());
+        cipherPipe.write(m_data.data(), m_data.size());
+        cipherPipe.end_msg();
 
-		m_data = toHash;
-	}
+        size_t decryptedSize = cipherPipe.remaining();
+        if(decryptedSize != (16 + 512))
+            throw std::runtime_error("error AES decrypting BuildRecord");
 
-	void BuildRecord::encrypt(StaticByteArray<16> const &iv, SessionKey const &key)
-	{
-		Botan::InitializationVector biv(iv.data(), 16);
-		Botan::SymmetricKey bkey(key.data(), key.size());
-		Botan::Pipe cipherPipe(get_cipher("AES-256/CBC/NoPadding", bkey, biv, Botan::ENCRYPTION));
+        cipherPipe.read(m_header.data(), 16);
+        cipherPipe.read(m_data.data(), 512);
+    }
 
-		cipherPipe.start_msg();
-		cipherPipe.write(m_header.data(), m_header.size());
-		cipherPipe.write(m_data.data(), m_data.size());
-		cipherPipe.end_msg();
+    void BuildRecord::setHeader(StaticByteArray<16> const &header)
+    {
+        m_header = header;
+    }
 
-		size_t encryptedSize = cipherPipe.remaining();
-		if(encryptedSize <= 16)
-			throw FormattingError();
-
-		cipherPipe.read(m_header.data(), 16);
-		m_data.resize(encryptedSize - 16);
-		cipherPipe.read(m_data.data(), encryptedSize - 16);
-	}
-
-	void BuildRecord::decrypt(StaticByteArray<16> const &iv, SessionKey const &key)
-	{
-		Botan::InitializationVector biv(iv.data(), 16);
-		Botan::SymmetricKey bkey(key.data(), key.size());
-		Botan::Pipe cipherPipe(get_cipher("AES-256/CBC/NoPadding", bkey, biv, Botan::DECRYPTION));
-
-		cipherPipe.start_msg();
-		cipherPipe.write(m_header.data(), m_header.size());
-		cipherPipe.write(m_data.data(), m_data.size());
-		cipherPipe.end_msg();
-
-		size_t decryptedSize = cipherPipe.remaining();
-		if(decryptedSize <= 16)
-			throw FormattingError();
-
-		cipherPipe.read(m_header.data(), 16);
-		m_data.resize(decryptedSize - 16);
-		cipherPipe.read(m_data.data(), decryptedSize - 16);
-	}
-
-	void BuildRecord::setHeader(const std::array<unsigned char, 16> &header)
-	{
-		m_header = header;
-	}
-
-	const std::array<unsigned char, 16>& BuildRecord::getHeader() const
-	{
-		return m_header;
-	}
+    const StaticByteArray<16>& BuildRecord::getHeader() const
+    {
+        return m_header;
+    }
 }

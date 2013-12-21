@@ -13,8 +13,8 @@ namespace i2pcpp {
      * The tunnel response record type. Consists of a 32 bytes hash,
      *  followed by 495 bytes of random badding and finally the reply value.
      */
-	class BuildResponseRecord : public BuildRecord {
-		public:
+    class BuildResponseRecord : public BuildRecord {
+        public:
 
             /**
              * This is a one byte value indicates success or failure responses 
@@ -22,49 +22,49 @@ namespace i2pcpp {
              * SUCCESS(0x00) means that the hop agrees to participate.
              * Any higher value indicates that the hop rejects the build request.
              */
-			enum class Reply {
-				SUCCESS = 0,
-				PROBABALISTIC_REJECT = 10,
-				TRANSIENT_OVERLOAD = 20,
-				BANDWIDTH = 30,
-				CRITICAL = 50
-			};
+            enum class Reply {
+                SUCCESS = 0,
+                PROBABALISTIC_REJECT = 10,
+                TRANSIENT_OVERLOAD = 20,
+                BANDWIDTH = 30,
+                CRITICAL = 50
+            };
             
             /**
              * Creates a tunnel response record from a
              *  i2pcpp::BuildResponseRecord::Reply.
              */
-			BuildResponseRecord(Reply r);
+            BuildResponseRecord(Reply r);
 
             /**
              * Constructs from an i2pcpp::BuildRecord.
              */
-			BuildResponseRecord(const BuildRecord &r);
+            BuildResponseRecord(const BuildRecord &r);
 
             /**
              * Checks whether the given data and corresponding hash are correct.
              * That is, recomputes the hash and compares it to the given hash.
-             * @return true if the hash is correct, false otherwise
+             * @throw std::runtime_error if the hash is incorrect
              */
-			bool parse();
+            void parse();
 
             /**
              * Creates the record by first generating 495 bytes of random padding followed
              *  by the reply byte. Then computes the SHA256 hash, which is placed before
              *  that. 
              */
-			void compile();
+            void compile();
 
             /**
              * @return i2pcpp::BuildResponseRecord::m_reply
              */
-			Reply getReply() const;
+            Reply getReply() const;
 
-		private:
-			Reply m_reply;
-	};
+        private:
+            Reply m_reply;
+    };
 
-	typedef std::shared_ptr<BuildResponseRecord> BuildResponseRecordPtr;
+    typedef std::shared_ptr<BuildResponseRecord> BuildResponseRecordPtr;
 }
 
 #endif

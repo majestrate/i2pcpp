@@ -43,11 +43,10 @@ namespace i2pcpp {
             begin += 4;
 
             uint16_t size = (begin[0] << 8) | (begin[1]);
-            size += 2;
+            begin += 2;
             if(size > (end - begin))
                 throw std::runtime_error("invalid tunnel gateway message");
 
-            tg.m_data.resize(size);
             tg.m_data = ByteArray(begin, begin + size);
 
             return tg;

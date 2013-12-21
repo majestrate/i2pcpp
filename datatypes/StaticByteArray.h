@@ -18,15 +18,15 @@
 #include "ByteArray.h"
 
 namespace i2pcpp {
-
     /**
      * Provides a std::array with additional utility functions.
      */
-    template<unsigned int L>
+    template<std::size_t L>
     class StaticByteArray {
         public:
             typedef unsigned char value_type;
             typedef typename std::array<value_type, L>::size_type size_type;
+            typedef typename std::array<value_type, L>::pointer pointer;
 
             StaticByteArray()
             {
@@ -72,7 +72,7 @@ namespace i2pcpp {
             /**
              * Constructs from a std::array.
              */
-            StaticByteArray(std::array<unsigned char, L> const &a)
+            StaticByteArray(std::array<value_type, L> const &a)
             {
                 std::copy(a.cbegin(), a.cbegin() + L, m_data.begin());
             }
@@ -92,7 +92,7 @@ namespace i2pcpp {
             /**
              * @return an iterator to the begin of the underlying std::array object.
              */
-            typename std::array<unsigned char, L>::iterator begin()
+            typename std::array<value_type, L>::iterator begin()
             {
                 return m_data.begin();
             }
@@ -100,7 +100,7 @@ namespace i2pcpp {
             /**
              * @return an iterator to the end of the underlying std::array object.
              */
-            typename std::array<unsigned char, L>::iterator end()
+            typename std::array<value_type, L>::iterator end()
             {
                 return m_data.end();
             }
@@ -108,7 +108,7 @@ namespace i2pcpp {
             /**
              * @return a constant iterator to the begin of the underlying std::array object.
              */
-            typename std::array<unsigned char, L>::const_iterator cbegin() const
+            typename std::array<value_type, L>::const_iterator cbegin() const
             {
                 return m_data.cbegin();
             }
@@ -116,7 +116,7 @@ namespace i2pcpp {
             /**
              * @return a constant iterator to the end of the underlying std::array object.
              */
-            typename std::array<unsigned char, L>::const_iterator cend() const
+            typename std::array<value_type, L>::const_iterator cend() const
             {
                 return m_data.cend();
             }
@@ -124,7 +124,7 @@ namespace i2pcpp {
             /**
              * @return a pointer to the data of the underlying std::array
              */
-            typename std::array<unsigned char, L>::pointer data()
+            typename std::array<value_type, L>::pointer data()
             {
                  return m_data.data();
             }
@@ -132,7 +132,7 @@ namespace i2pcpp {
             /**
              * @return a constant pointer to the data of the underlying std::array
              */
-            typename std::array<unsigned char, L>::const_pointer data() const
+            typename std::array<value_type, L>::const_pointer data() const
             {
                 return m_data.data();
             }
@@ -140,7 +140,7 @@ namespace i2pcpp {
             /**
              * @return the size of the underlying std::array
              */
-            typename std::array<unsigned char, L>::size_type size() const
+            typename std::array<value_type, L>::size_type size() const
             {
                  return m_data.size();
             }
@@ -156,7 +156,7 @@ namespace i2pcpp {
             /**
              * Subscripting operator for constant element access.
              */
-            typename std::array<unsigned char, L>::const_reference operator[](typename std::array<unsigned char, L>::size_type n) const
+            typename std::array<value_type, L>::const_reference operator[](typename std::array<value_type, L>::size_type n) const
             {
                 return m_data[n];
             }
@@ -164,7 +164,7 @@ namespace i2pcpp {
             /**
              * Subscripting operator for element access.
              */
-            typename std::array<unsigned char, L>::reference operator[](typename std::array<unsigned char, L>::size_type n)
+            typename std::array<value_type, L>::reference operator[](typename std::array<value_type, L>::size_type n)
             {
                 return m_data[n];
             }
@@ -219,7 +219,7 @@ namespace i2pcpp {
 }
 
 namespace std {
-    template<unsigned int L>
+    template<std::size_t L>
         struct hash<i2pcpp::StaticByteArray<L>> {
             public:
             size_t operator()(const i2pcpp::StaticByteArray<L> &sba) const
@@ -229,5 +229,4 @@ namespace std {
             }
         };
 }
-
 #endif
