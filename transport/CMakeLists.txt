@@ -19,8 +19,6 @@ set(datatypes_sources
 include_directories(${BOTAN_INCLUDE_DIR})
 
 # Boost
-find_package(Boost 1.54.0 REQUIRED COMPONENTS system)
-include_directories(BEFORE i2p ${Boost_INCLUDE_DIR})
-add_definitions(-DBOOST_ALL_DYN_LINK)
+include_directories(${Boost_INCLUDE_DIR})
 
 add_library(transport STATIC ${datatypes_sources})
