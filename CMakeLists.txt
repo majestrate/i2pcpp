@@ -49,7 +49,7 @@ set(SRCS
 	i2np/TunnelGateway.cpp
 	i2np/VariableTunnelBuild.cpp
 	i2np/VariableTunnelBuildReply.cpp
-	transport/ssu/AcknowledgementScheduler.cpp
+	transport/ssu/AcknowledgementManager.cpp
 	transport/ssu/EstablishmentManager.cpp
 	transport/ssu/EstablishmentState.cpp
 	transport/ssu/InboundMessageFragments.cpp
@@ -102,16 +102,15 @@ set(TEST_SRCS
 	util/I2PHMAC.cpp
 	)
 
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-constexpr-not-const")
-
-
-
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
-	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Os")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -lpthread -Wno-constexpr-not-const")
-endif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -stdlib=libc++")
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -stdlib=libc++")
+	set(CMAKE_CXX_FLAGS_MINSIZEREL "-Oz")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-constexpr-not-const")
+else("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+	message(WARNING "Beware: Only clang is officially supported!")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+endif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 
 add_executable(i2p main.cpp ${SRCS})
 
@@ -152,6 +151,21 @@ add_dependencies(i2p schema)
 target_link_libraries(i2p "${CMAKE_CURRENT_BINARY_DIR}/schema.sql.o")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+# zlib
+find_path(ZLIB_INCLUDE_DIR zlib.h PATHS "${ZLIB_INCLUDE_PREFIX}" NO_DEFAULT_PATH)
+find_path(ZLIB_INCLUDE_DIR sqlite3.h)
+find_library(ZLIB_LIBRARY_PATH z PATHS "${ZLIB_LIBRARY_PREFIX}" NO_DEFAULT_PATH)
+find_library(ZLIB_LIBRARY_PATH z)
+
+if(ZLIB_LIBRARY_PATH AND ZLIB_INCLUDE_DIR)
+	message(STATUS "Found zlib: ${ZLIB_LIBRARY_PATH}")
+else(ZLIB_LIBRARY_PATH AND ZLIB_INCLUDE_DIR)
+	message(FATAL_ERROR "zlib not found")
+endif(ZLIB_LIBRARY_PATH AND ZLIB_INCLUDE_DIR)
+
+include_directories(BEFORE i2p "${ZLIB_INCLUDE_DIR}")
+target_link_libraries(i2p "${ZLIB_LIBRARY_PATH}")
 
 # Sqlite3
 find_path(SQLITE3_INCLUDE_DIR sqlite3.h PATHS "${SQLITE3_INCLUDE_PREFIX}" NO_DEFAULT_PATH)

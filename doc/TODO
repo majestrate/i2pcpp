@@ -9,3 +9,4 @@ Identify and use c++11 algorithms where possible.
 Handle edge cases in --importdir.
 Add exceptions with backtrace support.
 Write unit tests.
+Ensure that unused objects get destroyed (expire tunnels after 10 minutes, etc).

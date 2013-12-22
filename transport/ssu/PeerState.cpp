@@ -4,116 +4,11 @@
 
 #include "../../util/make_unique.h"
 
-#include "../../Log.h"
-
 namespace i2pcpp {
 	namespace SSU {
-		PeerState::PeerState(boost::asio::io_service &ios, Endpoint const &ep, RouterIdentity const &ri) :
-			m_ios(ios),
+		PeerState::PeerState(Endpoint const &ep, RouterHash const &rh) :
 			m_endpoint(ep),
-			m_identity(ri),
-	 		m_log(I2P_LOG_CHANNEL("PS"))
-		{
-			I2P_LOG_TAG(m_log, "RouterHash", m_identity.getHash());
-		}
-
-		InboundMessageStatePtr PeerState::getInboundMessageState(const uint32_t msgId) const
-		{
-			InboundMessageStatePtr ims;
-
-			auto itr = m_inboundMessageStates.find(msgId);
-			if(itr != m_inboundMessageStates.end())
-				ims = itr->second;
-
-			return ims;
-		}
-
-		void PeerState::addInboundMessageState(InboundMessageStatePtr const &ims)
-		{
-			uint32_t msgId = ims->getMsgId();
-
-			m_inboundMessageStates[msgId] = ims;
-
-			m_inboundTimers[msgId] = std::make_unique<boost::asio::deadline_timer>(m_ios, boost::posix_time::time_duration(0, 0, 10));
-			m_inboundTimers[msgId]->async_wait(boost::bind(&PeerState::inboundTimerCallback, this, boost::asio::placeholders::error, msgId));
-		}
-
-		void PeerState::delInboundMessageState(const uint32_t msgId)
-		{
-			if(m_inboundTimers[msgId]) {
-				I2P_LOG(m_log, debug) << "canceling IMS timer";
-				m_inboundTimers[msgId]->cancel();
-				m_inboundTimers.erase(msgId);
-			}
-
-			m_inboundMessageStates.erase(msgId);
-		}
-
-		void PeerState::delInboundMessageState(std::map<uint32_t, InboundMessageStatePtr>::const_iterator itr)
-		{
-			uint32_t msgId = itr->second->getMsgId();
-			if(m_inboundTimers[msgId]) {
-				I2P_LOG(m_log, debug) << "canceling IMS timer";
-				m_inboundTimers[msgId]->cancel();
-				m_inboundTimers.erase(msgId);
-			}
-
-			m_inboundMessageStates.erase(itr);
-		}
-
-		void PeerState::inboundTimerCallback(const boost::system::error_code& e, const uint32_t msgId)
-		{
-			std::lock_guard<std::mutex> lock(m_mutex);
-
-			if(!e) {
-				I2P_LOG(m_log, debug) << "removing IMS due to timeout";
-				m_inboundMessageStates.erase(msgId);
-				m_inboundTimers.erase(msgId);
-			}
-		}
-
-		OutboundMessageStatePtr PeerState::getOutboundMessageState(const uint32_t msgId) const
-		{
-			OutboundMessageStatePtr oms;
-
-			auto itr = m_outboundMessageStates.find(msgId);
-			if(itr != m_outboundMessageStates.end())
-				oms = itr->second;
-
-			return oms;
-		}
-
-		void PeerState::addOutboundMessageState(OutboundMessageStatePtr const &oms)
-		{
-			uint32_t msgId = oms->getMsgId();
-
-			m_outboundMessageStates[msgId] = oms;
-
-			m_outboundTimers[msgId] = std::make_unique<boost::asio::deadline_timer>(m_ios, boost::posix_time::time_duration(0, 0, 10));
-			m_outboundTimers[msgId]->async_wait(boost::bind(&PeerState::outboundTimerCallback, this, boost::asio::placeholders::error, msgId));
-		}
-
-		void PeerState::delOutboundMessageState(const uint32_t msgId)
-		{
-			if(m_outboundTimers[msgId]) {
-				I2P_LOG(m_log, debug) << "canceling OMS timer";
-				m_outboundTimers[msgId]->cancel();
-				m_outboundTimers.erase(msgId);
-			}
-
-			m_outboundMessageStates.erase(msgId);
-		}
-
-		void PeerState::outboundTimerCallback(const boost::system::error_code& e, const uint32_t msgId)
-		{
-			std::lock_guard<std::mutex> lock(m_mutex);
-
-			if(!e) {
-				I2P_LOG(m_log, debug) << "removing OMS due to timeout";
-				m_outboundMessageStates.erase(msgId);
-				m_outboundTimers.erase(msgId);
-			}
-		}
+			m_routerHash(rh) {}
 
 		SessionKey PeerState::getCurrentSessionKey() const
 		{
@@ -155,29 +50,14 @@ namespace i2pcpp {
 			m_nextMacKey = mk;
 		}
 
-		const RouterIdentity& PeerState::getIdentity() const
+		RouterHash PeerState::getHash() const
 		{
-			return m_identity;
+			return m_routerHash;
 		}
 
-		const Endpoint& PeerState::getEndpoint() const
+		Endpoint PeerState::getEndpoint() const
 		{
 			return m_endpoint;
-		}
-
-		std::mutex& PeerState::getMutex() const
-		{
-			return m_mutex;
-		}
-
-		std::map<uint32_t, InboundMessageStatePtr>::iterator PeerState::begin()
-		{
-			return m_inboundMessageStates.begin();
-		}
-
-		std::map<uint32_t, InboundMessageStatePtr>::iterator PeerState::end()
-		{
-			return m_inboundMessageStates.end();
 		}
 	}
 }

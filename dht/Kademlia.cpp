@@ -1,84 +1,60 @@
 #include "Kademlia.h"
 
 #include <ctime>
+#include <utility>
 
 #include <botan/pipe.h>
 #include <botan/lookup.h>
 
 namespace i2pcpp {
 	namespace DHT {
-		Kademlia::Kademlia(KademliaKey const &reference) :
-			DistributedHashTable(),
+		Kademlia::Kademlia(Kademlia::key_type const &reference) :
 			m_ref(reference) {}
 
-		Kademlia::~Kademlia() {}
-
-		void Kademlia::insert(KademliaKey const &k, KademliaValue const &v)
+		void Kademlia::insert(Kademlia::key_type const &k, Kademlia::value_type const &v)
 		{
-			auto& bucket = m_table[getBucket(k)];
-
-			if(bucket.size() >= K_VALUE) {
-				auto last = bucket.end();
-				--last;
-
-				bucket.erase(last);
-			}
-
-			bucket[k] = v;
+			m_table.insert(std::make_pair(getBucket(k), v));
 		}
 
-		void Kademlia::erase(KademliaKey const &k)
+		void Kademlia::erase(map_type::const_iterator itr)
 		{
-			auto& bucket = m_table[getBucket(k)];
-
-			bucket.erase(k);
+			m_table.erase(itr);
 		}
 
-		KademliaValue Kademlia::find(KademliaKey const &k)
+		Kademlia::result_type Kademlia::find(Kademlia::key_type const &k) const
 		{
-			size_t bucketNum = getBucket(k);
-			auto& bucket = m_table[bucketNum];
-
-			if(bucket.count(k))
-				return bucket[k];
-
-			while(!bucket.size() && ++bucketNum < NUM_BUCKETS)
-				bucket = m_table[bucketNum];
-
-			if(!bucket.size()) return KademliaValue();
-
-			return bucket.cbegin()->second;
+			return m_table.equal_range(getBucket(k));
 		}
 
-		KademliaKey Kademlia::makeKey(RouterHash const &rh)
+		void Kademlia::setReference(Kademlia::key_type const &reference)
+		{
+			m_ref = reference;
+		}
+
+		Kademlia::key_type Kademlia::makeKey(RouterHash const &rh)
 		{
 			Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-256"));
 			hashPipe.start_msg();
 
-			std::time_t t = std::time(nullptr);
-			unsigned char time[8];
-			std::strftime((char *)time, 8, "%Y%m%d", std::gmtime(&t));
 			hashPipe.write(rh.data(), rh.size());
+
+			std::time_t t = std::time(nullptr);
+			unsigned char time[9];
+			std::strftime((char *)time, 9, "%Y%m%d", std::gmtime(&t));
 			hashPipe.write(time, 8);
 
 			hashPipe.end_msg();
 
-			KademliaKey key;
+			Kademlia::key_type key;
 			hashPipe.read(key.data(), KEY_SIZE);
 
 			return key;
 		}
 
-		void Kademlia::setReference(KademliaKey const &reference)
-		{
-			m_ref = reference;
-		}
-
-		size_t Kademlia::getBucket(KademliaKey const &k)
+		size_t Kademlia::getBucket(Kademlia::key_type const &k) const
 		{
 			std::array<unsigned char, KEY_SIZE> distance;
-			for(int i = 0; i < KEY_SIZE; i++)
-				distance[i] = m_ref[i] ^ k[i];
+			std::transform(k.cbegin(), k.cend(), m_ref.cbegin(), distance.begin(), std::bit_xor<unsigned char>());
 
 			// http://graphics.stanford.edu/~seander/bithacks.html#IntegerLogDeBruijn
 
@@ -111,7 +87,7 @@ namespace i2pcpp {
 		}
 	}
 
-	std::size_t hash_value(DHT::KademliaKey const &k)
+	std::size_t hash_value(DHT::Kademlia::key_type const &k)
 	{
 		boost::hash<std::string> f;
 		return f(k);

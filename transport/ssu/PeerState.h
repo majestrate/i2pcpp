@@ -16,20 +16,7 @@ namespace i2pcpp {
 	namespace SSU {
 		class PeerState {
 			public:
-				PeerState(boost::asio::io_service &ios, Endpoint const &ep, RouterIdentity const &ri);
-
-				InboundMessageStatePtr getInboundMessageState(const uint32_t msgId) const;
-				void addInboundMessageState(InboundMessageStatePtr const &ims);
-				void delInboundMessageState(const uint32_t msgId);
-				void delInboundMessageState(std::map<uint32_t, InboundMessageStatePtr>::const_iterator itr);
-
-				void inboundTimerCallback(const boost::system::error_code& e, const uint32_t msgId);
-
-				OutboundMessageStatePtr getOutboundMessageState(const uint32_t msgId) const;
-				void addOutboundMessageState(OutboundMessageStatePtr const &oms);
-				void delOutboundMessageState(const uint32_t msgId);
-
-				void outboundTimerCallback(const boost::system::error_code& e, const uint32_t msgId);
+				PeerState(Endpoint const &ep, RouterHash const &rh);
 
 				SessionKey getCurrentSessionKey() const;
 				SessionKey getCurrentMacKey() const;
@@ -41,50 +28,21 @@ namespace i2pcpp {
 				void setNextSessionKey(SessionKey const &sk);
 				void setNextMacKey(SessionKey const &mk);
 
-				const RouterIdentity& getIdentity() const;
-				const Endpoint& getEndpoint() const;
-
-				std::mutex& getMutex() const;
-
-				std::map<uint32_t, InboundMessageStatePtr>::iterator begin();
-				std::map<uint32_t, InboundMessageStatePtr>::iterator end();
+				RouterHash getHash() const;
+				Endpoint getEndpoint() const;
 
 			private:
-				boost::asio::io_service &m_ios;
-
 				Endpoint m_endpoint;
-				RouterIdentity m_identity;
+				RouterHash m_routerHash;
 
 				SessionKey m_sessionKey;
 				SessionKey m_macKey;
 				SessionKey m_nextSessionKey;
 				SessionKey m_nextMacKey;
-
-				std::map<uint32_t, InboundMessageStatePtr> m_inboundMessageStates;
-				std::map<uint32_t, std::unique_ptr<boost::asio::deadline_timer>> m_inboundTimers;
-
-				std::map<uint32_t, OutboundMessageStatePtr> m_outboundMessageStates;
-				std::map<uint32_t, std::unique_ptr<boost::asio::deadline_timer>> m_outboundTimers;
-
-				mutable std::mutex m_mutex;
-
-				i2p_logger_mt m_log;
 		};
 
 		typedef std::shared_ptr<PeerState> PeerStatePtr;
 	}
-}
-
-namespace std {
-	template<>
-	struct hash<i2pcpp::SSU::PeerStatePtr> {
-		public:
-			size_t operator()(const i2pcpp::SSU::PeerStatePtr &ps) const
-			{
-				std::hash<i2pcpp::RouterHash> f;
-				return f(ps->getIdentity().getHash());
-			}
-	};
 }
 
 #endif

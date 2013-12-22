@@ -20,7 +20,7 @@ namespace i2pcpp {
 				LOOKUP_SENT
 			};
 
-			KademliaKey goal;
+			Kademlia::key_type goal;
 			RouterHash current;
 			RouterHash next;
 			std::list<RouterHash> excluded;
