@@ -35,8 +35,8 @@ The following cmake variables are recognized:
 
 * CMAKE_BUILD_TYPE (Debug, Release, or MinSizeRel)
 * CMAKE_CXX_COMPILER
-* BOOST_INCLUDEDIR
-* Boost_LIB_PREFIX
+* Boost_INCLUDE_DIR
+* Boost_LIBRARIES
 * BOTAN_INCLUDE_PREFIX
 * BOTAN_LIBRARY_PREFIX
 * SQLITE3_INCLUDE_PREFIX
