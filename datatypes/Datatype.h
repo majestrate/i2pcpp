@@ -8,7 +8,7 @@
 #include "ByteArray.h"
 
 namespace i2pcpp {
-    
+
     /**
      * Interface for all datatype objects.
      */

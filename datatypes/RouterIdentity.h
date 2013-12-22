@@ -24,7 +24,7 @@ namespace i2pcpp {
              * @throw i2pcpp::FormattingError
              */
 			RouterIdentity(ByteArrayConstItr &begin, ByteArrayConstItr end);
-            
+
             /**
              * @param public key for ElGamal encryption
              * @param signing public key for verifying DSA certificates
@@ -48,7 +48,7 @@ namespace i2pcpp {
 			ByteArray getSigningKey() const;
 
             /**
-             * @return SHA256 hash of the i2pcpp::RouterIdentity object 
+             * @return SHA256 hash of the i2pcpp::RouterIdentity object
              */
 			RouterHash getHash() const;
 

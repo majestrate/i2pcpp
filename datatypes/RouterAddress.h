@@ -23,11 +23,11 @@ namespace i2pcpp {
              * @param expiration the expiration date of the address
              * @param transport the type of transport used as a string
              * @param options i2pcpp::Mapping of options related to transport
-             * @warning expiration must be zero (currently unusued) 
+             * @warning expiration must be zero (currently unusued)
              * @note cost is used for hashcash
              */
 			RouterAddress(int cost, Date const &expiration, std::string const &transport, Mapping const &options);
-            
+
             /**
              * Constructs from iterators to the begin and end of an i2pcpp::ByteArray.
              * Format must be:
@@ -43,7 +43,7 @@ namespace i2pcpp {
 			ByteArray serialize() const;
 
             /**
-             * @return the cost of using the address (0 = free, 255 = expensive) 
+             * @return the cost of using the address (0 = free, 255 = expensive)
              */
 			const unsigned char getCost() const;
 

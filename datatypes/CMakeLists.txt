@@ -12,10 +12,10 @@ set(datatypes_sources
     RouterInfo.cpp
 )
 
+add_library(datatypes STATIC ${datatypes_sources})
+
 # Botan
-include_directories(${BOTAN_INCLUDE_DIR})
+include_directories(BEFORE datatypes ${BOTAN_INCLUDE_DIR})
 
 # Boost
 include_directories(${Boost_INCLUDE_DIR})
-
-add_library(datatypes STATIC ${datatypes_sources})

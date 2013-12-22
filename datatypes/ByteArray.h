@@ -1,6 +1,6 @@
 /**
  * @file ByteArray.h
- * @brief Defines teh i2pcpp::ByteArray type, as well as a number of useful
+ * @brief Defines the i2pcpp::ByteArray type, as well as a number of useful
  *  typedefs and operators.
  */
 #ifndef BYTEARRAY_H

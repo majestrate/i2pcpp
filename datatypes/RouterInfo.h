@@ -31,7 +31,7 @@ namespace i2pcpp {
              * @param identity the unique router identity structure
              * @param published date of publishing
              * @param options a mapping of options
-             * @param 40 byte signature (by router identity who published it) 
+             * @param 40 byte signature (by router identity who published it)
              */
 			RouterInfo(RouterIdentity const &identity, Date const &published, Mapping const &options, ByteArray const &signature = ByteArray(40));
 
@@ -55,7 +55,7 @@ namespace i2pcpp {
 			bool verifySignature() const;
 
             /**
-             * Creates the (DSA) signature using the given \a signingKey. 
+             * Creates the (DSA) signature using the given \a signingKey.
              * @note hashing algorithm is SHA1
              */
 			void sign(std::shared_ptr<const Botan::DSA_PrivateKey> signingKey);
@@ -90,7 +90,7 @@ namespace i2pcpp {
              *  std::vector<RouterAddress>.
              */
 			const std::vector<RouterAddress>::const_iterator begin() const;
-	        /**
+	          /**
              * @return an iterator the end of the underlying
              *  std::vector<RouterAddress>.
              */
@@ -99,7 +99,7 @@ namespace i2pcpp {
 		private:
             /**
              * @return the serialized version of the i2pcpp::RouterAddress but
-             *  without the signature  
+             *  without the signature
              */
 			ByteArray getSignedBytes() const;
 

@@ -333,14 +333,14 @@ TEST(PacketBuilder, buildData) {
 // TODO: Fix.
 // TEST(DHT, Kademlia) {
 // 	using namespace i2pcpp;
-// 
+//
 // 	RouterHash myHash(std::string("AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="));
 // 	RouterHash toStore(std::string("1pp0rQV7hK~XsLib8o8AHX74kWHmRjDsmDqF7aigZD0="));
 // 	DHT::KademliaKey k = DHT::Kademlia::makeKey(toStore);
-// 
+//
 // 	DHT::Kademlia kad(myHash);
 // 	kad.insert(k, toStore);
-// 
+//
 // 	DHT::KademliaValue v = kad.find(k);
 // 	ASSERT_EQ(toStore, v);
 // }

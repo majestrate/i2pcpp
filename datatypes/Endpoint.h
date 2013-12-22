@@ -43,7 +43,7 @@ namespace i2pcpp {
              * Compares this endpoint with another endpoint by comparing their
              * addresses and ports. Two endpoints are said to be equal if their ports
              * and addresses are equal.
-             * @return true if they equal, false otherwise 
+             * @return true if they equal, false otherwise
              */
 			bool operator==(const Endpoint& rhs) const;
 

@@ -22,7 +22,7 @@ namespace i2pcpp {
             /**
              * Constructs an i2pcpp::Mapping from iterators to the begin and end of
              *  an i2pcpp::ByteArray. The format must be:
-             * size (2B) | len (1B) | key (len) | "=" | len (1B) | value (len) | ";" | ... 
+             * size (2B) | len (1B) | key (len) | "=" | len (1B) | value (len) | ";" | ...
              */
 			Mapping(ByteArrayConstItr &begin, ByteArrayConstItr end);
 
@@ -43,7 +43,7 @@ namespace i2pcpp {
 
             /**
              * Serializes in the following format:
-             * size (2B) | len (1B) | key (len) | "=" | len (1B) | value (len) | ";" | ... 
+             * size (2B) | len (1B) | key (len) | "=" | len (1B) | value (len) | ";" | ...
              */
 			ByteArray serialize() const;
 
