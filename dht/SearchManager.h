@@ -26,14 +26,14 @@ namespace i2pcpp {
 	namespace DHT {
 			class SearchManager {
 				private:
-					typedef boost::signals2::signal<void(const KademliaKey, const KademliaValue)> SuccessSignal;
-					typedef boost::signals2::signal<void(const KademliaKey)> FailureSignal;
+					typedef boost::signals2::signal<void(const Kademlia::key_type, const Kademlia::value_type)> SuccessSignal;
+					typedef boost::signals2::signal<void(const Kademlia::key_type)> FailureSignal;
 
 					typedef boost::multi_index_container<
 						SearchState,
 						bmi::indexed_by<
 							bmi::hashed_unique<
-								BOOST_MULTI_INDEX_MEMBER(SearchState, KademliaKey, goal)
+								BOOST_MULTI_INDEX_MEMBER(SearchState, Kademlia::key_type, goal)
 							>,
 							bmi::hashed_non_unique<
 								BOOST_MULTI_INDEX_MEMBER(SearchState, RouterHash, current)
@@ -53,12 +53,10 @@ namespace i2pcpp {
 					SearchManager(const SearchManager &) = delete;
 					SearchManager& operator=(SearchManager &) = delete;
 
-					~SearchManager();
-
 					boost::signals2::connection registerSuccess(SuccessSignal::slot_type const &sh);
 					boost::signals2::connection registerFailure(FailureSignal::slot_type const &fh);
 
-					void createSearch(KademliaKey const &k, RouterHash const &start);
+					void createSearch(Kademlia::key_type const &k, Kademlia::result_type const &startingPoints);
 
 					void connected(RouterHash const rh);
 					void connectionFailure(RouterHash const rh);
@@ -66,13 +64,13 @@ namespace i2pcpp {
 					void databaseStore(RouterHash const from, StaticByteArray<32> const k, bool isRouterInfo);
 
 				private:
-					void timeout(const boost::system::error_code& e, KademliaKey const k);
-					void cancel(KademliaKey const &k);
+					void timeout(const boost::system::error_code& e, Kademlia::key_type const k);
+					void cancel(Kademlia::key_type const &k);
 
 					boost::asio::io_service& m_ios;
 					RouterContext& m_ctx;
 
-					std::map<KademliaKey, std::unique_ptr<boost::asio::deadline_timer>> m_timers;
+					std::map<Kademlia::key_type, std::unique_ptr<boost::asio::deadline_timer>> m_timers;
 
 					SuccessSignal m_successSignal;
 					FailureSignal m_failureSignal;

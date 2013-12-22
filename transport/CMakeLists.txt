@@ -1,11 +1,11 @@
 set(datatypes_sources
-    ssu/AcknowledgementScheduler.cpp
     ssu/EstablishmentManager.cpp
     ssu/EstablishmentState.cpp
     ssu/InboundMessageFragments.cpp
     ssu/InboundMessageState.cpp
     ssu/OutboundMessageFragments.cpp
     ssu/OutboundMessageState.cpp
+    ssu/AcknowledgementManager.cpp
     ssu/Packet.cpp
     ssu/PacketBuilder.cpp
     ssu/PacketHandler.cpp

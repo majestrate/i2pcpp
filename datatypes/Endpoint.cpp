@@ -4,6 +4,8 @@
  */
 #include "Endpoint.h"
 
+#include <boost/functional/hash.hpp>
+
 namespace i2pcpp {
 	Endpoint::Endpoint(boost::asio::ip::udp::endpoint const &ep) :
 		m_addr(ep.address()),
@@ -73,5 +75,11 @@ namespace i2pcpp {
 	{
 		s << std::string(ep);
 		return s;
+	}
+
+	std::size_t hash_value(Endpoint const &ep)
+	{
+		boost::hash<std::string> f;
+		return f(ep);
 	}
 }

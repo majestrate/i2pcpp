@@ -71,14 +71,10 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-constexpr-not-const")
 else("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 	message(WARNING "Beware: Only clang is officially supported!")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -stdlib=libc++")
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -stdlib=libc++")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
-	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
-	set(CMAKE_CXX_FLAGS_MINSIZEREL "-Oz")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-constexpr-not-const")
-endif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 
 ##############################
 # Find and include libraries #
@@ -161,6 +157,19 @@ target_link_libraries(i2p "${CMAKE_CURRENT_BINARY_DIR}/schema.sql.o")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+# zlib
+find_path(ZLIB_INCLUDE_DIR zlib.h PATHS "${ZLIB_INCLUDE_PREFIX}" NO_DEFAULT_PATH)
+find_path(ZLIB_INCLUDE_DIR zlib.h)
+find_library(ZLIB_LIBRARY_PATH z PATHS "${ZLIB_LIBRARY_PREFIX}" NO_DEFAULT_PATH)
+find_library(ZLIB_LIBRARY_PATH z)
+
+if(ZLIB_LIBRARY_PATH AND ZLIB_INCLUDE_DIR)
+	message(STATUS "Found zlib: ${ZLIB_LIBRARY_PATH}")
+else(ZLIB_LIBRARY_PATH AND ZLIB_INCLUDE_DIR)
+	message(FATAL_ERROR "zlib not found")
+endif(ZLIB_LIBRARY_PATH AND ZLIB_INCLUDE_DIR)
+
+include_directories(BEFORE i2p "${ZLIB_INCLUDE_DIR}")
 
 ################################
 # Link libraries to executable #
@@ -173,7 +182,7 @@ target_link_libraries(i2p ${Boost_LIBRARIES})
 # SQLite3    
 target_link_libraries(i2p "${SQLITE3_LIBRARY_PATH}")
 # zlib
-target_link_libraries(i2p z)
+target_link_libraries(i2p "${ZLIB_LIBRARY_PATH}")
 # Dataypes library
 target_link_libraries(i2p datatypes)
 # Transport library

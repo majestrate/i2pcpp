@@ -30,21 +30,17 @@ namespace i2pcpp {
 			if(m_ctx.getDatabase().routerExists(to))
 				m_transport->connect(m_ctx.getDatabase().getRouterInfo(to));
 			else {
-				I2P_LOG(m_log, debug) << "RouterInfo not in DB, searching DHT";
+				I2P_LOG(m_log, debug) << "RouterInfo not in DB, creating search job";
 
 				auto k = DHT::Kademlia::makeKey(to);
-				auto rh = m_ctx.getDHT()->find(k);
-				if(rh != to) {
-					if(rh == DHT::KademliaValue()) {
-						I2P_LOG(m_log, error) << "could not find a good place to start search, aborting";
-						m_pending.erase(to);
+				auto results = m_ctx.getDHT()->find(k);
+				if(std::distance(results.first, results.second) < 1) {
+					I2P_LOG(m_log, error) << "could not find a good place to start search, aborting";
+					m_pending.erase(to);
+					return;
+				}
 
-						return;
-					}
-
-					m_ctx.getSearchManager().createSearch(to, rh);
-				} else
-					I2P_LOG(m_log, error) << "RouterHash found in DHT but not DB";
+				m_ctx.getSearchManager().createSearch(to, results);
 			}
 		}
 	}
@@ -79,7 +75,7 @@ namespace i2pcpp {
 		}
 	}
 
-	void OutboundMessageDispatcher::dhtSuccess(DHT::KademliaKey const k, DHT::KademliaValue const v)
+	void OutboundMessageDispatcher::dhtSuccess(DHT::Kademlia::key_type const k, DHT::Kademlia::value_type const v)
 	{
 		std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -91,7 +87,7 @@ namespace i2pcpp {
 		}
 	}
 
-	void OutboundMessageDispatcher::dhtFailure(DHT::KademliaKey const k)
+	void OutboundMessageDispatcher::dhtFailure(DHT::Kademlia::key_type const k)
 	{
 		std::lock_guard<std::mutex> lock(m_mutex);
 

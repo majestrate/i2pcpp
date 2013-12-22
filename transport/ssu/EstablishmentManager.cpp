@@ -49,7 +49,7 @@ namespace i2pcpp {
 
 		void EstablishmentManager::post(EstablishmentStatePtr const &es)
 		{
-			m_transport.post(boost::bind(&EstablishmentManager::stateChanged, this, es));
+			m_transport.m_ios.post(boost::bind(&EstablishmentManager::stateChanged, this, es));
 		}
 
 		void EstablishmentManager::stateChanged(EstablishmentStatePtr es)
@@ -82,7 +82,7 @@ namespace i2pcpp {
 						const RouterHash &rh = es->getTheirIdentity().getHash();
 						I2P_LOG_SCOPED_TAG(m_log, "RouterHash", rh);
 						I2P_LOG(m_log, debug) << "sent session confirmed";
-						m_transport.post(boost::bind(boost::ref(m_transport.m_establishedSignal), rh, (es->getDirection() == EstablishmentState::Direction::INBOUND)));
+						m_transport.m_ios.post(boost::bind(boost::ref(m_transport.m_establishedSignal), rh, (es->getDirection() == EstablishmentState::Direction::INBOUND)));
 						delState(ep);
 					}
 					break;
@@ -96,7 +96,7 @@ namespace i2pcpp {
 				case EstablishmentState::State::FAILURE:
 					I2P_LOG(m_log, error) << "establishment failed";
 					if(es->getDirection() == EstablishmentState::Direction::OUTBOUND)
-						m_transport.post(boost::bind(boost::ref(m_transport.m_failureSignal), es->getTheirIdentity().getHash()));
+						m_transport.m_ios.post(boost::bind(boost::ref(m_transport.m_failureSignal), es->getTheirIdentity().getHash()));
 
 					delState(ep);
 					break;
@@ -190,10 +190,12 @@ namespace i2pcpp {
 			state->setMacKey(newMacKey);
 
 			Endpoint ep = state->getTheirEndpoint();
-			auto ps = std::make_shared<PeerState>(m_transport.m_ios, ep, state->getTheirIdentity());
-			ps->setCurrentSessionKey(state->getSessionKey());
-			ps->setCurrentMacKey(state->getMacKey());
-			m_transport.m_peers.addRemotePeer(ps);
+			PeerState ps(ep, state->getTheirIdentity().getHash());
+			ps.setCurrentSessionKey(state->getSessionKey());
+			ps.setCurrentMacKey(state->getMacKey());
+
+			std::lock_guard<std::mutex> lock(m_transport.m_peers.getMutex());
+			m_transport.m_peers.addPeer(std::move(ps));
 
 			PacketPtr p = PacketBuilder::buildSessionConfirmed(state);
 			p->encrypt(state->getSessionKey(), state->getMacKey());
@@ -218,14 +220,16 @@ namespace i2pcpp {
 				I2P_LOG(m_log, debug) << "confirmation signature verification succeeded";
 
 			Endpoint ep = state->getTheirEndpoint();
-			auto ps = std::make_shared<PeerState>(m_transport.m_ios, ep, state->getTheirIdentity());
-			ps->setCurrentSessionKey(state->getSessionKey());
-			ps->setCurrentMacKey(state->getMacKey());
-			m_transport.m_peers.addRemotePeer(ps);
+			PeerState ps(ep, state->getTheirIdentity().getHash());
+			ps.setCurrentSessionKey(state->getSessionKey());
+			ps.setCurrentMacKey(state->getMacKey());
+
+			std::lock_guard<std::mutex> lock(m_transport.m_peers.getMutex());
+			m_transport.m_peers.addPeer(std::move(ps));
 
 			delState(ep);
 
-			m_transport.post(boost::bind(boost::ref(m_transport.m_establishedSignal), state->getTheirIdentity().getHash(), (state->getDirection() == EstablishmentState::Direction::INBOUND)));
+			m_transport.m_ios.post(boost::bind(boost::ref(m_transport.m_establishedSignal), state->getTheirIdentity().getHash(), (state->getDirection() == EstablishmentState::Direction::INBOUND)));
 		}
 	}
 }

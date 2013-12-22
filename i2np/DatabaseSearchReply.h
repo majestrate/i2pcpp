@@ -11,7 +11,7 @@ namespace i2pcpp {
 	namespace I2NP {
 		class DatabaseSearchReply : public Message {
 			public:
-				const std::array<unsigned char, 32>& getKey() const;
+				const StaticByteArray<32>& getKey() const;
 				const std::list<RouterHash>& getHashes() const;
 				const RouterHash& getFrom() const;
 
@@ -23,7 +23,7 @@ namespace i2pcpp {
 				ByteArray compile() const;
 
 			private:
-				std::array<unsigned char, 32> m_key;
+				StaticByteArray<32> m_key;
 				std::list<RouterHash> m_hashes;
 				RouterHash m_from;
 		};

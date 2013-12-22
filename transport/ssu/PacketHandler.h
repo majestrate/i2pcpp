@@ -13,6 +13,8 @@ namespace i2pcpp {
 
 	namespace SSU {
 		class PacketHandler {
+			friend class AcknowledgementManager;
+
 			public:
 				PacketHandler(UDPTransport &transport, SessionKey const &sk);
 				PacketHandler(const PacketHandler &) = delete;
@@ -21,14 +23,14 @@ namespace i2pcpp {
 				void packetReceived(PacketPtr p);
 
 			private:
-				void handlePacket(PacketPtr const &packet, PeerStatePtr const &state);
+				void handlePacket(PacketPtr const &packet, PeerState const &state);
 				void handlePacket(PacketPtr const &packet, EstablishmentStatePtr const &state);
 				void handlePacket(PacketPtr &p);
 
 				void handleSessionRequest(ByteArrayConstItr &begin, ByteArrayConstItr end, EstablishmentStatePtr const &state);
 				void handleSessionCreated(ByteArrayConstItr &begin, ByteArrayConstItr end, EstablishmentStatePtr const &state);
 				void handleSessionConfirmed(ByteArrayConstItr &begin, ByteArrayConstItr end, EstablishmentStatePtr const &state);
-				void handleSessionDestroyed(PeerStatePtr const &ps);
+				void handleSessionDestroyed(PeerState const &ps);
 				void handleSessionDestroyed(EstablishmentStatePtr const &state);
 
 				UDPTransport& m_transport;

@@ -2,37 +2,61 @@
 #define SSUPEERSTATELIST_H
 
 #include <unordered_map>
-
-#include "PeerState.h"
+#include <boost/multi_index_container.hpp>
+#include <boost/multi_index/hashed_index.hpp>
+#include <boost/multi_index/mem_fun.hpp>
 
 #include "../../datatypes/Endpoint.h"
 #include "../../datatypes/RouterHash.h"
 
+#include "PeerState.h"
+
+namespace bmi = boost::multi_index;
+
 namespace i2pcpp {
+	class UDPTransport;
+
 	namespace SSU {
 		class PeerStateList {
-			public:
-				PeerStateList() {}
-				PeerStateList(const PeerStateList &) = delete;
-				PeerStateList& operator=(PeerStateList &) = delete;
+			private:
+				typedef boost::multi_index_container<
+					PeerState,
+					bmi::indexed_by<
+						bmi::hashed_unique<
+							bmi::const_mem_fun<PeerState, Endpoint, &PeerState::getEndpoint>
+						>,
+						bmi::hashed_unique<
+							bmi::const_mem_fun<PeerState, RouterHash, &PeerState::getHash>
+						>
+					>
+				> StateContainer;
 
-				void addRemotePeer(PeerStatePtr const &ps);
-				PeerStatePtr getRemotePeer(Endpoint const &ep) const;
-				PeerStatePtr getRemotePeer(RouterHash const &rh) const;
-				void delRemotePeer(Endpoint const &ep);
-				void delRemotePeer(RouterHash const &rh);
-				bool remotePeerExists(Endpoint const &ep) const;
-				bool remotePeerExists(RouterHash const &rh) const;
+			public:
+				typedef StateContainer::nth_index<0>::type::const_iterator const_iterator;
+
+				PeerStateList(UDPTransport &transport);
+
+				void addPeer(PeerState ps);
+				PeerState getPeer(Endpoint const &ep);
+				PeerState getPeer(RouterHash const &rh);
+				void delPeer(Endpoint const &ep);
+				void delPeer(RouterHash const &rh);
+				bool peerExists(Endpoint const &ep) const;
+				bool peerExists(RouterHash const &rh) const;
 				uint32_t numPeers() const;
 
-				std::unordered_map<RouterHash, PeerStatePtr>::const_iterator begin() const;
-				std::unordered_map<RouterHash, PeerStatePtr>::const_iterator end() const;
+				const_iterator cbegin() const;
+				const_iterator cend() const;
+
+				void timerCallback(const boost::system::error_code& e, RouterHash const &rh);
+
+				std::mutex& getMutex() const;
 
 			private:
-				std::unordered_map<Endpoint, PeerStatePtr> m_remotePeers;
-				std::unordered_map<RouterHash, PeerStatePtr> m_remotePeersByHash;
+				UDPTransport& m_transport;
+				StateContainer m_container;
 
-				mutable std::mutex m_remotePeersMutex;
+				mutable std::mutex m_mutex;
 		};
 	}
 }

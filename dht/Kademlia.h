@@ -2,7 +2,6 @@
 #define DHTKADEMLIA_H
 
 #include <map>
-#include <array>
 #include <memory>
 
 #include <boost/functional/hash.hpp>
@@ -10,42 +9,40 @@
 #include "../datatypes/StaticByteArray.h"
 #include "../datatypes/RouterHash.h"
 
-#include "DistributedHashTable.h"
-
 #define KEY_SIZE 32
 #define NUM_BUCKETS (KEY_SIZE * 8)
 #define K_VALUE 20
 
 namespace i2pcpp {
 	namespace DHT {
-		typedef StaticByteArray<KEY_SIZE> KademliaKey;
-		typedef RouterHash KademliaValue;
-
-		class Kademlia : public DistributedHashTable<KademliaKey, KademliaValue> {
+		class Kademlia {
 			public:
-				Kademlia(KademliaKey const &reference);
-				~Kademlia();
+				typedef StaticByteArray<KEY_SIZE> key_type;
+				typedef RouterHash value_type;
+				typedef std::multimap<size_t, value_type> map_type;
+				typedef std::pair<map_type::const_iterator, map_type::const_iterator> result_type;
 
-				void insert(KademliaKey const &k, KademliaValue const &v);
-				void erase(KademliaKey const &k);
-				KademliaValue find(KademliaKey const &k);
+				Kademlia(key_type const &reference);
 
-				void setReference(KademliaKey const &reference);
+				void insert(key_type const &k, value_type const &v);
+				void erase(map_type::const_iterator itr);
+				result_type find(key_type const &k) const;
 
-				static KademliaKey makeKey(RouterHash const &rh);
+				void setReference(key_type const &reference);
+
+				static key_type makeKey(value_type const &rh);
 
 			private:
-				size_t getBucket(KademliaKey const &k);
+				size_t getBucket(key_type const &k) const;
 
-				KademliaKey m_ref;
-
-				std::array<std::map<KademliaKey, KademliaValue>, NUM_BUCKETS> m_table;
+				key_type m_ref;
+				map_type m_table;
 		};
 
 		typedef std::shared_ptr<Kademlia> KademliaPtr;
 	}
 
-	std::size_t hash_value(DHT::KademliaKey const &k);
+	std::size_t hash_value(DHT::Kademlia::key_type const &k);
 }
 
 #endif

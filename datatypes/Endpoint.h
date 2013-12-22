@@ -60,6 +60,7 @@ namespace i2pcpp {
 	};
 
 	std::ostream& operator<<(std::ostream &s, Endpoint const &ep);
+	std::size_t hash_value(Endpoint const &ep);
 }
 
 namespace std {

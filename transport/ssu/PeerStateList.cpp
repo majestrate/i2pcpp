@@ -1,85 +1,85 @@
 #include "PeerStateList.h"
 
+#include "../UDPTransport.h"
+
 namespace i2pcpp {
 	namespace SSU {
-		void PeerStateList::addRemotePeer(PeerStatePtr const &ps)
+		PeerStateList::PeerStateList(UDPTransport &transport) :
+			m_transport(transport) {}
+
+		void PeerStateList::addPeer(PeerState ps)
 		{
-			std::lock_guard<std::mutex> lock(m_remotePeersMutex);
-			m_remotePeers[ps->getEndpoint()] = ps;
-			m_remotePeersByHash[ps->getIdentity().getHash()] = ps;
+			auto itr = m_container.get<1>().find(ps.getHash());
+			if(itr == m_container.get<1>().end())
+				m_container.insert(std::move(ps));
+			else
+				m_container.get<1>().replace(itr, std::move(ps));
 		}
 
-		PeerStatePtr PeerStateList::getRemotePeer(Endpoint const &ep) const
+		PeerState PeerStateList::getPeer(Endpoint const &ep)
 		{
-			std::lock_guard<std::mutex> lock(m_remotePeersMutex);
+			auto itr = m_container.get<0>().find(ep);
+			if(itr == m_container.get<0>().end())
+				throw std::runtime_error("record not found");
 
-			PeerStatePtr ps;
-
-			auto itr = m_remotePeers.find(ep);
-			if(itr != m_remotePeers.end())
-				ps = itr->second;
-
-			return ps;
+			return *itr;
 		}
 
-		PeerStatePtr PeerStateList::getRemotePeer(RouterHash const &rh) const
+		PeerState PeerStateList::getPeer(RouterHash const &rh)
 		{
-			std::lock_guard<std::mutex> lock(m_remotePeersMutex);
+			auto itr = m_container.get<1>().find(rh);
+			if(itr == m_container.get<1>().end())
+				throw std::runtime_error("record not found");
 
-			PeerStatePtr ps;
-
-			auto itr = m_remotePeersByHash.find(rh);
-			if(itr != m_remotePeersByHash.end())
-				ps = itr->second;
-
-			return ps;
+			return *itr;
 		}
 
-		void PeerStateList::delRemotePeer(Endpoint const &ep)
+		void PeerStateList::delPeer(Endpoint const &ep)
 		{
-			std::lock_guard<std::mutex> lock(m_remotePeersMutex);
-
-			auto itr = m_remotePeers.find(ep);
-			if(itr != m_remotePeers.end())
-				m_remotePeersByHash.erase(itr->second->getIdentity().getHash());
-
-			m_remotePeers.erase(ep);
+			m_container.get<0>().erase(ep);
 		}
 
-		void PeerStateList::delRemotePeer(RouterHash const &rh)
+		void PeerStateList::delPeer(RouterHash const &rh)
 		{
-			std::lock_guard<std::mutex> lock(m_remotePeersMutex);
-
-			auto itr = m_remotePeersByHash.find(rh);
-			if(itr != m_remotePeersByHash.end())
-				m_remotePeers.erase(itr->second->getEndpoint());
-
-			m_remotePeersByHash.erase(rh);
+			m_container.get<1>().erase(rh);
 		}
 
-		bool PeerStateList::remotePeerExists(Endpoint const &ep) const
+		bool PeerStateList::peerExists(Endpoint const &ep) const
 		{
-			return (m_remotePeers.count(ep) > 0);
+			return (m_container.get<0>().count(ep) > 0);
 		}
 
-		bool PeerStateList::remotePeerExists(RouterHash const &rh) const
+		bool PeerStateList::peerExists(RouterHash const &rh) const
 		{
-			return (m_remotePeersByHash.count(rh) > 0);
+			return (m_container.get<1>().count(rh) > 0);
 		}
 
 		uint32_t PeerStateList::numPeers() const
 		{
-			return m_remotePeers.size();
+			return m_container.size();
 		}
 
-		std::unordered_map<RouterHash, PeerStatePtr>::const_iterator PeerStateList::begin() const
+		PeerStateList::const_iterator PeerStateList::cbegin() const
 		{
-			return m_remotePeersByHash.cbegin();
+			return m_container.get<0>().cbegin();
 		}
 
-		std::unordered_map<RouterHash, PeerStatePtr>::const_iterator PeerStateList::end() const
+		PeerStateList::const_iterator PeerStateList::cend() const
 		{
-			return m_remotePeersByHash.cend();
+			return m_container.get<0>().cend();
+		}
+
+		void PeerStateList::timerCallback(const boost::system::error_code& e, RouterHash const &rh)
+		{
+			if(!e) {
+				std::lock_guard<std::mutex> lock(m_mutex);
+				delPeer(rh);
+			}
+		}
+
+		std::mutex& PeerStateList::getMutex() const
+		{
+			return m_mutex;
 		}
 	}
 }

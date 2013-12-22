@@ -28,8 +28,8 @@ namespace i2pcpp {
 			TransportPtr getTransport() const;
 			void connected(RouterHash const rh);
 
-			void dhtSuccess(DHT::KademliaKey const k, DHT::KademliaValue const v);
-			void dhtFailure(DHT::KademliaKey const k);
+			void dhtSuccess(DHT::Kademlia::key_type const k, DHT::Kademlia::value_type const v);
+			void dhtFailure(DHT::Kademlia::key_type const k);
 
 		private:
 			RouterContext& m_ctx;
