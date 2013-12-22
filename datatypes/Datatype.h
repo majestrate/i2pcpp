@@ -12,15 +12,15 @@ namespace i2pcpp {
     /**
      * Interface for all datatype objects.
      */
-	class Datatype {
-		public:
-			virtual ~Datatype() {};
+    class Datatype {
+        public:
+            virtual ~Datatype() {};
 
             /**
              * Serializes this i2pcpp::Datatype into an i2pcpp::ByteArray.
              */
-			virtual ByteArray serialize() const = 0;
-	};
+            virtual ByteArray serialize() const = 0;
+    };
 }
 
 #endif

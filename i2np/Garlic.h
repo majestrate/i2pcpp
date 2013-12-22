@@ -4,17 +4,17 @@
 #include "Message.h"
 
 namespace i2pcpp {
-	namespace I2NP {
-		class Garlic : public Message {
-			public:
-				static Garlic parse(ByteArrayConstItr &begin, ByteArrayConstItr end);
+    namespace I2NP {
+        class Garlic : public Message {
+            public:
+                static Garlic parse(ByteArrayConstItr &begin, ByteArrayConstItr end);
 
-			protected:
-				Garlic() = default;
+            protected:
+                Garlic() = default;
 
-				ByteArray compile() const;
-		};
-	}
+                ByteArray compile() const;
+        };
+    }
 }
 
 #endif

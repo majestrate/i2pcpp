@@ -26,7 +26,7 @@ fi
 
 if [ -n "$DESC" ]; then
     NEWINFO="#define BUILD_DESC \"$DESC\" \
-	#define BUILD_DATE \"$TIME\""
+    #define BUILD_DATE \"$TIME\""
 else
     NEWINFO="// No build information available"
 fi

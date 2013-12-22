@@ -10,27 +10,27 @@
 #include "FragmentState.h"
 
 namespace i2pcpp {
-	class RouterContext;
+    class RouterContext;
 
-	class FragmentHandler {
-		public:
-			FragmentHandler(RouterContext &ctx);
-			FragmentHandler(const FragmentHandler &) = delete;
-			FragmentHandler& operator=(FragmentHandler &) = delete;
+    class FragmentHandler {
+        public:
+            FragmentHandler(RouterContext &ctx);
+            FragmentHandler(const FragmentHandler &) = delete;
+            FragmentHandler& operator=(FragmentHandler &) = delete;
 
-			void receiveFragments(std::list<FragmentPtr> fragments);
+            void receiveFragments(std::list<FragmentPtr> fragments);
 
-		private:
-			void checkAndFlush(uint32_t msgId);
+        private:
+            void checkAndFlush(uint32_t msgId);
 
-			RouterContext &m_ctx;
+            RouterContext &m_ctx;
 
-			std::unordered_map<uint32_t, FragmentState> m_states;
+            std::unordered_map<uint32_t, FragmentState> m_states;
 
-			mutable std::mutex m_statesMutex;
+            mutable std::mutex m_statesMutex;
 
-			i2p_logger_mt m_log;
-	};
+            i2p_logger_mt m_log;
+    };
 }
 
 #endif

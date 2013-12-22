@@ -8,80 +8,80 @@
 
 namespace i2pcpp {
 
-	Mapping::Mapping(ByteArrayConstItr &begin, ByteArrayConstItr end)
-	{
-		uint16_t size = (*(begin++) << 8) | *(begin++);
-		if((end - begin) < size) throw FormattingError();
+    Mapping::Mapping(ByteArrayConstItr &begin, ByteArrayConstItr end)
+    {
+        uint16_t size = (*(begin++) << 8) | *(begin++);
+        if((end - begin) < size) throw FormattingError();
 
-		end = begin + size;
+        end = begin + size;
 
-		while(begin != end) {
-			unsigned char keySize = *(begin++);
-			if((end - begin) < keySize) throw FormattingError();
-			std::string key(begin, begin + keySize);
-			begin += keySize;
+        while(begin != end) {
+            unsigned char keySize = *(begin++);
+            if((end - begin) < keySize) throw FormattingError();
+            std::string key(begin, begin + keySize);
+            begin += keySize;
 
-			begin++; // Equal
+            begin++; // Equal
 
-			unsigned char valueSize = *(begin++);
-			if((end - begin) < valueSize) throw FormattingError();
-			std::string value(begin, begin + valueSize);
-			begin += valueSize;
+            unsigned char valueSize = *(begin++);
+            if((end - begin) < valueSize) throw FormattingError();
+            std::string value(begin, begin + valueSize);
+            begin += valueSize;
 
-			begin++; // Semi-colon
+            begin++; // Semi-colon
 
-			m_map[key] = value;
-		}
-	}
+            m_map[key] = value;
+        }
+    }
 
-	void Mapping::setValue(std::string const &name, std::string const &value)
-	{
-		m_map[name] = value;
-	}
+    void Mapping::setValue(std::string const &name, std::string const &value)
+    {
+        m_map[name] = value;
+    }
 
-	void Mapping::deleteValue(std::string const &name)
-	{
-		m_map.erase(name);
-	}
+    void Mapping::deleteValue(std::string const &name)
+    {
+        m_map.erase(name);
+    }
 
-	std::string Mapping::getValue(std::string const &name) const
-	{
-		std::string s;
+    std::string Mapping::getValue(std::string const &name) const
+    {
+        std::string s;
 
-		auto itr = m_map.find(name);
-		if(itr != m_map.end())
-			s = itr->second;
+        auto itr = m_map.find(name);
+        if(itr != m_map.end())
+            s = itr->second;
 
-		return s;
-	}
+        return s;
+    }
 
-	ByteArray Mapping::serialize() const
-	{
-		ByteArray ret;
+    ByteArray Mapping::serialize() const
+    {
+        ByteArray ret;
 
-		for(auto& o: m_map) {
-			ret.insert(ret.end(), o.first.size());
-			ret.insert(ret.end(), o.first.begin(), o.first.end());
-			ret.insert(ret.end(), '=');
-			ret.insert(ret.end(), o.second.size());
-			ret.insert(ret.end(), o.second.begin(), o.second.end());
-			ret.insert(ret.end(), ';');
-		}
+        for(auto& o: m_map) {
+            ret.insert(ret.end(), o.first.size());
+            ret.insert(ret.end(), o.first.begin(), o.first.end());
+            ret.insert(ret.end(), '=');
+            ret.insert(ret.end(), o.second.size());
+            ret.insert(ret.end(), o.second.begin(), o.second.end());
+            ret.insert(ret.end(), ';');
+        }
 
-		uint16_t size = ret.size();
-		ret.insert(ret.begin(), size);
-		ret.insert(ret.begin(), size >> 8);
+        uint16_t size = ret.size();
+        ret.insert(ret.begin(), size);
+        ret.insert(ret.begin(), size >> 8);
 
-		return ret;
-	}
+        return ret;
+    }
 
-	std::map<std::string, std::string>::const_iterator Mapping::begin() const
-	{
-		return m_map.cbegin();
-	}
+    std::map<std::string, std::string>::const_iterator Mapping::begin() const
+    {
+        return m_map.cbegin();
+    }
 
-	std::map<std::string, std::string>::const_iterator Mapping::end() const
-	{
-		return m_map.cend();
-	}
+    std::map<std::string, std::string>::const_iterator Mapping::end() const
+    {
+        return m_map.cend();
+    }
 }

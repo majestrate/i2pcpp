@@ -3,77 +3,77 @@
 #include "../datatypes/BuildResponseRecord.h"
 
 namespace i2pcpp {
-	Tunnel::State Tunnel::getState() const
-	{
-		return m_state;
-	}
+    Tunnel::State Tunnel::getState() const
+    {
+        return m_state;
+    }
 
-	uint32_t Tunnel::getTunnelId() const
-	{
-		return m_tunnelId;
-	}
+    uint32_t Tunnel::getTunnelId() const
+    {
+        return m_tunnelId;
+    }
 
-	std::list<BuildRecordPtr> Tunnel::getRecords() const
-	{
-		std::list<BuildRecordPtr> recs;
+    std::list<BuildRecordPtr> Tunnel::getRecords() const
+    {
+        std::list<BuildRecordPtr> recs;
 
-		for(auto h = m_hops.cbegin(); h != m_hops.cend(); ++h) {
-			auto record = std::make_shared<BuildRequestRecord>();
+        for(auto h = m_hops.cbegin(); h != m_hops.cend(); ++h) {
+            auto record = std::make_shared<BuildRequestRecord>();
 
-			const RouterHash hopHash = (*h)->getLocalHash();
-			StaticByteArray<16> truncatedHash;
-			std::copy(hopHash.cbegin(), hopHash.cbegin() + 16, truncatedHash.begin());
-			record->setHeader(truncatedHash);
+            const RouterHash hopHash = (*h)->getLocalHash();
+            StaticByteArray<16> truncatedHash;
+            std::copy(hopHash.cbegin(), hopHash.cbegin() + 16, truncatedHash.begin());
+            record->setHeader(truncatedHash);
 
-			record->compile(**h);
-			record->encrypt((*h)->getEncryptionKey());
+            record->compile(**h);
+            record->encrypt((*h)->getEncryptionKey());
 
-			std::list<TunnelHopPtr>::const_reverse_iterator r(h);
-			for(; r != m_hops.crend(); ++r)
-				record->decrypt((*r)->getReplyIV(), (*r)->getReplyKey());
+            std::list<TunnelHopPtr>::const_reverse_iterator r(h);
+            for(; r != m_hops.crend(); ++r)
+                record->decrypt((*r)->getReplyIV(), (*r)->getReplyKey());
 
-			recs.emplace_back(record);
-		}
+            recs.emplace_back(record);
+        }
 
-		return recs;
-	}
+        return recs;
+    }
 
-	RouterHash Tunnel::getDownstream() const
-	{
-		return m_hops.front()->getLocalHash();
-	}
+    RouterHash Tunnel::getDownstream() const
+    {
+        return m_hops.front()->getLocalHash();
+    }
 
-	uint32_t Tunnel::getNextMsgId() const
-	{
-		return m_nextMsgId;
-	}
+    uint32_t Tunnel::getNextMsgId() const
+    {
+        return m_nextMsgId;
+    }
 
-	void Tunnel::handleResponses(std::list<BuildRecordPtr> const &records)
-	{
-		bool allgood = true;
+    void Tunnel::handleResponses(std::list<BuildRecordPtr> const &records)
+    {
+        bool allgood = true;
 
-		auto h = m_hops.crbegin();
-		++h;
+        auto h = m_hops.crbegin();
+        ++h;
 
-		for(; h != m_hops.crend(); ++h) {
-			for(auto r: records)
-				r->decrypt((*h)->getReplyIV(), (*h)->getReplyKey());
+        for(; h != m_hops.crend(); ++h) {
+            for(auto r: records)
+                r->decrypt((*h)->getReplyIV(), (*h)->getReplyKey());
 
-			for(auto r: records) {
-				BuildResponseRecord resp = *r;
-				resp.parse();
-				if(resp.getReply() == BuildResponseRecord::Reply::SUCCESS) {
-					// TODO Record the success in the router's profile.
-				} else {
-					// TODO Record the failure in the router's profile.
-					allgood = false;
-				}
-			}
-		}
+            for(auto r: records) {
+                BuildResponseRecord resp = *r;
+                resp.parse();
+                if(resp.getReply() == BuildResponseRecord::Reply::SUCCESS) {
+                    // TODO Record the success in the router's profile.
+                } else {
+                    // TODO Record the failure in the router's profile.
+                    allgood = false;
+                }
+            }
+        }
 
-		if(allgood)
-			m_state = Tunnel::State::OPERATIONAL;
-		else
-			m_state = Tunnel::State::FAILED;
-	}
+        if(allgood)
+            m_state = Tunnel::State::OPERATIONAL;
+        else
+            m_state = Tunnel::State::FAILED;
+    }
 }

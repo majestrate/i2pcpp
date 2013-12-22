@@ -12,25 +12,25 @@
 #define I2P_LOG_SCOPED_TAG(logger, name, value) BOOST_LOG_SCOPED_LOGGER_TAG(logger, name, value)
 
 namespace i2pcpp {
-	enum severity_level
-	{
-		debug,
-		info,
-		warning,
-		error,
-		fatal
-	};
+    enum severity_level
+    {
+        debug,
+        info,
+        warning,
+        error,
+        fatal
+    };
 
-	typedef boost::log::sources::severity_channel_logger_mt<severity_level, std::string> i2p_logger_mt;
+    typedef boost::log::sources::severity_channel_logger_mt<severity_level, std::string> i2p_logger_mt;
 
-	class Log {
-		public:
-			Log() = delete;
+    class Log {
+        public:
+            Log() = delete;
 
-			static void initialize();
-			static void logToFile(const std::string &file);
-			static void formatter(boost::log::record_view const &rec, boost::log::formatting_ostream &s);
-	};
+            static void initialize();
+            static void logToFile(const std::string &file);
+            static void formatter(boost::log::record_view const &rec, boost::log::formatting_ostream &s);
+    };
 }
 
 #endif

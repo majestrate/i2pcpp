@@ -8,7 +8,7 @@
 #include "StaticByteArray.h"
 
 namespace i2pcpp {
-	typedef StaticByteArray<32> RouterHash;
+    typedef StaticByteArray<32> RouterHash;
 }
 
 #endif

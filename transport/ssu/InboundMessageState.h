@@ -8,33 +8,33 @@
 #include "../../datatypes/RouterHash.h"
 
 namespace i2pcpp {
-	namespace SSU {
-		class InboundMessageState {
-			public:
-				InboundMessageState(RouterHash const &rh, const uint32_t msgId);
+    namespace SSU {
+        class InboundMessageState {
+            public:
+                InboundMessageState(RouterHash const &rh, const uint32_t msgId);
 
-				void addFragment(const uint8_t fragNum, ByteArray const &data, bool isLast);
-				ByteArray assemble() const;
+                void addFragment(const uint8_t fragNum, ByteArray const &data, bool isLast);
+                ByteArray assemble() const;
 
-				RouterHash getRouterHash() const;
-				uint32_t getMsgId() const;
+                RouterHash getRouterHash() const;
+                uint32_t getMsgId() const;
 
-				bool allFragmentsReceived() const;
-				std::vector<bool> getFragmentsReceived() const;
+                bool allFragmentsReceived() const;
+                std::vector<bool> getFragmentsReceived() const;
 
-			private:
-				RouterHash m_routerHash;
+            private:
+                RouterHash m_routerHash;
 
-				uint32_t m_msgId;
-				bool m_gotLast = false;
-				uint8_t m_lastFragment;
-				uint32_t m_byteTotal = 0;
+                uint32_t m_msgId;
+                bool m_gotLast = false;
+                uint8_t m_lastFragment;
+                uint32_t m_byteTotal = 0;
 
-				std::vector<ByteArrayPtr> m_fragments;
-		};
+                std::vector<ByteArrayPtr> m_fragments;
+        };
 
-		typedef std::shared_ptr<InboundMessageState> InboundMessageStatePtr;
-	}
+        typedef std::shared_ptr<InboundMessageState> InboundMessageStatePtr;
+    }
 }
 
 #endif

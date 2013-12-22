@@ -4,19 +4,19 @@
 #include "datatypes/RouterInfo.h"
 
 namespace i2pcpp {
-	class RouterContext;
+    class RouterContext;
 
-	class ProfileManager {
-		public:
-			ProfileManager(RouterContext &ctx);
-			ProfileManager(const ProfileManager &) = delete;
-			ProfileManager& operator=(ProfileManager &) = delete;
+    class ProfileManager {
+        public:
+            ProfileManager(RouterContext &ctx);
+            ProfileManager(const ProfileManager &) = delete;
+            ProfileManager& operator=(ProfileManager &) = delete;
 
-			const RouterInfo getPeer();
+            const RouterInfo getPeer();
 
-		private:
-			RouterContext& m_ctx;
-	};
+        private:
+            RouterContext& m_ctx;
+    };
 }
 
 #endif

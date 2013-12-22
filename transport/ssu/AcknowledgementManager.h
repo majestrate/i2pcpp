@@ -6,25 +6,25 @@
 #include "../../Log.h"
 
 namespace i2pcpp {
-	class UDPTransport;
+    class UDPTransport;
 
-	namespace SSU {
-		class AcknowledgementManager {
-			public:
-				AcknowledgementManager(UDPTransport &transport);
-				AcknowledgementManager(const AcknowledgementManager &) = delete;
-				AcknowledgementManager& operator=(AcknowledgementManager &) = delete;
+    namespace SSU {
+        class AcknowledgementManager {
+            public:
+                AcknowledgementManager(UDPTransport &transport);
+                AcknowledgementManager(const AcknowledgementManager &) = delete;
+                AcknowledgementManager& operator=(AcknowledgementManager &) = delete;
 
-			private:
-				void flushAckCallback(const boost::system::error_code& e);
+            private:
+                void flushAckCallback(const boost::system::error_code& e);
 
-				UDPTransport& m_transport;
+                UDPTransport& m_transport;
 
-				boost::asio::deadline_timer m_timer;
+                boost::asio::deadline_timer m_timer;
 
-				i2p_logger_mt m_log;
-		};
-	}
+                i2p_logger_mt m_log;
+        };
+    }
 }
 
 #endif

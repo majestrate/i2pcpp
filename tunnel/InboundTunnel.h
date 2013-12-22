@@ -6,12 +6,12 @@
 #include "Tunnel.h"
 
 namespace i2pcpp {
-	class InboundTunnel : public Tunnel {
-		public:
-			InboundTunnel(RouterHash const &myHash, std::vector<RouterIdentity> const &hops = {});
+    class InboundTunnel : public Tunnel {
+        public:
+            InboundTunnel(RouterHash const &myHash, std::vector<RouterIdentity> const &hops = {});
 
-			Tunnel::Direction getDirection() const;
-	};
+            Tunnel::Direction getDirection() const;
+    };
 }
 
 #endif

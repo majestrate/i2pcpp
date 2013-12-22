@@ -8,25 +8,25 @@
 #include "Message.h"
 
 namespace i2pcpp {
-	namespace I2NP {
-		class VariableTunnelBuildReply : public Message {
-			public:
-				VariableTunnelBuildReply(std::list<BuildRecordPtr> const &buildRecords);
-				VariableTunnelBuildReply(uint32_t msgId, std::list<BuildRecordPtr> const &buildRecords);
+    namespace I2NP {
+        class VariableTunnelBuildReply : public Message {
+            public:
+                VariableTunnelBuildReply(std::list<BuildRecordPtr> const &buildRecords);
+                VariableTunnelBuildReply(uint32_t msgId, std::list<BuildRecordPtr> const &buildRecords);
 
-				std::list<BuildRecordPtr> getRecords() const;
+                std::list<BuildRecordPtr> getRecords() const;
 
-				static VariableTunnelBuildReply parse(ByteArrayConstItr &begin, ByteArrayConstItr end);
+                static VariableTunnelBuildReply parse(ByteArrayConstItr &begin, ByteArrayConstItr end);
 
-			protected:
-				VariableTunnelBuildReply() = default;
+            protected:
+                VariableTunnelBuildReply() = default;
 
-				ByteArray compile() const;
+                ByteArray compile() const;
 
-			private:
-				std::list<BuildRecordPtr> m_buildRecords;
-		};
-	}
+            private:
+                std::list<BuildRecordPtr> m_buildRecords;
+        };
+    }
 }
 
 #endif

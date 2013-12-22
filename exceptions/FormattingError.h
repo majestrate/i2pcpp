@@ -4,10 +4,10 @@
 #include <stdexcept>
 
 namespace i2pcpp {
-	class FormattingError : public std::runtime_error {
-		public:
-			FormattingError();
-	};
+    class FormattingError : public std::runtime_error {
+        public:
+            FormattingError();
+    };
 }
 
 #endif

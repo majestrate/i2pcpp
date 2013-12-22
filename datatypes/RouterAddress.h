@@ -16,8 +16,8 @@ namespace i2pcpp {
     /**
      * Datatype that allows a router to be contacted through a transport protocol.
      */
-	class RouterAddress : public Datatype {
-		public:
+    class RouterAddress : public Datatype {
+        public:
             /**
              * @param cost the weighed cost of using the address (0 = free, 255 = expensive)
              * @param expiration the expiration date of the address
@@ -26,50 +26,50 @@ namespace i2pcpp {
              * @warning expiration must be zero (currently unusued)
              * @note cost is used for hashcash
              */
-			RouterAddress(int cost, Date const &expiration, std::string const &transport, Mapping const &options);
+            RouterAddress(int cost, Date const &expiration, std::string const &transport, Mapping const &options);
 
             /**
              * Constructs from iterators to the begin and end of an i2pcpp::ByteArray.
              * Format must be:
              * cost (1B) | expiration (8B) | len (1B) | transport (len) | options
              */
-			RouterAddress(ByteArrayConstItr &begin, ByteArrayConstItr end);
+            RouterAddress(ByteArrayConstItr &begin, ByteArrayConstItr end);
 
             /**
              * Serializes the object into an i2pcpp::ByteArray with the following
              * format:
              * cost (1B) | expiration (8B) | len (1B) | transport (len) | options
              */
-			ByteArray serialize() const;
+            ByteArray serialize() const;
 
             /**
              * @return the cost of using the address (0 = free, 255 = expensive)
              */
-			const unsigned char getCost() const;
+            const unsigned char getCost() const;
 
             /**
              * @return the expiration date
              * @warning curently unused
              */
-			const Date& getExpiration() const;
+            const Date& getExpiration() const;
 
             /**
              * @return the transport type as a string
              */
-			const std::string& getTransport() const;
+            const std::string& getTransport() const;
 
             /**
              * @return the i2pcpp::Mapping containing all the options related
              *  to the transport.
              */
-			const Mapping& getOptions() const;
+            const Mapping& getOptions() const;
 
-		private:
-			unsigned char m_cost;
-			Date m_expiration;
-			std::string m_transport;
-			Mapping m_options;
-	};
+        private:
+            unsigned char m_cost;
+            Date m_expiration;
+            std::string m_transport;
+            Mapping m_options;
+    };
 }
 
 #endif
