@@ -15,15 +15,16 @@
 #include "ssu/PacketHandler.h"
 #include "ssu/PeerStateList.h"
 #include "ssu/EstablishmentManager.h"
-#include "ssu/AcknowledgementScheduler.h"
+#include "ssu/AcknowledgementManager.h"
 #include "ssu/OutboundMessageFragments.h"
 
 namespace i2pcpp {
 	class UDPTransport : public Transport {
 		friend class SSU::PacketHandler;
+		friend class SSU::PeerStateList;
 		friend class SSU::EstablishmentManager;
 		friend class SSU::InboundMessageFragments;
-		friend class SSU::AcknowledgementScheduler;
+		friend class SSU::AcknowledgementManager;
 		friend class SSU::OutboundMessageFragments;
 
 		public:
@@ -43,9 +44,6 @@ namespace i2pcpp {
 			void dataReceived(const boost::system::error_code& e, size_t n);
 			void dataSent(const boost::system::error_code& e, size_t n, boost::asio::ip::udp::endpoint ep);
 
-			template<typename CompletionHandler>
-			void post(CompletionHandler ch) { m_ios.post(ch); }
-
 			SSU::EstablishmentManager& getEstablisher();
 
 			boost::asio::io_service m_ios;
@@ -59,7 +57,7 @@ namespace i2pcpp {
 
 			SSU::PacketHandler m_packetHandler;
 			SSU::EstablishmentManager m_establishmentManager;
-			SSU::AcknowledgementScheduler m_ackScheduler;
+			SSU::AcknowledgementManager m_ackManager;
 			SSU::OutboundMessageFragments m_omf;
 
 			i2p_logger_mt m_log;

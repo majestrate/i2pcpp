@@ -14,11 +14,14 @@ namespace i2pcpp {
 		{
 			I2P_LOG_SCOPED_TAG(m_log, "Endpoint", p->getEndpoint());
 
-			PeerStatePtr ps = m_transport.m_peers.getRemotePeer(p->getEndpoint());
-			if(ps) {
-				handlePacket(p, ps);
+			auto ep = p->getEndpoint();
+
+			std::lock_guard<std::mutex> lock(m_transport.m_peers.getMutex());
+
+			if(m_transport.m_peers.peerExists(ep)) {
+				handlePacket(p, m_transport.m_peers.getPeer(ep));
 			} else {
-				EstablishmentStatePtr es = m_transport.getEstablisher().getState(p->getEndpoint());
+				EstablishmentStatePtr es = m_transport.getEstablisher().getState(ep);
 				if(es)
 					handlePacket(p, es);
 				else
@@ -26,14 +29,14 @@ namespace i2pcpp {
 			}
 		}
 
-		void PacketHandler::handlePacket(PacketPtr const &packet, PeerStatePtr const &state)
+		void PacketHandler::handlePacket(PacketPtr const &packet, PeerState const &state)
 		{
-			if(!packet->verify(state->getCurrentMacKey())) {
+			if(!packet->verify(state.getCurrentMacKey())) {
 				I2P_LOG(m_log, error) << "packet verification failed";
 				return;
 			}
 
-			packet->decrypt(state->getCurrentSessionKey());
+			packet->decrypt(state.getCurrentSessionKey());
 			ByteArray &data = packet->getData();
 
 			auto dataItr = data.cbegin();
@@ -45,7 +48,7 @@ namespace i2pcpp {
 			switch(ptype) {
 				case Packet::PayloadType::DATA:
 					I2P_LOG(m_log, debug) << "data packet received";
-					m_imf.receiveData(state, dataItr, data.cend());
+					m_imf.receiveData(state.getHash(), dataItr, data.cend());
 					break;
 
 				case Packet::PayloadType::SESSION_DESTROY:
@@ -199,10 +202,10 @@ namespace i2pcpp {
 			m_transport.getEstablisher().post(state);
 		}
 
-		void PacketHandler::handleSessionDestroyed(PeerStatePtr const &ps)
+		void PacketHandler::handleSessionDestroyed(PeerState const &ps)
 		{
-			m_transport.m_peers.delRemotePeer(ps->getEndpoint());
-			m_transport.post(boost::bind(boost::ref(m_transport.m_disconnectedSignal), ps->getIdentity().getHash()));
+			m_transport.m_peers.delPeer(ps.getEndpoint());
+			m_transport.m_ios.post(boost::bind(boost::ref(m_transport.m_disconnectedSignal), ps.getHash()));
 		}
 
 		void PacketHandler::handleSessionDestroyed(EstablishmentStatePtr const &state)

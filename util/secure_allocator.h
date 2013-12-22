@@ -3,13 +3,19 @@
 
 namespace i2pcpp {
 	template<typename T>
-		class secure_allocator : public std::allocator<T>
+		class secure_allocator
 		{
-			typedef typename std::allocator<T>::pointer pointer;
-			typedef typename std::allocator<T>::size_type size_type;
-
 			public:
-				static void deallocate(pointer p, size_type s) noexcept
+				typedef T value_type;
+				typedef T* pointer;
+				typedef std::size_t size_type;
+
+				pointer allocate(size_type n)
+				{
+					return static_cast<pointer>(::operator new(n * sizeof(value_type)));
+				}
+
+				void deallocate(pointer p, size_type s) noexcept
 				{
 					for(size_t i = 0; i != s; ++i)
 						p[i] = 0;

@@ -10,9 +10,10 @@ namespace i2pcpp {
 	UDPTransport::UDPTransport(Botan::DSA_PrivateKey const &privKey, RouterIdentity const &ri) :
 		Transport(),
 		m_socket(m_ios),
+		m_peers(*this),
 		m_packetHandler(*this, (SessionKey)(ByteArray)ri.getHash()),
 		m_establishmentManager(*this, privKey, ri),
-		m_ackScheduler(*this),
+		m_ackManager(*this),
 		m_omf(*this),
 		m_log(boost::log::keywords::channel = "SSU") {}
 
@@ -74,7 +75,9 @@ namespace i2pcpp {
 					Endpoint ep(m.getValue("host"), stoi(m.getValue("port")));
 					RouterIdentity id = ri.getIdentity();
 
-					if(m_establishmentManager.stateExists(ep) || m_peers.remotePeerExists(ep))
+					std::lock_guard<std::mutex> lock(m_peers.getMutex());
+
+					if(m_establishmentManager.stateExists(ep) || m_peers.peerExists(ep))
 						return;
 
 					m_establishmentManager.createState(ep, id);
@@ -95,9 +98,11 @@ namespace i2pcpp {
 	{
 		using namespace SSU;
 
-		PeerStatePtr ps = m_peers.getRemotePeer(rh);
+		std::lock_guard<std::mutex> lock(m_peers.getMutex());
 
-		if(ps) {
+		if(m_peers.peerExists(rh)) {
+			PeerState ps = m_peers.getPeer(rh);
+
 			m_omf.sendData(ps, msgId, data);
 		} else {
 			// TODO Exception
@@ -110,19 +115,25 @@ namespace i2pcpp {
 
 	uint32_t UDPTransport::numPeers() const
 	{
+		std::lock_guard<std::mutex> lock(m_peers.getMutex());
+
 		return m_peers.numPeers();
 	}
 
 	bool UDPTransport::isConnected(RouterHash const &rh) const
 	{
-		return m_peers.remotePeerExists(rh);
+		std::lock_guard<std::mutex> lock(m_peers.getMutex());
+
+		return m_peers.peerExists(rh);
 	}
 
 	void UDPTransport::shutdown()
 	{
-		for(auto& pair: m_peers) {
-			SSU::PacketPtr sdp = SSU::PacketBuilder::buildSessionDestroyed(pair.second->getEndpoint());
-			sdp->encrypt(pair.second->getCurrentSessionKey(), pair.second->getCurrentMacKey());
+		std::lock_guard<std::mutex> lock(m_peers.getMutex());
+
+		for(auto itr = m_peers.cbegin(); itr != m_peers.cend(); ++itr) {
+			SSU::PacketPtr sdp = SSU::PacketBuilder::buildSessionDestroyed(itr->getEndpoint());
+			sdp->encrypt(itr->getCurrentSessionKey(), itr->getCurrentMacKey());
 			sendPacket(sdp);
 		}
 

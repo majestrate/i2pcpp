@@ -2,7 +2,7 @@
 
 namespace i2pcpp {
 	namespace I2NP {
-		const std::array<unsigned char, 32>& DatabaseSearchReply::getKey() const
+		const StaticByteArray<32>& DatabaseSearchReply::getKey() const
 		{
 			return m_key;
 		}

@@ -13,8 +13,6 @@ namespace i2pcpp {
 			m_ctx(ctx),
 			m_log(boost::log::keywords::channel = "SM") {}
 
-		SearchManager::~SearchManager() {}
-
 		boost::signals2::connection SearchManager::registerSuccess(SuccessSignal::slot_type const &sh)
 		{
 			return m_successSignal.connect(sh);
@@ -25,7 +23,7 @@ namespace i2pcpp {
 			return m_failureSignal.connect(fh);
 		}
 
-		void SearchManager::createSearch(KademliaKey const &k, RouterHash const &start)
+		void SearchManager::createSearch(Kademlia::key_type const &k, Kademlia::result_type const &startingPoints)
 		{
 			std::lock_guard<std::mutex> lock(m_searchesMutex);
 
@@ -33,19 +31,28 @@ namespace i2pcpp {
 
 			SearchState ss;
 			ss.goal = k;
-			ss.current = start;
+
+			auto itr = startingPoints.first;
+			auto& end = startingPoints.second;
+
+			auto& firstPeerToAsk = (*itr).second;
+			ss.current = firstPeerToAsk;
+			++itr;
+
+			for(; itr != end; ++itr)
+				ss.alternates.push((*itr).second);
 
 			m_searches.insert(ss);
 
 			m_timers[k] = std::make_unique<boost::asio::deadline_timer>(m_ios, boost::posix_time::time_duration(0, 2, 0));
 			m_timers[k]->async_wait(boost::bind(&SearchManager::timeout, this, boost::asio::placeholders::error, k));
 
-			I2P_LOG(m_log, debug) << "created SearchState for " << Base64::encode(ByteArray(k.cbegin(), k.cend())) << " starting with " << start;
+			I2P_LOG(m_log, debug) << "created SearchState for " << Base64::encode(ByteArray(k.cbegin(), k.cend())) << " starting with " << firstPeerToAsk;
 
-			m_ctx.getOutMsgDisp().getTransport()->connect(m_ctx.getDatabase().getRouterInfo(start));
+			m_ctx.getOutMsgDisp().getTransport()->connect(m_ctx.getDatabase().getRouterInfo(firstPeerToAsk));
 		}
 
-		void SearchManager::timeout(const boost::system::error_code& e, KademliaKey const k)
+		void SearchManager::timeout(const boost::system::error_code& e, Kademlia::key_type const k)
 		{
 			if(!e) {
 				I2P_LOG(m_log, debug) << "timeout for " << Base64::encode(ByteArray(k.cbegin(), k.cend()));
@@ -55,7 +62,7 @@ namespace i2pcpp {
 			}
 		}
 
-		void SearchManager::cancel(KademliaKey const &k)
+		void SearchManager::cancel(Kademlia::key_type const &k)
 		{
 			SearchStateByGoal::iterator itr = m_searches.get<0>().find(k);
 

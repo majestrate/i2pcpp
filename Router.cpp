@@ -78,9 +78,9 @@ namespace i2pcpp {
 		RouterAddress a(5, Date(0), "SSU", am);
 
 		Mapping rm;
-		rm.setValue("coreVersion", "0.9.8.1");
+		rm.setValue("coreVersion", "0.9.9");
 		rm.setValue("netId", "2");
-		rm.setValue("router.version", "0.9.8.1");
+		rm.setValue("router.version", "0.9.9");
 		rm.setValue("stat_uptime", "90m");
 		rm.setValue("caps", "OR");
 		RouterInfo myInfo(*m_ctx.getIdentity(), Date(), rm);
