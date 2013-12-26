@@ -35,20 +35,11 @@ CREATE TABLE IF NOT EXISTS "profiles" (
 );
 ;
 CREATE TABLE IF NOT EXISTS  "router_address_options" (
-<<<<<<< HEAD
-    "router_id" BLOB NOT NULL,
-    "index" INTEGER NOT NULL,
-    "name" TEXT NOT NULL,
-    "value" TEXT NOT NULL,
-    PRIMARY KEY(router_id, "index", name),
-    FOREIGN KEY(router_id, "index") REFERENCES router_addresses(router_id, "index") ON UPDATE CASCADE ON DELETE CASCADE
-=======
   "router_id" BLOB NOT NULL,
   "index" INTEGER NOT NULL,
   "name" TEXT NOT NULL,
   "value" TEXT NOT NULL,
   PRIMARY KEY(router_id, "index", name),
   FOREIGN KEY(router_id, "index") REFERENCES router_addresses(router_id, "index") ON UPDATE CASCADE ON DELETE CASCADE
->>>>>>> 014996f8592cb941491d7fcfd00f1ba1a09f2b17
 );
 ;
