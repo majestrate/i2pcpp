@@ -1,3 +1,7 @@
+/**
+ * @file InboundMessageFragments.cpp
+ * @brief Implements InboundMessageFragments.h.
+ */
 #include "InboundMessageFragments.h"
 
 #include <string>
@@ -45,22 +49,26 @@ namespace i2pcpp {
 
                 unsigned char numFields = *(begin++);
                 while(numFields--) {
+                    // Read 4 byte msgId
                     uint32_t msgId = (begin[0] << 24) | (begin[1] << 16) | (begin[2] << 8) | (begin[3]);
                     begin += 4;
 
+                    // Read ACK bitfield (1 byte)
                     std::lock_guard<std::mutex> lock(m_transport.m_omf.m_mutex);
                     auto itr = m_transport.m_omf.m_states.find(msgId);
                     uint8_t byteNum = 0;
                     do {
                         uint8_t byte = *begin;
                         for(int i = 6, j = 0; i >= 0; i--, j++) {
-                            if(byte & (1 << i)) {
+                            // If the bit is 1, the fragment has been received
+                            if(byte & (1 << i)) { 
                                 if(itr != m_transport.m_omf.m_states.end())
                                     itr->second.markFragmentAckd((byteNum * 7) + j);
                             }
                         }
 
                         ++byteNum;
+                    // If the low bit is 1, another bitfield follows
                     } while(*(begin++) & (1 << 7));
 
                     if(itr != m_transport.m_omf.m_states.end() && itr->second.allFragmentsAckd())

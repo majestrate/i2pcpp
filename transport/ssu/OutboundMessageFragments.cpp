@@ -1,3 +1,7 @@
+/**
+ * @file OutboundMessageFragments.cpp
+ * @brief Implements OutboundMessageFragments.h
+ */
 #include "OutboundMessageFragments.h"
 
 #include "../../util/make_unique.h"

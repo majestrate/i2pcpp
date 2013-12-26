@@ -1,3 +1,7 @@
+/**
+ * @file EstablishmentManager.cpp
+ * Implements EstablishmentManager.h
+ */
 #include "EstablishmentManager.h"
 
 #include <boost/bind.hpp>

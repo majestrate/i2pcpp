@@ -1,3 +1,7 @@
+/**
+ * @file OutboundMessageState.cpp
+ * @brief Implements OutboundMessageState.h
+ */
 #include "OutboundMessageState.h"
 
 #include "../../Log.h"

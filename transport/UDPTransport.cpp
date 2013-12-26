@@ -1,3 +1,7 @@
+/**
+ * @file UDPTransport.cpp
+ * @brief Implements UDPTransport.h 
+ */
 #include "UDPTransport.h"
 
 #include <boost/exception/all.hpp>
@@ -86,7 +90,7 @@ namespace i2pcpp {
                     I2P_LOG_SCOPED_TAG(m_log, "RouterHash", id.getHash());
                     I2P_LOG(m_log, debug) << "attempting to establish session";
 
-                    break;
+                    break; // Only connect to the first address
                 }
             }
         } catch(std::exception &e) {
@@ -111,6 +115,7 @@ namespace i2pcpp {
 
     void UDPTransport::disconnect(RouterHash const &rh)
     {
+        // TODO: Implement
     }
 
     uint32_t UDPTransport::numPeers() const
