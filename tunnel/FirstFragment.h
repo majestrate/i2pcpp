@@ -6,35 +6,35 @@
 #include "../datatypes/RouterHash.h"
 
 namespace i2pcpp {
-	class FirstFragment : public Fragment {
-		public:
-			enum class DeliveryMode {
-				LOCAL = 0x00,
-				TUNNEL = 0x01,
-				ROUTER = 0x02
-			};
+    class FirstFragment : public Fragment {
+        public:
+            enum class DeliveryMode {
+                LOCAL = 0x00,
+                TUNNEL = 0x01,
+                ROUTER = 0x02
+            };
 
-			ByteArray compile() const;
+            ByteArray compile() const;
 
-			bool mustFragment(uint16_t desiredSize, uint16_t max) const;
-			void setFragmented(bool f);
-			bool isFragmented() const;
+            bool mustFragment(uint16_t desiredSize, uint16_t max) const;
+            void setFragmented(bool f);
+            bool isFragmented() const;
 
-			uint32_t getTunnelId() const;
-			const RouterHash& getToHash() const;
+            uint32_t getTunnelId() const;
+            const RouterHash& getToHash() const;
 
-			DeliveryMode getDeliveryMode() const;
+            DeliveryMode getDeliveryMode() const;
 
-			static FirstFragment parse(ByteArrayConstItr &begin, ByteArrayConstItr end);
+            static FirstFragment parse(ByteArrayConstItr &begin, ByteArrayConstItr end);
 
-		private:
-			uint8_t headerSize() const;
+        private:
+            uint8_t headerSize() const;
 
-			DeliveryMode m_mode = DeliveryMode::LOCAL;
-			bool m_fragmented = false;
-			uint32_t m_tunnelId;
-			RouterHash m_toHash;
-	};
+            DeliveryMode m_mode = DeliveryMode::LOCAL;
+            bool m_fragmented = false;
+            uint32_t m_tunnelId;
+            RouterHash m_toHash;
+    };
 }
 
 #endif

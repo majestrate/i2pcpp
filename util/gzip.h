@@ -43,7 +43,7 @@ class Gzip_Compression : public Botan::Filter
       const size_t level;
       const bool raw_deflate;
 
-			secure_vector<byte> buffer;
+            secure_vector<byte> buffer;
       class Gzip_Stream* gzip;
    };
 
@@ -66,7 +66,7 @@ class Gzip_Decompression : public Filter
 
       const bool raw_deflate;
 
-			secure_vector<byte> buffer;
+            secure_vector<byte> buffer;
       class Gzip_Stream* gzip;
       bool no_writes;
    };

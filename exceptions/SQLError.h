@@ -4,10 +4,10 @@
 #include <stdexcept>
 
 namespace i2pcpp {
-	class SQLError : public std::runtime_error {
-		public:
-			SQLError(std::string const &statement);
-	};
+    class SQLError : public std::runtime_error {
+        public:
+            SQLError(std::string const &statement);
+    };
 }
 
 #endif

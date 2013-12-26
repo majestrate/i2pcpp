@@ -14,51 +14,51 @@
 namespace bmi = boost::multi_index;
 
 namespace i2pcpp {
-	class UDPTransport;
+    class UDPTransport;
 
-	namespace SSU {
-		class PeerStateList {
-			private:
-				typedef boost::multi_index_container<
-					PeerState,
-					bmi::indexed_by<
-						bmi::hashed_unique<
-							bmi::const_mem_fun<PeerState, Endpoint, &PeerState::getEndpoint>
-						>,
-						bmi::hashed_unique<
-							bmi::const_mem_fun<PeerState, RouterHash, &PeerState::getHash>
-						>
-					>
-				> StateContainer;
+    namespace SSU {
+        class PeerStateList {
+            private:
+                typedef boost::multi_index_container<
+                    PeerState,
+                    bmi::indexed_by<
+                        bmi::hashed_unique<
+                            bmi::const_mem_fun<PeerState, Endpoint, &PeerState::getEndpoint>
+                        >,
+                        bmi::hashed_unique<
+                            bmi::const_mem_fun<PeerState, RouterHash, &PeerState::getHash>
+                        >
+                    >
+                > StateContainer;
 
-			public:
-				typedef StateContainer::nth_index<0>::type::const_iterator const_iterator;
+            public:
+                typedef StateContainer::nth_index<0>::type::const_iterator const_iterator;
 
-				PeerStateList(UDPTransport &transport);
+                PeerStateList(UDPTransport &transport);
 
-				void addPeer(PeerState ps);
-				PeerState getPeer(Endpoint const &ep);
-				PeerState getPeer(RouterHash const &rh);
-				void delPeer(Endpoint const &ep);
-				void delPeer(RouterHash const &rh);
-				bool peerExists(Endpoint const &ep) const;
-				bool peerExists(RouterHash const &rh) const;
-				uint32_t numPeers() const;
+                void addPeer(PeerState ps);
+                PeerState getPeer(Endpoint const &ep);
+                PeerState getPeer(RouterHash const &rh);
+                void delPeer(Endpoint const &ep);
+                void delPeer(RouterHash const &rh);
+                bool peerExists(Endpoint const &ep) const;
+                bool peerExists(RouterHash const &rh) const;
+                uint32_t numPeers() const;
 
-				const_iterator cbegin() const;
-				const_iterator cend() const;
+                const_iterator cbegin() const;
+                const_iterator cend() const;
 
-				void timerCallback(const boost::system::error_code& e, RouterHash const &rh);
+                void timerCallback(const boost::system::error_code& e, RouterHash const &rh);
 
-				std::mutex& getMutex() const;
+                std::mutex& getMutex() const;
 
-			private:
-				UDPTransport& m_transport;
-				StateContainer m_container;
+            private:
+                UDPTransport& m_transport;
+                StateContainer m_container;
 
-				mutable std::mutex m_mutex;
-		};
-	}
+                mutable std::mutex m_mutex;
+        };
+    }
 }
 
 #endif

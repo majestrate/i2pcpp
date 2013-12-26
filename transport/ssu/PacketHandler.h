@@ -9,39 +9,39 @@
 #include "InboundMessageFragments.h"
 
 namespace i2pcpp {
-	class UDPTransport;
+    class UDPTransport;
 
-	namespace SSU {
-		class PacketHandler {
-			friend class AcknowledgementManager;
+    namespace SSU {
+        class PacketHandler {
+            friend class AcknowledgementManager;
 
-			public:
-				PacketHandler(UDPTransport &transport, SessionKey const &sk);
-				PacketHandler(const PacketHandler &) = delete;
-				PacketHandler& operator=(PacketHandler &) = delete;
+            public:
+                PacketHandler(UDPTransport &transport, SessionKey const &sk);
+                PacketHandler(const PacketHandler &) = delete;
+                PacketHandler& operator=(PacketHandler &) = delete;
 
-				void packetReceived(PacketPtr p);
+                void packetReceived(PacketPtr p);
 
-			private:
-				void handlePacket(PacketPtr const &packet, PeerState const &state);
-				void handlePacket(PacketPtr const &packet, EstablishmentStatePtr const &state);
-				void handlePacket(PacketPtr &p);
+            private:
+                void handlePacket(PacketPtr const &packet, PeerState const &state);
+                void handlePacket(PacketPtr const &packet, EstablishmentStatePtr const &state);
+                void handlePacket(PacketPtr &p);
 
-				void handleSessionRequest(ByteArrayConstItr &begin, ByteArrayConstItr end, EstablishmentStatePtr const &state);
-				void handleSessionCreated(ByteArrayConstItr &begin, ByteArrayConstItr end, EstablishmentStatePtr const &state);
-				void handleSessionConfirmed(ByteArrayConstItr &begin, ByteArrayConstItr end, EstablishmentStatePtr const &state);
-				void handleSessionDestroyed(PeerState const &ps);
-				void handleSessionDestroyed(EstablishmentStatePtr const &state);
+                void handleSessionRequest(ByteArrayConstItr &begin, ByteArrayConstItr end, EstablishmentStatePtr const &state);
+                void handleSessionCreated(ByteArrayConstItr &begin, ByteArrayConstItr end, EstablishmentStatePtr const &state);
+                void handleSessionConfirmed(ByteArrayConstItr &begin, ByteArrayConstItr end, EstablishmentStatePtr const &state);
+                void handleSessionDestroyed(PeerState const &ps);
+                void handleSessionDestroyed(EstablishmentStatePtr const &state);
 
-				UDPTransport& m_transport;
+                UDPTransport& m_transport;
 
-				SessionKey m_inboundKey;
+                SessionKey m_inboundKey;
 
-				InboundMessageFragments m_imf;
+                InboundMessageFragments m_imf;
 
-				i2p_logger_mt m_log;
-		};
-	}
+                i2p_logger_mt m_log;
+        };
+    }
 }
 
 #endif

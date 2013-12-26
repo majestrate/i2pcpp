@@ -6,26 +6,26 @@
 #include "Message.h"
 
 namespace i2pcpp {
-	namespace I2NP {
-		class TunnelData : public Message {
-			public:
-				TunnelData(uint32_t const tunnelId, ByteArray const &data);
+    namespace I2NP {
+        class TunnelData : public Message {
+            public:
+                TunnelData(uint32_t const tunnelId, ByteArray const &data);
 
-				uint32_t getTunnelId() const;
-				const StaticByteArray<1024>& getData() const;
+                uint32_t getTunnelId() const;
+                const StaticByteArray<1024>& getData() const;
 
-				static TunnelData parse(ByteArrayConstItr &begin, ByteArrayConstItr end);
+                static TunnelData parse(ByteArrayConstItr &begin, ByteArrayConstItr end);
 
-			protected:
-				TunnelData() = default;
+            protected:
+                TunnelData() = default;
 
-				ByteArray compile() const;
+                ByteArray compile() const;
 
-			private:
-				uint32_t m_tunnelId;
-				StaticByteArray<1024> m_data;
-		};
-	}
+            private:
+                uint32_t m_tunnelId;
+                StaticByteArray<1024> m_data;
+        };
+    }
 }
 
 #endif

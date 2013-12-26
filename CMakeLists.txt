@@ -2,114 +2,114 @@ project(i2pcpp CXX C)
 cmake_minimum_required(VERSION 2.8.9)
 
 set(SRCS
-	Database.cpp
-	InboundMessageDispatcher.cpp
-	Log.cpp
-	OutboundMessageDispatcher.cpp
-	PeerManager.cpp
-	ProfileManager.cpp
-	Router.cpp
-	RouterContext.cpp
-	Signals.cpp
-	Version.cpp
-	datatypes/Certificate.cpp
-	datatypes/ByteArray.cpp
-	datatypes/BuildRecord.cpp
-	datatypes/BuildRequestRecord.cpp
-	datatypes/BuildResponseRecord.cpp
-	datatypes/Datatype.cpp
-	datatypes/Date.cpp
-	datatypes/Endpoint.cpp
-	datatypes/Mapping.cpp
-	datatypes/RouterAddress.cpp
-	datatypes/RouterIdentity.cpp
-	datatypes/RouterInfo.cpp
-	dht/Kademlia.cpp
-	dht/SearchManager.cpp
-	dht/SearchState.cpp
-	exceptions/FormattingError.cpp
-	exceptions/RecordNotFound.cpp
-	exceptions/SQLError.cpp
-	exceptions/StatementPrepareError.cpp
-	handlers/DatabaseSearchReply.cpp
-	handlers/DatabaseStore.cpp
-	handlers/DeliveryStatus.cpp
-	handlers/Message.cpp
-	handlers/TunnelData.cpp
-	handlers/TunnelGateway.cpp
-	handlers/VariableTunnelBuild.cpp
-	handlers/VariableTunnelBuildReply.cpp
-	i2np/DatabaseLookup.cpp
-	i2np/DatabaseSearchReply.cpp
-	i2np/DatabaseStore.cpp
-	i2np/DeliveryStatus.cpp
-	i2np/Message.cpp
-	i2np/Garlic.cpp
-	i2np/TunnelData.cpp
-	i2np/TunnelGateway.cpp
-	i2np/VariableTunnelBuild.cpp
-	i2np/VariableTunnelBuildReply.cpp
-	transport/ssu/AcknowledgementManager.cpp
-	transport/ssu/EstablishmentManager.cpp
-	transport/ssu/EstablishmentState.cpp
-	transport/ssu/InboundMessageFragments.cpp
-	transport/ssu/InboundMessageState.cpp
-	transport/ssu/OutboundMessageFragments.cpp
-	transport/ssu/OutboundMessageState.cpp
-	transport/ssu/Packet.cpp
-	transport/ssu/PacketBuilder.cpp
-	transport/ssu/PacketHandler.cpp
-	transport/ssu/PeerState.cpp
-	transport/ssu/PeerStateList.cpp
-	transport/Transport.cpp
-	transport/UDPTransport.cpp
-	tunnel/InboundTunnel.cpp
-	tunnel/OutboundTunnel.cpp
-	tunnel/Tunnel.cpp
-	tunnel/Fragment.cpp
-	tunnel/FirstFragment.cpp
-	tunnel/FollowOnFragment.cpp
-	tunnel/FragmentHandler.cpp
-	tunnel/FragmentState.cpp
-	tunnel/TunnelHop.cpp
-	tunnel/TunnelManager.cpp
-	tunnel/Message.cpp
-	util/Base64.cpp
-	util/I2PDH.cpp
-	util/I2PHMAC.cpp
-	util/gzip.cpp
-	)
+    Database.cpp
+    InboundMessageDispatcher.cpp
+    Log.cpp
+    OutboundMessageDispatcher.cpp
+    PeerManager.cpp
+    ProfileManager.cpp
+    Router.cpp
+    RouterContext.cpp
+    Signals.cpp
+    Version.cpp
+    datatypes/Certificate.cpp
+    datatypes/ByteArray.cpp
+    datatypes/BuildRecord.cpp
+    datatypes/BuildRequestRecord.cpp
+    datatypes/BuildResponseRecord.cpp
+    datatypes/Datatype.cpp
+    datatypes/Date.cpp
+    datatypes/Endpoint.cpp
+    datatypes/Mapping.cpp
+    datatypes/RouterAddress.cpp
+    datatypes/RouterIdentity.cpp
+    datatypes/RouterInfo.cpp
+    dht/Kademlia.cpp
+    dht/SearchManager.cpp
+    dht/SearchState.cpp
+    exceptions/FormattingError.cpp
+    exceptions/RecordNotFound.cpp
+    exceptions/SQLError.cpp
+    exceptions/StatementPrepareError.cpp
+    handlers/DatabaseSearchReply.cpp
+    handlers/DatabaseStore.cpp
+    handlers/DeliveryStatus.cpp
+    handlers/Message.cpp
+    handlers/TunnelData.cpp
+    handlers/TunnelGateway.cpp
+    handlers/VariableTunnelBuild.cpp
+    handlers/VariableTunnelBuildReply.cpp
+    i2np/DatabaseLookup.cpp
+    i2np/DatabaseSearchReply.cpp
+    i2np/DatabaseStore.cpp
+    i2np/DeliveryStatus.cpp
+    i2np/Message.cpp
+    i2np/Garlic.cpp
+    i2np/TunnelData.cpp
+    i2np/TunnelGateway.cpp
+    i2np/VariableTunnelBuild.cpp
+    i2np/VariableTunnelBuildReply.cpp
+    transport/ssu/AcknowledgementManager.cpp
+    transport/ssu/EstablishmentManager.cpp
+    transport/ssu/EstablishmentState.cpp
+    transport/ssu/InboundMessageFragments.cpp
+    transport/ssu/InboundMessageState.cpp
+    transport/ssu/OutboundMessageFragments.cpp
+    transport/ssu/OutboundMessageState.cpp
+    transport/ssu/Packet.cpp
+    transport/ssu/PacketBuilder.cpp
+    transport/ssu/PacketHandler.cpp
+    transport/ssu/PeerState.cpp
+    transport/ssu/PeerStateList.cpp
+    transport/Transport.cpp
+    transport/UDPTransport.cpp
+    tunnel/InboundTunnel.cpp
+    tunnel/OutboundTunnel.cpp
+    tunnel/Tunnel.cpp
+    tunnel/Fragment.cpp
+    tunnel/FirstFragment.cpp
+    tunnel/FollowOnFragment.cpp
+    tunnel/FragmentHandler.cpp
+    tunnel/FragmentState.cpp
+    tunnel/TunnelHop.cpp
+    tunnel/TunnelManager.cpp
+    tunnel/Message.cpp
+    util/Base64.cpp
+    util/I2PDH.cpp
+    util/I2PHMAC.cpp
+    util/gzip.cpp
+    )
 
 set(TEST_SRCS
-	datatypes/Certificate.cpp
-	datatypes/ByteArray.cpp
-	datatypes/Datatype.cpp
-	datatypes/Date.cpp
-	datatypes/Endpoint.cpp
-	datatypes/Mapping.cpp
-	datatypes/RouterAddress.cpp
-	datatypes/RouterIdentity.cpp
-	datatypes/RouterInfo.cpp
-	dht/Kademlia.cpp
-	exceptions/FormattingError.cpp
-	exceptions/RecordNotFound.cpp
-	tests/testi2p.cpp
-	transport/ssu/EstablishmentState.cpp
-	transport/ssu/Packet.cpp
-	transport/ssu/PacketBuilder.cpp
-	util/Base64.cpp
-	util/I2PDH.cpp
-	util/I2PHMAC.cpp
-	)
+    datatypes/Certificate.cpp
+    datatypes/ByteArray.cpp
+    datatypes/Datatype.cpp
+    datatypes/Date.cpp
+    datatypes/Endpoint.cpp
+    datatypes/Mapping.cpp
+    datatypes/RouterAddress.cpp
+    datatypes/RouterIdentity.cpp
+    datatypes/RouterInfo.cpp
+    dht/Kademlia.cpp
+    exceptions/FormattingError.cpp
+    exceptions/RecordNotFound.cpp
+    tests/testi2p.cpp
+    transport/ssu/EstablishmentState.cpp
+    transport/ssu/Packet.cpp
+    transport/ssu/PacketBuilder.cpp
+    util/Base64.cpp
+    util/I2PDH.cpp
+    util/I2PHMAC.cpp
+    )
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -stdlib=libc++")
-	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -stdlib=libc++")
-	set(CMAKE_CXX_FLAGS_MINSIZEREL "-Oz")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-constexpr-not-const")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -stdlib=libc++")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -stdlib=libc++")
+    set(CMAKE_CXX_FLAGS_MINSIZEREL "-Oz")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-constexpr-not-const")
 else("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-	message(WARNING "Beware: Only clang is officially supported!")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+    message(WARNING "Beware: Only clang is officially supported!")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 
 add_executable(i2p main.cpp ${SRCS})
@@ -118,15 +118,15 @@ get_target_property(i2p_LOCATION i2p LOCATION)
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
 add_custom_command(
-	TARGET i2p
-	POST_BUILD
-	COMMAND ${CMAKE_STRIP} -s ${i2p_LOCATION})
+    TARGET i2p
+    POST_BUILD
+    COMMAND ${CMAKE_STRIP} -s ${i2p_LOCATION})
 endif("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
 
 add_custom_command(
-	TARGET i2p
-	POST_BUILD
-	COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/py/i2pinit.py ${CMAKE_CURRENT_BINARY_DIR})
+    TARGET i2p
+    POST_BUILD
+    COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/py/i2pinit.py ${CMAKE_CURRENT_BINARY_DIR})
 
 # Version information
 add_custom_command(
@@ -159,9 +159,9 @@ find_library(ZLIB_LIBRARY_PATH z PATHS "${ZLIB_LIBRARY_PREFIX}" NO_DEFAULT_PATH)
 find_library(ZLIB_LIBRARY_PATH z)
 
 if(ZLIB_LIBRARY_PATH AND ZLIB_INCLUDE_DIR)
-	message(STATUS "Found zlib: ${ZLIB_LIBRARY_PATH}")
+    message(STATUS "Found zlib: ${ZLIB_LIBRARY_PATH}")
 else(ZLIB_LIBRARY_PATH AND ZLIB_INCLUDE_DIR)
-	message(FATAL_ERROR "zlib not found")
+    message(FATAL_ERROR "zlib not found")
 endif(ZLIB_LIBRARY_PATH AND ZLIB_INCLUDE_DIR)
 
 include_directories(BEFORE i2p "${ZLIB_INCLUDE_DIR}")
@@ -174,9 +174,9 @@ find_library(SQLITE3_LIBRARY_PATH sqlite3 PATHS "${SQLITE3_LIBRARY_PREFIX}" NO_D
 find_library(SQLITE3_LIBRARY_PATH sqlite3)
 
 if(SQLITE3_LIBRARY_PATH AND SQLITE3_INCLUDE_DIR)
-	message(STATUS "Found sqlite3: ${SQLITE3_LIBRARY_PATH}")
+    message(STATUS "Found sqlite3: ${SQLITE3_LIBRARY_PATH}")
 else(SQLITE3_LIBRARY_PATH AND SQLITE3_INCLUDE_DIR)
-	message(FATAL_ERROR "Sqlite3 not found")
+    message(FATAL_ERROR "Sqlite3 not found")
 endif(SQLITE3_LIBRARY_PATH AND SQLITE3_INCLUDE_DIR)
 
 include_directories(BEFORE i2p "${SQLITE3_INCLUDE_DIR}")
@@ -194,9 +194,9 @@ find_library(BOTAN_LIBRARY_PATH botan-1.11 PATHS "${BOTAN_LIBRARY_PREFIX}" NO_DE
 find_library(BOTAN_LIBRARY_PATH botan-1.11)
 
 if(BOTAN_LIBRARY_PATH AND BOTAN_INCLUDE_DIR)
-	message(STATUS "Found botan: ${BOTAN_LIBRARY_PATH}")
+    message(STATUS "Found botan: ${BOTAN_LIBRARY_PATH}")
 else(BOTAN_LIBRARY_PATH AND BOTAN_INCLUDE_DIR)
-	message(FATAL_ERROR "Botan 1.11 not found")
+    message(FATAL_ERROR "Botan 1.11 not found")
 endif(BOTAN_LIBRARY_PATH AND BOTAN_INCLUDE_DIR)
 
 include_directories(BEFORE i2p ${BOTAN_INCLUDE_DIR})
@@ -206,12 +206,12 @@ target_link_libraries(i2p ${BOTAN_LIBRARY_PATH})
 
 
 if("${NO_BOOST_LOG}" STREQUAL "1")
-	message(STATUS "Not using Boost Log")
-	find_package(Boost 1.49.0 REQUIRED COMPONENTS system thread filesystem chrono date_time program_options)
+    message(STATUS "Not using Boost Log")
+    find_package(Boost 1.49.0 REQUIRED COMPONENTS system thread filesystem chrono date_time program_options)
 else("${NO_BOOST_LOG}" STREQUAL "1")
-	message(STATUS "Using Boost Log")
-	find_package(Boost 1.55.0 REQUIRED COMPONENTS system thread filesystem chrono date_time program_options log)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_BOOST_LOG")
+    message(STATUS "Using Boost Log")
+    find_package(Boost 1.55.0 REQUIRED COMPONENTS system thread filesystem chrono date_time program_options log)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_BOOST_LOG")
 endif("${NO_BOOST_LOG}" STREQUAL "1")
 
 include_directories(BEFORE i2p ${Boost_INCLUDE_DIR})
@@ -224,20 +224,20 @@ find_library(GTEST_LIBRARY_PATH gtest PATHS "${GTEST_LIBRARY_PREFIX}" NO_DEFAULT
 find_library(GTEST_MAIN_LIBRARY_PATH gtest_main PATHS "${GTEST_LIBRARY_PREFIX}" NO_DEFAULT_PATH)
 
 if(GTEST_LIBRARY_PATH AND GTEST_INCLUDE_DIR)
-	message(STATUS "Found gtest: ${GTEST_LIBRARY_PATH}")
+    message(STATUS "Found gtest: ${GTEST_LIBRARY_PATH}")
 
-	enable_testing()
+    enable_testing()
 
-	find_package(Threads)
-	include_directories("${GTEST_INCLUDE_DIR}")
-	set(GTEST_LINK_STUFF "${GTEST_LIBRARY_PATH}" "${GTEST_MAIN_LIBRARY_PATH}" "${CMAKE_THREAD_LIBS_INIT}" "${Boost_LIBRARIES}" "${BOTAN_LIBRARY_PATH}")
+    find_package(Threads)
+    include_directories("${GTEST_INCLUDE_DIR}")
+    set(GTEST_LINK_STUFF "${GTEST_LIBRARY_PATH}" "${GTEST_MAIN_LIBRARY_PATH}" "${CMAKE_THREAD_LIBS_INIT}" "${Boost_LIBRARIES}" "${BOTAN_LIBRARY_PATH}")
 
-	add_executable(testi2p ${TEST_SRCS})
-	target_link_libraries(testi2p ${GTEST_LINK_STUFF})
-	add_test(
-		NAME testi2p
-		COMMAND testi2p
-		)
+    add_executable(testi2p ${TEST_SRCS})
+    target_link_libraries(testi2p ${GTEST_LINK_STUFF})
+    add_test(
+        NAME testi2p
+        COMMAND testi2p
+        )
 else(GTEST_LIBRARY_PATH AND GTEST_INCLUDE_DIR)
-	message(STATUS "Google Testing Framework not found... not building tests")
+    message(STATUS "Google Testing Framework not found... not building tests")
 endif(GTEST_LIBRARY_PATH AND GTEST_INCLUDE_DIR)

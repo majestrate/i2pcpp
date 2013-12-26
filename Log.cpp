@@ -35,133 +35,133 @@ namespace expr = boost::log::expressions;
 namespace i2pcpp {
 
 #ifndef USE_BOOST_LOG
-	static std::ostream * log_stream = nullptr;
-	static std::mutex stream_mtx;
+    static std::ostream * log_stream = nullptr;
+    static std::mutex stream_mtx;
 #endif
 
-	std::ostream& operator<< (std::ostream& strm, severity_level level)
-	{
-		static const char* strings[] =
-		{
-			"debug",
-			"info",
-			"warning",
-			"error",
-			"fatal"
-		};
+    std::ostream& operator<< (std::ostream& strm, severity_level level)
+    {
+        static const char* strings[] =
+        {
+            "debug",
+            "info",
+            "warning",
+            "error",
+            "fatal"
+        };
 
-		if(static_cast<std::size_t>(level) < sizeof(strings) / sizeof(*strings))
-			strm << strings[level];
-		else
-			strm << static_cast<int>(level);
+        if(static_cast<std::size_t>(level) < sizeof(strings) / sizeof(*strings))
+            strm << strings[level];
+        else
+            strm << static_cast<int>(level);
 
-		return strm;
-	}
+        return strm;
+    }
 
-	void Log::initialize()
-	{
+    void Log::initialize()
+    {
 #ifdef USE_BOOST_LOG
-		typedef sinks::synchronous_sink<sinks::text_ostream_backend> sink_t;
+        typedef sinks::synchronous_sink<sinks::text_ostream_backend> sink_t;
 
-		boost::shared_ptr<sinks::text_ostream_backend> backend = boost::make_shared<sinks::text_ostream_backend>();
-		backend->add_stream(boost::shared_ptr<std::ostream>(&std::clog, boost::log::empty_deleter()));
+        boost::shared_ptr<sinks::text_ostream_backend> backend = boost::make_shared<sinks::text_ostream_backend>();
+        backend->add_stream(boost::shared_ptr<std::ostream>(&std::clog, boost::log::empty_deleter()));
 
-		boost::shared_ptr<sink_t> sink(new sink_t(backend));
-		boost::log::core::get()->add_sink(sink);
+        boost::shared_ptr<sink_t> sink(new sink_t(backend));
+        boost::log::core::get()->add_sink(sink);
 
-		sink->set_filter(expr::attr<severity_level>("Severity") >= debug);
-		sink->set_formatter(&Log::formatter);
+        sink->set_filter(expr::attr<severity_level>("Severity") >= debug);
+        sink->set_formatter(&Log::formatter);
 
-		boost::log::core::get()->add_global_attribute("Timestamp", attrs::local_clock());
+        boost::log::core::get()->add_global_attribute("Timestamp", attrs::local_clock());
 #else
-		log_stream = &std::cerr;
+        log_stream = &std::cerr;
 #endif
-	}
+    }
 
-	void Log::logToFile(const std::string &file)
-	{
+    void Log::logToFile(const std::string &file)
+    {
 #ifdef USE_BOOST_LOG
-		boost::log::core::get()->remove_all_sinks();
+        boost::log::core::get()->remove_all_sinks();
 
-		boost::shared_ptr<sinks::text_file_backend> backend = boost::make_shared<sinks::text_file_backend>(
-				keywords::file_name = file
-		);
-		backend->auto_flush(true);
+        boost::shared_ptr<sinks::text_file_backend> backend = boost::make_shared<sinks::text_file_backend>(
+                keywords::file_name = file
+        );
+        backend->auto_flush(true);
 
-		typedef sinks::synchronous_sink<sinks::text_file_backend> sink_t;
-		boost::shared_ptr<sink_t> sink(new sink_t(backend));
-		boost::log::core::get()->add_sink(sink);
+        typedef sinks::synchronous_sink<sinks::text_file_backend> sink_t;
+        boost::shared_ptr<sink_t> sink(new sink_t(backend));
+        boost::log::core::get()->add_sink(sink);
 
-		sink->set_filter(expr::attr<severity_level>("Severity") >= debug);
-		sink->set_formatter(&Log::formatter);
+        sink->set_filter(expr::attr<severity_level>("Severity") >= debug);
+        sink->set_formatter(&Log::formatter);
 #else
-		std::ofstream * ofs = new std::ofstream();
-		ofs->open(file);
-		log_stream = ofs;
+        std::ofstream * ofs = new std::ofstream();
+        ofs->open(file);
+        log_stream = ofs;
 #endif
-	}
+    }
 
 #ifdef USE_BOOST_LOG
-	void Log::formatter(boost::log::record_view const &rec, boost::log::formatting_ostream &s)
-	{
-		const boost::log::attribute_value_set& attrSet = rec.attribute_values();
+    void Log::formatter(boost::log::record_view const &rec, boost::log::formatting_ostream &s)
+    {
+        const boost::log::attribute_value_set& attrSet = rec.attribute_values();
 
-		static std::locale loc(std::clog.getloc(), new boost::posix_time::time_facet("%Y-%m-%d %T.%f"));
-		std::stringstream ss;
-		ss.imbue(loc);
-		if(!ss.good()) return;
-		ss << boost::log::extract<boost::posix_time::ptime>("Timestamp", rec);
-		if(!ss.good()) return;
-		s << '[' << ss.str() << ']';
+        static std::locale loc(std::clog.getloc(), new boost::posix_time::time_facet("%Y-%m-%d %T.%f"));
+        std::stringstream ss;
+        ss.imbue(loc);
+        if(!ss.good()) return;
+        ss << boost::log::extract<boost::posix_time::ptime>("Timestamp", rec);
+        if(!ss.good()) return;
+        s << '[' << ss.str() << ']';
 
-		s << ' ' << boost::log::extract<std::string>("Channel", rec);
-		s << '/' << boost::log::extract<severity_level>("Severity", rec);
+        s << ' ' << boost::log::extract<std::string>("Channel", rec);
+        s << '/' << boost::log::extract<severity_level>("Severity", rec);
 
-		if(attrSet.find("Endpoint") != attrSet.end())
-			s << " [" << boost::log::extract<Endpoint>("Endpoint", rec) << ']';
+        if(attrSet.find("Endpoint") != attrSet.end())
+            s << " [" << boost::log::extract<Endpoint>("Endpoint", rec) << ']';
 
-		if(attrSet.find("RouterHash") != attrSet.end())
-			s << " [" << boost::log::extract<RouterHash>("RouterHash", rec) << ']';
+        if(attrSet.find("RouterHash") != attrSet.end())
+            s << " [" << boost::log::extract<RouterHash>("RouterHash", rec) << ']';
 
-		if(attrSet.find("TunnelId") != attrSet.end())
-			s << " [" << boost::log::extract<uint32_t>("TunnelId", rec) << ']';
+        if(attrSet.find("TunnelId") != attrSet.end())
+            s << " [" << boost::log::extract<uint32_t>("TunnelId", rec) << ']';
 
-		s << ": " << rec[expr::smessage];
-	}
+        s << ": " << rec[expr::smessage];
+    }
 #else
 
-	chi_logger::chi_logger(std::string const & name) 
-	{
-		std::lock_guard<std::mutex> lock(stream_mtx);
-		m_logger_name = name;
-		m_tag_name = "";
-		m_tag_val = "";
-		m_scope_name = "";
-		m_scope_val = "";
-	}
-		
-	void chi_logger::set_tag(std::string const & tag_name, std::string const & tag_val)
-	{
-		std::lock_guard<std::mutex> lock(stream_mtx);
-		m_tag_name = tag_name;
-		m_tag_val = tag_val;
-	}
+    chi_logger::chi_logger(std::string const & name) 
+    {
+        std::lock_guard<std::mutex> lock(stream_mtx);
+        m_logger_name = name;
+        m_tag_name = "";
+        m_tag_val = "";
+        m_scope_name = "";
+        m_scope_val = "";
+    }
+        
+    void chi_logger::set_tag(std::string const & tag_name, std::string const & tag_val)
+    {
+        std::lock_guard<std::mutex> lock(stream_mtx);
+        m_tag_name = tag_name;
+        m_tag_val = tag_val;
+    }
 
-	void chi_logger::set_scope(std::string const & scope_name, std::string const & scope_val)
-	{
-		std::lock_guard<std::mutex> lock(stream_mtx);
-		m_scope_name = scope_name;
-		m_scope_val = scope_val;
-	}
+    void chi_logger::set_scope(std::string const & scope_name, std::string const & scope_val)
+    {
+        std::lock_guard<std::mutex> lock(stream_mtx);
+        m_scope_name = scope_name;
+        m_scope_val = scope_val;
+    }
 
-	std::ostream & chi_logger::get_ostream(severity_level level)
-	{
-		std::lock_guard<std::mutex> lock(stream_mtx);
-		std::ostream & stream = *log_stream;
-		stream << std::endl;
-		stream << m_logger_name << "/" << level << " " << m_scope_val << ": " ;
-		return stream << std::flush;
-	}
+    std::ostream & chi_logger::get_ostream(severity_level level)
+    {
+        std::lock_guard<std::mutex> lock(stream_mtx);
+        std::ostream & stream = *log_stream;
+        stream << std::endl;
+        stream << m_logger_name << "/" << level << " " << m_scope_val << ": " ;
+        return stream << std::flush;
+    }
 
 #endif
 }

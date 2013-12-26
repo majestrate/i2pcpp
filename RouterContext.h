@@ -20,48 +20,48 @@
 #include "Log.h"
 
 namespace i2pcpp {
-	class RouterContext {
-		public:
-			RouterContext(std::string const &dbFile, boost::asio::io_service &ios);
-			RouterContext(const RouterContext &) = delete;
-			RouterContext& operator=(RouterContext &) = delete;
+    class RouterContext {
+        public:
+            RouterContext(std::string const &dbFile, boost::asio::io_service &ios);
+            RouterContext(const RouterContext &) = delete;
+            RouterContext& operator=(RouterContext &) = delete;
 
-			std::shared_ptr<const Botan::ElGamal_PrivateKey> getEncryptionKey() const;
-			std::shared_ptr<const Botan::DSA_PrivateKey> getSigningKey() const;
-			std::shared_ptr<const RouterIdentity> getIdentity() const;
+            std::shared_ptr<const Botan::ElGamal_PrivateKey> getEncryptionKey() const;
+            std::shared_ptr<const Botan::DSA_PrivateKey> getSigningKey() const;
+            std::shared_ptr<const RouterIdentity> getIdentity() const;
 
-			Database& getDatabase();
+            Database& getDatabase();
 
-			InboundMessageDispatcher& getInMsgDisp();
-			OutboundMessageDispatcher& getOutMsgDisp();
+            InboundMessageDispatcher& getInMsgDisp();
+            OutboundMessageDispatcher& getOutMsgDisp();
 
-			Signals& getSignals();
+            Signals& getSignals();
 
-			TunnelManager& getTunnelManager();
-			ProfileManager& getProfileManager();
-			PeerManager& getPeerManager();
-			DHT::KademliaPtr getDHT();
-			DHT::SearchManager& getSearchManager();
+            TunnelManager& getTunnelManager();
+            ProfileManager& getProfileManager();
+            PeerManager& getPeerManager();
+            DHT::KademliaPtr getDHT();
+            DHT::SearchManager& getSearchManager();
 
-		private:
-			std::shared_ptr<Botan::ElGamal_PrivateKey> m_encryptionKey;
-			std::shared_ptr<Botan::DSA_PrivateKey> m_signingKey;
-			std::shared_ptr<RouterIdentity> m_identity;
+        private:
+            std::shared_ptr<Botan::ElGamal_PrivateKey> m_encryptionKey;
+            std::shared_ptr<Botan::DSA_PrivateKey> m_signingKey;
+            std::shared_ptr<RouterIdentity> m_identity;
 
-			Database m_db;
+            Database m_db;
 
-			TunnelManager m_tunnelManager;
-			ProfileManager m_profileManager;
-			PeerManager m_peerManager;
+            TunnelManager m_tunnelManager;
+            ProfileManager m_profileManager;
+            PeerManager m_peerManager;
 
-			InboundMessageDispatcher m_inMsgDispatcher;
-			OutboundMessageDispatcher m_outMsgDispatcher;
+            InboundMessageDispatcher m_inMsgDispatcher;
+            OutboundMessageDispatcher m_outMsgDispatcher;
 
-			DHT::KademliaPtr m_dht;
-			DHT::SearchManager m_searchManager;
+            DHT::KademliaPtr m_dht;
+            DHT::SearchManager m_searchManager;
 
-			Signals m_signals;
-	};
+            Signals m_signals;
+    };
 }
 
 #endif

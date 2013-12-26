@@ -4,12 +4,12 @@
 #include "ByteArray.h"
 
 namespace i2pcpp {
-	class Datatype {
-		public:
-			virtual ~Datatype() {}
+    class Datatype {
+        public:
+            virtual ~Datatype() {}
 
-			virtual ByteArray serialize() const = 0;
-	};
+            virtual ByteArray serialize() const = 0;
+    };
 }
 
 #endif

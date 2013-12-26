@@ -4,10 +4,10 @@
 #include <stdexcept>
 
 namespace i2pcpp {
-	class RecordNotFound : public std::runtime_error {
-		public:
-			RecordNotFound(std::string const &s);
-	};
+    class RecordNotFound : public std::runtime_error {
+        public:
+            RecordNotFound(std::string const &s);
+    };
 }
 
 #endif

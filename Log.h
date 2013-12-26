@@ -23,49 +23,49 @@
 #endif
 
 namespace i2pcpp {
-	enum severity_level
-	{
-		debug,
-		info,
-		warning,
-		error,
-		fatal
-	};
+    enum severity_level
+    {
+        debug,
+        info,
+        warning,
+        error,
+        fatal
+    };
 
 #ifdef USE_BOOST_LOG
-	typedef boost::log::sources::severity_channel_logger_mt<severity_level, std::string> i2p_logger_mt;
+    typedef boost::log::sources::severity_channel_logger_mt<severity_level, std::string> i2p_logger_mt;
 #else
 
-	class chi_logger {
-		public:
-			chi_logger() : chi_logger("?") {}
-			chi_logger(std::string const & name);
-			void set_tag(std::string const & tag_name, std::string const & tag_value);
-			std::ostream & get_ostream(severity_level level);
-			void set_scope(std::string const & scope_name, std::string const & scope_value);
-			void set_scope(std::string const & scope_name, int64_t scope_value) { set_scope(scope_name, std::to_string(scope_value)); } 
+    class chi_logger {
+        public:
+            chi_logger() : chi_logger("?") {}
+            chi_logger(std::string const & name);
+            void set_tag(std::string const & tag_name, std::string const & tag_value);
+            std::ostream & get_ostream(severity_level level);
+            void set_scope(std::string const & scope_name, std::string const & scope_value);
+            void set_scope(std::string const & scope_name, int64_t scope_value) { set_scope(scope_name, std::to_string(scope_value)); } 
 
-		protected:
-			std::string m_tag_name, m_tag_val;
-			std::string m_scope_name, m_scope_val;
-			std::string m_logger_name;
+        protected:
+            std::string m_tag_name, m_tag_val;
+            std::string m_scope_name, m_scope_val;
+            std::string m_logger_name;
 
-	};
+    };
 
-	typedef chi_logger i2p_logger_mt;
+    typedef chi_logger i2p_logger_mt;
 
 #endif
 
-	class Log {
-		public:
-			Log() = delete;
+    class Log {
+        public:
+            Log() = delete;
 
-			static void initialize();
-			static void logToFile(const std::string &file);
+            static void initialize();
+            static void logToFile(const std::string &file);
 #ifdef USE_BOOST_LOG
-			static void formatter(boost::log::record_view const &rec, boost::log::formatting_ostream &s);
+            static void formatter(boost::log::record_view const &rec, boost::log::formatting_ostream &s);
 #endif
-	};
+    };
 
 }
 

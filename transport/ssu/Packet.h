@@ -10,43 +10,43 @@
 #include "../../datatypes/SessionKey.h"
 
 namespace i2pcpp {
-	namespace SSU {
-		class Packet {
-			public:
-				Packet(Endpoint const &endpoint);
-				Packet(Endpoint const &endpoint, const unsigned char *data, size_t length);
+    namespace SSU {
+        class Packet {
+            public:
+                Packet(Endpoint const &endpoint);
+                Packet(Endpoint const &endpoint, const unsigned char *data, size_t length);
 
-				void decrypt(SessionKey const &sk);
-				bool verify(SessionKey const &mk);
-				void encrypt(SessionKey const &sk, SessionKey const &mk);
-				void encrypt(Botan::InitializationVector const &iv, SessionKey const &sk, SessionKey const &mk);
+                void decrypt(SessionKey const &sk);
+                bool verify(SessionKey const &mk);
+                void encrypt(SessionKey const &sk, SessionKey const &mk);
+                void encrypt(Botan::InitializationVector const &iv, SessionKey const &sk, SessionKey const &mk);
 
-				ByteArray& getData();
-				Endpoint getEndpoint() const;
+                ByteArray& getData();
+                Endpoint getEndpoint() const;
 
-				enum class PayloadType {
-					SESSION_REQUEST = 0,
-					SESSION_CREATED = 1,
-					SESSION_CONFIRMED = 2,
-					RELAY_REQUEST = 3,
-					RELAY_RESPONSE = 4,
-					RELAY_INTRO = 5,
-					DATA = 6,
-					TEST = 7,
-					SESSION_DESTROY = 8
-				};
+                enum class PayloadType {
+                    SESSION_REQUEST = 0,
+                    SESSION_CREATED = 1,
+                    SESSION_CONFIRMED = 2,
+                    RELAY_REQUEST = 3,
+                    RELAY_RESPONSE = 4,
+                    RELAY_INTRO = 5,
+                    DATA = 6,
+                    TEST = 7,
+                    SESSION_DESTROY = 8
+                };
 
-				static const unsigned short MIN_PACKET_LEN = 48;
+                static const unsigned short MIN_PACKET_LEN = 48;
 
-			private:
-				ByteArray m_data;
-				Endpoint m_endpoint;
+            private:
+                ByteArray m_data;
+                Endpoint m_endpoint;
 
-				static const unsigned short PROTOCOL_VERSION = 0;
-		};
+                static const unsigned short PROTOCOL_VERSION = 0;
+        };
 
-		typedef std::shared_ptr<Packet> PacketPtr;
-	}
+        typedef std::shared_ptr<Packet> PacketPtr;
+    }
 }
 
 #endif

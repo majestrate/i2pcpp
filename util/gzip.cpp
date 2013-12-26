@@ -255,11 +255,11 @@ void Gzip_Decompression::write(const byte input_arr[], size_t length)
          {
          size_t read_from_block = length - gzip->stream.avail_in;
 
-				 clear();
-				 gzip = new Gzip_Stream;
-				 if(inflateInit2(&(gzip->stream), (raw_deflate ? -15 : (MAX_WBITS + 32))) != Z_OK) {
-					 throw Memory_Exhaustion();
-				 }
+                 clear();
+                 gzip = new Gzip_Stream;
+                 if(inflateInit2(&(gzip->stream), (raw_deflate ? -15 : (MAX_WBITS + 32))) != Z_OK) {
+                     throw Memory_Exhaustion();
+                 }
 
          gzip->stream.next_in = input + read_from_block;
          gzip->stream.avail_in = length - read_from_block;

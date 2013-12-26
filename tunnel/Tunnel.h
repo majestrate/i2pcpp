@@ -10,41 +10,41 @@
 #include "TunnelHop.h"
 
 namespace i2pcpp {
-	class Tunnel {
-		public:
-			enum class Direction {
-				INBOUND,
-				OUTBOUND
-			};
+    class Tunnel {
+        public:
+            enum class Direction {
+                INBOUND,
+                OUTBOUND
+            };
 
-			enum class State {
-				REQUESTED,
-				OPERATIONAL,
-				FAILED
-			};
+            enum class State {
+                REQUESTED,
+                OPERATIONAL,
+                FAILED
+            };
 
-			virtual ~Tunnel() {}
+            virtual ~Tunnel() {}
 
-			virtual Direction getDirection() const = 0;
+            virtual Direction getDirection() const = 0;
 
-			State getState() const;
-			uint32_t getTunnelId() const;
-			std::list<BuildRecordPtr> getRecords() const;
-			RouterHash getDownstream() const;
-			uint32_t getNextMsgId() const;
-			void handleResponses(std::list<BuildRecordPtr> const &records);
+            State getState() const;
+            uint32_t getTunnelId() const;
+            std::list<BuildRecordPtr> getRecords() const;
+            RouterHash getDownstream() const;
+            uint32_t getNextMsgId() const;
+            void handleResponses(std::list<BuildRecordPtr> const &records);
 
-		protected:
-			Tunnel() {}
-			std::list<TunnelHopPtr> m_hops;
-			State m_state = State::REQUESTED;
-			uint32_t m_tunnelId;
-			uint32_t m_nextMsgId;
+        protected:
+            Tunnel() {}
+            std::list<TunnelHopPtr> m_hops;
+            State m_state = State::REQUESTED;
+            uint32_t m_tunnelId;
+            uint32_t m_nextMsgId;
 
-			i2p_logger_mt m_log;
-	};
+            i2p_logger_mt m_log;
+    };
 
-	typedef std::shared_ptr<Tunnel> TunnelPtr;
+    typedef std::shared_ptr<Tunnel> TunnelPtr;
 }
 
 #endif

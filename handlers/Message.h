@@ -8,22 +8,22 @@
 #include "../Log.h"
 
 namespace i2pcpp {
-	class RouterContext;
+    class RouterContext;
 
-	namespace Handlers {
-		class Message {
-			public:
-				Message(RouterContext &ctx);
-				virtual ~Message() {}
+    namespace Handlers {
+        class Message {
+            public:
+                Message(RouterContext &ctx);
+                virtual ~Message() {}
 
-				virtual void handleMessage(RouterHash const from, I2NP::MessagePtr const msg) = 0;
+                virtual void handleMessage(RouterHash const from, I2NP::MessagePtr const msg) = 0;
 
-			protected:
-				RouterContext& m_ctx;
-		};
+            protected:
+                RouterContext& m_ctx;
+        };
 
-		typedef std::shared_ptr<Message> MessagePtr;
-	}
+        typedef std::shared_ptr<Message> MessagePtr;
+    }
 }
 
 #endif
