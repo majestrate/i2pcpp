@@ -329,6 +329,7 @@ TEST(PacketBuilder, buildData) {
     ASSERT_EQ(expected, data);
 }
 
+<<<<<<< HEAD
 TEST(DHT, Kademlia) {
     using namespace i2pcpp;
 
@@ -342,3 +343,20 @@ TEST(DHT, Kademlia) {
     DHT::KademliaValue v = kad.find(k);
     ASSERT_EQ(toStore, v);
 }
+=======
+// Commented out because kademlia interface changed
+// TODO: Fix.
+// TEST(DHT, Kademlia) {
+//     using namespace i2pcpp;
+//
+//     RouterHash myHash(std::string("AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="));
+//     RouterHash toStore(std::string("1pp0rQV7hK~XsLib8o8AHX74kWHmRjDsmDqF7aigZD0="));
+//     DHT::KademliaKey k = DHT::Kademlia::makeKey(toStore);
+//
+//     DHT::Kademlia kad(myHash);
+//     kad.insert(k, toStore);
+//
+//     DHT::KademliaValue v = kad.find(k);
+//     ASSERT_EQ(toStore, v);
+// }
+>>>>>>> 014996f8592cb941491d7fcfd00f1ba1a09f2b17

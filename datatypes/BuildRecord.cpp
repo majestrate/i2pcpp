@@ -1,3 +1,7 @@
+/**
+ * @file BuildRecord.cpp
+ * @brief Implements BuildRecord.h, specifically i2pcpp::BuildRecord.
+ */
 #include "BuildRecord.h"
 
 #include <botan/auto_rng.h>

@@ -23,7 +23,8 @@ namespace i2pcpp {
         m_variableTunnelBuildReplyHandler(ctx),
         m_tunnelDataHandler(ctx),
         m_tunnelGatewayHandler(ctx),
-        m_log(I2P_LOG_CHANNEL("IMD")) {}
+		m_log(I2P_LOG_CHANNEL("IMD")) {}
+
 
     void InboundMessageDispatcher::messageReceived(RouterHash const from, uint32_t const msgId, ByteArray data)
     {

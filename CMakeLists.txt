@@ -12,18 +12,6 @@ set(SRCS
     RouterContext.cpp
     Signals.cpp
     Version.cpp
-    datatypes/Certificate.cpp
-    datatypes/ByteArray.cpp
-    datatypes/BuildRecord.cpp
-    datatypes/BuildRequestRecord.cpp
-    datatypes/BuildResponseRecord.cpp
-    datatypes/Datatype.cpp
-    datatypes/Date.cpp
-    datatypes/Endpoint.cpp
-    datatypes/Mapping.cpp
-    datatypes/RouterAddress.cpp
-    datatypes/RouterIdentity.cpp
-    datatypes/RouterInfo.cpp
     dht/Kademlia.cpp
     dht/SearchManager.cpp
     dht/SearchState.cpp
@@ -81,15 +69,6 @@ set(SRCS
     )
 
 set(TEST_SRCS
-    datatypes/Certificate.cpp
-    datatypes/ByteArray.cpp
-    datatypes/Datatype.cpp
-    datatypes/Date.cpp
-    datatypes/Endpoint.cpp
-    datatypes/Mapping.cpp
-    datatypes/RouterAddress.cpp
-    datatypes/RouterIdentity.cpp
-    datatypes/RouterInfo.cpp
     dht/Kademlia.cpp
     exceptions/FormattingError.cpp
     exceptions/RecordNotFound.cpp
@@ -109,24 +88,20 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-constexpr-not-const")
 else("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     message(WARNING "Beware: Only clang is officially supported!")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -stdlib=libc++")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -stdlib=libc++")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 
+if("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
+    get_target_property(i2p_LOCATION i2p LOCATION)
+    add_custom_command(
+        TARGET i2p
+        POST_BUILD
+        COMMAND ${CMAKE_STRIP} -s ${i2p_LOCATION})
+endif("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
+
 add_executable(i2p main.cpp ${SRCS})
-
-get_target_property(i2p_LOCATION i2p LOCATION)
-
-if("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
-add_custom_command(
-    TARGET i2p
-    POST_BUILD
-    COMMAND ${CMAKE_STRIP} -s ${i2p_LOCATION})
-endif("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
-
-add_custom_command(
-    TARGET i2p
-    POST_BUILD
-    COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/py/i2pinit.py ${CMAKE_CURRENT_BINARY_DIR})
 
 # Version information
 add_custom_command(
@@ -154,7 +129,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 # zlib
 find_path(ZLIB_INCLUDE_DIR zlib.h PATHS "${ZLIB_INCLUDE_PREFIX}" NO_DEFAULT_PATH)
-find_path(ZLIB_INCLUDE_DIR sqlite3.h)
+find_path(ZLIB_INCLUDE_DIR zlib.h)
 find_library(ZLIB_LIBRARY_PATH z PATHS "${ZLIB_LIBRARY_PREFIX}" NO_DEFAULT_PATH)
 find_library(ZLIB_LIBRARY_PATH z)
 
@@ -203,8 +178,6 @@ include_directories(BEFORE i2p ${BOTAN_INCLUDE_DIR})
 target_link_libraries(i2p ${BOTAN_LIBRARY_PATH})
 
 # Boost
-
-
 if("${NO_BOOST_LOG}" STREQUAL "1")
     message(STATUS "Not using Boost Log")
     find_package(Boost 1.49.0 REQUIRED COMPONENTS system thread filesystem chrono date_time program_options)
@@ -214,9 +187,17 @@ else("${NO_BOOST_LOG}" STREQUAL "1")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_BOOST_LOG")
 endif("${NO_BOOST_LOG}" STREQUAL "1")
 
-include_directories(BEFORE i2p ${Boost_INCLUDE_DIR})
-target_link_libraries(i2p ${Boost_LIBRARIES})
-add_definitions(-DBOOST_ALL_DYN_LINK)
+if(Boost_FOUND)
+    include_directories(BEFORE i2p ${Boost_INCLUDE_DIRS})
+    target_link_libraries(i2p ${Boost_LIBRARIES})
+    add_definitions(-DBOOST_ALL_DYN_LINK)
+else(Boost_FOUND)
+    message(FATAL_ERROR "Boost not found")
+endif(Boost_FOUND)
+
+add_subdirectory(datatypes)
+include_directories(datatypes)
+target_link_libraries(i2p datatypes)
 
 # Googletest
 find_path(GTEST_INCLUDE_DIR gtest/gtest.h PATHS "${GTEST_INCLUDE_PREFIX}" NO_DEFAULT_PATH)
@@ -233,7 +214,7 @@ if(GTEST_LIBRARY_PATH AND GTEST_INCLUDE_DIR)
     set(GTEST_LINK_STUFF "${GTEST_LIBRARY_PATH}" "${GTEST_MAIN_LIBRARY_PATH}" "${CMAKE_THREAD_LIBS_INIT}" "${Boost_LIBRARIES}" "${BOTAN_LIBRARY_PATH}")
 
     add_executable(testi2p ${TEST_SRCS})
-    target_link_libraries(testi2p ${GTEST_LINK_STUFF})
+    target_link_libraries(testi2p ${GTEST_LINK_STUFF} datatypes)
     add_test(
         NAME testi2p
         COMMAND testi2p

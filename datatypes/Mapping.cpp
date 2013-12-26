@@ -1,9 +1,12 @@
+/**
+ * @file Mapping.cpp
+ * @brief Implements Mapping.h.
+ */
 #include "Mapping.h"
 
 #include "../exceptions/FormattingError.h"
 
 namespace i2pcpp {
-    Mapping::Mapping() {}
 
     Mapping::Mapping(ByteArrayConstItr &begin, ByteArrayConstItr end)
     {

@@ -1,3 +1,7 @@
+/**
+ * @file Endpoint.cpp
+ * @brief Implements Endpoint.h
+ */
 #include "Endpoint.h"
 
 #include <boost/functional/hash.hpp>
@@ -64,7 +68,7 @@ namespace i2pcpp {
 
     Endpoint::operator std::string() const
     {
-        return m_addr.to_string() + ":" + boost::lexical_cast<std::string>(m_port);
+        return m_addr.to_string() + ":" + std::to_string(m_port);
     }
 
     std::ostream& operator<<(std::ostream &s, Endpoint const &ep)

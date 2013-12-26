@@ -10,3 +10,7 @@ Handle edge cases in --importdir.
 Add exceptions with backtrace support.
 Write unit tests.
 Ensure that unused objects get destroyed (expire tunnels after 10 minutes, etc).
+Make UDPTransport its own library.
+Write CMake modules to find the various libraries.
+If tests are available, run them after building (make it an option).
+Investigate whether the Version.cpp/.h system should be modified.

@@ -1,3 +1,7 @@
+/**
+ * @file Date.cpp
+ * @brief Implements Date.h.
+ */
 #include "Date.h"
 
 #include <chrono>
@@ -6,7 +10,9 @@
 
 namespace i2pcpp {
     Date::Date() :
-        m_value(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count()) {}
+        m_value(std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()).count()
+        ) {}
 
     Date::Date(const uint64_t &value) :
         m_value(value) {}

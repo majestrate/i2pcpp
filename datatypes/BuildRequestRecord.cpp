@@ -1,3 +1,7 @@
+/**
+ * @file BuildRequestRecord.cpp
+ * @brief Implements BuildRequestRecord.h.
+ */
 #include "BuildRequestRecord.h"
 
 #include "../exceptions/FormattingError.h"

@@ -1,3 +1,7 @@
+/**
+ * @file RouterIdentity.cpp
+ * @brief Implements RouterIdentity.h.
+ */
 #include "RouterIdentity.h"
 
 #include <algorithm>

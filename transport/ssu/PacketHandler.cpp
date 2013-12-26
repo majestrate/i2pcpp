@@ -8,7 +8,7 @@ namespace i2pcpp {
             m_transport(transport),
             m_inboundKey(sk),
             m_imf(transport),
-             m_log(I2P_LOG_CHANNEL("PH")) {}
+            m_log(I2P_LOG_CHANNEL("PH")) {}
 
         void PacketHandler::packetReceived(PacketPtr p)
         {
