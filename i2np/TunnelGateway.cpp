@@ -39,11 +39,9 @@ namespace i2pcpp {
         {
             TunnelGateway tg;
 
-            tg.m_tunnelId = (begin[0] << 24) | (begin[1] << 16) | (begin[2] << 8) | (begin[3]);
-            begin += 4;
+            tg.m_tunnelId = parseUint32(begin);
 
-            uint16_t size = (begin[0] << 8) | (begin[1]);
-            begin += 2;
+            uint16_t size = parseUint16(begin);
             if(size > (end - begin))
                 throw std::runtime_error("invalid tunnel gateway message");
 

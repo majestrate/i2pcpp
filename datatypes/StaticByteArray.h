@@ -14,6 +14,8 @@
 #include <iomanip>
 
 
+#include <boost/functional/hash.hpp>
+
 #include "../util/Base64.h"
 
 #include "ByteArray.h"
@@ -96,6 +98,13 @@ namespace i2pcpp {
     {
         s << std::string(sba);
         return s;
+    }
+
+    template<std::size_t L>
+    std::size_t hash_value(StaticByteArray<L> const &sba)
+    {
+        boost::hash<std::string> f;
+        return f(sba);
     }
 }
 

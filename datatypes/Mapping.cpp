@@ -10,7 +10,7 @@ namespace i2pcpp {
 
     Mapping::Mapping(ByteArrayConstItr &begin, ByteArrayConstItr end)
     {
-        uint16_t size = (*(begin++) << 8) | *(begin++);
+        uint16_t size = parseUint16(begin);
         if((end - begin) < size) throw FormattingError();
 
         end = begin + size;

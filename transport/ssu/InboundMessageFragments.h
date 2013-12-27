@@ -1,11 +1,14 @@
 #ifndef SSUINBOUNDMESSAGEFRAGMENTS_H
 #define SSUINBOUNDMESSAGEFRAGMENTS_H
 
+#include <mutex>
+
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/member.hpp>
 
+#include "InboundMessageState.h"
 #include "PeerState.h"
 
 #include "../../datatypes/ByteArray.h"
@@ -37,12 +40,14 @@ namespace i2pcpp {
                 void checkAndPost(const uint32_t msgId, InboundMessageState const &ims);
 
                 struct ContainerEntry {
-                    ContainerEntry(InboundMessageState ims, std::shared_ptr<boost::asio::deadline_timer> t);
+                    ContainerEntry(InboundMessageState ims);
+                    ContainerEntry(ContainerEntry &&) = default;
+                    ContainerEntry& operator=(ContainerEntry &&) = default;
 
                     uint32_t msgId;
                     RouterHash hash;
                     InboundMessageState state;
-                    std::shared_ptr<boost::asio::deadline_timer> timer;
+                    std::unique_ptr<boost::asio::deadline_timer> timer;
                 };
 
                 class AddFragment {

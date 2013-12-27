@@ -127,6 +127,10 @@ target_link_libraries(i2p "${CMAKE_CURRENT_BINARY_DIR}/schema.sql.o")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+# pthreads
+find_package(Threads)
+target_link_libraries (i2p "${CMAKE_THREAD_LIBS_INIT}")
+
 # zlib
 find_path(ZLIB_INCLUDE_DIR zlib.h PATHS "${ZLIB_INCLUDE_PREFIX}" NO_DEFAULT_PATH)
 find_path(ZLIB_INCLUDE_DIR zlib.h)

@@ -137,7 +137,8 @@ namespace i2pcpp {
 
         std::array<unsigned char, 4> checksum;
         hashPipe.read(checksum.data(), 4);
-        m_checksum = (checksum[0] << 24) | (checksum[1] << 16) | (checksum[2] << 8) | (checksum[3]);
+        auto begin = checksum.cbegin();
+        m_checksum = parseUint32(begin);
     }
 
     bool Message::verifyChecksum() const

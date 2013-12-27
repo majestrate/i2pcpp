@@ -57,4 +57,9 @@ namespace i2pcpp {
     {
         return m_firstFragment;
     }
+
+    void FragmentState::setTimer(std::unique_ptr<boost::asio::deadline_timer> t)
+    {
+        m_timer = std::move(t);
+    }
 }

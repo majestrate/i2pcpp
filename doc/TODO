@@ -14,3 +14,5 @@ Make UDPTransport its own library.
 Write CMake modules to find the various libraries.
 If tests are available, run them after building (make it an option).
 Investigate whether the Version.cpp/.h system should be modified.
+Reimplement OMS internals in a more sane way (no bitset).
+Use a list<Fragment> instead of a vector<FragmentPtr> for PacketBuilder.

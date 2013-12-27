@@ -2,6 +2,8 @@
 
 #include <botan/auto_rng.h>
 
+#include "../util/make_unique.h"
+
 #include "../i2np/VariableTunnelBuild.h"
 #include "../i2np/VariableTunnelBuildReply.h"
 #include "../i2np/TunnelData.h"
@@ -19,7 +21,7 @@ namespace i2pcpp {
     TunnelManager::TunnelManager(boost::asio::io_service &ios, RouterContext &ctx) :
         m_ios(ios),
         m_ctx(ctx),
-        m_fragmentHandler(ctx),
+        m_fragmentHandler(ios, ctx),
         m_timer(m_ios, boost::posix_time::time_duration(0, 0, 1)),
         m_log(I2P_LOG_CHANNEL("TM")) {}
 
@@ -48,7 +50,7 @@ namespace i2pcpp {
                     I2P_LOG(m_log, debug) << "tunnel is operational";
 
                     std::lock_guard<std::mutex> lock(m_tunnelsMutex);
-                    m_tunnels[t->getTunnelId()] = t;
+                    m_tunnels[t->getTunnelId()] = std::move(t);
                 } else {
                     I2P_LOG(m_log, debug) << "failed to build tunnel";
                 }
@@ -77,7 +79,11 @@ namespace i2pcpp {
                 return;
             }
 
-            m_participating[hop.getTunnelId()] = std::make_shared<TunnelHop>(hop);
+            auto pt = std::make_shared<TunnelHop>(std::move(hop));
+            auto timer = std::make_unique<boost::asio::deadline_timer>(m_ios, boost::posix_time::time_duration(0, 10, 0));
+            timer->async_wait(boost::bind(&TunnelManager::timerCallback, this, boost::asio::placeholders::error, true, pt->getTunnelId()));
+            pt->setTimer(std::move(timer));
+            m_participating[pt->getTunnelId()] = pt;
 
             BuildResponseRecordPtr resp;
             resp = std::make_shared<BuildResponseRecord>(BuildResponseRecord::Reply::SUCCESS);
@@ -85,19 +91,19 @@ namespace i2pcpp {
             *itr = std::move(resp); // Replace the request record with our response
 
             for(auto& x: records)
-                x->encrypt(hop.getReplyIV(), hop.getReplyKey());
+                x->encrypt(pt->getReplyIV(), pt->getReplyKey());
 
-            if(hop.getType() == TunnelHop::Type::ENDPOINT) {
-                I2P_LOG(m_log, debug) << "forwarding BRRs to IBGW: " << hop.getNextHash() << ", tunnel ID: " << hop.getNextTunnelId() << ", nextMsgId: " << hop.getNextMsgId();
+            if(pt->getType() == TunnelHop::Type::ENDPOINT) {
+                I2P_LOG(m_log, debug) << "forwarding BRRs to IBGW: " << pt->getNextHash() << ", tunnel ID: " << pt->getNextTunnelId() << ", nextMsgId: " << pt->getNextMsgId();
 
-                I2NP::MessagePtr vtbr(new I2NP::VariableTunnelBuildReply(hop.getNextMsgId(), records));
-                I2NP::MessagePtr tg(new I2NP::TunnelGateway(hop.getNextTunnelId(), vtbr->toBytes()));
-                m_ctx.getOutMsgDisp().sendMessage(hop.getNextHash(), tg);
+                I2NP::MessagePtr vtbr(new I2NP::VariableTunnelBuildReply(pt->getNextMsgId(), records));
+                I2NP::MessagePtr tg(new I2NP::TunnelGateway(pt->getNextTunnelId(), vtbr->toBytes()));
+                m_ctx.getOutMsgDisp().sendMessage(pt->getNextHash(), tg);
             } else {
-                I2P_LOG(m_log, debug) << "forwarding BRRs to next hop: " << hop.getNextHash() << ", tunnel ID: " << hop.getNextTunnelId() << ", nextMsgId: " << hop.getNextMsgId();
+                I2P_LOG(m_log, debug) << "forwarding BRRs to next hop: " << pt->getNextHash() << ", tunnel ID: " << pt->getNextTunnelId() << ", nextMsgId: " << pt->getNextMsgId();
 
-                I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(hop.getNextMsgId(), records));
-                m_ctx.getOutMsgDisp().sendMessage(hop.getNextHash(), vtb);
+                I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(pt->getNextMsgId(), records));
+                m_ctx.getOutMsgDisp().sendMessage(pt->getNextHash(), vtb);
             }
         }
     }
@@ -207,6 +213,17 @@ namespace i2pcpp {
             }
         } else
             I2P_LOG(m_log, debug) << "data is for an unknown tunnel, dropping";
+    }
+
+    void TunnelManager::timerCallback(const boost::system::error_code &e, bool participating, uint32_t tunnelId)
+    {
+        if(participating) {
+            std::lock_guard<std::mutex> lock(m_participatingMutex);
+            m_participating.erase(tunnelId);
+        } else {
+            std::lock_guard<std::mutex> lock(m_tunnelsMutex);
+            m_tunnels.erase(tunnelId);
+        }
     }
 
     void TunnelManager::callback(const boost::system::error_code &e)

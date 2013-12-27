@@ -19,6 +19,24 @@ namespace i2pcpp {
     typedef std::shared_ptr<ByteArray> ByteArrayPtr;
     typedef ByteArray::iterator ByteArrayItr;
     typedef ByteArray::const_iterator ByteArrayConstItr;
+
+    template <typename T>
+    inline uint32_t parseUint32(T &itr)
+    {
+        uint32_t x = (itr[0] << 24) | (itr[1] << 16) | (itr[2] << 8) | (itr[3]);
+        itr += 4;
+
+        return x;
+    }
+
+    template <typename T>
+    inline uint16_t parseUint16(T &itr)
+    {
+        uint16_t x = (itr[0] << 8) | (itr[1]);
+        itr += 2;
+
+        return x;
+    }
 }
 
 namespace std {

@@ -54,14 +54,13 @@ namespace i2pcpp {
     {
         unsigned char flag = *begin++;
         uint8_t fragNum = ((flag & 0x7e) >> 1);
-        uint32_t msgId = (begin[0] << 24) | (begin[1] << 16) | (begin[2] << 8) | (begin[3]);
-        begin += 4;
+        uint32_t msgId = parseUint32(begin);
+        // begin += 4;
 
         FollowOnFragment fof(msgId, fragNum);
         fof.m_isLast = flag & 0x01;
 
-        uint16_t size = (begin[0] << 8) | (begin[1]);
-        begin += 2;
+        uint16_t size = parseUint16(begin);
         if((end - begin) < size)
             throw std::runtime_error("malformed followon fragment");
 
