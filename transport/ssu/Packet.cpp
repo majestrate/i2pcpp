@@ -1,3 +1,7 @@
+/**
+ * @file Packet.cpp
+ * @brief Implements Packet.h
+ */
 #include "Packet.h"
 
 #include <botan/auto_rng.h>
