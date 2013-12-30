@@ -91,7 +91,6 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 else("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     message(WARNING "Beware: Only clang is officially supported!")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-    add_definitions(-D_WEBSOCKETPP_CPP11_STL_)
 endif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
@@ -195,6 +194,7 @@ find_path(WEBSOCKETPP_INCLUDE_DIR websocketpp/server.hpp PATHS "${WEBSOCKETPP_IN
 find_path(WEBSOCKETPP_INCLUDE_DIR websocketpp/server.hpp)
 
 include_directories(BEFORE i2p ${WEBSOCKETPP_INCLUDE_DIR})
+add_definitions(-D_WEBSOCKETPP_CPP11_STL_)
 
 # Setup datatypes library
 add_subdirectory(datatypes)
