@@ -6,15 +6,19 @@ namespace i2pcpp {
     namespace Control {
         Server::Server(Endpoint const &ep) :
             m_endpoint(ep),
+            m_statsTimer(m_ios, boost::posix_time::time_duration(0, 0, 1)),
             m_log(boost::log::keywords::channel = "S")
         {
             m_server.init_asio(&m_ios);
+            m_server.clear_access_channels(wspp::log::alevel::all);
 
             m_server.set_open_handler(std::bind(&Server::on_open, this, std::placeholders::_1));
             m_server.set_close_handler(std::bind(&Server::on_close, this, std::placeholders::_1));
 
-            m_backend = boost::make_shared<LoggingBackend>(*this);
+            m_backend = boost::make_shared<LoggingBackend>();
             Log::addControlServerSink(m_backend);
+
+            m_statsTimer.async_wait(boost::bind(&Server::timerCallback, this, boost::asio::placeholders::error));
         }
 
         Server::~Server()
@@ -46,23 +50,48 @@ namespace i2pcpp {
             m_server.stop();
         }
 
-        void Server::broadcast(std::string const &data)
+        void Server::on_open(wspp::connection_hdl handle)
         {
             std::lock_guard<std::mutex> lock(m_connectionsMutex);
-            for(auto& c: m_connections)
-                m_server.send(c, data, websocketpp::frame::opcode::text);
+
+            server_t::connection_ptr con = m_server.get_con_from_hdl(handle);
+            auto r = con->get_resource();
+            if(r == "/stats")
+                m_statsClients.insert(handle);
+            else if(r == "/control")
+                m_controlClients.insert(handle);
         }
 
-        void Server::on_open(websocketpp::connection_hdl handle)
+        void Server::on_close(wspp::connection_hdl handle)
         {
             std::lock_guard<std::mutex> lock(m_connectionsMutex);
-            m_connections.insert(handle);
+
+            server_t::connection_ptr con = m_server.get_con_from_hdl(handle);
+            auto r = con->get_resource();
+            if(r == "/stats")
+                m_statsClients.erase(handle);
+            else if(r == "/control")
+                m_controlClients.erase(handle);
         }
 
-        void Server::on_close(websocketpp::connection_hdl handle)
+        void Server::broadcastStats(uint64_t bytesSent, uint64_t bytesReceived)
         {
             std::lock_guard<std::mutex> lock(m_connectionsMutex);
-            m_connections.erase(handle);
+
+            for(auto& c: m_statsClients) {
+                m_server.send(c, ("[" + std::to_string(bytesSent) + "," + std::to_string(bytesReceived) + "]"), wspp::frame::opcode::text);
+            }
+        }
+
+        void Server::timerCallback(const boost::system::error_code &e)
+        {
+            if(!e) {
+                auto stats = m_backend->getBytesAndReset();
+                broadcastStats(stats.first, stats.second);
+
+                m_statsTimer.expires_at(m_statsTimer.expires_at() + boost::posix_time::time_duration(0, 0, 1));
+                m_statsTimer.async_wait(boost::bind(&Server::timerCallback, this, boost::asio::placeholders::error));
+            }
         }
     }
 }

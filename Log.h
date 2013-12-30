@@ -6,6 +6,7 @@
 #include <boost/log/sinks/sync_frontend.hpp>
 #include <boost/log/attributes/constant.hpp>
 #include <boost/log/attributes/scoped_attribute.hpp>
+#include <boost/log/utility/manipulators/add_value.hpp>
 
 #include "control/LoggingBackend.h"
 

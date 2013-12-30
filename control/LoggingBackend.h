@@ -17,13 +17,11 @@ namespace i2pcpp {
                               >
         {
             public:
-                LoggingBackend(Server &s);
-
                 void consume(boost::log::record_view const& rec);
 
-            private:
-                Server& m_server;
+                std::pair<uint64_t, uint64_t> getBytesAndReset();
 
+            private:
                 uint64_t m_receivedBytes = 0;
                 uint64_t m_sentBytes = 0;
         };
