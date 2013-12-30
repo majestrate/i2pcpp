@@ -1,3 +1,7 @@
+/**
+ * @file Log.cpp
+ * @brief Implements Log.h
+ */
 #include "Log.h"
 
 #include <sstream>

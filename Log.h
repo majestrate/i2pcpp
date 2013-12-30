@@ -1,3 +1,7 @@
+/**
+ * @file Log.h
+ * @brief Defines the i2pcpp::Log class.
+ */
 #ifndef LOG_H
 #define LOG_H
 
@@ -14,6 +18,10 @@
 #define I2P_LOG_SCOPED_TAG(logger, name, value) BOOST_LOG_SCOPED_LOGGER_TAG(logger, name, value)
 
 namespace i2pcpp {
+
+    /**
+     * Defines the level of severity.
+     */
     enum severity_level
     {
         debug,
@@ -25,13 +33,33 @@ namespace i2pcpp {
 
     typedef boost::log::sources::severity_channel_logger_mt<severity_level, std::string> i2p_logger_mt;
 
+    /**
+     * Provides static utility functions that wrap around boost::log.
+     */
     class Log {
         public:
             Log() = delete;
 
+            /**
+             * Initializes boost::log. 
+             */
             static void initialize();
+
+            /**
+             * Changes the logfile.
+             * @param file the name of the new logfile
+             */
             static void logToFile(const std::string &file);
+
+            /**
+             * Adds an asynchronous sink to a given logging backend \a backend.
+             */
             static void addControlServerSink(boost::shared_ptr<Control::LoggingBackend> backend);
+
+            /**
+             * Formats a message (given by a boost::log::record_view object \a rec)
+             *  and writes it to a given boost::log::formatting_ostream, \a s.
+             */
             static void formatter(boost::log::record_view const &rec, boost::log::formatting_ostream &s);
     };
 }
