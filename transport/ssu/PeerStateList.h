@@ -2,6 +2,7 @@
 #define SSUPEERSTATELIST_H
 
 #include <unordered_map>
+#include <mutex>
 
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/hashed_index.hpp>

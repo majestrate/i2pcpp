@@ -36,7 +36,7 @@ namespace i2pcpp {
                 std::thread m_serviceThread;
                 boost::asio::io_service m_ios;
                 websocketpp::server<websocketpp::config::asio> m_server;
-                std::set<websocketpp::connection_hdl> m_connections;
+                std::set<websocketpp::connection_hdl, std::owner_less<websocketpp::connection_hdl>> m_connections;
                 std::mutex m_connectionsMutex;
 
                 boost::shared_ptr<LoggingBackend> m_backend;
