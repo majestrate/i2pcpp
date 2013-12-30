@@ -16,7 +16,7 @@ def has_config(cur,k):
 def put_config(cur,k,v):
     cur.execute('INSERT INTO config ( name, value ) VALUES ( ? , ? )',(k,v))
 
-def init(ndb_dir,ssu_port,db_fname='i2p.db',ssu_ip='0.0.0.0',max_peers=500):
+def init(ndb_dir,ssu_port,db_fname='i2p.db',ssu_ip='0.0.0.0',max_peers=500,control_server=('127.0.0.1',10010)):
 
     os.system('./i2p --init --db=%s'%db_fname) # yes i know you can do injection here
 
@@ -43,6 +43,18 @@ def init(ndb_dir,ssu_port,db_fname='i2p.db',ssu_ip='0.0.0.0',max_peers=500):
     if not has_config(cur,'max_peers'):
         print ('set max peer count to %d'%max_peers)
         put_config(cur,'max_peers',max_peers)
+
+    if not has_config(cur,'control_server'):
+        print ('control server enabled')
+        put_config(cur,'control_server',1)
+
+    if not has_config(cur,'control_server_ip'):
+        print ('control server at %s'%control_server[0])
+        put_config(cur,'control_server_ip',control_server[0])
+    
+    if not has_config(cur,'control_server_port'):
+        print ('control server on port %s'%control_server[1])
+        put_config(cur,'control_server_port',control_server[1])
     
     con.commit()
     con.close()

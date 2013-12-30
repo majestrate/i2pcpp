@@ -17,10 +17,6 @@ To compile, you will require the following components:
 * [cmake 2.8.11.2][3] or greater
 * [sqlite 3.8.0.2][4] or greater
 
-Optional components:
-
-* [googletest][5] for unit testing
-
 clang 3.3+ is the only officially supported compiler, but there is an honest effort to be compatible with g++. i2pcpp will always work on the latest version of FreeBSD.
 
 ### Using cmake
@@ -42,11 +38,6 @@ The following cmake variables are recognized:
 * SQLITE3_INCLUDE_PREFIX
 * SQLITE3_LIBRARY_PREFIX
 * WEBSOCKETPP_INCLUDE_PREFIX
-
-If you want to enable unit testing, specify these variables:
-
-* GTEST_INCLUDE_PREFIX
-* GTEST_LIBRARY_PREFIX
 
 Below is an example of how to invoke cmake from within your build directory:
 
@@ -135,4 +126,3 @@ GPG fingerprint: 350E 6173 B4C5 3976 AD82  27A4 0571 6F61 2464 26E9
 [2]: http://www.boost.org/users/download/
 [3]: http://www.cmake.org/cmake/resources/software.html
 [4]: http://www.sqlite.org/download.html
-[5]: http://code.google.com/p/googletest/downloads/list

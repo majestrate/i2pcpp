@@ -179,6 +179,7 @@ namespace i2pcpp {
 
             I2P_LOG_SCOPED_TAG(m_log, "Endpoint", ep);
             I2P_LOG(m_log, debug) << "received " << n << " bytes";
+            I2P_LOG(m_log, debug) << boost::log::add_value("received", (uint64_t)n);
 
             if(n >= SSU::Packet::MIN_PACKET_LEN) {
                 auto p = std::make_shared<SSU::Packet>(ep, m_receiveBuf.data(), n);
@@ -205,6 +206,7 @@ namespace i2pcpp {
     {
         I2P_LOG_SCOPED_TAG(m_log, "Endpoint", Endpoint(ep));
         I2P_LOG(m_log, debug) << "sent " << n << " bytes";
+        I2P_LOG(m_log, debug) << boost::log::add_value("sent", (uint64_t)n);
     }
 
     SSU::EstablishmentManager& UDPTransport::getEstablisher()

@@ -17,6 +17,8 @@
 
 namespace i2pcpp {
     namespace Control {
+        namespace wspp = websocketpp;
+
         class Server {
             public:
                 Server(Endpoint const &ep);
@@ -25,21 +27,29 @@ namespace i2pcpp {
                 void run();
                 void stop();
 
-                void broadcast(std::string const &data);
-
             private:
-                void on_open(websocketpp::connection_hdl handle);
-                void on_close(websocketpp::connection_hdl handle);
+                void on_open(wspp::connection_hdl handle);
+                void on_close(wspp::connection_hdl handle);
+
+                void broadcastStats(uint64_t bytesSent, uint64_t bytesReceived);
+                void timerCallback(const boost::system::error_code &e);
 
                 Endpoint m_endpoint;
 
                 std::thread m_serviceThread;
                 boost::asio::io_service m_ios;
-                websocketpp::server<websocketpp::config::asio> m_server;
-                std::set<websocketpp::connection_hdl, std::owner_less<websocketpp::connection_hdl>> m_connections;
+
+                typedef wspp::server<wspp::config::asio> server_t;
+                server_t m_server;
+
+                std::set<wspp::connection_hdl, std::owner_less<wspp::connection_hdl>> m_controlClients;
+                std::set<wspp::connection_hdl, std::owner_less<wspp::connection_hdl>> m_statsClients;
+
                 std::mutex m_connectionsMutex;
 
                 boost::shared_ptr<LoggingBackend> m_backend;
+
+                boost::asio::deadline_timer m_statsTimer;
 
                 i2p_logger_mt m_log;
         };

@@ -1,6 +1,8 @@
 #ifndef CONTROLLOGGINGBACKEND_H
 #define CONTROLLOGGINGBACKEND_H
 
+#include <mutex>
+
 #include <boost/log/sinks/basic_sink_backend.hpp>
 #include <boost/log/sinks/frontend_requirements.hpp>
 
@@ -17,12 +19,12 @@ namespace i2pcpp {
                               >
         {
             public:
-                LoggingBackend(Server &s);
-
                 void consume(boost::log::record_view const& rec);
 
+                std::pair<uint64_t, uint64_t> getBytesAndReset();
+
             private:
-                Server& m_server;
+                std::mutex m_mutex;
 
                 uint64_t m_receivedBytes = 0;
                 uint64_t m_sentBytes = 0;
