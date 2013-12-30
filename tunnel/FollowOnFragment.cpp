@@ -55,7 +55,6 @@ namespace i2pcpp {
         unsigned char flag = *begin++;
         uint8_t fragNum = ((flag & 0x7e) >> 1);
         uint32_t msgId = parseUint32(begin);
-        // begin += 4;
 
         FollowOnFragment fof(msgId, fragNum);
         fof.m_isLast = flag & 0x01;

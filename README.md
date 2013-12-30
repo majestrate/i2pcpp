@@ -41,6 +41,7 @@ The following cmake variables are recognized:
 * BOTAN_LIBRARY_PREFIX
 * SQLITE3_INCLUDE_PREFIX
 * SQLITE3_LIBRARY_PREFIX
+* WEBSOCKETPP_INCLUDE_PREFIX
 
 If you want to enable unit testing, specify these variables:
 
@@ -90,6 +91,9 @@ The following keys are supported:
 * ssu_bind_port (Port to bind to)
 * ssu_external_ip (IP to advertise)
 * ssu_external_port (Port to advertise)
+* control_server (1 to enable, 0 to disable)
+* control_server_ip (IP for the control server to bind to)
+* control_server_port (Port for the control server to bind to)
 
 ### Router Info files
 

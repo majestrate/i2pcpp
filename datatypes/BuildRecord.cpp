@@ -51,7 +51,7 @@ namespace i2pcpp {
         Botan::DL_Group group("modp/ietf/2048");
         Botan::ElGamal_PublicKey elgKey(group, Botan::BigInt(encryptionKey.data(), encryptionKey.size()));
         Botan::PK_Encryptor *pke = new Botan::PK_Encryptor_EME(elgKey, "Raw");
-        m_data = pke->encrypt(toEncrypt, rng);
+        m_data = toStaticByteArray<512>(pke->encrypt(toEncrypt, rng));
     }
 
     void BuildRecord::decrypt(std::shared_ptr<const Botan::ElGamal_PrivateKey> key)

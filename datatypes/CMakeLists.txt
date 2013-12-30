@@ -8,8 +8,10 @@ set(datatypes_sources
     Endpoint.cpp
     Mapping.cpp
     RouterAddress.cpp
+    RouterHash.cpp
     RouterIdentity.cpp
     RouterInfo.cpp
+    SessionKey.cpp
 )
 
 add_library(datatypes STATIC ${datatypes_sources})

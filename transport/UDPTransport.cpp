@@ -11,7 +11,7 @@ namespace i2pcpp {
         Transport(),
         m_socket(m_ios),
         m_peers(*this),
-        m_packetHandler(*this, (SessionKey)(ByteArray)ri.getHash()),
+        m_packetHandler(*this, ri.getHash()),
         m_establishmentManager(*this, privKey, ri),
         m_ackManager(*this),
         m_omf(*this),

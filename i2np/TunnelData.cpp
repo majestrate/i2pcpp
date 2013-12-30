@@ -2,11 +2,9 @@
 
 namespace i2pcpp {
     namespace I2NP {
-        TunnelData::TunnelData(uint32_t const tunnelId, ByteArray const &data) :
-            m_tunnelId(tunnelId)
-        {
-            std::copy(data.cbegin(), data.cbegin() + 1024, m_data.begin());
-        }
+        TunnelData::TunnelData(uint32_t const tunnelId, StaticByteArray<1024> const &data) :
+            m_tunnelId(tunnelId),
+            m_data(data) {}
 
         uint32_t TunnelData::getTunnelId() const
         {

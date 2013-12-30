@@ -31,6 +31,11 @@ namespace i2pcpp {
         }
     }
 
+    boost::asio::ip::tcp::endpoint Endpoint::getTCPEndpoint() const
+    {
+        return boost::asio::ip::tcp::endpoint(m_addr, m_port);
+    }
+
     boost::asio::ip::udp::endpoint Endpoint::getUDPEndpoint() const
     {
         return boost::asio::ip::udp::endpoint(m_addr, m_port);

@@ -9,7 +9,7 @@ namespace i2pcpp {
     namespace I2NP {
         class TunnelData : public Message {
             public:
-                TunnelData(uint32_t const tunnelId, ByteArray const &data);
+                TunnelData(uint32_t const tunnelId, StaticByteArray<1024> const &data);
 
                 uint32_t getTunnelId() const;
                 const StaticByteArray<1024>& getData() const;

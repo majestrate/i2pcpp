@@ -9,6 +9,8 @@
 #include <boost/log/attributes/constant.hpp>
 #include <boost/log/attributes/scoped_attribute.hpp>
 
+#include "control/LoggingBackend.h"
+
 #define I2P_LOG(logger, sev) BOOST_LOG_SEV(logger, sev)
 #define I2P_LOG_TAG(logger, name, value) logger.add_attribute(name, boost::log::attributes::make_constant(value))
 #define I2P_LOG_SCOPED_TAG(logger, name, value) BOOST_LOG_SCOPED_LOGGER_TAG(logger, name, value)
@@ -62,6 +64,8 @@ namespace i2pcpp {
 
             static void initialize();
             static void logToFile(const std::string &file);
+            static void addControlServerSink(boost::shared_ptr<Control::LoggingBackend> backend);
+
 #ifdef USE_BOOST_LOG
             static void formatter(boost::log::record_view const &rec, boost::log::formatting_ostream &s);
 #endif

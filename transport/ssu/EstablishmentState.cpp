@@ -11,7 +11,7 @@ namespace i2pcpp {
             m_direction(EstablishmentState::Direction::INBOUND),
             m_dsaKey(dsaKey),
             m_myIdentity(myIdentity),
-            m_sessionKey((ByteArray)myIdentity.getHash()),
+            m_sessionKey(myIdentity.getHash()),
             m_macKey(m_sessionKey),
             m_theirEndpoint(ep)
         {
@@ -25,7 +25,7 @@ namespace i2pcpp {
             m_direction(EstablishmentState::Direction::OUTBOUND),
             m_dsaKey(dsaKey),
             m_myIdentity(myIdentity),
-            m_sessionKey((ByteArray)theirIdentity.getHash()),
+            m_sessionKey(theirIdentity.getHash()),
             m_macKey(m_sessionKey),
             m_theirEndpoint(ep),
             m_theirIdentity(std::make_shared<RouterIdentity>(theirIdentity))

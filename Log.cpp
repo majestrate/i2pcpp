@@ -8,6 +8,7 @@
 
 #include <boost/log/expressions.hpp>
 #include <boost/log/sources/global_logger_storage.hpp>
+#include <boost/log/sinks/async_frontend.hpp>
 #include <boost/log/sinks/text_ostream_backend.hpp>
 #include <boost/log/sinks/text_file_backend.hpp>
 #include <boost/log/attributes/clock.hpp>
@@ -68,7 +69,6 @@ namespace i2pcpp {
 
         boost::shared_ptr<sink_t> sink(new sink_t(backend));
         boost::log::core::get()->add_sink(sink);
-
         sink->set_filter(expr::attr<severity_level>("Severity") >= debug);
         sink->set_formatter(&Log::formatter);
 
@@ -100,6 +100,16 @@ namespace i2pcpp {
         log_stream = ofs;
 #endif
     }
+
+    void Log::addControlServerSink(boost::shared_ptr<Control::LoggingBackend> backend)
+    {
+#ifdef USE_BOOST_LOG
+        typedef sinks::asynchronous_sink<Control::LoggingBackend> stats_sink_t;
+        boost::shared_ptr<stats_sink_t> statsSink(new stats_sink_t(backend));
+        boost::log::core::get()->add_sink(statsSink);
+#endif
+    }
+
 
 #ifdef USE_BOOST_LOG
     void Log::formatter(boost::log::record_view const &rec, boost::log::formatting_ostream &s)

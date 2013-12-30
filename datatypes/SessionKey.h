@@ -9,6 +9,8 @@
 
 namespace i2pcpp {
     typedef StaticByteArray<32> SessionKey;
+
+    SessionKey toSessionKey(ByteArray const &b);
 }
 
 #endif
