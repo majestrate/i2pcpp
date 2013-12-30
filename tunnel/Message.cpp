@@ -38,7 +38,7 @@ namespace i2pcpp {
         if(!verifyChecksum())
             throw std::runtime_error("invalid checksum in tunnel message");
 
-        ByteArray data = m_encrypted;
+        ByteArray data = toByteArray(m_encrypted);
         auto pos = data.cbegin() + 4;
         auto end = data.cend();
 
@@ -137,7 +137,8 @@ namespace i2pcpp {
 
         std::array<unsigned char, 4> checksum;
         hashPipe.read(checksum.data(), 4);
-        m_checksum = (checksum[0] << 24) | (checksum[1] << 16) | (checksum[2] << 8) | (checksum[3]);
+        auto begin = checksum.cbegin();
+        m_checksum = parseUint32(begin);
     }
 
     bool Message::verifyChecksum() const

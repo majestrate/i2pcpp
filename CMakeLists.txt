@@ -12,6 +12,8 @@ set(SRCS
     RouterContext.cpp
     Signals.cpp
     Version.cpp
+    control/LoggingBackend.cpp
+    control/Server.cpp
     dht/Kademlia.cpp
     dht/SearchManager.cpp
     dht/SearchState.cpp
@@ -88,8 +90,6 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-constexpr-not-const")
 else("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     message(WARNING "Beware: Only clang is officially supported!")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -stdlib=libc++")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -stdlib=libc++")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 
@@ -127,6 +127,10 @@ target_link_libraries(i2p "${CMAKE_CURRENT_BINARY_DIR}/schema.sql.o")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+# pthreads
+find_package(Threads)
+target_link_libraries (i2p "${CMAKE_THREAD_LIBS_INIT}")
+
 # zlib
 find_path(ZLIB_INCLUDE_DIR zlib.h PATHS "${ZLIB_INCLUDE_PREFIX}" NO_DEFAULT_PATH)
 find_path(ZLIB_INCLUDE_DIR zlib.h)
@@ -139,7 +143,7 @@ else(ZLIB_LIBRARY_PATH AND ZLIB_INCLUDE_DIR)
     message(FATAL_ERROR "zlib not found")
 endif(ZLIB_LIBRARY_PATH AND ZLIB_INCLUDE_DIR)
 
-include_directories(BEFORE i2p "${ZLIB_INCLUDE_DIR}")
+include_directories(BEFORE i2p ${ZLIB_INCLUDE_DIR})
 target_link_libraries(i2p "${ZLIB_LIBRARY_PATH}")
 
 # Sqlite3
@@ -154,7 +158,7 @@ else(SQLITE3_LIBRARY_PATH AND SQLITE3_INCLUDE_DIR)
     message(FATAL_ERROR "Sqlite3 not found")
 endif(SQLITE3_LIBRARY_PATH AND SQLITE3_INCLUDE_DIR)
 
-include_directories(BEFORE i2p "${SQLITE3_INCLUDE_DIR}")
+include_directories(BEFORE i2p ${SQLITE3_INCLUDE_DIR})
 target_link_libraries(i2p "${SQLITE3_LIBRARY_PATH}")
 
 # Botan
@@ -185,6 +189,13 @@ else(Boost_FOUND)
     message(FATAL_ERROR "Boost 1.55.0 not found")
 endif(Boost_FOUND)
 
+# websocketpp
+find_path(WEBSOCKETPP_INCLUDE_DIR websocketpp/server.hpp PATHS "${WEBSOCKETPP_INCLUDE_PREFIX}" NO_DEFAULT_PATH)
+find_path(WEBSOCKETPP_INCLUDE_DIR websocketpp/server.hpp)
+
+include_directories(BEFORE i2p ${WEBSOCKETPP_INCLUDE_DIR})
+add_definitions(-D_WEBSOCKETPP_CPP11_STL_)
+
 # Setup datatypes library
 add_subdirectory(datatypes)
 include_directories(datatypes)
@@ -201,7 +212,7 @@ if(GTEST_LIBRARY_PATH AND GTEST_INCLUDE_DIR)
     enable_testing()
 
     find_package(Threads)
-    include_directories("${GTEST_INCLUDE_DIR}")
+    include_directories(${GTEST_INCLUDE_DIR})
     set(GTEST_LINK_STUFF "${GTEST_LIBRARY_PATH}" "${GTEST_MAIN_LIBRARY_PATH}" "${CMAKE_THREAD_LIBS_INIT}" "${Boost_LIBRARIES}" "${BOTAN_LIBRARY_PATH}")
 
     add_executable(testi2p ${TEST_SRCS})

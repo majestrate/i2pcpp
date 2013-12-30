@@ -143,6 +143,11 @@ namespace i2pcpp {
         return m_encryptionKey;
     }
 
+    void TunnelHop::setTimer(std::unique_ptr<boost::asio::deadline_timer> t)
+    {
+        m_timer = std::move(t);
+    }
+
     void TunnelHop::randomize()
     {
         Botan::AutoSeeded_RNG rng;

@@ -4,6 +4,8 @@
  */
 #include "PeerStateList.h"
 
+#include "../../util/make_unique.h"
+
 #include "../UDPTransport.h"
 
 namespace i2pcpp {
@@ -13,11 +15,17 @@ namespace i2pcpp {
 
         void PeerStateList::addPeer(PeerState ps)
         {
+            PeerStateContainer psc(ps);
+
+            auto timer = std::make_unique<boost::asio::deadline_timer>(m_transport.m_ios, boost::posix_time::time_duration(0, 20, 0));
+            timer->async_wait(boost::bind(&PeerStateList::timerCallback, this, boost::asio::placeholders::error, ps.getHash()));
+            psc.timer = std::move(timer);
+
             auto itr = m_container.get<1>().find(ps.getHash());
             if(itr == m_container.get<1>().end())
-                m_container.insert(std::move(ps));
+                m_container.insert(std::move(psc));
             else
-                m_container.get<1>().replace(itr, std::move(ps));
+                m_container.get<1>().replace(itr, std::move(psc));
         }
 
         PeerState PeerStateList::getPeer(Endpoint const &ep)
@@ -26,7 +34,7 @@ namespace i2pcpp {
             if(itr == m_container.get<0>().end())
                 throw std::runtime_error("record not found");
 
-            return *itr;
+            return itr->state;
         }
 
         PeerState PeerStateList::getPeer(RouterHash const &rh)
@@ -35,7 +43,7 @@ namespace i2pcpp {
             if(itr == m_container.get<1>().end())
                 throw std::runtime_error("record not found");
 
-            return *itr;
+            return itr->state;
         }
 
         void PeerStateList::delPeer(Endpoint const &ep)
@@ -58,6 +66,16 @@ namespace i2pcpp {
             return (m_container.get<1>().count(rh) > 0);
         }
 
+        void PeerStateList::resetPeerTimer(RouterHash const &rh)
+        {
+            auto itr = m_container.get<1>().find(rh);
+            if(itr == m_container.get<1>().end())
+                throw std::runtime_error("record not found");
+
+            itr->timer->expires_at(itr->timer->expires_at() + boost::posix_time::time_duration(0, 20, 0));
+            itr->timer->async_wait(boost::bind(&PeerStateList::timerCallback, this, boost::asio::placeholders::error, rh));
+        }
+
         uint32_t PeerStateList::numPeers() const
         {
             return m_container.size();
@@ -73,12 +91,10 @@ namespace i2pcpp {
             return m_container.get<0>().cend();
         }
 
-        void PeerStateList::timerCallback(const boost::system::error_code& e, RouterHash const &rh)
+        void PeerStateList::timerCallback(const boost::system::error_code& e, RouterHash const rh)
         {
-            if(!e) {
-                std::lock_guard<std::mutex> lock(m_mutex);
-                delPeer(rh);
-            }
+            if(!e)
+                m_transport.disconnect(rh);
         }
 
         std::mutex& PeerStateList::getMutex() const

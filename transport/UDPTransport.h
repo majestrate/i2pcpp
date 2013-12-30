@@ -56,7 +56,7 @@ namespace i2pcpp {
             void send(RouterHash const &rh, uint32_t msgId, ByteArray const &data);
 
             /**
-             * @todo Implement.
+             * Disconnects the peer given by i2pcpp::RouterHash \a rh.
              */
             void disconnect(RouterHash const &rh);
 

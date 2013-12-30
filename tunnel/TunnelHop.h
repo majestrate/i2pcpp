@@ -3,6 +3,8 @@
 
 #include <unordered_map>
 
+#include <boost/asio.hpp>
+
 #include "../datatypes/RouterIdentity.h"
 #include "../datatypes/SessionKey.h"
 
@@ -18,6 +20,8 @@ namespace i2pcpp {
             TunnelHop();
             TunnelHop(RouterIdentity const &local, RouterHash const &nextHash);
             TunnelHop(RouterIdentity const &local, RouterHash const &nextHash, uint32_t const nextTunnelId);
+            TunnelHop(TunnelHop &&) = default;
+            TunnelHop& operator=(TunnelHop &&) = default;
 
             void setTunnelId(uint32_t tunnelId);
             void setNextTunnelId(uint32_t nextTunnelId);
@@ -44,6 +48,8 @@ namespace i2pcpp {
             uint32_t getNextMsgId() const;
             ByteArray getEncryptionKey() const;
 
+            void setTimer(std::unique_ptr<boost::asio::deadline_timer> t);
+
         private:
             void randomize();
 
@@ -60,6 +66,8 @@ namespace i2pcpp {
             uint32_t m_nextMsgId;
 
             ByteArray m_encryptionKey;
+
+            std::unique_ptr<boost::asio::deadline_timer> m_timer;
     };
 
     typedef std::shared_ptr<TunnelHop> TunnelHopPtr;

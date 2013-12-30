@@ -3,6 +3,8 @@
 
 #include <list>
 
+#include <boost/asio.hpp>
+
 #include "FirstFragment.h"
 #include "FollowOnFragment.h"
 
@@ -16,11 +18,15 @@ namespace i2pcpp {
             ByteArray compile();
             const std::unique_ptr<FirstFragment>& getFirstFragment() const;
 
+            void setTimer(std::unique_ptr<boost::asio::deadline_timer> t);
+
         private:
             uint8_t m_lastFragNum = 0;
 
             std::unique_ptr<FirstFragment> m_firstFragment = nullptr;
             std::list<FollowOnFragment> m_followOnFragments;
+
+            std::unique_ptr<boost::asio::deadline_timer> m_timer;
     };
 }
 

@@ -1,7 +1,6 @@
 #include "Router.h"
 
-/* TEMPORARY */
-#include "util/Base64.h"
+#include "util/make_unique.h"
 #include "transport/UDPTransport.h"
 
 namespace i2pcpp {
@@ -25,11 +24,16 @@ namespace i2pcpp {
                     m_ios.run();
                     break;
                 } catch(std::exception &e) {
-                    // TODO Handle exception
+                    // TODO Backtrace
                     I2P_LOG(m_log, error) << "exception in service thread: " << e.what();
                 }
             }
         });
+
+        if(m_ctx.getDatabase().getConfigValue("control_server") == "1") {
+            m_controlServer = std::make_unique<Control::Server>(Endpoint(m_ctx.getDatabase().getConfigValue("control_server_ip"), std::stoi(m_ctx.getDatabase().getConfigValue("control_server_port"))));
+            m_controlServer->run();
+        }
 
         TransportPtr t = TransportPtr(new UDPTransport(*m_ctx.getSigningKey(), *m_ctx.getIdentity()));
         t->registerReceivedHandler(boost::bind(&InboundMessageDispatcher::messageReceived, boost::ref(m_ctx.getInMsgDisp()), _1, _2, _3));
@@ -64,6 +68,9 @@ namespace i2pcpp {
 
     void Router::stop()
     {
+        if(m_controlServer)
+            m_controlServer->stop();
+
         m_ios.stop();
     }
 
@@ -73,7 +80,7 @@ namespace i2pcpp {
         Mapping am;
         am.setValue("caps", "BC");
         am.setValue("host", m_ctx.getDatabase().getConfigValue("ssu_external_ip"));
-        am.setValue("key", m_ctx.getIdentity()->getHash());
+        am.setValue("key", Base64::encode(m_ctx.getIdentity()->getHash()));
         am.setValue("port", m_ctx.getDatabase().getConfigValue("ssu_external_port"));
         RouterAddress a(5, Date(0), "SSU", am);
 

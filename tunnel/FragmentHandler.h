@@ -14,7 +14,7 @@ namespace i2pcpp {
 
     class FragmentHandler {
         public:
-            FragmentHandler(RouterContext &ctx);
+            FragmentHandler(boost::asio::io_service &ios, RouterContext &ctx);
             FragmentHandler(const FragmentHandler &) = delete;
             FragmentHandler& operator=(FragmentHandler &) = delete;
 
@@ -22,8 +22,10 @@ namespace i2pcpp {
 
         private:
             void checkAndFlush(uint32_t msgId);
+            void timerCallback(const boost::system::error_code& e, const uint32_t msgId);
 
             RouterContext &m_ctx;
+            boost::asio::io_service &m_ios;
 
             std::unordered_map<uint32_t, FragmentState> m_states;
 

@@ -162,7 +162,7 @@ namespace i2pcpp {
             p->encrypt(state->getIV(), state->getSessionKey(), state->getMacKey());
 
             const ByteArray& dhSecret = state->getDHSecret();
-            SessionKey newKey(dhSecret), newMacKey;
+            SessionKey newKey(toSessionKey(dhSecret)), newMacKey;
 
             state->setSessionKey(newKey);
 
@@ -186,7 +186,7 @@ namespace i2pcpp {
             }
 
             const ByteArray& dhSecret = state->getDHSecret();
-            SessionKey newKey(dhSecret), newMacKey;
+            SessionKey newKey(toSessionKey(dhSecret)), newMacKey;
 
             state->setSessionKey(newKey);
 

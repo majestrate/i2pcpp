@@ -3,6 +3,8 @@
 
 #include <list>
 
+#include <boost/asio.hpp>
+
 #include "../datatypes/BuildRequestRecord.h"
 
 #include "../Log.h"
@@ -34,12 +36,16 @@ namespace i2pcpp {
             uint32_t getNextMsgId() const;
             void handleResponses(std::list<BuildRecordPtr> const &records);
 
+            void setTimer(std::unique_ptr<boost::asio::deadline_timer> t);
+
         protected:
             Tunnel() {}
             std::list<TunnelHopPtr> m_hops;
             State m_state = State::REQUESTED;
             uint32_t m_tunnelId;
             uint32_t m_nextMsgId;
+
+            std::unique_ptr<boost::asio::deadline_timer> m_timer;
 
             i2p_logger_mt m_log;
     };

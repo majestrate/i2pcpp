@@ -1,3 +1,7 @@
+/**
+ * @file Database.cpp
+ * @brief Implements Database.h
+ */
 #include "Database.h"
 
 #include <sys/stat.h>
@@ -191,7 +195,7 @@ namespace i2pcpp {
 
     RouterInfo Database::getRouterInfo(std::string const &routerHash)
     {
-        return getRouterInfo(Base64::decode(routerHash));
+        return getRouterInfo(toRouterHash(Base64::decode(routerHash)));
     }
 
     RouterInfo Database::getRouterInfo(RouterHash const &routerHash)
@@ -241,7 +245,7 @@ namespace i2pcpp {
 
                 sqlite3_finalize(statement);
             } else
-                throw RecordNotFound(routerHash);
+                throw RecordNotFound(Base64::encode(routerHash));
 
             Mapping router_options;
 

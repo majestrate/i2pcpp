@@ -33,12 +33,6 @@ namespace i2pcpp {
                 void sendData(PeerState const &ps, uint32_t const msgId, ByteArray const &data);
 
             private:
-                /**
-                 * Adds a state to the states std::map, OutboundMessageFragments::m_states.
-                 * @param msgId the message ID of the state that is to be added.
-                 * @param oms the state object to be added
-                 */
-                void addState(PeerState const & ps, uint32_t const msgId, OutboundMessageState &oms);
 
                 /**
                  * Removes a state from the states std::map, OutboundMessageFragments::m_states.
@@ -63,7 +57,6 @@ namespace i2pcpp {
                 void timerCallback(const boost::system::error_code& e, PeerState ps, uint32_t const msgId);
 
                 std::map<uint32_t, SSU::OutboundMessageState> m_states;
-                std::map<uint32_t, std::unique_ptr<boost::asio::deadline_timer>> m_timers;
 
                 mutable std::mutex m_mutex;
 

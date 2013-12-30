@@ -107,5 +107,15 @@ namespace i2pcpp {
         {
             return m_tries;
         }
+
+        void OutboundMessageState::setTimer(std::unique_ptr<boost::asio::deadline_timer> t)
+        {
+            m_timer = std::move(t);
+        }
+
+        boost::asio::deadline_timer& OutboundMessageState::getTimer()
+        {
+            return *m_timer;
+        }
     }
 }

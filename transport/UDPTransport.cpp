@@ -15,7 +15,7 @@ namespace i2pcpp {
         Transport(),
         m_socket(m_ios),
         m_peers(*this),
-        m_packetHandler(*this, (SessionKey)(ByteArray)ri.getHash()),
+        m_packetHandler(*this, ri.getHash()),
         m_establishmentManager(*this, privKey, ri),
         m_ackManager(*this),
         m_omf(*this),
@@ -115,7 +115,17 @@ namespace i2pcpp {
 
     void UDPTransport::disconnect(RouterHash const &rh)
     {
-        // TODO: Implement
+        std::lock_guard<std::mutex> lock(m_peers.getMutex());
+
+        if(m_peers.peerExists(rh)) {
+            const SSU::PeerState& ps = m_peers.getPeer(rh);
+
+            SSU::PacketPtr p = SSU::PacketBuilder::buildSessionDestroyed(ps.getEndpoint());
+            p->encrypt(ps.getCurrentSessionKey(), ps.getCurrentMacKey());
+            sendPacket(p);
+
+            m_peers.delPeer(rh);
+        }
     }
 
     uint32_t UDPTransport::numPeers() const
@@ -138,7 +148,7 @@ namespace i2pcpp {
 
         for(auto itr = m_peers.cbegin(); itr != m_peers.cend(); ++itr) {
             SSU::PacketPtr sdp = SSU::PacketBuilder::buildSessionDestroyed(itr->getEndpoint());
-            sdp->encrypt(itr->getCurrentSessionKey(), itr->getCurrentMacKey());
+            sdp->encrypt(itr->state.getCurrentSessionKey(), itr->state.getCurrentMacKey());
             sendPacket(sdp);
         }
 

@@ -23,6 +23,7 @@ namespace i2pcpp {
         class OutboundMessageState {
             public:
                 OutboundMessageState(uint32_t msgId, ByteArray const &data);
+                OutboundMessageState(OutboundMessageState &&) = default;
 
                 /**
                  * @return a pointer to the next fragment that hasn't been sent
@@ -70,6 +71,9 @@ namespace i2pcpp {
                  */
                 uint8_t getTries() const;
 
+                void setTimer(std::unique_ptr<boost::asio::deadline_timer> t);
+                boost::asio::deadline_timer& getTimer();
+
             private:
                 void fragment();
 
@@ -82,6 +86,8 @@ namespace i2pcpp {
                  * Bit 0 = sent (not yet acknowledged)
                  */
                 boost::dynamic_bitset<> m_fragmentStates;
+
+                std::unique_ptr<boost::asio::deadline_timer> m_timer;
         };
 
         typedef std::shared_ptr<OutboundMessageState> OutboundMessageStatePtr;

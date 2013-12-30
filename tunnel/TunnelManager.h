@@ -31,6 +31,7 @@ namespace i2pcpp {
             void receiveData(RouterHash const from, uint32_t const tunnelId, StaticByteArray<1024> const data);
 
         private:
+            void timerCallback(const boost::system::error_code &e, bool participating, uint32_t tunnelId);
             void callback(const boost::system::error_code &e);
             void createTunnel();
 

@@ -11,8 +11,8 @@
 #include <botan/pipe.h>
 #include <botan/filters.h>
 
-#include "../../exceptions/FormattingError.h"
 #include "../../util/make_unique.h"
+#include "../../exceptions/FormattingError.h"
 
 #include "../UDPTransport.h"
 
@@ -37,8 +37,7 @@ namespace i2pcpp {
                 if((end - begin) < (numAcks * 4)) throw FormattingError();
 
                 while(numAcks--) {
-                    uint32_t msgId = (begin[0] << 24) | (begin[1] << 16) | (begin[2] << 8) | (begin[3]);
-                    begin += 4;
+                    uint32_t msgId = parseUint32(begin);
 
                     std::lock_guard<std::mutex> lock(m_transport.m_omf.m_mutex);
                     m_transport.m_omf.delState(msgId);
@@ -49,9 +48,7 @@ namespace i2pcpp {
 
                 unsigned char numFields = *(begin++);
                 while(numFields--) {
-                    // Read 4 byte msgId
-                    uint32_t msgId = (begin[0] << 24) | (begin[1] << 16) | (begin[2] << 8) | (begin[3]);
-                    begin += 4;
+                    uint32_t msgId = parseUint32(begin);
 
                     // Read ACK bitfield (1 byte)
                     std::lock_guard<std::mutex> lock(m_transport.m_omf.m_mutex);
@@ -82,8 +79,7 @@ namespace i2pcpp {
 
             for(int i = 0; i < numFragments; i++) {
                 if((end - begin) < 7) throw FormattingError();
-                uint32_t msgId = (begin[0] << 24) | (begin[1] << 16) | (begin[2] << 8) | (begin[3]);
-                begin += 4;
+                uint32_t msgId = parseUint32(begin);
                 I2P_LOG(m_log, debug) << "fragment[" << i << "] message id: " << std::hex << msgId << std::dec;
 
                 uint32_t fragInfo = (begin[0] << 16) | (begin[1] << 8) | (begin[2]);
@@ -120,13 +116,13 @@ namespace i2pcpp {
 
         void InboundMessageFragments::addState(const uint32_t msgId, const RouterHash &rh, InboundMessageState ims)
         {
-            auto timer = std::make_shared<boost::asio::deadline_timer>(m_transport.m_ios, boost::posix_time::time_duration(0, 0, 10));
-            timer->async_wait(boost::bind(&InboundMessageFragments::timerCallback, this, boost::asio::placeholders::error, msgId));
-
-            ContainerEntry sc(ims, timer);
-
+            ContainerEntry sc(std::move(ims));
             sc.msgId = msgId;
             sc.hash = rh;
+
+            auto timer = std::make_unique<boost::asio::deadline_timer>(m_transport.m_ios, boost::posix_time::time_duration(0, 0, 10));
+            timer->async_wait(boost::bind(&InboundMessageFragments::timerCallback, this, boost::asio::placeholders::error, msgId));
+            sc.timer = std::move(timer);
 
             m_states.insert(std::move(sc));
         }
@@ -153,9 +149,8 @@ namespace i2pcpp {
             }
         }
 
-        InboundMessageFragments::ContainerEntry::ContainerEntry(InboundMessageState ims, std::shared_ptr<boost::asio::deadline_timer>t) :
-            state(std::move(ims)),
-            timer(std::move(t)) {}
+        InboundMessageFragments::ContainerEntry::ContainerEntry(InboundMessageState ims) :
+            state(std::move(ims)) {}
 
         InboundMessageFragments::AddFragment::AddFragment(const uint8_t fragNum, ByteArray const &data, bool isLast) :
             m_fragNum(fragNum),

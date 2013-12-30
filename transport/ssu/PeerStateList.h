@@ -6,6 +6,8 @@
 #define SSUPEERSTATELIST_H
 
 #include <unordered_map>
+#include <mutex>
+
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/mem_fun.hpp>
@@ -27,14 +29,27 @@ namespace i2pcpp {
          */
         class PeerStateList {
             private:
+                struct PeerStateContainer {
+                    PeerStateContainer(PeerState const &ps) :
+                        state(ps) {}
+                    PeerStateContainer(PeerStateContainer &&) = default;
+                    PeerStateContainer& operator=(PeerStateContainer &&) = default;
+
+                    PeerState state;
+                    std::unique_ptr<boost::asio::deadline_timer> timer;
+
+                    Endpoint getEndpoint() const { return state.getEndpoint(); }
+                    RouterHash getHash() const { return state.getHash(); }
+                };
+
                 typedef boost::multi_index_container<
-                    PeerState,
+                    PeerStateContainer,
                     bmi::indexed_by<
                         bmi::hashed_unique<
-                            bmi::const_mem_fun<PeerState, Endpoint, &PeerState::getEndpoint>
+                            bmi::const_mem_fun<PeerStateContainer, Endpoint, &PeerStateContainer::getEndpoint>
                         >,
                         bmi::hashed_unique<
-                            bmi::const_mem_fun<PeerState, RouterHash, &PeerState::getHash>
+                            bmi::const_mem_fun<PeerStateContainer, RouterHash, &PeerStateContainer::getHash>
                         >
                     >
                 > StateContainer;
@@ -88,6 +103,13 @@ namespace i2pcpp {
                 bool peerExists(RouterHash const &rh) const;
 
                 /**
+                 * Resets the timer of a peer given by its i2pcpp::RouterHash
+                 *  \a rh.
+                 * @throw std::runtime_error if there is no such peer
+                 */
+                void resetPeerTimer(RouterHash const &rh);
+
+                /**
                  * @return the total number of i2pcpp::SSU::PeerState objects
                  *  stored
                  */
@@ -108,7 +130,7 @@ namespace i2pcpp {
                 /**
                  * Called when the timer's deadline ends.
                  */
-                void timerCallback(const boost::system::error_code& e, RouterHash const &rh);
+                void timerCallback(const boost::system::error_code& e, RouterHash const rh);
 
                 /**
                  * @return the mutex for this object

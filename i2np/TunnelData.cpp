@@ -2,11 +2,9 @@
 
 namespace i2pcpp {
     namespace I2NP {
-        TunnelData::TunnelData(uint32_t const tunnelId, ByteArray const &data) :
-            m_tunnelId(tunnelId)
-        {
-            std::copy(data.cbegin(), data.cbegin() + 1024, m_data.begin());
-        }
+        TunnelData::TunnelData(uint32_t const tunnelId, StaticByteArray<1024> const &data) :
+            m_tunnelId(tunnelId),
+            m_data(data) {}
 
         uint32_t TunnelData::getTunnelId() const
         {
@@ -39,8 +37,7 @@ namespace i2pcpp {
             if(end - begin < (4 + 1024))
                 throw std::runtime_error("invalid tunnel data message");
 
-            td.m_tunnelId = (begin[0] << 24) | (begin[1] << 16) | (begin[2] << 8) | (begin[3]);
-            begin += 4;
+            td.m_tunnelId = parseUint32(begin);
 
             std::copy(begin, begin + 1024, td.m_data.begin());
 

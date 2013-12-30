@@ -25,8 +25,7 @@ namespace i2pcpp {
         {
             DeliveryStatus ds;
 
-            ds.m_msgId = (begin[0] << 24) | (begin[1] << 16) | (begin[2] << 8) | (begin[3]);
-            begin += 4;
+            ds.m_msgId = parseUint32(begin);
 
             ds.m_timestamp = Date(begin, end);
 
