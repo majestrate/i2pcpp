@@ -111,22 +111,18 @@ namespace i2pcpp {
             uint32_t expiration;
 
             if(standardHeader) {
-                msgId = (dataItr[0] << 24) | (dataItr[1] << 16) | (dataItr[2] << 8) | (dataItr[3]);
-                dataItr += 4;
+                msgId = parseUint32(dataItr);
 
                 longExpiration = Date(dataItr, end);
 
-                uint16_t size = (dataItr[0] << 8) | (dataItr[1]);
-                dataItr += 2;
+                uint16_t size = parseUint16(dataItr);
 
                 uint8_t checksum = *dataItr++; // TODO verify this
 
                 if(end - dataItr != size)
                     throw std::runtime_error("error parsing I2NP message");
-            } else {
-                expiration = (dataItr[0] << 24) | (dataItr[1] << 16) | (dataItr[2] << 8) | (dataItr[3]);
-                dataItr += 4;
-            }
+            } else
+                expiration = parseUint32(dataItr);
 
             switch(mtype)
             {

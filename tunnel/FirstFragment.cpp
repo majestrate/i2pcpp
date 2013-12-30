@@ -76,8 +76,7 @@ namespace i2pcpp {
 
         switch(ff.m_mode) {
             case DeliveryMode::TUNNEL:
-                ff.m_tunnelId = (begin[0] << 24) | (begin[1] << 16) | (begin[2] << 8) | (begin[3]);
-                begin += 4;
+                ff.m_tunnelId = parseUint32(begin);
                 std::copy(begin, begin + 32, ff.m_toHash.begin());
                 begin += 32;
 
@@ -93,13 +92,10 @@ namespace i2pcpp {
                 throw std::runtime_error("unhandled first fragment delivery mode");
         };
 
-        if(ff.m_fragmented) {
-            ff.m_msgId = (begin[0] << 24) | (begin[1] << 16) | (begin[2] << 8) | (begin[3]);
-            begin += 4;
-        }
+        if(ff.m_fragmented)
+            ff.m_msgId = parseUint32(begin);
 
-        uint16_t size = (begin[0] << 8) | (begin[1]);
-        begin += 2;
+        uint16_t size = parseUint16(begin);
         if((end - begin) < size)
             throw std::runtime_error("malformed first fragment");
 

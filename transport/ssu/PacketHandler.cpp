@@ -141,7 +141,7 @@ namespace i2pcpp {
 
             ByteArray ip(begin, begin + ipSize);
             begin += ipSize;
-            short port = (((*(begin++)) << 8) | (*(begin++)));
+            short port = parseUint16(begin);
 
             state->setMyEndpoint(Endpoint(ip, port));
 
@@ -165,14 +165,14 @@ namespace i2pcpp {
 
             ByteArray ip(begin, begin + ipSize);
             begin += ipSize;
-            uint16_t port = (((*(begin++)) << 8) | (*(begin++)));
+            uint16_t port = parseUint16(begin);
 
             state->setMyEndpoint(Endpoint(ip, port));
 
-            uint32_t relayTag = (*(begin++) << 24) | (*(begin++) << 16) | (*(begin++) << 8) | *(begin++);
+            uint32_t relayTag = parseUint32(begin);
             state->setRelayTag(relayTag);
 
-            uint32_t ts = (*(begin++) << 24) | (*(begin++) << 16) | (*(begin++) << 8) | *(begin++);
+            uint32_t ts = parseUint32(begin);
             state->setSignatureTimestamp(ts);
 
             state->setSignature(begin, begin + 48);
@@ -187,13 +187,13 @@ namespace i2pcpp {
                 return;
 
             unsigned char info = *(begin++);
-            uint16_t size = (((*(begin++)) << 8) | (*(begin++)));
+            uint16_t size = parseUint16(begin);
             (void)info; (void)size; // Stop compiler from complaining
 
             RouterIdentity ri(begin, end);
             state->setTheirIdentity(ri);
 
-            uint32_t ts = (*(begin++) << 24) | (*(begin++) << 16) | (*(begin++) << 8) | *(begin++);
+            uint32_t ts = parseUint32(begin);
             state->setSignatureTimestamp(ts);
 
             state->setSignature(end - 40, end);

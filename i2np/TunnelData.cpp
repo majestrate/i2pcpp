@@ -37,8 +37,7 @@ namespace i2pcpp {
             if(end - begin < (4 + 1024))
                 throw std::runtime_error("invalid tunnel data message");
 
-            td.m_tunnelId = (begin[0] << 24) | (begin[1] << 16) | (begin[2] << 8) | (begin[3]);
-            begin += 4;
+            td.m_tunnelId = parseUint32(begin);
 
             std::copy(begin, begin + 1024, td.m_data.begin());
 

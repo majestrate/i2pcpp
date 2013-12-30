@@ -55,19 +55,16 @@ namespace i2pcpp {
             begin += 32;
 
             ds.m_type = (DataType)*(begin++);
-            ds.m_replyToken = (begin[0] << 24) | (begin[1] << 16) | (begin[2] << 8) | (begin[3]);
-            begin += 4;
+            ds.m_replyToken = parseUint32(begin);
 
             if(ds.m_replyToken) {
-                ds.m_replyTunnelId = (begin[0] << 24) | (begin[1] << 16) | (begin[2] << 8) | (begin[3]);
-                begin += 4;
+                ds.m_replyTunnelId = parseUint32(begin);
 
                 std::copy(begin, begin + 32, ds.m_replyGateway.begin());
                 begin += 32;
             }
 
-            uint16_t size = (begin[0] << 8) | (begin[1]);
-            begin += 2;
+            uint16_t size = parseUint16(begin);
 
             ds.m_data = ByteArray(begin, begin + size);
 

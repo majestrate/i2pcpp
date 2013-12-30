@@ -21,15 +21,13 @@ namespace i2pcpp {
         SessionKey sk;
         StaticByteArray<16> iv;
 
-        id = (dataItr[0] << 24) | (dataItr[1] << 16) | (dataItr[2] << 8) | (dataItr[3]);
-        dataItr += 4;
+        id = parseUint32(dataItr);
         hop.setTunnelId(id);
 
         std::copy(dataItr, dataItr + 32, rh.begin()), dataItr += 32;
         hop.setLocalHash(rh);
 
-        id = (dataItr[0] << 24) | (dataItr[1] << 16) | (dataItr[2] << 8) | (dataItr[3]);
-        dataItr += 4;
+        id = parseUint32(dataItr);
         hop.setNextTunnelId(id);
 
         std::copy(dataItr, dataItr + 32, rh.begin()), dataItr += 32;
@@ -55,11 +53,10 @@ namespace i2pcpp {
         else
             hop.setType(TunnelHop::Type::PARTICIPANT);
 
-        requestTime = (dataItr[0] << 24) | (dataItr[1] << 16) | (dataItr[2] << 8) | (dataItr[3]);
-        dataItr += 4;
+        requestTime = parseUint32(dataItr);
         hop.setRequestTime(requestTime);
 
-        nextMsgId = (dataItr[0] << 24) | (dataItr[1] << 16) | (dataItr[2] << 8) | (dataItr[3]);
+        nextMsgId = parseUint32(dataItr);
         hop.setNextMsgId(nextMsgId);
 
         return hop;
