@@ -22,6 +22,7 @@ namespace i2pcpp {
             Endpoint(std::string ip = "127.0.0.1", uint16_t port = 0);
             Endpoint(ByteArray const &addr, uint16_t port);
 
+            boost::asio::ip::tcp::endpoint getTCPEndpoint() const;
             boost::asio::ip::udp::endpoint getUDPEndpoint() const;
 
             /**
