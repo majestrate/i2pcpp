@@ -9,6 +9,8 @@
 
 namespace i2pcpp {
     typedef StaticByteArray<32> RouterHash;
+
+    RouterHash toRouterHash(ByteArray const &b);
 }
 
 #endif

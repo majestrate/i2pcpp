@@ -66,21 +66,19 @@ namespace i2pcpp {
 namespace std {
     template<>
     struct hash<i2pcpp::Endpoint> {
-        public:
-            size_t operator()(const i2pcpp::Endpoint &ep) const
-            {
-                hash<string> f;
-                return f(ep);
-            }
+        size_t operator()(const i2pcpp::Endpoint &ep) const
+        {
+            hash<string> f;
+            return f(ep);
+        }
     };
 
     template<>
     struct equal_to<i2pcpp::Endpoint> {
-        public:
-            bool operator()(const i2pcpp::Endpoint& lhs, const i2pcpp::Endpoint& rhs) const
-            {
-                return lhs == rhs;
-            }
+        bool operator()(const i2pcpp::Endpoint& lhs, const i2pcpp::Endpoint& rhs) const
+        {
+            return lhs == rhs;
+        }
     };
 }
 
