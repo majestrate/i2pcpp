@@ -200,27 +200,3 @@ add_definitions(-D_WEBSOCKETPP_CPP11_STL_)
 add_subdirectory(datatypes)
 include_directories(datatypes)
 target_link_libraries(i2p datatypes)
-
-# Googletest
-find_path(GTEST_INCLUDE_DIR gtest/gtest.h PATHS "${GTEST_INCLUDE_PREFIX}" NO_DEFAULT_PATH)
-find_library(GTEST_LIBRARY_PATH gtest PATHS "${GTEST_LIBRARY_PREFIX}" NO_DEFAULT_PATH)
-find_library(GTEST_MAIN_LIBRARY_PATH gtest_main PATHS "${GTEST_LIBRARY_PREFIX}" NO_DEFAULT_PATH)
-
-if(GTEST_LIBRARY_PATH AND GTEST_INCLUDE_DIR)
-    message(STATUS "Found gtest: ${GTEST_LIBRARY_PATH}")
-
-    enable_testing()
-
-    find_package(Threads)
-    include_directories(${GTEST_INCLUDE_DIR})
-    set(GTEST_LINK_STUFF "${GTEST_LIBRARY_PATH}" "${GTEST_MAIN_LIBRARY_PATH}" "${CMAKE_THREAD_LIBS_INIT}" "${Boost_LIBRARIES}" "${BOTAN_LIBRARY_PATH}")
-
-    add_executable(testi2p ${TEST_SRCS})
-    target_link_libraries(testi2p ${GTEST_LINK_STUFF} datatypes)
-    add_test(
-        NAME testi2p
-        COMMAND testi2p
-        )
-else(GTEST_LIBRARY_PATH AND GTEST_INCLUDE_DIR)
-    message(STATUS "Google Testing Framework not found... not building tests")
-endif(GTEST_LIBRARY_PATH AND GTEST_INCLUDE_DIR)
