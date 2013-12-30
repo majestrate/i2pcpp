@@ -17,10 +17,6 @@ set(SRCS
     dht/Kademlia.cpp
     dht/SearchManager.cpp
     dht/SearchState.cpp
-    exceptions/FormattingError.cpp
-    exceptions/RecordNotFound.cpp
-    exceptions/SQLError.cpp
-    exceptions/StatementPrepareError.cpp
     handlers/DatabaseSearchReply.cpp
     handlers/DatabaseStore.cpp
     handlers/DeliveryStatus.cpp
@@ -64,24 +60,7 @@ set(SRCS
     tunnel/TunnelHop.cpp
     tunnel/TunnelManager.cpp
     tunnel/Message.cpp
-    util/Base64.cpp
-    util/I2PDH.cpp
-    util/I2PHMAC.cpp
-    util/gzip.cpp
-    )
-
-set(TEST_SRCS
-    dht/Kademlia.cpp
-    exceptions/FormattingError.cpp
-    exceptions/RecordNotFound.cpp
-    tests/testi2p.cpp
-    transport/ssu/EstablishmentState.cpp
-    transport/ssu/Packet.cpp
-    transport/ssu/PacketBuilder.cpp
-    util/Base64.cpp
-    util/I2PDH.cpp
-    util/I2PHMAC.cpp
-    )
+)
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -stdlib=libc++")
@@ -196,31 +175,20 @@ find_path(WEBSOCKETPP_INCLUDE_DIR websocketpp/server.hpp)
 include_directories(BEFORE i2p ${WEBSOCKETPP_INCLUDE_DIR})
 add_definitions(-D_WEBSOCKETPP_CPP11_STL_)
 
-# Setup datatypes library
+# datatypes library
 add_subdirectory(datatypes)
 include_directories(datatypes)
 target_link_libraries(i2p datatypes)
 
-# Googletest
-find_path(GTEST_INCLUDE_DIR gtest/gtest.h PATHS "${GTEST_INCLUDE_PREFIX}" NO_DEFAULT_PATH)
-find_library(GTEST_LIBRARY_PATH gtest PATHS "${GTEST_LIBRARY_PREFIX}" NO_DEFAULT_PATH)
-find_library(GTEST_MAIN_LIBRARY_PATH gtest_main PATHS "${GTEST_LIBRARY_PREFIX}" NO_DEFAULT_PATH)
+# exceptions library
+add_subdirectory(exceptions)
+include_directories(exceptions)
+target_link_libraries(i2p exceptions)
 
-if(GTEST_LIBRARY_PATH AND GTEST_INCLUDE_DIR)
-    message(STATUS "Found gtest: ${GTEST_LIBRARY_PATH}")
+# util library
+add_subdirectory(util)
+include_directories(util)
+target_link_libraries(i2p util)
 
-    enable_testing()
-
-    find_package(Threads)
-    include_directories(${GTEST_INCLUDE_DIR})
-    set(GTEST_LINK_STUFF "${GTEST_LIBRARY_PATH}" "${GTEST_MAIN_LIBRARY_PATH}" "${CMAKE_THREAD_LIBS_INIT}" "${Boost_LIBRARIES}" "${BOTAN_LIBRARY_PATH}")
-
-    add_executable(testi2p ${TEST_SRCS})
-    target_link_libraries(testi2p ${GTEST_LINK_STUFF} datatypes)
-    add_test(
-        NAME testi2p
-        COMMAND testi2p
-        )
-else(GTEST_LIBRARY_PATH AND GTEST_INCLUDE_DIR)
-    message(STATUS "Google Testing Framework not found... not building tests")
-endif(GTEST_LIBRARY_PATH AND GTEST_INCLUDE_DIR)
+# Setup tests
+add_subdirectory(tests)
