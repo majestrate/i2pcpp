@@ -1,6 +1,8 @@
 #ifndef CONTROLLOGGINGBACKEND_H
 #define CONTROLLOGGINGBACKEND_H
 
+#include <mutex>
+
 #include <boost/log/sinks/basic_sink_backend.hpp>
 #include <boost/log/sinks/frontend_requirements.hpp>
 
@@ -22,6 +24,8 @@ namespace i2pcpp {
                 std::pair<uint64_t, uint64_t> getBytesAndReset();
 
             private:
+                std::mutex m_mutex;
+
                 uint64_t m_receivedBytes = 0;
                 uint64_t m_sentBytes = 0;
         };
