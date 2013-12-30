@@ -1,13 +1,16 @@
 #include "FragmentHandler.h"
 
+#include "../util/make_unique.h"
+
 #include "../i2np/TunnelGateway.h"
 
-#include "RouterContext.h"
+#include "../RouterContext.h"
 
 #include "FirstFragment.h"
 
 namespace i2pcpp {
-    FragmentHandler::FragmentHandler(RouterContext &ctx) :
+    FragmentHandler::FragmentHandler(boost::asio::io_service &ios, RouterContext &ctx) :
+        m_ios(ios),
         m_ctx(ctx),
         m_log(boost::log::keywords::channel = "FH") {}
 
@@ -31,12 +34,18 @@ namespace i2pcpp {
                     I2P_LOG(m_log, debug) << "fragmented";
 
                     std::lock_guard<std::mutex> lock(m_statesMutex);
+
                     auto itr = m_states.find(msgId);
                     if(itr != m_states.end())
                         m_states[msgId].setFirstFragment(std::move(ff));
                     else {
                         FragmentState s;
                         s.setFirstFragment(std::move(ff));
+
+                        auto timer = std::make_unique<boost::asio::deadline_timer>(m_ios, boost::posix_time::time_duration(0, 2, 0));
+                        timer->async_wait(boost::bind(&FragmentHandler::timerCallback, this, boost::asio::placeholders::error, msgId));
+                        s.setTimer(std::move(timer));
+
                         m_states[msgId] = std::move(s);
                     }
                 }
@@ -98,5 +107,12 @@ namespace i2pcpp {
 
             m_states.erase(msgId);
         }
+    }
+
+    void FragmentHandler::timerCallback(const boost::system::error_code& e, const uint32_t msgId)
+    {
+        std::lock_guard<std::mutex> lock(m_statesMutex);
+
+        m_states.erase(msgId);
     }
 }

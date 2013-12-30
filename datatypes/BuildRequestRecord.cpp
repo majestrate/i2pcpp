@@ -59,7 +59,7 @@ namespace i2pcpp {
         nextMsgId = parseUint32(dataItr);
         hop.setNextMsgId(nextMsgId);
 
-        return hop;
+        return std::move(hop);
     }
 
     void BuildRequestRecord::compile(TunnelHop const &hop)
