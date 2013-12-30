@@ -1,11 +1,5 @@
 #include "PeerState.h"
 
-#include <boost/bind.hpp>
-
-#include "../../util/make_unique.h"
-
-#include "../../Log.h"
-
 namespace i2pcpp {
     namespace SSU {
         PeerState::PeerState(Endpoint const &ep, RouterHash const &rh) :

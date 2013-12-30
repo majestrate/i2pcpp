@@ -36,6 +36,8 @@ namespace i2pcpp {
                 return;
             }
 
+            m_transport.m_peers.resetPeerTimer(state.getHash());
+
             packet->decrypt(state.getCurrentSessionKey());
             ByteArray &data = packet->getData();
 
@@ -204,6 +206,7 @@ namespace i2pcpp {
 
         void PacketHandler::handleSessionDestroyed(PeerState const &ps)
         {
+            // m_peers is already locked above
             m_transport.m_peers.delPeer(ps.getEndpoint());
             m_transport.m_ios.post(boost::bind(boost::ref(m_transport.m_disconnectedSignal), ps.getHash()));
         }

@@ -7,8 +7,8 @@
 #include <botan/pipe.h>
 #include <botan/filters.h>
 
-#include "../../exceptions/FormattingError.h"
 #include "../../util/make_unique.h"
+#include "../../exceptions/FormattingError.h"
 
 #include "../UDPTransport.h"
 
@@ -109,13 +109,13 @@ namespace i2pcpp {
 
         void InboundMessageFragments::addState(const uint32_t msgId, const RouterHash &rh, InboundMessageState ims)
         {
-            auto timer = std::make_shared<boost::asio::deadline_timer>(m_transport.m_ios, boost::posix_time::time_duration(0, 0, 10));
-            timer->async_wait(boost::bind(&InboundMessageFragments::timerCallback, this, boost::asio::placeholders::error, msgId));
-
-            ContainerEntry sc(ims, timer);
-
+            ContainerEntry sc(std::move(ims));
             sc.msgId = msgId;
             sc.hash = rh;
+
+            auto timer = std::make_unique<boost::asio::deadline_timer>(m_transport.m_ios, boost::posix_time::time_duration(0, 0, 10));
+            timer->async_wait(boost::bind(&InboundMessageFragments::timerCallback, this, boost::asio::placeholders::error, msgId));
+            sc.timer = std::move(timer);
 
             m_states.insert(std::move(sc));
         }
@@ -142,9 +142,8 @@ namespace i2pcpp {
             }
         }
 
-        InboundMessageFragments::ContainerEntry::ContainerEntry(InboundMessageState ims, std::shared_ptr<boost::asio::deadline_timer>t) :
-            state(std::move(ims)),
-            timer(std::move(t)) {}
+        InboundMessageFragments::ContainerEntry::ContainerEntry(InboundMessageState ims) :
+            state(std::move(ims)) {}
 
         InboundMessageFragments::AddFragment::AddFragment(const uint8_t fragNum, ByteArray const &data, bool isLast) :
             m_fragNum(fragNum),
