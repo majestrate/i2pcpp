@@ -86,10 +86,4 @@ namespace i2pcpp {
             return bucket;
         }
     }
-
-    std::size_t hash_value(DHT::Kademlia::key_type const &k)
-    {
-        boost::hash<std::string> f;
-        return f(std::string(k.cbegin(), k.cend()));
-    }
 }

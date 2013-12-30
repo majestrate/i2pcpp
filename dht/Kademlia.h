@@ -41,8 +41,6 @@ namespace i2pcpp {
 
         typedef std::shared_ptr<Kademlia> KademliaPtr;
     }
-
-    std::size_t hash_value(DHT::Kademlia::key_type const &k);
 }
 
 #endif
