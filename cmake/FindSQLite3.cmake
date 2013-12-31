@@ -1,0 +1,47 @@
+# - Try to find Sqlite3
+# Once done this will define
+#
+#  SQLITE3_FOUND - system has Sqlite3
+#  SQLITE3_INCLUDE_DIRS - the Sqlite3 include directory
+#  SQLITE3_LIBRARIES - Link these to use Sqlite3
+#  SQLITE3_DEFINITIONS - Compiler switches required for using Sqlite3
+#
+#  Hints:
+#  SQLITE_INCLUDEDIR
+#  SQLITE_LIBRARYDIR
+#
+
+if (SQLITE3_INCLUDE_DIRS AND SQLITE3_LIBRARIES)
+  # in cache already
+  set(Sqlite3_FIND_QUIETLY TRUE)
+endif (SQLITE3_INCLUDE_DIRS AND SQLITE3_LIBRARIES)
+
+if (NOT WIN32)
+  find_package(PkgConfig)
+  PKG_SEARCH_MODULE(PC_SQLITE3 sqlite3)
+  set (SQLITE3_DEFINITIONS ${PC_SQLITE3_CFLAGS})
+endif (NOT WIN32)
+
+find_path(SQLITE3_INCLUDE_DIR sqlite3.h
+  HINTS
+  ${SQLITE3_INCLUDEDIR}
+  ${PC_SQLITE3_INCLUDEDIR}
+  ${PC_SQLITE3_INCLUDE_DIRS}
+  )
+
+find_library(SQLITE3_LIBRARY sqlite3
+  HINTS
+  ${SQLITE3_LIBRARYDIR}
+  ${PC_SQLITE3_LIBRARYDIR}
+  ${PC_SQLITE3_LIBRARY_DIRS}
+  )
+
+mark_as_advanced(SQLITE3_INCLUDE_DIR SQLITE3_LIBRARY)
+
+include(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(Sqlite3 DEFAULT_MSG SQLITE3_LIBRARY SQLITE3_INCLUDE_DIR)
+
+if(SQLITE3_FOUND)
+  set(SQLITE3_LIBRARIES    ${SQLITE3_LIBRARY})
+  seT(SQLITE3_INCLUDE_DIRS ${SQLITE3_INCLUDE_DIR})
+endif(SQLITE3_FOUND)
