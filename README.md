@@ -16,6 +16,7 @@ To compile, you will require the following components:
 * [boost 1.55.0][2]
 * [cmake 2.8.11.2][3] or greater
 * [sqlite 3.8.0.2][4] or greater
+* [WebSocket++][5]
 
 clang 3.3+ is the only officially supported compiler, but there is an honest effort to be compatible with g++. i2pcpp will always work on the latest version of FreeBSD.
 
@@ -126,3 +127,4 @@ GPG fingerprint: 350E 6173 B4C5 3976 AD82  27A4 0571 6F61 2464 26E9
 [2]: http://www.boost.org/users/download/
 [3]: http://www.cmake.org/cmake/resources/software.html
 [4]: http://www.sqlite.org/download.html
+[5]: http://www.zaphoyd.com/websocketpp
