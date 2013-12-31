@@ -3,6 +3,7 @@
 
 #include <string>
 #include <forward_list>
+#include <unordered_map>
 
 #include <sqlite3.h>
 
@@ -10,6 +11,25 @@
 #include "datatypes/RouterInfo.h"
 
 namespace i2pcpp {
+
+
+    class sql_transaction 
+    {
+    public:
+        sql_transaction(sqlite3_stmt * query);
+        ~sql_transaction();
+        void bind(int col, int data);
+        void bind(int col, std::string const & data);
+        void bind(int col, const void * data, uint32_t len);
+        int get_int(int col);
+        std::string get_str(int col);
+        const void * get_blob(int col);
+        int get_bytes(int col);
+        int step();
+    private:
+        sqlite3_stmt * m_stmt;
+    }; 
+    
     class Database {
         public:
             Database(std::string const &file);
@@ -33,8 +53,11 @@ namespace i2pcpp {
 
         private:
             sqlite3 *m_db;
-
+            std::unordered_map<std::string, sqlite3_stmt *> m_queries;
+            sql_transaction query(std::string const & sql);
+            void db_exec(std::string const & sql);
             mutable std::mutex m_mutex;
+
     };
 }
 
