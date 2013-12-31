@@ -5,7 +5,7 @@
         <title>i2pcpp control panel</title>
 
         <link type="text/css" rel="stylesheet" href="css/rickshaw.min.css">
-        <script src="js/jquery-2.0.3.min.js"></script>
+        <script src="js/jquery-2.0.3.js"></script>
         <script src="js/rickshaw.min.js"></script>
         <script src="js/d3.v3.js"></script>
     </head>
@@ -13,8 +13,8 @@
     <body>
         <div id="graph"></div>
         <script type="text/javascript">
-            var statsConnection = new WebSocket("ws://127.0.0.1:3239/stats");
-            statsConnection.onopen = function() { alert('connected'); }
+            var statsConnection = new WebSocket("ws://127.0.0.1:10010/stats");
+            // statsConnection.onopen = function() { alert('connected'); }
 
             var palette = new Rickshaw.Color.Palette( { scheme: 'spectrum14' } );
             var graph = new Rickshaw.Graph({
@@ -43,7 +43,7 @@
             });
 
             var yAxis = new Rickshaw.Graph.Axis.Y({
-                graph: graph,
+                 graph: graph,
                 tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
                 ticksTreatment: 'glow'
             });

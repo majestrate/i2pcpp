@@ -31,14 +31,15 @@ i2pcpp should be built out of source:
 The following cmake variables are recognized:
 
 * CMAKE_BUILD_TYPE (Debug, Release, or MinSizeRel)
+* CMAKE_C_COMPILER
 * CMAKE_CXX_COMPILER
 * BOOST_INCLUDEDIR
 * BOOST_LIBRARYDIR
-* BOTAN_INCLUDE_PREFIX
-* BOTAN_LIBRARY_PREFIX
-* SQLITE3_INCLUDE_PREFIX
-* SQLITE3_LIBRARY_PREFIX
-* WEBSOCKETPP_INCLUDE_PREFIX
+* BOTAN_INCLUDEDIR
+* BOTAN_LIBRARYDIR
+* SQLITE3_INCLUDEDIR
+* SQLITE3_LIBRARYDIR
+* WEBSOCKETPP_INCLUDEDIR
 
 Below is an example of how to invoke cmake from within your build directory:
 
