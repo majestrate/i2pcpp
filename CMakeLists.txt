@@ -170,9 +170,9 @@ include_directories(datatypes)
 target_link_libraries(i2p datatypes)
 
 # Lua
-find_package(Lua51)
-if(LUA51_FOUND)
+find_package(Lua)
+if(LUA_FOUND)
     add_subdirectory(lua)
     include_directories(BEFORE i2p ${LUA_INCLUDE_DIR})
     target_link_libraries(i2p ${LUA_LIBRARIES})
-endif(LUA51_FOUND)
+endif(LUA_FOUND)
