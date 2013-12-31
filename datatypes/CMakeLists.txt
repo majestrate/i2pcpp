@@ -17,7 +17,7 @@ set(datatypes_sources
 add_library(datatypes STATIC ${datatypes_sources})
 
 # Botan
-include_directories(BEFORE datatypes ${BOTAN_INCLUDE_DIR})
+include_directories(BEFORE datatypes ${BOTAN_INCLUDE_DIRS})
 
 # Boost
-include_directories(${Boost_INCLUDE_DIR})
+include_directories(${Boost_INCLUDE_DIRS})
