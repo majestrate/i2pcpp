@@ -1,3 +1,7 @@
+/**
+ * @file OutboundMessageDispatcher.cpp
+ * @brief Implements OutboundMessageDispatcher.h
+ */
 #include "OutboundMessageDispatcher.h"
 
 #include "RouterContext.h"
@@ -24,9 +28,8 @@ namespace i2pcpp {
             I2P_LOG_SCOPED_TAG(m_log, "RouterHash", to);
             I2P_LOG(m_log, debug) << "not connected, queueing message";
 
-            std::lock_guard<std::mutex> lock(m_mutex);
+            queueMessage(to, msg);
 
-            m_pending.insert(MapType::value_type(to, msg));
             if(m_ctx.getDatabase().routerExists(to))
                 m_transport->connect(m_ctx.getDatabase().getRouterInfo(to));
             else {
