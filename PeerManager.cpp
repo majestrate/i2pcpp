@@ -1,3 +1,7 @@
+/**
+ * @file PeerManager.cpp
+ * @brief Implements PeerManager.h
+ */
 #include "PeerManager.h"
 
 #include "i2np/DeliveryStatus.h"
