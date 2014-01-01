@@ -1,3 +1,7 @@
+/**
+ * @file Signals.cpp
+ * Implements Signals.h
+ */
 #include "Signals.h"
 
 namespace i2pcpp {
