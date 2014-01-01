@@ -1,3 +1,7 @@
+/**
+ * @file ProfileManager.cpp
+ * @brief Implements ProfileManager.h
+ */
 #include "ProfileManager.h"
 
 #include "RouterContext.h"
