@@ -48,8 +48,8 @@ BOOST_AUTO_TEST_SUITE(MappingTests)
 struct MappingFixture {
     i2pcpp::ByteArray ba = {
         0x00, 0x0e,
-        0x01, 0x41, 0x3d, 0x01, 0x42, 0x3b, // A=B
-        0x02, 0x41, 0x42, 0x3d, 0x02, 0x43, 0x44, 0x3b // AB=CD;
+        0x01, 'A', '=', 0x01, 'B', ';',
+        0x02, 'A', 'B', '=', 0x02, 'C', 'D', ';'
     };
     i2pcpp::Mapping mp;
     MappingFixture()
@@ -91,10 +91,10 @@ BOOST_AUTO_TEST_CASE(EmptyByteArrayThrows)
 BOOST_AUTO_TEST_CASE(IncorrectSizeThrows)
 {
     const i2pcpp::ByteArray ba = {
-        0, 7, // Incorrect size given
-        1, 65, 61, 1, 66, 59, // A=B;
-        2, 65, 66, 61, 2, 67, 68, 59 // AB=CD;
-    };   
+        0x00, 0x0f,
+        0x01, 'A', '=', 0x01, 'B', ';',
+        0x02, 'A', 'B', '=', 0x02, 'C', 'D', ';'
+    };
     auto it = ba.begin();
     BOOST_CHECK_THROW(
         i2pcpp::Mapping m(it, ba.end()), i2pcpp::FormattingError
@@ -104,45 +104,22 @@ BOOST_AUTO_TEST_CASE(IncorrectSizeThrows)
 BOOST_AUTO_TEST_CASE(IncorrectLenThrows)
 {
     const i2pcpp::ByteArray ba = {
-        0, 14,
-        1, 65, 61, 2, 66, 59, // A=B; Incorect length given (2 instead of 1)
-        2, 65, 66, 61, 2, 67, 68, 59 // AB=CD;
-    };   
+        0x00, 0x0f,
+        0x02, 'A', '=', 0x01, 'B', ';',
+        0x02, 'A', 'B', '=', 0x02, 'C', 'D', ';'
+    };
     auto it = ba.begin();
     BOOST_CHECK_THROW(
         i2pcpp::Mapping m(it, ba.end()), i2pcpp::FormattingError
     ); 
 }
-BOOST_FIXTURE_TEST_CASE(DeletedThrows, MappingFixture)
+
+BOOST_FIXTURE_TEST_CASE(DeletedGivesEmpty, MappingFixture)
 {
     mp.deleteValue("A");
     mp.deleteValue("AB");
-    BOOST_CHECK_THROW(mp.getValue("A"), std::out_of_range); 
-    BOOST_CHECK_THROW(mp.getValue("AB"), std::out_of_range); 
-}
-
-BOOST_AUTO_TEST_SUITE_END()
-
-BOOST_AUTO_TEST_SUITE(RouterInfoTests)
-
-#include "SampleRI.inc"
-
-BOOST_AUTO_TEST_CASE(Serialize)
-{
-    auto it = sample_routerInfo.begin();
-    i2pcpp::RouterInfo ri(it, sample_routerInfo.end());
-    i2pcpp::ByteArray result = ri.serialize();
-    BOOST_CHECK_EQUAL_COLLECTIONS(
-        result.begin(), result.end(),
-        sample_routerInfo.begin(), sample_routerInfo.end()
-    );
-}
-
-BOOST_AUTO_TEST_CASE(Verify)
-{
-    auto it = sample_routerInfo.begin();
-    i2pcpp::RouterInfo ri(it, sample_routerInfo.end());
-    BOOST_CHECK_EQUAL(ri.verifySignature(), true);
+    BOOST_CHECK(mp.getValue("A").empty()); 
+    BOOST_CHECK(mp.getValue("AB").empty()); 
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -209,5 +186,54 @@ BOOST_AUTO_TEST_CASE(ToString)
     BOOST_CHECK_EQUAL(s, "127.0.0.1:1337");
 }
 
+BOOST_AUTO_TEST_SUITE_END()
+
+struct RouterInfoFixture {
+#include "SampleRI.inc"
+    i2pcpp::RouterInfo ri;
+    i2pcpp::ByteArrayConstItr it;
+
+    RouterInfoFixture()
+     : it(sample_routerInfo.begin()), ri(it, sample_routerInfo.end())
+    {
+    }
+};
+
+BOOST_AUTO_TEST_SUITE(RouterInfoTests)
+
+BOOST_FIXTURE_TEST_CASE(Serialize, RouterInfoFixture)
+{
+    i2pcpp::ByteArray result = ri.serialize();
+    BOOST_CHECK_EQUAL_COLLECTIONS(
+        result.begin(), result.end(),
+        sample_routerInfo.begin(), sample_routerInfo.end()
+    );
+}
+
+BOOST_FIXTURE_TEST_CASE(Verify, RouterInfoFixture)
+{
+    BOOST_CHECK_EQUAL(ri.verifySignature(), true);
+}
+
+BOOST_FIXTURE_TEST_CASE(GetOptions, RouterInfoFixture)
+{
+    i2pcpp::Mapping mp = ri.getOptions();
+    BOOST_CHECK_EQUAL(mp.getValue("netdb.knownLeaseSets"), "37");
+    BOOST_CHECK_EQUAL(mp.getValue("caps"), "OfR");
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_AUTO_TEST_SUITE(RouterIdentityTests)
+
+BOOST_FIXTURE_TEST_CASE(GetHash, RouterInfoFixture)
+{
+    i2pcpp::StaticByteArray<32> sba = {
+        214, 154, 116, 173, 5, 123, 132, 175, 215, 176, 184, 155, 242, 143, 0,
+        29, 126, 248, 145, 97, 230, 70, 48, 236, 152, 58, 133, 237, 168, 160,
+        100, 61 
+    };
+    BOOST_CHECK_EQUAL(ri.getIdentity().getHash(), sba);
+}
 
 BOOST_AUTO_TEST_SUITE_END()

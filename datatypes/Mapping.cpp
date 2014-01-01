@@ -10,24 +10,27 @@ namespace i2pcpp {
 
     Mapping::Mapping(ByteArrayConstItr &begin, ByteArrayConstItr end)
     {
-        if(begin <= end)
+        if(std::distance(begin, end) < 2)
             throw FormattingError();
 
         uint16_t size = parseUint16(begin);
-        if((end - begin) < size) throw FormattingError();
+        if(std::distance(begin, end) < size)
+            throw FormattingError();
 
         end = begin + size;
 
         while(begin != end) {
             unsigned char keySize = *(begin++);
-            if((end - begin) < keySize) throw FormattingError();
+            if(std::distance(begin, end) < keySize)
+                throw FormattingError();
             std::string key(begin, begin + keySize);
             begin += keySize;
 
             begin++; // Equal
 
             unsigned char valueSize = *(begin++);
-            if((end - begin) < valueSize) throw FormattingError();
+            if(std::distance(begin, end) < valueSize)
+                throw FormattingError();
             std::string value(begin, begin + valueSize);
             begin += valueSize;
 
