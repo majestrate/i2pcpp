@@ -12,14 +12,20 @@ namespace i2pcpp {
 
     Certificate::Certificate(ByteArrayConstItr &begin, ByteArrayConstItr end)
     {
+        if(!std::distance(begin, end))
+            throw FormattingError();
+
         m_type = (Type)*(begin++);
 
-        if(m_type < (Type)0 || m_type > (Type)4) throw FormattingError();
+        if(m_type < (Type)0 || m_type > (Type)4)
+            throw FormattingError();
     
         uint16_t size = parseUint16(begin);
-        if((end - begin) < size) throw FormattingError();
+        if(std::distance(begin, end) < size)
+            throw FormattingError();
         m_payload.resize(size);
-        copy(begin, begin + size, m_payload.begin()), begin += size;
+        std::copy(begin, begin + size, m_payload.begin());
+        begin += size;
     }
 
     uint16_t Certificate::getLength() const
