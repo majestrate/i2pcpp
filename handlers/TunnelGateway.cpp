@@ -1,3 +1,7 @@
+/**
+ * @file TunnelGateway.cpp
+ * @brief Implements TunnelGateway.h
+ */
 #include "TunnelGateway.h"
 
 #include "../i2np/TunnelGateway.h"

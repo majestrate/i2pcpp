@@ -1,3 +1,7 @@
+/**
+ * @file DatabaseSearchReply.cpp
+ * @brief Implements DatabaseSearchReply.h
+ */
 #include "DatabaseSearchReply.h"
 
 #include "../i2np/DatabaseSearchReply.h"

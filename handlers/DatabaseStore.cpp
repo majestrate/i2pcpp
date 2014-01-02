@@ -1,3 +1,7 @@
+/**
+ * @file DatabaseStore.cpp
+ * @brief Implements DatabaseStore.h
+ */
 #include "DatabaseStore.h"
 
 #include <botan/pipe.h>
