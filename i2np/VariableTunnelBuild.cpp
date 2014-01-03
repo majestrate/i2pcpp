@@ -1,3 +1,7 @@
+/**
+ * @file VariableTunnelBuild.cpp
+ * @brief Implements VariableTunnelBuild.h
+ */
 #include "VariableTunnelBuild.h"
 
 #include "../Log.h"

@@ -1,3 +1,7 @@
+/**
+ * @file TunnelGateway.cpp
+ * @brief Implements TunnelGateway.h
+ */
 #include "TunnelGateway.h"
 #include <stdexcept>
 

@@ -1,3 +1,7 @@
+/**
+ * @file DeliveryStatus.cpp
+ * @brief Implements DeliveryStatus.h
+ */
 #include "DeliveryStatus.h"
 
 namespace i2pcpp {

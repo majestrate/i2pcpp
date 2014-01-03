@@ -1,3 +1,7 @@
+/**
+ * @file DatabaseSearchReply.cpp
+ * @brief Implements DatabaeSearchReply.h
+ */
 #include "DatabaseSearchReply.h"
 
 namespace i2pcpp {

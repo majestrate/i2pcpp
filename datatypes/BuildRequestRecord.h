@@ -17,7 +17,8 @@
 
 namespace i2pcpp {
     /**
-     * Holds the tunnel build record request record.
+     * Holds the tunnel build request record.
+     * @see i2pcpp::I2NP::VariableTunnelBuild
      */
     class BuildRequestRecord : public BuildRecord {
         public:
@@ -28,7 +29,17 @@ namespace i2pcpp {
              */
             BuildRequestRecord(BuildRecord const &r);
 
+            /**
+             * @return an i2pcpp::TunnelHop object constructed from this build
+             *  request record
+             */
             TunnelHop parse();
+
+            /**
+             * Constructs an i2pcpp::BuildRequestRecord from an i2pcpp::TunnelHop
+             *  object.
+             * @todo implement random padding
+             */
             void compile(TunnelHop const &hop);
 
             /**
@@ -37,6 +48,12 @@ namespace i2pcpp {
             TunnelHop& getHop();
 
         private:
+            /**
+             * The flags to be used. Bit 7 indicates that the receiver router
+             *  should act as an IBGW. Bit 6 indicates that it should act as
+             *  and OBEP. If neither is set, this indicates that it should act
+             *  as a participant.
+             */
             std::bitset<8> m_flags;
     };
 
