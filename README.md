@@ -121,7 +121,7 @@ This option takes an optional argument to specify the filename to log to. If no 
 
 The author hangs out in #i2p-dev on the irc2p network under the nickname orion. A GPG key is included in the `doc/` directory which can be used to send private messages and verify commits.
 
-GPG fingerprint: 350E 6173 B4C5 3976 AD82  27A4 0571 6F61 2464 26E9
+GPG fingerprint: 51F4 F421 CF7C 3CA0 26A4  24CD 83BA E5AA F4D1 5FC8
 
 [1]: http://botan.randombit.net/download.html
 [2]: http://www.boost.org/users/download/
