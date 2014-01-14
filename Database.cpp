@@ -1,3 +1,7 @@
+/**
+ * @file Database.cpp
+ * @brief Implements Database.h
+ */
 #include "Database.h"
 
 #include <sys/stat.h>

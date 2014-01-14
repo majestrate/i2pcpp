@@ -1,3 +1,7 @@
+/**
+ * @file RouterContext.cpp
+ * @brief Implements RouterContext.h
+ */
 #include "RouterContext.h"
 
 #include <botan/auto_rng.h>

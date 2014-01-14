@@ -1,3 +1,7 @@
+/**
+ * @file EstablishmentState.cpp
+ * @brief Implements EstablishmentState.h
+ */
 #include "EstablishmentState.h"
 
 #include <botan/auto_rng.h>

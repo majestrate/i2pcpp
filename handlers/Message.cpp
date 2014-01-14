@@ -1,3 +1,7 @@
+/**
+ * @file Message.cpp
+ * @brief Implements Message.h
+ */
 #include "Message.h"
 
 namespace i2pcpp {

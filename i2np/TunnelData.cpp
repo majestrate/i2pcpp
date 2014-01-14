@@ -1,3 +1,7 @@
+/**
+ * @file TunnelData.cpp
+ * @brief Implements TunnelData.h
+ */
 #include "TunnelData.h"
 
 namespace i2pcpp {

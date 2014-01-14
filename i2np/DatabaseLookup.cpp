@@ -1,3 +1,7 @@
+/**
+ * @file DatabaseLookup.cpp
+ * @brief Implements DatabaseLookup.h
+ */
 #include "DatabaseLookup.h"
 
 namespace i2pcpp {

@@ -1,3 +1,7 @@
+/**
+ * @file PeerState.cpp
+ * @brief Implements PeerState.h
+ */
 #include "PeerState.h"
 
 namespace i2pcpp {

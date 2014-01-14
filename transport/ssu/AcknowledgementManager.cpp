@@ -1,3 +1,7 @@
+/**
+ * @file AcknowledgmentManager.cpp
+ * @brief Implements AcknowledgmentManager.h.
+ */
 #include "AcknowledgementManager.h"
 
 #include <boost/bind.hpp>

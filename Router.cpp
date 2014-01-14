@@ -1,3 +1,7 @@
+/**
+ * @file Router.cpp
+ * @brief Implements Router.h
+ */
 #include "Router.h"
 
 #include "util/make_unique.h"
@@ -112,12 +116,12 @@ namespace i2pcpp {
         m_ctx.getDatabase().deleteAllRouters();
     }
 
-    void Router::setConfigValue(std::string key, std::string value)
+    void Router::setConfigValue(const std::string& key, const std::string& value)
     {
         m_ctx.getDatabase().setConfigValue(key, value);
     }
 
-    std::string Router::getConfigValue(std::string key)
+    std::string Router::getConfigValue(const std::string& key)
     {
         return m_ctx.getDatabase().getConfigValue(key);
     }

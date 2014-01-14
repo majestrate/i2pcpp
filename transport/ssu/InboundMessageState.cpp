@@ -1,3 +1,7 @@
+/**
+ * @file InboundMessageState.cpp
+ * @brief Implements InboundMessageState.h.
+ */
 #include "InboundMessageState.h"
 
 namespace i2pcpp {

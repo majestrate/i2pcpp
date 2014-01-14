@@ -1,3 +1,7 @@
+/**
+ * @file main.cpp
+ * @brief Contains the starting point, main.
+ */
 #include <iostream>
 #include <fstream>
 #include <string>

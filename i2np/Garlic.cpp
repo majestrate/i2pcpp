@@ -1,3 +1,7 @@
+/**
+ * @file Garlic.cpp
+ * @brief Implements Garlic.h
+ */
 #include "Garlic.h"
 
 namespace i2pcpp {

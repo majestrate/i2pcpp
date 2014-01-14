@@ -1,3 +1,7 @@
+/**
+ * @file InboundMessageDispatcher.cpp
+ * @brief Implements InboundMessageDispatcher.cpp.
+ */
 #include "InboundMessageDispatcher.h"
 
 #include <iomanip>

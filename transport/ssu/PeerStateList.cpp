@@ -1,3 +1,7 @@
+/**
+ * @file PeerStateList.cpp
+ * Implements PeerStateList.h
+ */
 #include "PeerStateList.h"
 
 #include "../../util/make_unique.h"

@@ -1,3 +1,7 @@
+/**
+ * @file TunnelData.cpp
+ * @brief Implements TunnelData.h
+ */
 #include "TunnelData.h"
 
 #include "../i2np/TunnelData.h"
