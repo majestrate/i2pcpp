@@ -101,6 +101,8 @@ if("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
         COMMAND ${CMAKE_STRIP} -s ${i2p_LOCATION})
 endif("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
 
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
 add_executable(i2p main.cpp ${SRCS})
 
 # Version information
@@ -132,68 +134,34 @@ find_package(Threads)
 target_link_libraries (i2p "${CMAKE_THREAD_LIBS_INIT}")
 
 # zlib
-find_path(ZLIB_INCLUDE_DIR zlib.h PATHS "${ZLIB_INCLUDE_PREFIX}" NO_DEFAULT_PATH)
-find_path(ZLIB_INCLUDE_DIR zlib.h)
-find_library(ZLIB_LIBRARY_PATH z PATHS "${ZLIB_LIBRARY_PREFIX}" NO_DEFAULT_PATH)
-find_library(ZLIB_LIBRARY_PATH z)
-
-if(ZLIB_LIBRARY_PATH AND ZLIB_INCLUDE_DIR)
-    message(STATUS "Found zlib: ${ZLIB_LIBRARY_PATH}")
-else(ZLIB_LIBRARY_PATH AND ZLIB_INCLUDE_DIR)
-    message(FATAL_ERROR "zlib not found")
-endif(ZLIB_LIBRARY_PATH AND ZLIB_INCLUDE_DIR)
-
-include_directories(BEFORE i2p ${ZLIB_INCLUDE_DIR})
-target_link_libraries(i2p "${ZLIB_LIBRARY_PATH}")
+find_package(ZLIB REQUIRED)
+include_directories(BEFORE i2p ${ZLIB_INCLUDE_DIRS})
+target_link_libraries(i2p "${ZLIB_LIBRARIES}")
 
 # Sqlite3
-find_path(SQLITE3_INCLUDE_DIR sqlite3.h PATHS "${SQLITE3_INCLUDE_PREFIX}" NO_DEFAULT_PATH)
-find_path(SQLITE3_INCLUDE_DIR sqlite3.h)
-find_library(SQLITE3_LIBRARY_PATH sqlite3 PATHS "${SQLITE3_LIBRARY_PREFIX}" NO_DEFAULT_PATH)
-find_library(SQLITE3_LIBRARY_PATH sqlite3)
-
-if(SQLITE3_LIBRARY_PATH AND SQLITE3_INCLUDE_DIR)
-    message(STATUS "Found sqlite3: ${SQLITE3_LIBRARY_PATH}")
-else(SQLITE3_LIBRARY_PATH AND SQLITE3_INCLUDE_DIR)
-    message(FATAL_ERROR "Sqlite3 not found")
-endif(SQLITE3_LIBRARY_PATH AND SQLITE3_INCLUDE_DIR)
-
-include_directories(BEFORE i2p ${SQLITE3_INCLUDE_DIR})
-target_link_libraries(i2p "${SQLITE3_LIBRARY_PATH}")
+find_package(SQLite3 REQUIRED)
+include_directories(BEFORE i2p ${SQLITE3_INCLUDE_DIRS})
+target_link_libraries(i2p "${SQLITE3_LIBRARIES}")
 
 # Botan
-find_path(BOTAN_INCLUDE_DIR botan/botan.h PATHS "${BOTAN_INCLUDE_PREFIX}" NO_DEFAULT_PATH)
-find_path(BOTAN_INCLUDE_DIR botan/botan.h)
-find_library(BOTAN_LIBRARY_PATH botan-1.11 PATHS "${BOTAN_LIBRARY_PREFIX}" NO_DEFAULT_PATH)
-find_library(BOTAN_LIBRARY_PATH botan-1.11)
-
-if(BOTAN_LIBRARY_PATH AND BOTAN_INCLUDE_DIR)
-    message(STATUS "Found botan: ${BOTAN_LIBRARY_PATH}")
-else(BOTAN_LIBRARY_PATH AND BOTAN_INCLUDE_DIR)
-    message(FATAL_ERROR "Botan 1.11 not found")
-endif(BOTAN_LIBRARY_PATH AND BOTAN_INCLUDE_DIR)
-
-include_directories(BEFORE i2p ${BOTAN_INCLUDE_DIR})
-target_link_libraries(i2p ${BOTAN_LIBRARY_PATH})
+find_package(Botan REQUIRED)
+include_directories(BEFORE i2p ${BOTAN_INCLUDE_DIRS})
+target_link_libraries(i2p ${BOTAN_LIBRARIES})
 
 # Boost
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
-find_package(Boost 1.55.0 COMPONENTS system thread filesystem chrono date_time program_options log)
-if(Boost_FOUND)
-    include_directories(BEFORE i2p ${Boost_INCLUDE_DIRS})
-    target_link_libraries(i2p ${Boost_LIBRARIES})
-    add_definitions(-DBOOST_ALL_DYN_LINK)
-else(Boost_FOUND)
-    message(FATAL_ERROR "Boost 1.55.0 not found")
-endif(Boost_FOUND)
+find_package(Boost 1.55.0 REQUIRED COMPONENTS system thread filesystem chrono date_time program_options log)
+include_directories(BEFORE i2p ${Boost_INCLUDE_DIRS})
+target_link_libraries(i2p ${Boost_LIBRARIES})
+add_definitions(-DBOOST_ALL_DYN_LINK)
 
 # websocketpp
-find_path(WEBSOCKETPP_INCLUDE_DIR websocketpp/server.hpp PATHS "${WEBSOCKETPP_INCLUDE_PREFIX}" NO_DEFAULT_PATH)
-find_path(WEBSOCKETPP_INCLUDE_DIR websocketpp/server.hpp)
+find_path(WEBSOCKETPP_INCLUDE_DIRS websocketpp/server.hpp PATHS "${WEBSOCKETPP_INCLUDEDIR}" NO_DEFAULT_PATH)
+find_path(WEBSOCKETPP_INCLUDE_DIRS websocketpp/server.hpp)
 
-include_directories(BEFORE i2p ${WEBSOCKETPP_INCLUDE_DIR})
+include_directories(BEFORE i2p ${WEBSOCKETPP_INCLUDE_DIRS})
 add_definitions(-D_WEBSOCKETPP_CPP11_STL_)
 
 # Setup datatypes library
