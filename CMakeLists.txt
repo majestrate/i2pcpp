@@ -17,10 +17,6 @@ set(SRCS
     dht/Kademlia.cpp
     dht/SearchManager.cpp
     dht/SearchState.cpp
-    exceptions/FormattingError.cpp
-    exceptions/RecordNotFound.cpp
-    exceptions/SQLError.cpp
-    exceptions/StatementPrepareError.cpp
     handlers/DatabaseSearchReply.cpp
     handlers/DatabaseStore.cpp
     handlers/DeliveryStatus.cpp
@@ -64,24 +60,7 @@ set(SRCS
     tunnel/TunnelHop.cpp
     tunnel/TunnelManager.cpp
     tunnel/Message.cpp
-    util/Base64.cpp
-    util/I2PDH.cpp
-    util/I2PHMAC.cpp
-    util/gzip.cpp
-    )
-
-set(TEST_SRCS
-    dht/Kademlia.cpp
-    exceptions/FormattingError.cpp
-    exceptions/RecordNotFound.cpp
-    tests/testi2p.cpp
-    transport/ssu/EstablishmentState.cpp
-    transport/ssu/Packet.cpp
-    transport/ssu/PacketBuilder.cpp
-    util/Base64.cpp
-    util/I2PDH.cpp
-    util/I2PHMAC.cpp
-    )
+)
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -stdlib=libc++")
@@ -164,7 +143,20 @@ find_path(WEBSOCKETPP_INCLUDE_DIRS websocketpp/server.hpp)
 include_directories(BEFORE i2p ${WEBSOCKETPP_INCLUDE_DIRS})
 add_definitions(-D_WEBSOCKETPP_CPP11_STL_)
 
-# Setup datatypes library
+# datatypes library
 add_subdirectory(datatypes)
 include_directories(datatypes)
 target_link_libraries(i2p datatypes)
+
+# exceptions library
+add_subdirectory(exceptions)
+include_directories(exceptions)
+target_link_libraries(i2p exceptions)
+
+# util library
+add_subdirectory(util)
+include_directories(util)
+target_link_libraries(i2p util)
+
+# tests
+add_subdirectory(tests)
