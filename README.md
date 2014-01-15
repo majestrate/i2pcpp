@@ -84,6 +84,7 @@ The following keys are supported:
 * ssu_bind_port (Port to bind to)
 * ssu_external_ip (IP to advertise)
 * ssu_external_port (Port to advertise)
+* min_peers (Minimum number of peers to maintain)
 * control_server (1 to enable, 0 to disable)
 * control_server_ip (IP for the control server to bind to)
 * control_server_port (Port for the control server to bind to)

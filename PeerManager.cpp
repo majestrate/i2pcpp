@@ -37,12 +37,12 @@ namespace i2pcpp {
     void PeerManager::callback(const boost::system::error_code &e)
     {
         try {
-            uint32_t maxPeers = std::stoi(m_ctx.getDatabase().getConfigValue("max_peers"));
+            uint32_t minPeers = std::stoi(m_ctx.getDatabase().getConfigValue("min_peers"));
             uint32_t numPeers = m_ctx.getOutMsgDisp().getTransport()->numPeers();
 
             I2P_LOG(m_log, debug) << "current number of peers: " << numPeers;
 
-            int32_t gap = maxPeers - numPeers;
+            int32_t gap = minPeers - numPeers;
             for(int32_t i = 0; i < gap; i++)
                 m_ctx.getOutMsgDisp().getTransport()->connect(m_ctx.getProfileManager().getPeer());
 

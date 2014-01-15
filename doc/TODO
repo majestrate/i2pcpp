@@ -1,8 +1,7 @@
-Comment/document the code.
+Comment/document the code and usage.
 Convert shared_ptr --> unique_ptr where necessary.
 Double check locking requirements. Ensure that locking is initiated by the object which owns the data to be locked (etc).
-Add Lua support for higher level functionality.
-JSON-RPC and HTML5 control panel.
+JSON-RPC(?) and HTML5 control panel.
 Convert everything in tunnel/ to its own namespace.
 Investigate text based configuration.
 Identify and use c++11 algorithms where possible.
@@ -11,10 +10,13 @@ Add exceptions with backtrace support.
 Write unit tests.
 Ensure that unused objects get destroyed (expire tunnels after 10 minutes, etc).
 Make UDPTransport its own library.
-Write CMake modules to find the various libraries.
 If tests are available, run them after building (make it an option).
 Investigate whether the Version.cpp/.h system should be modified.
 Reimplement OMS internals in a more sane way (no bitset).
 Use a list<Fragment> instead of a vector<FragmentPtr> for PacketBuilder.
 Investigate whether or not Database can be templatized.
 Use std::distance instead of operator- for iterators.
+Implement exploratory tunnel support.
+Implement LeaseSet lookups.
+Implement C89 interface.
+Package everything nicely.
