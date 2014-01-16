@@ -13,6 +13,8 @@
 #include "datatypes/ByteArray.h"
 #include "datatypes/RouterInfo.h"
 
+#include "sqlite3cc.h"
+
 namespace i2pcpp {
     /**
      * An utility wrapper for the sqlite3 functionality.
@@ -26,7 +28,6 @@ namespace i2pcpp {
             Database(std::string const &file);
             Database(const Database &) = delete;
             Database& operator=(Database &) = delete;
-            ~Database();
 
             /**
              * Creates a new database file.
@@ -99,6 +100,7 @@ namespace i2pcpp {
             std::forward_list<RouterHash> getAllHashes();
 
         private:
+            std::unique_ptr<sqlite::connection> m_conn;
             sqlite3 *m_db;
 
             mutable std::mutex m_mutex;
