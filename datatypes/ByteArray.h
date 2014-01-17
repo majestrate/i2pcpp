@@ -21,6 +21,12 @@ namespace i2pcpp {
     typedef ByteArray::const_iterator ByteArrayConstItr;
 
     template <typename T>
+    inline ByteArray toByteArray(T const &t)
+    {
+        return ByteArray(t.cbegin(), t.cend());
+    }
+
+    template <typename T>
     inline uint32_t parseUint32(T &itr)
     {
         uint32_t x = (itr[0] << 24) | (itr[1] << 16) | (itr[2] << 8) | (itr[3]);
@@ -41,6 +47,7 @@ namespace i2pcpp {
 
 namespace std {
     std::ostream& operator<<(std::ostream &s, i2pcpp::ByteArray const &data);
+    std::istream& operator>>(std::istream &s, i2pcpp::ByteArray &data);
 }
 
 #endif

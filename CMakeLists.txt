@@ -158,5 +158,10 @@ add_subdirectory(util)
 include_directories(util)
 target_link_libraries(i2p util)
 
+# sqlite3cc
+add_subdirectory(sqlite3cc)
+include_directories(sqlite3cc/include)
+target_link_libraries(i2p sqlite3cc)
+
 # tests
 add_subdirectory(tests)

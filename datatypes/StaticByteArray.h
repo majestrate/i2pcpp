@@ -11,21 +11,21 @@ namespace i2pcpp {
     template<std::size_t L>
     using StaticByteArray = std::array<unsigned char, L>;
 
-    template<std::size_t L>
-    StaticByteArray<L> toStaticByteArray(ByteArray const &b)
+    template<std::size_t L, typename T>
+    StaticByteArray<L> toStaticByteArray(T const &t)
     {
         StaticByteArray<L> ret;
 
-        if(b.size() < L)
-            std::copy(b.cbegin(), b.cend(), ret.begin());
+        if(t.size() < L)
+            std::copy(t.cbegin(), t.cend(), ret.begin());
         else
-            std::copy(b.cbegin(), b.cbegin() + L, ret.begin());
+            std::copy(t.cbegin(), t.cbegin() + L, ret.begin());
 
         return ret;
     }
 
     template<std::size_t L>
-    ByteArray toByteArray(StaticByteArray<L> const &sba)
+    inline ByteArray toByteArray(StaticByteArray<L> const &sba)
     {
         return ByteArray(sba.cbegin(), sba.cend());
     }

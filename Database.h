@@ -7,8 +7,11 @@
 
 #include <string>
 #include <forward_list>
+#include <unordered_map>
 
 #include <sqlite3.h>
+
+#include "sqlite3cc.h"
 
 #include "datatypes/ByteArray.h"
 #include "datatypes/RouterInfo.h"
@@ -26,7 +29,6 @@ namespace i2pcpp {
             Database(std::string const &file);
             Database(const Database &) = delete;
             Database& operator=(Database &) = delete;
-            ~Database();
 
             /**
              * Creates a new database file.
@@ -90,7 +92,7 @@ namespace i2pcpp {
             /**
              * Inserts or replaces an i2pcpp::RouterInfo object \a info.
              */
-            void setRouterInfo(RouterInfo const &info, bool transaction = true);
+            void setRouterInfo(RouterInfo const &info);
 
             /**
              * @return a list of the i2pcpp::RouterHash objects of all known
@@ -99,9 +101,33 @@ namespace i2pcpp {
             std::forward_list<RouterHash> getAllHashes();
 
         private:
-            sqlite3 *m_db;
+            class statement_guard {
+                struct pass {
+                    template<typename ...T> pass(T...) {}
+                };
 
-            mutable std::mutex m_mutex;
+                boost::shared_ptr<sqlite::detail::basic_statement> m_statement;
+
+                public:
+                template<typename ...Params>
+                statement_guard(boost::shared_ptr<sqlite::detail::basic_statement> s,
+                        Params&&... p) : m_statement(s)
+                {
+                    pass{(*m_statement << p, 0) ...};
+                }
+
+                ~statement_guard()
+                {
+                    m_statement->clear_bindings();
+                    m_statement->reset();
+                }
+
+            };
+
+            std::unique_ptr<sqlite::connection> m_conn;
+
+            static std::unordered_map<std::string, boost::shared_ptr<sqlite::command>> commands;
+            static std::unordered_map<std::string, boost::shared_ptr<sqlite::query>> queries;
     };
 }
 
