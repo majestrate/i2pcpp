@@ -11,10 +11,6 @@
 
 #include <boost/tokenizer.hpp>
 
-#include "exceptions/StatementPrepareError.h"
-#include "exceptions/RecordNotFound.h"
-#include "exceptions/SQLError.h"
-
 #include "util/Base64.h"
 #include "util/I2PDH.h"
 #include "util/make_unique.h"
@@ -77,386 +73,157 @@ namespace i2pcpp {
 
     std::string Database::getConfigValue(std::string const &name)
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        auto q = m_conn->make_query("SELECT value FROM config WHERE name = ?");
+        *q << name;
 
-        const std::string select = "SELECT value FROM config WHERE name = ?";
-        sqlite3_stmt *statement;
-
-        if(sqlite3_prepare_v2(m_db, select.c_str(), -1, &statement, NULL) != SQLITE_OK) throw StatementPrepareError();
-
-        sqlite3_bind_text(statement, 1, name.c_str(), -1, SQLITE_STATIC);
-
-        int rc = sqlite3_step(statement);
-        if(rc == SQLITE_ROW) {
-            const char *bytes = (char *)sqlite3_column_text(statement, 0);
-            const int size = sqlite3_column_bytes(statement, 0);
-            std::string ret(bytes, size);
-
-            sqlite3_finalize(statement);
-            return ret;
-        } else {
-            sqlite3_finalize(statement);
-            throw RecordNotFound(name);
-        }
+        std::string value;
+        q->step() >> value;
+        return value;
     }
 
     void Database::setConfigValue(std::string const &name, std::string const &value)
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
-
-        const std::string insert = "INSERT OR REPLACE INTO config (name, value) VALUES (?, ?)";
-        sqlite3_stmt *statement;
-
-        if(sqlite3_prepare_v2(m_db, insert.c_str(), -1, &statement, NULL) != SQLITE_OK) throw StatementPrepareError();
-
-        sqlite3_bind_text(statement, 1, name.c_str(), -1, SQLITE_STATIC);
-        sqlite3_bind_text(statement, 2, value.c_str(), -1, SQLITE_STATIC);
-
-        if(sqlite3_step(statement) != SQLITE_DONE) {
-            sqlite3_finalize(statement);
-            throw SQLError(insert);
-        }
-
-        sqlite3_finalize(statement);
+        *m_conn->make_command("INSERT OR REPLACE INTO config (name, value) VALUES (?, ?)") << name << value;
     }
 
     RouterHash Database::getRandomRouter()
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        // SELECT router_id FROM router_options WHERE router_options.name='caps' AND router_options.value LIKE '%f%' ORDER BY RANDOM() LIMIT 1;
+        auto q = m_conn->make_query("SELECT id FROM routers ORDER BY RANDOM() LIMIT 1");
 
-        //const std::string select = "SELECT router_id FROM router_options WHERE router_options.name='caps' AND router_options.value LIKE '%f%' ORDER BY RANDOM() LIMIT 1";
-        const std::string select = "SELECT id FROM routers ORDER BY RANDOM() LIMIT 1";
-        sqlite3_stmt *statement;
-
-        if(sqlite3_prepare_v2(m_db, select.c_str(), -1, &statement, NULL) != SQLITE_OK) throw StatementPrepareError();
-
-        int rc = sqlite3_step(statement);
-        if(rc == SQLITE_ROW) {
-            unsigned char *bytes = (unsigned char *)sqlite3_column_blob(statement, 0);
-            int size = sqlite3_column_bytes(statement, 0);
-            RouterHash rh;
-            std::copy(bytes, bytes + size, rh.begin());
-
-            sqlite3_finalize(statement);
-            return rh;
-        } else {
-            sqlite3_finalize(statement);
-            throw RecordNotFound("random router");
-        }
+        std::string rhStr;
+        q->step() >> rhStr;
+        return toRouterHash(Base64::decode(rhStr));
     }
 
     bool Database::routerExists(RouterHash const &routerHash)
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        auto q = m_conn->make_query("SELECT COUNT(id) AS count FROM routers WHERE id = ?");
+        *q << Base64::encode(routerHash);
 
-        const std::string select = "SELECT COUNT(id) AS count FROM routers WHERE id = ?";
-        sqlite3_stmt *statement;
-
-        if(sqlite3_prepare_v2(m_db, select.c_str(), -1, &statement, NULL) != SQLITE_OK) throw StatementPrepareError();
-
-        sqlite3_bind_blob(statement, 1, routerHash.data(), routerHash.size(), SQLITE_STATIC);
-
-        int rc = sqlite3_step(statement);
-        if(rc == SQLITE_ROW) {
-            bool exists = (sqlite3_column_int(statement, 0) != 0);
-
-            sqlite3_finalize(statement);
-            return exists;
-        }
-
-        sqlite3_finalize(statement);
-        throw std::runtime_error("Definitely should have gotten a row back here");
-    }
-
-    RouterInfo Database::getRouterInfo(std::string const &routerHash)
-    {
-        return getRouterInfo(toRouterHash(Base64::decode(routerHash)));
+        bool exists;
+        q->step() >> exists;
+        return exists;
     }
 
     RouterInfo Database::getRouterInfo(RouterHash const &routerHash)
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        return getRouterInfo(Base64::encode(routerHash));
+    }
 
-        sqlite3_stmt *statement, *options_statement;
+    RouterInfo Database::getRouterInfo(std::string const &routerHash)
+    {
+        auto q = m_conn->make_query("SELECT encryption_key, signing_key, certificate, published, signature FROM routers WHERE id = ?");
+        *q << routerHash;
 
-        try {
-            std::string select = "SELECT encryption_key, signing_key, certificate, published, signature FROM routers WHERE id = ?";
+        std::string encryptionKeyStr, signingKeyStr, certificateStr, publishedStr, signatureStr;
+        q->step() >> encryptionKeyStr >> signingKeyStr >> certificateStr >> publishedStr >> signatureStr;
+        ByteArray encryptionKey, signingKey, certificate, published, signature;
 
-            int rc;
-            if((rc = sqlite3_prepare_v2(m_db, select.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
+        std::istringstream(encryptionKeyStr) >> encryptionKey;
+        std::istringstream(signingKeyStr) >> signingKey;
+        std::istringstream(certificateStr) >> certificate;
+        std::istringstream(publishedStr) >> published;
+        std::istringstream(signatureStr) >> signature;
 
-            sqlite3_bind_blob(statement, 1, routerHash.data(), routerHash.size(), SQLITE_STATIC);
+        Mapping router_options;
 
-            ByteArray encryptionKey, signingKey, certificate, published, signature;
-            rc = sqlite3_step(statement);
-            if(rc == SQLITE_ROW) {
-                unsigned char *bytes;
-                int size;
+        q = m_conn->make_query("SELECT name, value FROM router_options WHERE router_id = ?");
+        *q << routerHash;
 
-                bytes = (unsigned char *)sqlite3_column_blob(statement, 0);
-                size = sqlite3_column_bytes(statement, 0);
-                encryptionKey.resize(size);
-                copy(bytes, bytes + size, encryptionKey.begin());
-
-                bytes = (unsigned char *)sqlite3_column_blob(statement, 1);
-                size = sqlite3_column_bytes(statement, 1);
-                signingKey.resize(size);
-                copy(bytes, bytes + size, signingKey.begin());
-
-                bytes = (unsigned char *)sqlite3_column_blob(statement, 2);
-                size = sqlite3_column_bytes(statement, 2);
-                certificate.resize(size);
-                copy(bytes, bytes + size, certificate.begin());
-
-                bytes = (unsigned char *)sqlite3_column_blob(statement, 3);
-                size = sqlite3_column_bytes(statement, 3);
-                published.resize(size);
-                copy(bytes, bytes + size, published.begin());
-
-                bytes = (unsigned char *)sqlite3_column_blob(statement, 4);
-                size = sqlite3_column_bytes(statement, 4);
-                signature.resize(size);
-                copy(bytes, bytes + size, signature.begin());
-
-                sqlite3_finalize(statement);
-            } else
-                throw RecordNotFound(Base64::encode(routerHash));
-
-            Mapping router_options;
-
-            select = "SELECT name, value FROM router_options WHERE router_id = ?";
-            if(sqlite3_prepare_v2(m_db, select.c_str(), -1, &statement, NULL) != SQLITE_OK) throw StatementPrepareError();
-
-            sqlite3_bind_blob(statement, 1, routerHash.data(), routerHash.size(), SQLITE_STATIC);
-
-            while(sqlite3_step(statement) == SQLITE_ROW) {
-                char *bytes;
-                int size;
-
-                bytes = (char *)sqlite3_column_text(statement, 0);
-                size = sqlite3_column_bytes(statement, 0);
-                std::string name(bytes, size);
-
-                bytes = (char *)sqlite3_column_text(statement, 1);
-                size = sqlite3_column_bytes(statement, 1);
-                std::string value(bytes, size);
-
-                router_options.setValue(name, value);
-            }
-
-            sqlite3_finalize(statement);
-
-            auto pubItr = published.cbegin();
-            auto pubEndItr = published.cend();
-            auto certItr = certificate.cbegin();
-            auto certEndItr = certificate.cend();
-            RouterInfo ri(RouterIdentity(encryptionKey, signingKey, Certificate(certItr, certEndItr)), Date(pubItr, pubEndItr), router_options, signature);
-
-            select = "SELECT \"index\", cost, expiration, transport FROM router_addresses WHERE router_id = ?";
-            if(sqlite3_prepare_v2(m_db, select.c_str(), -1, &statement, NULL) != SQLITE_OK) throw StatementPrepareError();
-
-            sqlite3_bind_blob(statement, 1, routerHash.data(), routerHash.size(), SQLITE_STATIC);
-
-            while(sqlite3_step(statement) == SQLITE_ROW) {
-                char *bytes;
-                int size;
-
-                int index = sqlite3_column_int(statement, 0);
-
-                int cost = sqlite3_column_int(statement, 1);
-
-                bytes = (char *)sqlite3_column_blob(statement, 2);
-                size = sqlite3_column_bytes(statement, 2);
-                ByteArray expiration(size);
-                copy(bytes, bytes + size, expiration.begin());
-
-                bytes = (char *)sqlite3_column_text(statement, 3);
-                size = sqlite3_column_bytes(statement, 3);
-                std::string transport(bytes, size);
-
-                select = "SELECT name, value FROM router_address_options WHERE router_id = ? AND \"index\" = ? ORDER BY name ASC";
-                if(sqlite3_prepare_v2(m_db, select.c_str(), -1, &options_statement, NULL) != SQLITE_OK) throw StatementPrepareError();
-
-                sqlite3_bind_blob(options_statement, 1, routerHash.data(), routerHash.size(), SQLITE_STATIC);
-                sqlite3_bind_int(options_statement, 2, index);
-
-                Mapping address_options;
-
-                while(sqlite3_step(options_statement) == SQLITE_ROW) {
-                    char *obytes;
-                    int osize;
-
-                    obytes = (char *)sqlite3_column_text(options_statement, 0);
-                    osize = sqlite3_column_bytes(options_statement, 0);
-                    std::string name(obytes, osize);
-
-                    obytes = (char *)sqlite3_column_text(options_statement, 1);
-                    osize = sqlite3_column_bytes(options_statement, 1);
-                    std::string value(obytes, osize);
-
-                    address_options.setValue(name, value);
-                }
-
-                sqlite3_finalize(options_statement);
-
-                auto expItr = expiration.cbegin();
-                auto expEndItr = expiration.cend();
-                RouterAddress ra(cost, Date(expItr, expEndItr), transport, address_options);
-                ri.addAddress(ra);
-            }
-
-            sqlite3_finalize(statement);
-
-            return ri;
-        } catch(std::exception &e) {
-            sqlite3_finalize(statement);
-            throw;
+        while(auto r = q->step()) {
+            std::string name, value;
+            r >> name >> value;
+            router_options.setValue(name, value);
         }
+
+        auto pubItr = published.cbegin();
+        auto pubEndItr = published.cend();
+        auto certItr = certificate.cbegin();
+        auto certEndItr = certificate.cend();
+        RouterInfo ri(RouterIdentity(encryptionKey, signingKey, Certificate(certItr, certEndItr)), Date(pubItr, pubEndItr), router_options, signature);
+
+        q = m_conn->make_query("SELECT \"index\", cost, expiration, transport FROM router_addresses WHERE router_id = ?");
+        *q << routerHash;
+
+        while(auto r = q->step()) {
+            int index, cost;
+            std::string expirationStr, transport;
+
+            r >> index >> cost >> expirationStr >> transport;
+
+            ByteArray expiration;
+            std::istringstream(expirationStr) >> expiration;
+
+            auto q2 = m_conn->make_query("SELECT name, value FROM router_address_options WHERE router_id = ? AND \"index\" = ? ORDER BY name ASC");
+            *q2 << routerHash << index;
+
+            Mapping address_options;
+            while(auto r2 = q2->step()) {
+                std::string name, value;
+                r2 >> name >> value;
+                address_options.setValue(name, value);
+            }
+
+            auto expItr = expiration.cbegin();
+            auto expEndItr = expiration.cend();
+            RouterAddress ra(cost, Date(expItr, expEndItr), transport, address_options);
+            ri.addAddress(ra);
+        }
+
+        return ri;
     }
 
     void Database::deleteRouter(RouterHash const &rh)
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        {
+            sqlite::transaction_guard<> t(*m_conn);
 
-        sqlite3_stmt *statement;
-        int rc;
+            *m_conn->make_command("DELETE FROM profiles WHERE router_id = ?") << rh << sqlite::exec;
+            *m_conn->make_command("DELETE FROM router_address_options WHERE router_id = ?") << rh << sqlite::exec;
+            *m_conn->make_command("DELETE FROM router_addresses WHERE router_id = ?") << rh << sqlite::exec;
+            *m_conn->make_command("DELETE FROM router_options WHERE router_id = ?") << rh << sqlite::exec;
+            *m_conn->make_command("DELETE FROM routers WHERE id = ?") << rh << sqlite::exec;
 
-        try {
-            sqlite3_exec(m_db, "BEGIN TRANSACTION", NULL, NULL, NULL);
-
-            std::string del = "DELETE FROM profiles WHERE router_id = ?";
-            if((rc = sqlite3_prepare_v2(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
-            sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
-
-            if((rc = sqlite3_step(statement)) != SQLITE_DONE)
-                throw SQLError(del);
-
-            sqlite3_finalize(statement);
-
-            del = "DELETE FROM router_address_options WHERE router_id = ?";
-            if((rc = sqlite3_prepare_v2(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
-            sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
-
-            if((rc = sqlite3_step(statement)) != SQLITE_DONE)
-                throw SQLError(del);
-
-            sqlite3_finalize(statement);
-
-            del = "DELETE FROM router_addresses WHERE router_id = ?";
-            if((rc = sqlite3_prepare_v2(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
-            sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
-
-            if((rc = sqlite3_step(statement)) != SQLITE_DONE)
-                throw SQLError(del);
-
-            sqlite3_finalize(statement);
-
-            del = "DELETE FROM router_options WHERE router_id = ?";
-            if((rc = sqlite3_prepare_v2(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
-            sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
-
-            if((rc = sqlite3_step(statement)) != SQLITE_DONE)
-                throw SQLError(del);
-
-            sqlite3_finalize(statement);
-
-            del = "DELETE FROM routers WHERE id = ?";
-            if((rc = sqlite3_prepare_v2(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
-            sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
-
-            if((rc = sqlite3_step(statement)) != SQLITE_DONE)
-                throw SQLError(del);
-
-            sqlite3_finalize(statement);
-
-            sqlite3_exec(m_db, "COMMIT TRANSACTION", NULL, NULL, NULL);
-        } catch(SQLError &e) {
-            sqlite3_finalize(statement);
-            throw;
+            t.commit();
         }
     }
 
     void Database::deleteAllRouters()
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        {
+            sqlite::transaction_guard<> t(*m_conn);
 
-        sqlite3_stmt *statement;
-        int rc;
+            *m_conn->make_command("DELETE FROM profiles") << sqlite::exec;
+            *m_conn->make_command("DELETE FROM router_address_options") << sqlite::exec;
+            *m_conn->make_command("DELETE FROM router_addresses") << sqlite::exec;
+            *m_conn->make_command("DELETE FROM router_options") << sqlite::exec;
+            *m_conn->make_command("DELETE FROM routers") << sqlite::exec;
 
-        try {
-            sqlite3_exec(m_db, "BEGIN TRANSACTION", NULL, NULL, NULL);
-
-            std::string del = "DELETE FROM profiles";
-            if((rc = sqlite3_prepare_v2(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
-
-            if((rc = sqlite3_step(statement)) != SQLITE_DONE)
-                throw SQLError(del);
-
-            sqlite3_finalize(statement);
-
-            del = "DELETE FROM router_address_options";
-            if((rc = sqlite3_prepare_v2(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
-
-            if((rc = sqlite3_step(statement)) != SQLITE_DONE)
-                throw SQLError(del);
-
-            sqlite3_finalize(statement);
-
-            del = "DELETE FROM router_addresses";
-            if((rc = sqlite3_prepare_v2(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
-
-            if((rc = sqlite3_step(statement)) != SQLITE_DONE)
-                throw SQLError(del);
-
-            sqlite3_finalize(statement);
-
-            del = "DELETE FROM router_options";
-            if((rc = sqlite3_prepare_v2(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
-
-            if((rc = sqlite3_step(statement)) != SQLITE_DONE)
-                throw SQLError(del);
-
-            sqlite3_finalize(statement);
-
-            del = "DELETE FROM routers";
-            if((rc = sqlite3_prepare_v2(m_db, del.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
-
-            if((rc = sqlite3_step(statement)) != SQLITE_DONE)
-                throw SQLError(del);
-
-            sqlite3_finalize(statement);
-
-            sqlite3_exec(m_db, "COMMIT TRANSACTION", NULL, NULL, NULL);
-        } catch(SQLError &e) {
-            sqlite3_finalize(statement);
+            t.commit();
         }
     }
 
     void Database::setRouterInfo(std::vector<RouterInfo> const &routers)
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        {
+            sqlite::transaction_guard<> t(*m_conn);
 
-        sqlite3_exec(m_db, "BEGIN TRANSACTION", NULL, NULL, NULL);
+            for(auto& r: routers)
+                setRouterInfo(r);
 
-        for(auto& r: routers)
-            setRouterInfo(r, false);
-
-        sqlite3_exec(m_db, "COMMIT TRANSACTION", NULL, NULL, NULL);
+            t.commit();
+        }
     }
 
-    void Database::setRouterInfo(RouterInfo const &info, bool transaction)
+    void Database::setRouterInfo(RouterInfo const &info)
     {
-        sqlite3_stmt *statement;
+        {
+            sqlite::recursive_transaction t(*m_conn);
 
-        try {
-            if(transaction) {
-                m_mutex.lock();
-                sqlite3_exec(m_db, "BEGIN TRANSACTION", NULL, NULL, NULL);
-            }
+            t.begin();
 
-            RouterHash rh = info.getIdentity().getHash();
-
-            int rc;
+            std::string rh = Base64::encode(info.getIdentity().getHash());
 
             const ByteArray& encKey = info.getIdentity().getEncryptionKey();
             const ByteArray& sigKey = info.getIdentity().getSigningKey();
@@ -464,102 +231,36 @@ namespace i2pcpp {
             const ByteArray& pub    = info.getPublished().serialize();
             const ByteArray& sig    = info.getSignature();
 
-            std::string insert = "INSERT OR REPLACE INTO routers(id, encryption_key, signing_key, certificate, published, signature) VALUES(?, ?, ?, ?, ?, ?)";
-            if((rc = sqlite3_prepare_v2(m_db, insert.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
-            sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
-            sqlite3_bind_blob(statement, 2, encKey.data(), encKey.size(), SQLITE_STATIC);
-            sqlite3_bind_blob(statement, 3, sigKey.data(), sigKey.size(), SQLITE_STATIC);
-            sqlite3_bind_blob(statement, 4, cert.data(), cert.size(), SQLITE_STATIC);
-            sqlite3_bind_blob(statement, 5, pub.data(), pub.size(), SQLITE_STATIC);
-            sqlite3_bind_blob(statement, 6, sig.data(), sig.size(), SQLITE_STATIC);
-
-            if((rc = sqlite3_step(statement)) != SQLITE_DONE)
-                throw SQLError(insert);
-
-            sqlite3_finalize(statement);
+            *m_conn->make_command("INSERT OR REPLACE INTO routers(id, encryption_key, signing_key, certificate, published, signature) VALUES(?, ?, ?, ?, ?, ?)") << rh << encKey << sigKey << cert << pub << sig << sqlite::exec;
 
             int i = 0;
             for(auto& a: info) {
                 std::string istr = std::to_string(i);
-                insert = "INSERT OR REPLACE INTO router_addresses(router_id, \"index\", cost, expiration, transport) VALUES(?, ?, ?, ?, ?)";
+                *m_conn->make_command("INSERT OR REPLACE INTO router_addresses(router_id, \"index\", cost, expiration, transport) VALUES(?, ?, ?, ?, ?)") << rh << istr << (int)a.getCost() << a.getExpiration().serialize() << a.getTransport() << sqlite::exec;
 
-                if((rc = sqlite3_prepare_v2(m_db, insert.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
-                sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
-                sqlite3_bind_text(statement, 2, istr.c_str(), -1, SQLITE_STATIC);
-                sqlite3_bind_int(statement, 3, (int)a.getCost());
-                ByteArray expBytes = a.getExpiration().serialize();
-                sqlite3_bind_blob(statement, 4, expBytes.data(), expBytes.size(), SQLITE_STATIC);
-                sqlite3_bind_text(statement, 5, a.getTransport().c_str(), -1, SQLITE_STATIC);
-
-                if((rc = sqlite3_step(statement)) != SQLITE_DONE)
-                    throw SQLError(insert);
-
-                sqlite3_finalize(statement);
-
-                for(auto& o: a.getOptions()) {
-                    insert = "INSERT OR REPLACE INTO router_address_options(router_id, \"index\", name, value) VALUES(?, ?, ?, ?)";
-                    if((rc = sqlite3_prepare_v2(m_db, insert.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
-                    sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
-                    sqlite3_bind_text(statement, 2, istr.c_str(), -1, SQLITE_STATIC);
-                    sqlite3_bind_text(statement, 3, o.first.c_str(), -1, SQLITE_STATIC);
-                    sqlite3_bind_text(statement, 4, o.second.c_str(), -1, SQLITE_STATIC);
-
-                    if((rc = sqlite3_step(statement)) != SQLITE_DONE)
-                        throw SQLError(insert);
-
-                    sqlite3_finalize(statement);
-                }
-
+                for(auto& o: a.getOptions())
+                    *m_conn->make_command("INSERT OR REPLACE INTO router_address_options(router_id, \"index\", name, value) VALUES(?, ?, ?, ?)") << rh << istr << o.first << o.second << sqlite::exec;
                 i++;
             }
 
-            for(auto& o: info.getOptions()) {
-                insert = "INSERT OR REPLACE INTO router_options(router_id, name, value) VALUES(?, ?, ?)";
-                if((rc = sqlite3_prepare_v2(m_db, insert.c_str(), -1, &statement, NULL)) != SQLITE_OK) throw StatementPrepareError();
-                sqlite3_bind_blob(statement, 1, rh.data(), rh.size(), SQLITE_STATIC);
-                sqlite3_bind_text(statement, 2, o.first.c_str(), -1, SQLITE_STATIC);
-                sqlite3_bind_text(statement, 3, o.second.c_str(), -1, SQLITE_STATIC);
+            for(auto& o: info.getOptions())
+                *m_conn->make_command("INSERT OR REPLACE INTO router_options(router_id, name, value) VALUES(?, ?, ?)") << rh << o.first << o.second << sqlite::exec;
 
-                if((rc = sqlite3_step(statement)) != SQLITE_DONE)
-                    throw SQLError(insert);
-
-                sqlite3_finalize(statement);
-            }
-
-            if(transaction) {
-                sqlite3_exec(m_db, "COMMIT TRANSACTION", NULL, NULL, NULL);
-                m_mutex.unlock();
-            }
-        } catch(SQLError &e) {
-            sqlite3_finalize(statement);
-
-            if(transaction)
-                m_mutex.unlock();
-
-            throw;
+            t.commit();
         }
     }
 
     std::forward_list<RouterHash> Database::getAllHashes()
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
-
         std::forward_list<RouterHash> hashes;
 
-        const std::string select = "SELECT id FROM routers";
-        sqlite3_stmt *statement;
+        auto q = m_conn->make_query("SELECT id FROM routers");
 
-        if(sqlite3_prepare_v2(m_db, select.c_str(), -1, &statement, NULL) != SQLITE_OK) throw StatementPrepareError();
-
-        while(sqlite3_step(statement) == SQLITE_ROW) {
-            unsigned char *bytes = (unsigned char *)sqlite3_column_blob(statement, 0);
-            int size = sqlite3_column_bytes(statement, 0);
-            RouterHash rh;
-            std::copy(bytes, bytes + size, rh.begin());
-            hashes.push_front(rh);
+        while(auto r = q->step()) {
+            std::string rhStr;
+            r >> rhStr;
+            hashes.push_front(toRouterHash(Base64::decode(rhStr)));
         }
-
-        sqlite3_finalize(statement);
 
         return hashes;
     }

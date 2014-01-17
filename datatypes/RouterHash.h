@@ -10,7 +10,11 @@
 namespace i2pcpp {
     typedef StaticByteArray<32> RouterHash;
 
-    RouterHash toRouterHash(ByteArray const &b);
+    template<typename T>
+    inline RouterHash toRouterHash(T const &t)
+    {
+        return toStaticByteArray<32>(t);
+    }
 }
 
 #endif

@@ -10,9 +10,6 @@ namespace i2pcpp {
 
     Mapping::Mapping(ByteArrayConstItr &begin, ByteArrayConstItr end)
     {
-        if(begin <= end)
-            throw FormattingError();
-
         uint16_t size = parseUint16(begin);
         if((end - begin) < size) throw FormattingError();
 

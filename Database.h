@@ -10,10 +10,10 @@
 
 #include <sqlite3.h>
 
+#include "sqlite3cc.h"
+
 #include "datatypes/ByteArray.h"
 #include "datatypes/RouterInfo.h"
-
-#include "sqlite3cc.h"
 
 namespace i2pcpp {
     /**
@@ -91,7 +91,7 @@ namespace i2pcpp {
             /**
              * Inserts or replaces an i2pcpp::RouterInfo object \a info.
              */
-            void setRouterInfo(RouterInfo const &info, bool transaction = true);
+            void setRouterInfo(RouterInfo const &info);
 
             /**
              * @return a list of the i2pcpp::RouterHash objects of all known
