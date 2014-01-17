@@ -7,6 +7,7 @@
 
 #include <string>
 #include <forward_list>
+#include <unordered_map>
 
 #include <sqlite3.h>
 
@@ -100,10 +101,33 @@ namespace i2pcpp {
             std::forward_list<RouterHash> getAllHashes();
 
         private:
-            std::unique_ptr<sqlite::connection> m_conn;
-            sqlite3 *m_db;
+            class statement_guard {
+                struct pass {
+                    template<typename ...T> pass(T...) {}
+                };
 
-            mutable std::mutex m_mutex;
+                boost::shared_ptr<sqlite::detail::basic_statement> m_statement;
+
+                public:
+                template<typename ...Params>
+                statement_guard(boost::shared_ptr<sqlite::detail::basic_statement> s,
+                        Params&&... p) : m_statement(s)
+                {
+                    pass{(*m_statement << p, 0) ...};
+                }
+
+                ~statement_guard()
+                {
+                    m_statement->clear_bindings();
+                    m_statement->reset();
+                }
+
+            };
+
+            std::unique_ptr<sqlite::connection> m_conn;
+
+            static std::unordered_map<std::string, boost::shared_ptr<sqlite::command>> commands;
+            static std::unordered_map<std::string, boost::shared_ptr<sqlite::query>> queries;
     };
 }
 
