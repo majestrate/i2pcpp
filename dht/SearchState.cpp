@@ -1,3 +1,7 @@
+/**
+ * @file SearchState.cpp
+ * Implements SearchState.h.
+ */
 #include "SearchState.h"
 
 namespace i2pcpp {
