@@ -14,9 +14,12 @@
 namespace i2pcpp {
     RouterIdentity::RouterIdentity(ByteArrayConstItr &begin, ByteArrayConstItr end)
     {
-        if((end - begin) < 256 + 128) throw FormattingError();
-        copy(begin, begin + 256, m_encryptionKey.begin()), begin += 256;
-        copy(begin, begin + 128, m_signingKey.begin()), begin += 128;
+        if(std::distance(begin, end) < 256 + 128)
+            throw FormattingError();
+        std::copy(begin, begin + 256, m_encryptionKey.begin());
+        begin += 256;
+        std::copy(begin, begin + 128, m_signingKey.begin());
+        begin += 128;
         m_certificate = Certificate(begin, end);
     }
 
