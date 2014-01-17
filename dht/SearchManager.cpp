@@ -1,3 +1,7 @@
+/**
+ * @file SearchManager.cpp
+ * @brief Implements SearchManager.h
+ */
 #include "SearchManager.h"
 
 #include "../i2np/DatabaseLookup.h"

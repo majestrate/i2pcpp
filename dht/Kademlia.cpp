@@ -1,3 +1,7 @@
+/**
+ * @file Kademlia.cpp
+ * @brief Implements Kademlia.h
+ */
 #include "Kademlia.h"
 
 #include <ctime>
@@ -78,6 +82,7 @@ namespace i2pcpp {
                 v |= v >> 8;
                 v |= v >> 16;
 
+                // bucket -= 8 - log2(v), or the amount of leftmost bits set to 1
                 bucket -= 8 - (MultiplyDeBruijnBitPosition[(uint32_t)(v * 0x07C4ACDDU) >> 27]);
 
                 break;
