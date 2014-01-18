@@ -6,7 +6,7 @@
 
 #include <chrono>
 
-#include "../../datatypes/RouterIdentity.h"
+#include <i2pcpp/datatypes/RouterIdentity.h>
 #include "../../Log.h"
 
 namespace i2pcpp {

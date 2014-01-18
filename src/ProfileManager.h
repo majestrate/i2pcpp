@@ -5,7 +5,7 @@
 #ifndef PROFILEMANAGER_H
 #define PROFILEMANAGER_H
 
-#include "datatypes/RouterInfo.h"
+#include <i2pcpp/datatypes/RouterInfo.h>
 
 namespace i2pcpp {
     class RouterContext;

@@ -7,7 +7,7 @@
 
 #include <list>
 
-#include "../datatypes/RouterHash.h"
+#include <i2pcpp/datatypes/RouterHash.h>
 
 #include "Message.h"
 

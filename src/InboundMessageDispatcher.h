@@ -7,7 +7,7 @@
 
 #include <boost/asio.hpp>
 
-#include "datatypes/RouterHash.h"
+#include <i2pcpp/datatypes/RouterHash.h>
 
 #include "handlers/DeliveryStatus.h"
 #include "handlers/DatabaseStore.h"

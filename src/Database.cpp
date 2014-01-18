@@ -11,9 +11,9 @@
 
 #include <boost/tokenizer.hpp>
 
-#include "util/Base64.h"
-#include "util/I2PDH.h"
-#include "util/make_unique.h"
+#include <i2pcpp/util/Base64.h>
+#include <i2pcpp/util/I2PDH.h>
+#include <i2pcpp/util/make_unique.h>
 
 extern uint8_t _binary_schema_sql_start[];
 extern uintptr_t _binary_schema_sql_size[];

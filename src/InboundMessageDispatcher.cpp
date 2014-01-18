@@ -10,7 +10,7 @@
 
 #include <botan/auto_rng.h>
 
-#include "util/gzip.h"
+#include <i2pcpp/util/gzip.h>
 #include "i2np/DeliveryStatus.h"
 #include "i2np/DatabaseStore.h"
 

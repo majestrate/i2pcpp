@@ -12,8 +12,8 @@
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/mem_fun.hpp>
 
-#include "../../datatypes/Endpoint.h"
-#include "../../datatypes/RouterHash.h"
+#include <i2pcpp/datatypes/Endpoint.h>
+#include <i2pcpp/datatypes/RouterHash.h>
 
 #include "PeerState.h"
 

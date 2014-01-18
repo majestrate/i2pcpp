@@ -3,7 +3,7 @@
 
 #include "Fragment.h"
 
-#include "../datatypes/RouterHash.h"
+#include <i2pcpp/datatypes/RouterHash.h>
 
 namespace i2pcpp {
     class FirstFragment : public Fragment {

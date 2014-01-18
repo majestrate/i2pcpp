@@ -2,7 +2,7 @@
 
 #include <botan/auto_rng.h>
 
-#include "../util/make_unique.h"
+#include <i2pcpp/util/make_unique.h>
 
 #include "../i2np/VariableTunnelBuild.h"
 #include "../i2np/VariableTunnelBuildReply.h"
@@ -69,7 +69,7 @@ namespace i2pcpp {
 
             BuildRequestRecord req = **itr;
             req.decrypt(m_ctx.getEncryptionKey());
-            TunnelHop hop = req.parse();
+            TunnelHop hop/* = req.parse()*/;
 
             std::lock_guard<std::mutex> lock(m_participatingMutex);
             if(m_participating.count(hop.getTunnelId()) > 0) {

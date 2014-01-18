@@ -15,7 +15,7 @@
 #include <boost/program_options/variables_map.hpp>
 #include <boost/program_options/parsers.hpp>
 
-#include "datatypes/RouterInfo.h"
+#include <i2pcpp/datatypes/RouterInfo.h>
 
 #include "Log.h"
 #include "Router.h"

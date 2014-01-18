@@ -20,5 +20,5 @@ target_link_libraries(testi2p ${Boost_LIBRARIES})
 add_definitions(-DBOOST_ALL_DYN_LINK)
 
 # i2pcpp
-include_directories(BEFORE testi2p ${CMAKE_SOURCE_DIR}/src)
+include_directories(BEFORE testi2p ${CMAKE_SOURCE_DIR}/include)
 target_link_libraries(testi2p datatypes exceptions util)

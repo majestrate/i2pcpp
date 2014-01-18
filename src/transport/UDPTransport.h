@@ -9,7 +9,7 @@
 
 #include <boost/asio.hpp>
 
-#include "../datatypes/RouterIdentity.h"
+#include <i2pcpp/datatypes/RouterIdentity.h>
 
 #include "../Log.h"
 

@@ -8,7 +8,7 @@
 #include "Packet.h"
 #include "EstablishmentState.h"
 
-#include "../../datatypes/Endpoint.h"
+#include <i2pcpp/datatypes/Endpoint.h>
 
 namespace i2pcpp {
     namespace SSU {

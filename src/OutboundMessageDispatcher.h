@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <mutex>
 
-#include "datatypes/RouterHash.h"
+#include <i2pcpp/datatypes/RouterHash.h>
 #include "i2np/Message.h"
 #include "transport/Transport.h"
 #include "dht/Kademlia.h"

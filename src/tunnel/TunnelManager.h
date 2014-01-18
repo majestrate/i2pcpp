@@ -6,9 +6,9 @@
 
 #include <boost/asio.hpp>
 
-#include "../datatypes/BuildRecord.h"
-#include "../datatypes/BuildRequestRecord.h"
-#include "../datatypes/BuildResponseRecord.h"
+#include <i2pcpp/datatypes/BuildRecord.h>
+#include <i2pcpp/datatypes/BuildRequestRecord.h>
+#include <i2pcpp/datatypes/BuildResponseRecord.h>
 
 #include "../Log.h"
 

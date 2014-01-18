@@ -15,7 +15,7 @@
 #include <boost/multi_index/member.hpp>
 #include <boost/signals2.hpp>
 
-#include "../datatypes/RouterHash.h"
+#include <i2pcpp/datatypes/RouterHash.h>
 
 #include "../Log.h"
 

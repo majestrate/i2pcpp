@@ -12,9 +12,9 @@
 #include <botan/dsa.h>
 #include <botan/botan.h>
 
-#include "../../datatypes/Endpoint.h"
-#include "../../datatypes/SessionKey.h"
-#include "../../datatypes/RouterIdentity.h"
+#include <i2pcpp/datatypes/Endpoint.h>
+#include <i2pcpp/datatypes/SessionKey.h>
+#include <i2pcpp/datatypes/RouterIdentity.h>
 
 namespace i2pcpp {
     namespace SSU {

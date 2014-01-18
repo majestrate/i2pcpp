@@ -11,8 +11,7 @@
 #include <botan/pipe.h>
 #include <botan/filters.h>
 
-#include "../../util/make_unique.h"
-#include "../../exceptions/FormattingError.h"
+#include <i2pcpp/util/make_unique.h>
 
 #include "../UDPTransport.h"
 
@@ -28,13 +27,13 @@ namespace i2pcpp {
         {
             I2P_LOG_SCOPED_TAG(m_log, "RouterHash", rh);
 
-            if((end - begin) < 1) throw FormattingError();
+            if(std::distance(end, begin) < 1) throw std::runtime_error("malformed SSU data message");
             std::bitset<8> flag = *(begin++);
 
             if(flag[7]) {
-                if((end - begin) < 1) throw FormattingError();
+                if(std::distance(end, begin) < 1) throw std::runtime_error("malformed SSU data message ACK field");
                 unsigned char numAcks = *(begin++);
-                if((end - begin) < (numAcks * 4)) throw FormattingError();
+                if(std::distance(end, begin) < (numAcks * 4)) throw std::runtime_error("malformed SSU data message ACK field");
 
                 while(numAcks--) {
                     uint32_t msgId = parseUint32(begin);
@@ -73,12 +72,12 @@ namespace i2pcpp {
                 }
             }
 
-            if((end - begin) < 1) throw FormattingError();
+            if(std::distance(end, begin) < 1) throw std::runtime_error("malformed SSU data message");
             unsigned char numFragments = *(begin++);
             I2P_LOG(m_log, debug) << "number of fragments: " << std::to_string(numFragments);
 
             for(int i = 0; i < numFragments; i++) {
-                if((end - begin) < 7) throw FormattingError();
+                if(std::distance(end, begin) < 7) throw std::runtime_error("malformed SSU data message");
                 uint32_t msgId = parseUint32(begin);
                 I2P_LOG(m_log, debug) << "fragment[" << i << "] message id: " << std::hex << msgId << std::dec;
 
@@ -94,7 +93,7 @@ namespace i2pcpp {
                 uint16_t fragSize = fragInfo & ((1 << 14) - 1);
                 I2P_LOG(m_log, debug) << "fragment[" << i << "] size: " << fragSize;
 
-                if((end - begin) < fragSize) throw FormattingError();
+                if(std::distance(end, begin) < fragSize) throw std::runtime_error("malformed SSU data message");
                 ByteArray fragData(begin, begin + fragSize);
                 I2P_LOG(m_log, debug) << "fragment[" << i << "] data: " << fragData;
 

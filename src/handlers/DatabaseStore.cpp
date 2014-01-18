@@ -6,7 +6,7 @@
 
 #include <botan/pipe.h>
 
-#include "../util/gzip.h"
+#include <i2pcpp/util/gzip.h>
 #include "../i2np/DatabaseStore.h"
 
 #include "../RouterContext.h"

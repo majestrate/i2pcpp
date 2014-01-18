@@ -7,8 +7,8 @@
 
 #include <memory>
 
-#include "../datatypes/ByteArray.h"
-#include "../datatypes/Date.h"
+#include <i2pcpp/datatypes/ByteArray.h>
+#include <i2pcpp/datatypes/Date.h>
 
 namespace i2pcpp {
     namespace I2NP {

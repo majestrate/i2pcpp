@@ -23,8 +23,8 @@
 #include <boost/log/utility/manipulators/add_value.hpp>
 #include <boost/log/support/exception.hpp>
 
-#include "datatypes/Endpoint.h"
-#include "datatypes/RouterHash.h"
+#include <i2pcpp/datatypes/Endpoint.h>
+#include <i2pcpp/datatypes/RouterHash.h>
 
 namespace keywords = boost::log::keywords;
 namespace attrs = boost::log::attributes;

@@ -6,7 +6,7 @@
 
 #include <boost/bind.hpp>
 
-#include "../../util/make_unique.h"
+#include <i2pcpp/util/make_unique.h>
 
 #include "../UDPTransport.h"
 

@@ -11,7 +11,7 @@
 #include <websocketpp/server.hpp>
 #include <websocketpp/connection.hpp>
 
-#include "../datatypes/Endpoint.h"
+#include <i2pcpp/datatypes/Endpoint.h>
 
 #include "../Log.h"
 

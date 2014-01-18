@@ -7,7 +7,7 @@
 
 #include <list>
 
-#include "../datatypes/BuildRecord.h"
+#include <i2pcpp/datatypes/BuildRecord.h>
 
 #include "Message.h"
 

@@ -15,7 +15,7 @@
 #include "InboundMessageState.h"
 #include "PeerState.h"
 
-#include "../../datatypes/ByteArray.h"
+#include <i2pcpp/datatypes/ByteArray.h>
 
 #include "../../Log.h"
 

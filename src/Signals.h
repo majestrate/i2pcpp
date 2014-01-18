@@ -8,8 +8,8 @@
 #include <boost/asio.hpp>
 #include <boost/signals2.hpp>
 
-#include "datatypes/BuildRecord.h"
-#include "datatypes/RouterHash.h"
+#include <i2pcpp/datatypes/BuildRecord.h>
+#include <i2pcpp/datatypes/RouterHash.h>
 
 namespace i2pcpp {
     class Signals {

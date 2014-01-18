@@ -7,7 +7,7 @@
 #include <botan/auto_rng.h>
 #include <botan/pk_filts.h>
 
-#include "../../util/I2PDH.h"
+#include <i2pcpp/util/I2PDH.h>
 
 namespace i2pcpp {
     namespace SSU {

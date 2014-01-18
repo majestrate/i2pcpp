@@ -1,12 +1,12 @@
 #define BOOST_TEST_MAIN
 #define BOOST_TEST_DYN_LINK
-#include "datatypes/RouterInfo.h"
-#include "datatypes/StaticByteArray.h"
-#include "datatypes/Mapping.h"
-#include "datatypes/Date.h"
-#include "datatypes/Endpoint.h"
-#include "datatypes/Endpoint.h"
-#include "exceptions/FormattingError.h"
+
+#include <i2pcpp/datatypes/RouterInfo.h>
+#include <i2pcpp/datatypes/StaticByteArray.h>
+#include <i2pcpp/datatypes/Mapping.h>
+#include <i2pcpp/datatypes/Date.h>
+#include <i2pcpp/datatypes/Endpoint.h>
+#include <i2pcpp/datatypes/Endpoint.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(EmptyByteArrayThrows)
     const i2pcpp::ByteArray ba;
     auto it = ba.begin();
     BOOST_CHECK_THROW(
-        i2pcpp::Mapping m(it, ba.end()), i2pcpp::FormattingError
+        i2pcpp::Mapping m(it, ba.end()), std::runtime_error
     );
 }
 
@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE(IncorrectSizeThrows)
     };
     auto it = ba.begin();
     BOOST_CHECK_THROW(
-        i2pcpp::Mapping m(it, ba.end()), i2pcpp::FormattingError
+        i2pcpp::Mapping m(it, ba.end()), std::runtime_error
     );
 }
 
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE(IncorrectLenThrows)
     };
     auto it = ba.begin();
     BOOST_CHECK_THROW(
-        i2pcpp::Mapping m(it, ba.end()), i2pcpp::FormattingError
+        i2pcpp::Mapping m(it, ba.end()), std::runtime_error
     );
 }
 
@@ -171,14 +171,14 @@ BOOST_AUTO_TEST_CASE(EmptyThrows)
 {
     const i2pcpp::ByteArray b;
     auto it = b.begin();
-    BOOST_CHECK_THROW(i2pcpp::Date d(it, b.end()), i2pcpp::FormattingError);
+    BOOST_CHECK_THROW(i2pcpp::Date d(it, b.end()), std::runtime_error);
 }
 
 BOOST_AUTO_TEST_CASE(InvalidSizeThrows)
 {
     const i2pcpp::ByteArray b{0, 0, 1, 67, 68, 53, 254};
     auto it = b.begin();
-    BOOST_CHECK_THROW(i2pcpp::Date d(it, b.end()), i2pcpp::FormattingError);
+    BOOST_CHECK_THROW(i2pcpp::Date d(it, b.end()), std::runtime_error);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -256,14 +256,14 @@ BOOST_AUTO_TEST_CASE(EmptyThrows)
 {
     const i2pcpp::ByteArray ba;
     auto it = ba.begin();
-    BOOST_CHECK_THROW(i2pcpp::Certificate c(it, ba.end()), i2pcpp::FormattingError);
+    BOOST_CHECK_THROW(i2pcpp::Certificate c(it, ba.end()), std::runtime_error);
 }
 
 BOOST_AUTO_TEST_CASE(IncorrectThrows)
 {
     const i2pcpp::ByteArray ba = { 0x01, 0x02, 0x03, 0x04, 0x05 };
     auto it = ba.begin();
-    BOOST_CHECK_THROW(i2pcpp::Certificate c(it, ba.end()), i2pcpp::FormattingError);
+    BOOST_CHECK_THROW(i2pcpp::Certificate c(it, ba.end()), std::runtime_error);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -320,14 +320,14 @@ BOOST_AUTO_TEST_CASE(EmptyThrows)
 {
     const i2pcpp::ByteArray ba;
     auto it = ba.begin();
-    BOOST_CHECK_THROW(i2pcpp::RouterIdentity id(it, ba.end()), i2pcpp::FormattingError);
+    BOOST_CHECK_THROW(i2pcpp::RouterIdentity id(it, ba.end()), std::runtime_error);
 }
 
 BOOST_AUTO_TEST_CASE(IncorrectThrows)
 {
     const i2pcpp::ByteArray ba = { 0x01, 0x02, 0x03, 0x04, 0x05 };
     auto it = ba.begin();
-    BOOST_CHECK_THROW(i2pcpp::RouterIdentity id(it, ba.end()), i2pcpp::FormattingError);
+    BOOST_CHECK_THROW(i2pcpp::RouterIdentity id(it, ba.end()), std::runtime_error);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

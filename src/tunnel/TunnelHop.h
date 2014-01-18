@@ -5,8 +5,8 @@
 
 #include <boost/asio.hpp>
 
-#include "../datatypes/RouterIdentity.h"
-#include "../datatypes/SessionKey.h"
+#include <i2pcpp/datatypes/RouterIdentity.h>
+#include <i2pcpp/datatypes/SessionKey.h>
 
 namespace i2pcpp {
     class TunnelHop {

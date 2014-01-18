@@ -10,8 +10,8 @@
 
 #include <boost/functional/hash.hpp>
 
-#include "../datatypes/StaticByteArray.h"
-#include "../datatypes/RouterHash.h"
+#include <i2pcpp/datatypes/StaticByteArray.h>
+#include <i2pcpp/datatypes/RouterHash.h>
 
 #define KEY_SIZE 32
 #define NUM_BUCKETS (KEY_SIZE * 8)

@@ -7,7 +7,7 @@
 #include <botan/lookup.h>
 #include <botan/auto_rng.h>
 
-#include "../util/make_unique.h"
+#include <i2pcpp/util/make_unique.h>
 
 namespace i2pcpp {
     Message::Message(StaticByteArray<1024> const &data)

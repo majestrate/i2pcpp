@@ -7,9 +7,9 @@
 
 #include <boost/asio.hpp>
 
-#include "../../datatypes/RouterHash.h"
-#include "../../datatypes/Endpoint.h"
-#include "../../datatypes/SessionKey.h"
+#include <i2pcpp/datatypes/RouterHash.h>
+#include <i2pcpp/datatypes/Endpoint.h>
+#include <i2pcpp/datatypes/SessionKey.h>
 
 namespace i2pcpp {
     namespace SSU {

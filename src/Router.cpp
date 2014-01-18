@@ -4,7 +4,7 @@
  */
 #include "Router.h"
 
-#include "util/make_unique.h"
+#include <i2pcpp/util/make_unique.h>
 #include "transport/UDPTransport.h"
 
 namespace i2pcpp {

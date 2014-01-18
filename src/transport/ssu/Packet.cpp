@@ -8,8 +8,8 @@
 #include <botan/pipe.h>
 #include <botan/md5.h>
 
-#include "../../util/I2PHMAC.h"
-#include "../../util/Base64.h"
+#include <i2pcpp/util/I2PHMAC.h>
+#include <i2pcpp/util/Base64.h>
 
 namespace i2pcpp {
     namespace SSU {

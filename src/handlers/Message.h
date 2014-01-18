@@ -8,7 +8,7 @@
 #include <memory>
 
 #include "../i2np/Message.h"
-#include "../datatypes/RouterHash.h"
+#include <i2pcpp/datatypes/RouterHash.h>
 #include "../Log.h"
 
 namespace i2pcpp {

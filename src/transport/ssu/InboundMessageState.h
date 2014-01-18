@@ -9,7 +9,7 @@
 #include <map>
 #include <list>
 
-#include "../../datatypes/RouterHash.h"
+#include <i2pcpp/datatypes/RouterHash.h>
 
 namespace i2pcpp {
     namespace SSU {

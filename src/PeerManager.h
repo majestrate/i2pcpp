@@ -9,7 +9,7 @@
 
 #include <boost/asio.hpp>
 
-#include "datatypes/RouterHash.h"
+#include <i2pcpp/datatypes/RouterHash.h>
 
 #include "Log.h"
 

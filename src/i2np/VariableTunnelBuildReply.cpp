@@ -4,8 +4,6 @@
  */
 #include "VariableTunnelBuildReply.h"
 
-#include "../Log.h"
-
 namespace i2pcpp {
     namespace I2NP {
         VariableTunnelBuildReply::VariableTunnelBuildReply(std::list<BuildRecordPtr> const &buildRecords) :

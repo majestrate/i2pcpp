@@ -4,7 +4,7 @@
 #include <list>
 #include <memory>
 
-#include "../datatypes/ByteArray.h"
+#include <i2pcpp/datatypes/ByteArray.h>
 
 #include "../i2np/Message.h"
 

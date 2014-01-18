@@ -6,8 +6,8 @@
 
 #include <botan/symkey.h>
 
-#include "../datatypes/ByteArray.h"
-#include "../datatypes/StaticByteArray.h"
+#include <i2pcpp/datatypes/ByteArray.h>
+#include <i2pcpp/datatypes/StaticByteArray.h>
 #include "../i2np/Message.h"
 
 #include "Fragment.h"

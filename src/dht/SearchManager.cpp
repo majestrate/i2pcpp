@@ -5,8 +5,8 @@
 #include "SearchManager.h"
 
 #include "../i2np/DatabaseLookup.h"
-#include "../util/Base64.h"
-#include "../util/make_unique.h"
+#include <i2pcpp/util/Base64.h>
+#include <i2pcpp/util/make_unique.h>
 
 #include "../RouterContext.h"
 

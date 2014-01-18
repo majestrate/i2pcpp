@@ -13,8 +13,8 @@
 
 #include "sqlite3cc.h"
 
-#include "datatypes/ByteArray.h"
-#include "datatypes/RouterInfo.h"
+#include <i2pcpp/datatypes/ByteArray.h>
+#include <i2pcpp/datatypes/RouterInfo.h>
 
 namespace i2pcpp {
     /**

@@ -7,9 +7,9 @@
 
 #include <array>
 
-#include "../datatypes/RouterHash.h"
-#include "../datatypes/StaticByteArray.h"
-#include "../datatypes/ByteArray.h"
+#include <i2pcpp/datatypes/RouterHash.h>
+#include <i2pcpp/datatypes/StaticByteArray.h>
+#include <i2pcpp/datatypes/ByteArray.h>
 
 #include "Message.h"
 

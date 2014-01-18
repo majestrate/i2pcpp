@@ -1,6 +1,6 @@
 #include "Tunnel.h"
 
-#include "../datatypes/BuildResponseRecord.h"
+#include <i2pcpp/datatypes/BuildResponseRecord.h>
 
 namespace i2pcpp {
     Tunnel::State Tunnel::getState() const
@@ -25,7 +25,7 @@ namespace i2pcpp {
             std::copy(hopHash.cbegin(), hopHash.cbegin() + 16, truncatedHash.begin());
             record->setHeader(truncatedHash);
 
-            record->compile(**h);
+            // record->compile(**h); XXX
             record->encrypt((*h)->getEncryptionKey());
 
             std::list<TunnelHopPtr>::const_reverse_iterator r(h);

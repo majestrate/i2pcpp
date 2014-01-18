@@ -8,8 +8,6 @@
 #include <botan/lookup.h>
 #include <botan/auto_rng.h>
 
-#include "../exceptions/FormattingError.h"
-
 #include "DeliveryStatus.h"
 #include "DatabaseStore.h"
 #include "DatabaseSearchReply.h"

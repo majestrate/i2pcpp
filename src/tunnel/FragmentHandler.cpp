@@ -1,6 +1,6 @@
 #include "FragmentHandler.h"
 
-#include "../util/make_unique.h"
+#include <i2pcpp/util/make_unique.h>
 
 #include "../i2np/TunnelGateway.h"
 

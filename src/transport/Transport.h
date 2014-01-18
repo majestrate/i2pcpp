@@ -7,9 +7,9 @@
 
 #include <boost/signals2.hpp>
 
-#include "../datatypes/Endpoint.h"
-#include "../datatypes/RouterHash.h"
-#include "../datatypes/RouterInfo.h"
+#include <i2pcpp/datatypes/Endpoint.h>
+#include <i2pcpp/datatypes/RouterHash.h>
+#include <i2pcpp/datatypes/RouterInfo.h>
 
 namespace i2pcpp {
 

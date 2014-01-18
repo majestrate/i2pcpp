@@ -10,7 +10,7 @@
 #include <botan/elgamal.h>
 #include <botan/dsa.h>
 
-#include "datatypes/RouterIdentity.h"
+#include <i2pcpp/datatypes/RouterIdentity.h>
 #include "tunnel/TunnelManager.h"
 #include "dht/Kademlia.h"
 #include "dht/SearchManager.h"
