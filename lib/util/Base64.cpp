@@ -1,4 +1,4 @@
-#include "Base64.h"
+#include <i2pcpp/util/Base64.h>
 
 namespace i2pcpp {
     namespace Base64 {
@@ -49,13 +49,13 @@ namespace i2pcpp {
             return ret;
         }
 
-        ByteArray decode(std::string const &s)
+        std::vector<unsigned char> decode(std::string const &s)
         {
             size_t in_len = s.size();
             size_t i = 0, j = 0;
             int in_ = 0;
             unsigned char char_array_4[4], char_array_3[3];
-            ByteArray ret;
+            std::vector<unsigned char> ret;
 
             while (in_len-- && ( s[in_] != '=') && is_base64(s[in_])) {
                 char_array_4[i++] = s[in_]; in_++;

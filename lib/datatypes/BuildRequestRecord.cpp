@@ -2,9 +2,7 @@
  * @file BuildRequestRecord.cpp
  * @brief Implements BuildRequestRecord.h.
  */
-#include "BuildRequestRecord.h"
-
-#include "../exceptions/FormattingError.h"
+#include <i2pcpp/datatypes/BuildRequestRecord.h>
 
 namespace i2pcpp {
     BuildRequestRecord::BuildRequestRecord(BuildRecord const &r) :

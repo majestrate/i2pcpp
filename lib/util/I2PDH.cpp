@@ -1,4 +1,4 @@
-#include "I2PDH.h"
+#include <i2pcpp/util/I2PDH.h>
 
 namespace i2pcpp {
     const Botan::DL_Group DH::getGroup()

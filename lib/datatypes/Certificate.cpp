@@ -2,9 +2,7 @@
  * @file Certificate.cpp
  * @brief Implements Certificate.h.
  */
-#include "Certificate.h"
-
-#include "../exceptions/FormattingError.h"
+#include <i2pcpp/datatypes/Certificate.h>
 
 namespace i2pcpp {
     Certificate::Certificate() :
@@ -13,16 +11,17 @@ namespace i2pcpp {
     Certificate::Certificate(ByteArrayConstItr &begin, ByteArrayConstItr end)
     {
         if(!std::distance(begin, end))
-            throw FormattingError();
+            throw std::runtime_error("malformed certificate");
 
         m_type = (Type)*(begin++);
 
         if(m_type < (Type)0 || m_type > (Type)4)
-            throw FormattingError();
+            throw std::runtime_error("malformed certificate type");
     
         uint16_t size = parseUint16(begin);
         if(std::distance(begin, end) < size)
-            throw FormattingError();
+            throw std::runtime_error("malformed certificate size");
+
         m_payload.resize(size);
         std::copy(begin, begin + size, m_payload.begin());
         begin += size;

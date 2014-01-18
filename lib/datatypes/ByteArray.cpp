@@ -2,7 +2,7 @@
  * @file ByteArray.cpp
  * @brief Implements ByteArray.h.
  */
-#include "ByteArray.h"
+#include <i2pcpp/datatypes/ByteArray.h>
 
 #include <iomanip>
 #include <iostream>

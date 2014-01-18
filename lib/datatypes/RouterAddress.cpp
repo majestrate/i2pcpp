@@ -2,9 +2,7 @@
  * @file RouterAddress.cpp
  * @brief Implements RouterAddress.h.
  */
-#include "RouterAddress.h"
-
-#include "../exceptions/FormattingError.h"
+#include <i2pcpp/datatypes/RouterAddress.h>
 
 namespace i2pcpp {
     RouterAddress::RouterAddress(int cost, Date const &expiration, std::string const &transport, Mapping const &options) :
@@ -19,7 +17,7 @@ namespace i2pcpp {
         m_expiration = Date(begin, end);
 
         unsigned char size = *(begin++);
-        if((end - begin) < size) throw FormattingError();
+        if(std::distance(end, begin) < size) throw std::runtime_error("malformed router address");
         m_transport = std::string(begin, begin + size);
         begin += size;
 

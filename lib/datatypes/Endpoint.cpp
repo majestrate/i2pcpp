@@ -2,7 +2,7 @@
  * @file Endpoint.cpp
  * @brief Implements Endpoint.h
  */
-#include "Endpoint.h"
+#include <i2pcpp/datatypes/Endpoint.h>
 
 #include <boost/functional/hash.hpp>
 

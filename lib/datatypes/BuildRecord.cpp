@@ -2,20 +2,18 @@
  * @file BuildRecord.cpp
  * @brief Implements BuildRecord.h, specifically i2pcpp::BuildRecord.
  */
-#include "BuildRecord.h"
+#include <i2pcpp/datatypes/BuildRecord.h>
 
 #include <botan/auto_rng.h>
 #include <botan/pipe.h>
 #include <botan/pk_filts.h>
 #include <botan/lookup.h>
 
-#include "../exceptions/FormattingError.h"
-
 namespace i2pcpp {
     BuildRecord::BuildRecord(ByteArrayConstItr &begin, ByteArrayConstItr end)
     {
         if((end - begin) < 528)
-            throw FormattingError();
+            throw std::runtime_error("malformed BuildRecord");
 
         std::copy(begin, begin + 16, m_header.begin()), begin += 16;
         std::copy(begin, begin + 512, m_data.begin()), begin += 512;

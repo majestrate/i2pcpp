@@ -2,15 +2,13 @@
  * @file BuildResponseRecord.cpp
  * @brief implements BuildReponseRecord.h
  */
-#include "BuildResponseRecord.h"
+#include <i2pcpp/datatypes/BuildResponseRecord.h>
 
 #include <stdexcept>
 
 #include <botan/auto_rng.h>
 #include <botan/pipe.h>
 #include <botan/lookup.h>
-
-#include "../exceptions/FormattingError.h"
 
 namespace i2pcpp {
     BuildResponseRecord::BuildResponseRecord(const BuildRecord &r) :

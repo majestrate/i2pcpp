@@ -2,15 +2,14 @@
  * @file RouterInfo.cpp
  * @brief Implements RouterInfo.h.
  */
-#include "RouterInfo.h"
+#include <i2pcpp/datatypes/RouterInfo.h>
 
 #include <botan/pipe.h>
 #include <botan/pubkey.h>
 #include <botan/pk_filts.h>
 #include <botan/auto_rng.h>
 
-#include "../util/I2PDH.h"
-#include "../exceptions/FormattingError.h"
+#include <i2pcpp/util/I2PDH.h>
 
 namespace i2pcpp {
     RouterInfo::RouterInfo(RouterIdentity const &identity, Date const &published, Mapping const &options, ByteArray const &signature) :
@@ -33,7 +32,7 @@ namespace i2pcpp {
 
         m_options = Mapping(begin, end);
 
-        if((end - begin) < 40) throw FormattingError();
+        if(std::distance(end, begin) < 40) throw std::runtime_error("malfirmed router info signature");
         copy(end - 40, end, m_signature.begin());
     }
 

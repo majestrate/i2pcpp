@@ -2,12 +2,11 @@
 #define BASE64_H
 
 #include <string>
-
-#include "../datatypes/ByteArray.h"
+#include <vector>
 
 namespace i2pcpp {
     namespace Base64 {
-        ByteArray decode(std::string const &s);
+        bool is_base64(unsigned char c);
 
         std::string encode(unsigned char *data, size_t length);
         template <typename T>
@@ -16,7 +15,7 @@ namespace i2pcpp {
             return encode(x.data(), x.size());
         }
 
-        bool is_base64(unsigned char c);
+        std::vector<unsigned char> decode(std::string const &s);
     }
 }
 

@@ -2,27 +2,26 @@
  * @file Mapping.cpp
  * @brief Implements Mapping.h.
  */
-#include "Mapping.h"
-
-#include "../exceptions/FormattingError.h"
+#include <i2pcpp/datatypes/Mapping.h>
 
 namespace i2pcpp {
 
     Mapping::Mapping(ByteArrayConstItr &begin, ByteArrayConstItr end)
     {
         if(std::distance(begin, end) < 2)
-            throw FormattingError();
+            throw std::runtime_error("malformed mapping: too small");
 
         uint16_t size = parseUint16(begin);
         if(std::distance(begin, end) < size)
-            throw FormattingError();
+            throw std::runtime_error("malformed mapping size");
 
         end = begin + size;
 
         while(begin != end) {
             unsigned char keySize = *(begin++);
             if(std::distance(begin, end) < keySize)
-                throw FormattingError();
+                throw std::runtime_error("malformed mapping keySize");
+
             std::string key(begin, begin + keySize);
             begin += keySize;
 
@@ -30,7 +29,8 @@ namespace i2pcpp {
 
             unsigned char valueSize = *(begin++);
             if(std::distance(begin, end) < valueSize)
-                throw FormattingError();
+                throw std::runtime_error("malformed mapping valueSize");
+
             std::string value(begin, begin + valueSize);
             begin += valueSize;
 

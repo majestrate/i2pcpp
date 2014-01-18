@@ -59,15 +59,7 @@ set(i2pcpp_sources
     tunnel/Message.cpp
 )
 
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -stdlib=libc++")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -stdlib=libc++")
-    set(CMAKE_CXX_FLAGS_MINSIZEREL "-Oz")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wno-constexpr-not-const")
-else("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    message(WARNING "Beware: Only clang is officially supported!")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-endif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+include(cpp11)
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
     get_target_property(i2p_LOCATION i2p LOCATION)
@@ -133,8 +125,6 @@ add_definitions(-D_WEBSOCKETPP_CPP11_STL_)
 # --- INTERNAL COMPONENTS ---
 
 # datatypes library
-add_subdirectory(datatypes)
-include_directories(datatypes)
 target_link_libraries(i2p datatypes)
 
 # exceptions library
@@ -143,8 +133,6 @@ include_directories(exceptions)
 target_link_libraries(i2p exceptions)
 
 # util library
-add_subdirectory(util)
-include_directories(util)
 target_link_libraries(i2p util)
 
 # sqlite3cc library

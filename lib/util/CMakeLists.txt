@@ -5,7 +5,11 @@ set(util_sources
     gzip.cpp
 )
 
+include(cpp11)
+
 add_library(util STATIC ${util_sources})
+
+include_directories(BEFORE util ${CMAKE_SOURCE_DIR}/include)
 
 # Botan
 include_directories(BEFORE util ${BOTAN_INCLUDE_DIRS})

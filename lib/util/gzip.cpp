@@ -2,7 +2,7 @@
  * provided by Peter J Jones and Jack Lloyd
  */
 
-#include "gzip.h"
+#include <i2pcpp/util/gzip.h>
 
 #include <botan/exceptn.h>
 

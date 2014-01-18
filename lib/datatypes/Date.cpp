@@ -2,11 +2,9 @@
  * @file Date.cpp
  * @brief Implements Date.h.
  */
-#include "Date.h"
+#include <i2pcpp/datatypes/Date.h>
 
 #include <chrono>
-
-#include "../exceptions/FormattingError.h"
 
 namespace i2pcpp {
     Date::Date() :
@@ -19,7 +17,7 @@ namespace i2pcpp {
 
     Date::Date(ByteArrayConstItr &begin, ByteArrayConstItr end)
     {
-        if((end - begin) < 8) throw FormattingError();
+        if((end - begin) < 8) throw std::runtime_error("malformed date");
 
         m_value = 0;
 

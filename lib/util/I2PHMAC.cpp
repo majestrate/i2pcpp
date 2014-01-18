@@ -1,6 +1,6 @@
-#include "I2PHMAC.h"
+#include <i2pcpp/util/I2PHMAC.h>
 
-#include "xor_buf.h"
+#include <i2pcpp/util/xor_buf.h>
 
 namespace i2pcpp {
     void I2PHMAC::add_data(const Botan::byte input[], size_t length)

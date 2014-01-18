@@ -2,20 +2,19 @@
  * @file RouterIdentity.cpp
  * @brief Implements RouterIdentity.h.
  */
-#include "RouterIdentity.h"
+#include <i2pcpp/datatypes/RouterIdentity.h>
 
 #include <algorithm>
 
 #include <botan/pipe.h>
 #include <botan/lookup.h>
 
-#include "../exceptions/FormattingError.h"
-
 namespace i2pcpp {
     RouterIdentity::RouterIdentity(ByteArrayConstItr &begin, ByteArrayConstItr end)
     {
         if(std::distance(begin, end) < 256 + 128)
-            throw FormattingError();
+            throw std::runtime_error("malformed router identity");
+
         std::copy(begin, begin + 256, m_encryptionKey.begin());
         begin += 256;
         std::copy(begin, begin + 128, m_signingKey.begin());
