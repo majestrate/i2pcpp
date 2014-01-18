@@ -127,11 +127,6 @@ add_definitions(-D_WEBSOCKETPP_CPP11_STL_)
 # datatypes library
 target_link_libraries(i2p datatypes)
 
-# exceptions library
-add_subdirectory(exceptions)
-include_directories(exceptions)
-target_link_libraries(i2p exceptions)
-
 # util library
 target_link_libraries(i2p util)
 
