@@ -81,4 +81,114 @@ namespace i2pcpp {
 
         std::fill(dataItr, m_data.end(), 0x00); // TODO Random padding
     }
+
+    void BuildRequestRecord::setTunnelId(uint32_t tunnelId)
+    {
+        m_tunnelId = tunnelId;
+    }
+
+    void BuildRequestRecord::setNextTunnelId(uint32_t nextTunnelId)
+    {
+        m_nextTunnelId = nextTunnelId;
+    }
+
+    void BuildRequestRecord::setLocalHash(RouterHash const &localHash)
+    {
+        m_localHash = localHash;
+    }
+
+    void BuildRequestRecord::setNextHash(RouterHash const &nextHash)
+    {
+        m_nextHash = nextHash;
+    }
+
+    void BuildRequestRecord::setTunnelLayerKey(SessionKey const &tunnelLayerKey)
+    {
+        m_tunnelLayerKey = tunnelLayerKey;
+    }
+
+    void BuildRequestRecord::setTunnelIVKey(SessionKey const &tunnelIVKey)
+    {
+        m_tunnelIVKey = tunnelIVKey;
+    }
+
+    void BuildRequestRecord::setReplyKey(SessionKey const &replyKey)
+    {
+        m_replyKey = replyKey;
+    }
+
+    void BuildRequestRecord::setReplyIV(StaticByteArray<16> const &replyIV)
+    {
+        m_replyIV = replyIV;
+    }
+
+    void BuildRequestRecord::setFlags(std::bitset<8> flags)
+    {
+        m_flags = flags;
+    }
+
+    void BuildRequestRecord::setRequestTime(uint32_t reqTime)
+    {
+        m_requestTime = reqTime;
+    }
+
+    void BuildRequestRecord::setNextMsgId(uint32_t nextMsgId)
+    {
+        m_nextMsgId = nextMsgId;
+    }
+
+    uint32_t BuildRequestRecord::getTunnelId() const
+    {
+        return m_tunnelId;
+    }
+
+    uint32_t BuildRequestRecord::getNextTunnelId() const
+    {
+        return m_nextTunnelId;
+    }
+
+    RouterHash BuildRequestRecord::getLocalHash() const
+    {
+        return m_localHash;
+    }
+
+    RouterHash BuildRequestRecord::getNextHash() const
+    {
+        return m_nextHash;
+    }
+
+    SessionKey BuildRequestRecord::getTunnelLayerKey() const
+    {
+        return m_tunnelLayerKey;
+    }
+
+    SessionKey BuildRequestRecord::getTunnelIVKey() const
+    {
+        return m_tunnelIVKey;
+    }
+
+    SessionKey BuildRequestRecord::getReplyKey() const
+    {
+        return m_replyKey;
+    }
+
+    StaticByteArray<16> BuildRequestRecord::getReplyIV() const
+    {
+        return m_replyIV;
+    }
+
+    std::bitset<8> BuildRequestRecord::getFlags() const
+    {
+        return m_flags;
+    }
+
+    uint32_t BuildRequestRecord::getRequestTime() const
+    {
+        return m_requestTime;
+    }
+
+    uint32_t BuildRequestRecord::getNextMsgId() const
+    {
+        return m_nextMsgId;
+    }
 }

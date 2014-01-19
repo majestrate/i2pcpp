@@ -41,6 +41,30 @@ namespace i2pcpp {
              */
             void compile();
 
+            void setTunnelId(uint32_t tunnelId);
+            void setNextTunnelId(uint32_t nextTunnelId);
+            void setLocalHash(RouterHash const &localHash);
+            void setNextHash(RouterHash const &nextHash);
+            void setTunnelLayerKey(SessionKey const &tunnelLayerKey);
+            void setTunnelIVKey(SessionKey const &tunnelIVKey);
+            void setReplyKey(SessionKey const &replyKey);
+            void setReplyIV(StaticByteArray<16> const &replyIV);
+            void setFlags(std::bitset<8> flags);
+            void setRequestTime(uint32_t reqTime);
+            void setNextMsgId(uint32_t nextMsgId);
+
+            uint32_t getTunnelId() const;
+            uint32_t getNextTunnelId() const;
+            RouterHash getLocalHash() const;
+            RouterHash getNextHash() const;
+            SessionKey getTunnelLayerKey() const;
+            SessionKey getTunnelIVKey() const;
+            SessionKey getReplyKey() const;
+            StaticByteArray<16> getReplyIV() const;
+            std::bitset<8> getFlags() const;
+            uint32_t getRequestTime() const;
+            uint32_t getNextMsgId() const;
+
         private:
             uint32_t m_tunnelId;
             uint32_t m_nextTunnelId;
