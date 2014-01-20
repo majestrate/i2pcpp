@@ -10,12 +10,9 @@ Add exceptions with backtrace support.
 Write unit tests.
 Ensure that unused objects get destroyed (expire tunnels after 10 minutes, etc).
 Make UDPTransport its own library.
-If tests are available, run them after building (make it an option).
 Investigate whether the Version.cpp/.h system should be modified.
 Reimplement OMS internals in a more sane way (no bitset).
 Use a list<Fragment> instead of a vector<FragmentPtr> for PacketBuilder.
-Investigate whether or not Database can be templatized.
-Use std::distance instead of operator- for iterators.
 Implement exploratory tunnel support.
 Implement LeaseSet lookups.
 Implement C89 interface.

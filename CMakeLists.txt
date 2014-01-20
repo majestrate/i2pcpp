@@ -38,4 +38,8 @@ add_subdirectory(lib)
 add_subdirectory(src)
 
 # tests
-add_subdirectory(tests)
+if(NOT DEFINED I2PCPP_SKIP_TESTS)
+    add_subdirectory(tests)
+    enable_testing()
+    add_test(all "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/testi2p")
+endif(NOT DEFINED I2PCPP_SKIP_TESTS)
