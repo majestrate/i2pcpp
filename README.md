@@ -4,7 +4,7 @@ i2pcpp is an I2P router written in C++11 by orion. It is targeted for the advanc
 
 ## Features
 
-*This list will be populated as features are implemented.*
+Currently the router is able to forward traffic between peers. It is unable to do much more at this time.
 
 ## Building
 
@@ -14,11 +14,11 @@ To compile, you will require the following components:
 
 * [Botan 1.11.5][1]
 * [boost 1.55.0][2]
-* [cmake 2.8.11.2][3] or greater
+* [cmake 2.8.11][3] or greater
 * [sqlite 3.8.0.2][4] or greater
 * [WebSocket++][5]
 
-clang 3.3+ is the only officially supported compiler, but there is an honest effort to be compatible with g++. i2pcpp will always work on the latest version of FreeBSD.
+clang 3.3+ is the only officially supported compiler, but there is an honest effort to be compatible with g++. i2pcpp will always work on the latest release version of FreeBSD.
 
 ### Using cmake
 

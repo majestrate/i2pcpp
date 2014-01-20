@@ -21,6 +21,9 @@ include_directories(BEFORE datatypes ${CMAKE_SOURCE_DIR}/include)
 
 # Botan
 include_directories(BEFORE datatypes ${BOTAN_INCLUDE_DIRS})
+target_link_libraries(datatypes "${BOTAN_LIBRARIES}")
 
 # Boost
 include_directories(${Boost_INCLUDE_DIRS})
+target_link_libraries(datatypes ${Boost_LIBRARIES})
+add_definitions(-DBOOST_ALL_DYN_LINK)
