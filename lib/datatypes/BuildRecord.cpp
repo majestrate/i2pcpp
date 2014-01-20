@@ -12,7 +12,7 @@
 namespace i2pcpp {
     BuildRecord::BuildRecord(ByteArrayConstItr &begin, ByteArrayConstItr end)
     {
-        if((end - begin) < 528)
+        if(std::distance(begin, end) < 528)
             throw std::runtime_error("malformed BuildRecord");
 
         std::copy(begin, begin + 16, m_header.begin()), begin += 16;

@@ -9,8 +9,6 @@
 
 #include "../Log.h"
 
-#include "TunnelHop.h"
-
 namespace i2pcpp {
     class Tunnel {
         public:
@@ -39,8 +37,10 @@ namespace i2pcpp {
             void setTimer(std::unique_ptr<boost::asio::deadline_timer> t);
 
         protected:
-            Tunnel() {}
-            std::list<TunnelHopPtr> m_hops;
+            Tunnel() = default;
+            void secureRecords();
+
+            std::list<BuildRecordPtr> m_hops;
             State m_state = State::REQUESTED;
             uint32_t m_tunnelId;
             uint32_t m_nextMsgId;

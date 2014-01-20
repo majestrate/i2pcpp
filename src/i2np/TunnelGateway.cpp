@@ -46,7 +46,7 @@ namespace i2pcpp {
             tg.m_tunnelId = parseUint32(begin);
 
             uint16_t size = parseUint16(begin);
-            if(size > (end - begin))
+            if(size > std::distance(begin, end))
                 throw std::runtime_error("invalid tunnel gateway message");
 
             tg.m_data = ByteArray(begin, begin + size);

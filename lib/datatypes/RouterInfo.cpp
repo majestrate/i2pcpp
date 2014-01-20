@@ -32,7 +32,7 @@ namespace i2pcpp {
 
         m_options = Mapping(begin, end);
 
-        if(std::distance(end, begin) < 40) throw std::runtime_error("malfirmed router info signature");
+        if(std::distance(begin, end) < 40) throw std::runtime_error("malfirmed router info signature");
         copy(end - 40, end, m_signature.begin());
     }
 

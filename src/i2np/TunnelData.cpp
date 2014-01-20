@@ -38,7 +38,7 @@ namespace i2pcpp {
         {
             TunnelData td;
 
-            if(end - begin < (4 + 1024))
+            if(std::distance(begin,end) < (4 + 1024))
                 throw std::runtime_error("invalid tunnel data message");
 
             td.m_tunnelId = parseUint32(begin);

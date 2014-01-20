@@ -60,7 +60,7 @@ namespace i2pcpp {
         fof.m_isLast = flag & 0x01;
 
         uint16_t size = parseUint16(begin);
-        if((end - begin) < size)
+        if(std::distance(begin, end) < size)
             throw std::runtime_error("malformed followon fragment");
 
         fof.m_payload = ByteArray(begin, begin + size);

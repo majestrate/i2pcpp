@@ -13,7 +13,6 @@
 #include "../Log.h"
 
 #include "Tunnel.h"
-#include "TunnelHop.h"
 #include "FragmentHandler.h"
 
 namespace i2pcpp {
@@ -40,7 +39,7 @@ namespace i2pcpp {
 
             std::unordered_map<uint32_t, TunnelPtr> m_pending;
             std::unordered_map<uint32_t, TunnelPtr> m_tunnels;
-            std::unordered_map<uint32_t, TunnelHopPtr> m_participating;
+            std::unordered_map<uint32_t, std::pair<BuildRequestRecordPtr, std::unique_ptr<boost::asio::deadline_timer>>> m_participating;
 
             mutable std::mutex m_pendingMutex;
             mutable std::mutex m_tunnelsMutex;

@@ -6,12 +6,12 @@
 
 namespace i2pcpp {
     namespace I2NP {
-        VariableTunnelBuild::VariableTunnelBuild(std::list<BuildRecordPtr> const &buildRecords) :
-            m_buildRecords(buildRecords) {}
+        VariableTunnelBuild::VariableTunnelBuild(std::list<BuildRecordPtr> buildRecords) :
+            m_buildRecords(std::move(buildRecords)) {}
 
-        VariableTunnelBuild::VariableTunnelBuild(uint32_t msgId, std::list<BuildRecordPtr> const &buildRecords) :
+        VariableTunnelBuild::VariableTunnelBuild(uint32_t msgId, std::list<BuildRecordPtr> buildRecords) :
             Message(msgId),
-            m_buildRecords(buildRecords) {}
+            m_buildRecords(std::move(buildRecords)) {}
 
         std::list<BuildRecordPtr> VariableTunnelBuild::getRecords() const
         {

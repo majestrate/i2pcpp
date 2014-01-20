@@ -32,6 +32,7 @@ namespace i2pcpp {
 
     void TunnelManager::receiveRecords(uint32_t const msgId, std::list<BuildRecordPtr> records)
     {
+        /* First check to see if we have a pending tunnel for this msgId */
         {
             std::lock_guard<std::mutex> lock(m_pendingMutex);
             auto itr = m_pending.find(msgId);
@@ -59,6 +60,9 @@ namespace i2pcpp {
             }
         }
 
+        /* If we don't, then check to see if any of the records have a truncated
+         * hash that matches ours.
+         */
         RouterHash myHash = m_ctx.getIdentity()->getHash();
         StaticByteArray<16> myTruncatedHash;
         std::copy(myHash.cbegin(), myHash.cbegin() + 16, myTruncatedHash.begin());
@@ -67,42 +71,47 @@ namespace i2pcpp {
         if(itr != records.end()) {
             I2P_LOG(m_log, debug) << "found BRR with our identity";
 
-            BuildRequestRecord req = **itr;
-            req.decrypt(m_ctx.getEncryptionKey());
-            TunnelHop hop/* = req.parse()*/;
+            /* We found a record that belongs to us. Let's decrypt and parse it. */
+            BuildRequestRecordPtr req = std::static_pointer_cast<BuildRequestRecord>(*itr);
+            req->decrypt(m_ctx.getEncryptionKey());
+            req->parse();
 
             std::lock_guard<std::mutex> lock(m_participatingMutex);
-            if(m_participating.count(hop.getTunnelId()) > 0) {
+            if(m_participating.count(req->getTunnelId()) > 0) {
                 I2P_LOG(m_log, debug) << "rejecting tunnel participation request: tunnel ID in use";
                 // reject
                 return;
             }
 
-            auto pt = std::make_shared<TunnelHop>(std::move(hop));
             auto timer = std::make_unique<boost::asio::deadline_timer>(m_ios, boost::posix_time::time_duration(0, 10, 0));
-            timer->async_wait(boost::bind(&TunnelManager::timerCallback, this, boost::asio::placeholders::error, true, pt->getTunnelId()));
-            pt->setTimer(std::move(timer));
-            m_participating[pt->getTunnelId()] = pt;
+            timer->async_wait(boost::bind(&TunnelManager::timerCallback, this, boost::asio::placeholders::error, true, req->getTunnelId()));
 
+            auto p = std::make_pair(req, std::move(timer));
+            m_participating[req->getTunnelId()] = std::move(p);
+
+            /* Now we generate a SUCCESS reponse which will get sent to the next hop in the chain. */
             BuildResponseRecordPtr resp;
             resp = std::make_shared<BuildResponseRecord>(BuildResponseRecord::Reply::SUCCESS);
             resp->compile();
-            *itr = std::move(resp); // Replace the request record with our response
+            *itr = std::move(resp); // This replaces our request record with the response in-place.
 
             for(auto& x: records)
-                x->encrypt(pt->getReplyIV(), pt->getReplyKey());
+                x->encrypt(req->getReplyIV(), req->getReplyKey());
 
-            if(pt->getType() == TunnelHop::Type::ENDPOINT) {
-                I2P_LOG(m_log, debug) << "forwarding BRRs to IBGW: " << pt->getNextHash() << ", tunnel ID: " << pt->getNextTunnelId() << ", nextMsgId: " << pt->getNextMsgId();
+            /*  If we're the endpoint, wrap the records in a Tunnel Gateway message before
+             *  sending it to the next hop.
+             */
+            if(req->getType() == BuildRequestRecord::Type::ENDPOINT) {
+                I2P_LOG(m_log, debug) << "forwarding BRRs to IBGW: " << req->getNextHash() << ", tunnel ID: " << req->getNextTunnelId() << ", nextMsgId: " << req->getNextMsgId();
 
-                I2NP::MessagePtr vtbr(new I2NP::VariableTunnelBuildReply(pt->getNextMsgId(), records));
-                I2NP::MessagePtr tg(new I2NP::TunnelGateway(pt->getNextTunnelId(), vtbr->toBytes()));
-                m_ctx.getOutMsgDisp().sendMessage(pt->getNextHash(), tg);
+                I2NP::MessagePtr vtbr(new I2NP::VariableTunnelBuildReply(req->getNextMsgId(), records));
+                I2NP::MessagePtr tg(new I2NP::TunnelGateway(req->getNextTunnelId(), vtbr->toBytes()));
+                m_ctx.getOutMsgDisp().sendMessage(req->getNextHash(), tg);
             } else {
-                I2P_LOG(m_log, debug) << "forwarding BRRs to next hop: " << pt->getNextHash() << ", tunnel ID: " << pt->getNextTunnelId() << ", nextMsgId: " << pt->getNextMsgId();
+                I2P_LOG(m_log, debug) << "forwarding BRRs to next hop: " << req->getNextHash() << ", tunnel ID: " << req->getNextTunnelId() << ", nextMsgId: " << req->getNextMsgId();
 
-                I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(pt->getNextMsgId(), records));
-                m_ctx.getOutMsgDisp().sendMessage(pt->getNextHash(), vtb);
+                I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(req->getNextMsgId(), records));
+                m_ctx.getOutMsgDisp().sendMessage(req->getNextHash(), vtb);
             }
         }
     }
@@ -116,9 +125,9 @@ namespace i2pcpp {
             std::lock_guard<std::mutex> lock(m_participatingMutex);
             auto itr = m_participating.find(tunnelId);
             if(itr != m_participating.end()) {
-                TunnelHopPtr hop = itr->second;
+                BuildRequestRecordPtr hop = itr->second.first;
 
-                if(hop->getType() != TunnelHop::Type::GATEWAY) {
+                if(hop->getType() != BuildRequestRecord::Type::GATEWAY) {
                     I2P_LOG(m_log, debug) << "data is for a tunnel which is not a gateway, dropping";
                     return;
                 }
@@ -176,7 +185,7 @@ namespace i2pcpp {
         if(itr != m_participating.end()) {
             I2P_LOG(m_log, debug) << "data is for a known tunnel";
 
-            TunnelHopPtr hop = itr->second;
+            BuildRequestRecordPtr hop = itr->second.first;
 
             SessionKey k1 = hop->getTunnelIVKey();
             Botan::SymmetricKey ivKey(k1.data(), k1.size());
@@ -188,7 +197,7 @@ namespace i2pcpp {
             msg.encrypt(ivKey, layerKey);
 
             switch(hop->getType()) {
-                case TunnelHop::Type::PARTICIPANT:
+                case BuildRequestRecord::Type::PARTICIPANT:
                     {
                         I2P_LOG(m_log, debug) << "we are a participant, forwarding";
 
@@ -198,7 +207,7 @@ namespace i2pcpp {
 
                     break;
 
-                case TunnelHop::Type::ENDPOINT:
+                case BuildRequestRecord::Type::ENDPOINT:
                     {
                         I2P_LOG(m_log, debug) << "we are an endpoint, sending to fragment handler";
 

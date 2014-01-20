@@ -27,13 +27,13 @@ namespace i2pcpp {
         {
             I2P_LOG_SCOPED_TAG(m_log, "RouterHash", rh);
 
-            if(std::distance(end, begin) < 1) throw std::runtime_error("malformed SSU data message");
+            if(std::distance(begin, end) < 1) throw std::runtime_error("malformed SSU data message: 0 length");
             std::bitset<8> flag = *(begin++);
 
             if(flag[7]) {
-                if(std::distance(end, begin) < 1) throw std::runtime_error("malformed SSU data message ACK field");
+                if(std::distance(begin, end) < 1) throw std::runtime_error("malformed SSU data message: ACK bit set; no ACKs");
                 unsigned char numAcks = *(begin++);
-                if(std::distance(end, begin) < (numAcks * 4)) throw std::runtime_error("malformed SSU data message ACK field");
+                if(std::distance(begin, end) < (numAcks * 4)) throw std::runtime_error("malformed SSU data message: length < numAcks");
 
                 while(numAcks--) {
                     uint32_t msgId = parseUint32(begin);
@@ -72,12 +72,12 @@ namespace i2pcpp {
                 }
             }
 
-            if(std::distance(end, begin) < 1) throw std::runtime_error("malformed SSU data message");
+            if(std::distance(begin, end) < 1) throw std::runtime_error("malformed SSU data message: no body");
             unsigned char numFragments = *(begin++);
             I2P_LOG(m_log, debug) << "number of fragments: " << std::to_string(numFragments);
 
             for(int i = 0; i < numFragments; i++) {
-                if(std::distance(end, begin) < 7) throw std::runtime_error("malformed SSU data message");
+                if(std::distance(begin, end) < 7) throw std::runtime_error("malformed SSU data message: length of body < 7");
                 uint32_t msgId = parseUint32(begin);
                 I2P_LOG(m_log, debug) << "fragment[" << i << "] message id: " << std::hex << msgId << std::dec;
 
@@ -93,7 +93,7 @@ namespace i2pcpp {
                 uint16_t fragSize = fragInfo & ((1 << 14) - 1);
                 I2P_LOG(m_log, debug) << "fragment[" << i << "] size: " << fragSize;
 
-                if(std::distance(end, begin) < fragSize) throw std::runtime_error("malformed SSU data message");
+                if(std::distance(begin, end) < fragSize) throw std::runtime_error("malformed SSU data message: length < fragSize");
                 ByteArray fragData(begin, begin + fragSize);
                 I2P_LOG(m_log, debug) << "fragment[" << i << "] data: " << fragData;
 

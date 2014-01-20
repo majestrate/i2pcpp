@@ -96,7 +96,7 @@ namespace i2pcpp {
             ff.m_msgId = parseUint32(begin);
 
         uint16_t size = parseUint16(begin);
-        if((end - begin) < size)
+        if(std::distance(begin, end) < size)
             throw std::runtime_error("malformed first fragment");
 
         ff.m_payload = ByteArray(begin, begin + size);

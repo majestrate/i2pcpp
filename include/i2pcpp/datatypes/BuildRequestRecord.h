@@ -13,6 +13,7 @@
 #include "ByteArray.h"
 #include "BuildRecord.h"
 #include "RouterHash.h"
+#include "RouterIdentity.h"
 
 namespace i2pcpp {
     /**
@@ -21,12 +22,21 @@ namespace i2pcpp {
      */
     class BuildRequestRecord : public BuildRecord {
         public:
+            enum class Type {
+                PARTICIPANT,
+                GATEWAY,
+                ENDPOINT
+            };
+
             BuildRequestRecord() = default;
 
             /**
              * Constructs from an i2pcpp::BuilRecord.
              */
             BuildRequestRecord(BuildRecord const &r);
+
+            BuildRequestRecord(RouterIdentity const &local, RouterHash const &nextHash);
+            BuildRequestRecord(RouterIdentity const &local, RouterHash const &nextHash, uint32_t const nextTunnelId);
 
             /**
              * Parses the BuildRecord data. This must be called prior to using
@@ -49,7 +59,7 @@ namespace i2pcpp {
             void setTunnelIVKey(SessionKey const &tunnelIVKey);
             void setReplyKey(SessionKey const &replyKey);
             void setReplyIV(StaticByteArray<16> const &replyIV);
-            void setFlags(std::bitset<8> flags);
+            void setType(Type type);
             void setRequestTime(uint32_t reqTime);
             void setNextMsgId(uint32_t nextMsgId);
 
@@ -61,11 +71,18 @@ namespace i2pcpp {
             SessionKey getTunnelIVKey() const;
             SessionKey getReplyKey() const;
             StaticByteArray<16> getReplyIV() const;
-            std::bitset<8> getFlags() const;
+            Type getType() const;
             uint32_t getRequestTime() const;
             uint32_t getNextMsgId() const;
 
+            /**
+             * @returns The ElGamal encryption key for this hop.
+             */
+            ByteArray getEncryptionKey() const;
+
         private:
+            void randomize();
+
             uint32_t m_tunnelId;
             uint32_t m_nextTunnelId;
             RouterHash m_localHash;
@@ -86,6 +103,7 @@ namespace i2pcpp {
             uint32_t m_requestTime;
             uint32_t m_nextMsgId;
 
+            ByteArray m_encryptionKey;
     };
 
     typedef std::shared_ptr<BuildRequestRecord> BuildRequestRecordPtr;

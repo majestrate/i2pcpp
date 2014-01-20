@@ -12,7 +12,7 @@ namespace i2pcpp {
             m_transport(transport),
             m_inboundKey(sk),
             m_imf(transport),
-             m_log(boost::log::keywords::channel = "PH") {}
+            m_log(boost::log::keywords::channel = "PH") {}
 
         void PacketHandler::packetReceived(PacketPtr p)
         {

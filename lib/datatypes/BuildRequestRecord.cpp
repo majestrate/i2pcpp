@@ -4,9 +4,34 @@
  */
 #include <i2pcpp/datatypes/BuildRequestRecord.h>
 
+#include <botan/auto_rng.h>
+
 namespace i2pcpp {
     BuildRequestRecord::BuildRequestRecord(BuildRecord const &r) :
         BuildRecord(r) {}
+
+    BuildRequestRecord::BuildRequestRecord(RouterIdentity const &local, RouterHash const &nextHash) :
+        m_localHash(local.getHash()),
+        m_nextHash(nextHash),
+        m_encryptionKey(local.getEncryptionKey()),
+        m_requestTime(std::chrono::duration_cast<std::chrono::hours>(std::chrono::system_clock::now().time_since_epoch()).count())
+    {
+        Botan::AutoSeeded_RNG rng;
+
+        rng.randomize((unsigned char *)&m_nextTunnelId, sizeof(m_nextTunnelId));
+
+        randomize();
+    }
+
+    BuildRequestRecord::BuildRequestRecord(RouterIdentity const &local, RouterHash const &nextHash, uint32_t const nextTunnelId) :
+        m_localHash(local.getHash()),
+        m_nextHash(nextHash),
+        m_nextTunnelId(nextTunnelId),
+        m_encryptionKey(local.getEncryptionKey()),
+        m_requestTime(std::chrono::duration_cast<std::chrono::hours>(std::chrono::system_clock::now().time_since_epoch()).count())
+    {
+        randomize();
+    }
 
     void BuildRequestRecord::parse()
     {
@@ -122,9 +147,21 @@ namespace i2pcpp {
         m_replyIV = replyIV;
     }
 
-    void BuildRequestRecord::setFlags(std::bitset<8> flags)
+    void BuildRequestRecord::setType(BuildRequestRecord::Type type)
     {
-        m_flags = flags;
+        switch(type) {
+            case BuildRequestRecord::Type::GATEWAY:
+                m_flags[7] = true;
+                break;
+
+            case BuildRequestRecord::Type::ENDPOINT:
+                m_flags[6] = true;
+                break;
+
+            case BuildRequestRecord::Type::PARTICIPANT:
+                m_flags = 0;
+                break;
+        }
     }
 
     void BuildRequestRecord::setRequestTime(uint32_t reqTime)
@@ -177,9 +214,14 @@ namespace i2pcpp {
         return m_replyIV;
     }
 
-    std::bitset<8> BuildRequestRecord::getFlags() const
+    BuildRequestRecord::Type BuildRequestRecord::getType() const
     {
-        return m_flags;
+        if(m_flags[7])
+            return BuildRequestRecord::Type::GATEWAY;
+        else if(m_flags[6])
+            return BuildRequestRecord::Type::ENDPOINT;
+        else
+            return BuildRequestRecord::Type::PARTICIPANT;
     }
 
     uint32_t BuildRequestRecord::getRequestTime() const
@@ -190,5 +232,22 @@ namespace i2pcpp {
     uint32_t BuildRequestRecord::getNextMsgId() const
     {
         return m_nextMsgId;
+    }
+
+    ByteArray BuildRequestRecord::getEncryptionKey() const
+    {
+        return m_encryptionKey;
+    }
+
+    void BuildRequestRecord::randomize()
+    {
+        Botan::AutoSeeded_RNG rng;
+
+        rng.randomize((unsigned char *)&m_tunnelId, sizeof(m_tunnelId));
+        rng.randomize(m_tunnelLayerKey.data(), m_tunnelLayerKey.size());
+        rng.randomize(m_tunnelIVKey.data(), m_tunnelIVKey.size());
+        rng.randomize(m_replyKey.data(), m_replyKey.size());
+        rng.randomize(m_replyIV.data(), m_replyIV.size());
+        rng.randomize((unsigned char *)&m_nextMsgId, sizeof(m_nextMsgId));
     }
 }

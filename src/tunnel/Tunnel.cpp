@@ -15,32 +15,12 @@ namespace i2pcpp {
 
     std::list<BuildRecordPtr> Tunnel::getRecords() const
     {
-        std::list<BuildRecordPtr> recs;
-
-        for(auto h = m_hops.cbegin(); h != m_hops.cend(); ++h) {
-            auto record = std::make_shared<BuildRequestRecord>();
-
-            const RouterHash hopHash = (*h)->getLocalHash();
-            StaticByteArray<16> truncatedHash;
-            std::copy(hopHash.cbegin(), hopHash.cbegin() + 16, truncatedHash.begin());
-            record->setHeader(truncatedHash);
-
-            // record->compile(**h); XXX
-            record->encrypt((*h)->getEncryptionKey());
-
-            std::list<TunnelHopPtr>::const_reverse_iterator r(h);
-            for(; r != m_hops.crend(); ++r)
-                record->decrypt((*r)->getReplyIV(), (*r)->getReplyKey());
-
-            recs.emplace_back(record);
-        }
-
-        return recs;
+        return m_hops;
     }
 
     RouterHash Tunnel::getDownstream() const
     {
-        return m_hops.front()->getLocalHash();
+        return std::static_pointer_cast<BuildRequestRecord>(m_hops.front())->getLocalHash();
     }
 
     uint32_t Tunnel::getNextMsgId() const
@@ -52,12 +32,14 @@ namespace i2pcpp {
     {
         bool allgood = true;
 
-        auto h = m_hops.crbegin();
-        ++h;
+        auto itr = m_hops.crbegin();
+        ++itr;
 
-        for(; h != m_hops.crend(); ++h) {
+        for(; itr != m_hops.crend(); ++itr) {
+            BuildRequestRecordPtr h = std::static_pointer_cast<BuildRequestRecord>(*itr);
+
             for(auto r: records)
-                r->decrypt((*h)->getReplyIV(), (*h)->getReplyKey());
+                r->decrypt(h->getReplyIV(), h->getReplyKey());
 
             for(auto r: records) {
                 BuildResponseRecord resp = *r;
@@ -75,5 +57,26 @@ namespace i2pcpp {
             m_state = Tunnel::State::OPERATIONAL;
         else
             m_state = Tunnel::State::FAILED;
+    }
+
+    void Tunnel::secureRecords()
+    {
+        for(auto itr = m_hops.cbegin(); itr != m_hops.cend(); ++itr) {
+            BuildRequestRecordPtr h = std::static_pointer_cast<BuildRequestRecord>(*itr);
+
+            const RouterHash hopHash = h->getLocalHash();
+            StaticByteArray<16> truncatedHash;
+            std::copy(hopHash.cbegin(), hopHash.cbegin() + 16, truncatedHash.begin());
+            h->setHeader(truncatedHash);
+
+            h->compile();
+            h->encrypt(h->getEncryptionKey());
+
+            std::list<BuildRecordPtr>::const_reverse_iterator ritr(itr);
+            for(; ritr != m_hops.crend(); ++ritr) {
+                BuildRequestRecordPtr r = std::static_pointer_cast<BuildRequestRecord>(*ritr);
+                h->decrypt(r->getReplyIV(), r->getReplyKey());
+            }
+        }
     }
 }

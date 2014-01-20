@@ -17,7 +17,7 @@ namespace i2pcpp {
         m_expiration = Date(begin, end);
 
         unsigned char size = *(begin++);
-        if(std::distance(end, begin) < size) throw std::runtime_error("malformed router address");
+        if(std::distance(begin, end) < size) throw std::runtime_error("malformed router address");
         m_transport = std::string(begin, begin + size);
         begin += size;
 

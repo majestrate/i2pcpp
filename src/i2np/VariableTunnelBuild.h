@@ -32,13 +32,13 @@ namespace i2pcpp {
                 /**
                  * Constructs from a std::list of pointers to i2pcpp::BuildRecord objects.
                  */
-                VariableTunnelBuild(std::list<BuildRecordPtr> const &buildRecords);
+                VariableTunnelBuild(std::list<BuildRecordPtr> buildRecords);
 
                 /**
                  * Constructs from a \a msgId and a std::list of pointers to
                  *  i2pcpp::BuildRecord objects.
                  */
-                VariableTunnelBuild(uint32_t msgId, std::list<BuildRecordPtr> const &buildRecords);
+                VariableTunnelBuild(uint32_t msgId, std::list<BuildRecordPtr> buildRecords);
 
                 /**
                  * @return the std::list of pointers to i2pcpp::BuildRecord objects

@@ -7,22 +7,24 @@ namespace i2pcpp {
         RouterHash lastRouterHash;
 
         for(int i = hops.size() - 1; i >= 0; i--) {
-            TunnelHopPtr h;
+            BuildRequestRecordPtr h;
 
             if(i == hops.size() - 1) {
-                h = std::make_shared<TunnelHop>(hops[i], replyHash);
-                h->setType(TunnelHop::Type::ENDPOINT);
+                h = std::make_shared<BuildRequestRecord>(hops[i], replyHash);
+                h->setType(BuildRequestRecord::Type::ENDPOINT);
                 h->setNextTunnelId(replyTunnelId);
                 m_tunnelId = h->getNextTunnelId();
                 m_nextMsgId = h->getNextMsgId();
             } else
-                h = std::make_shared<TunnelHop>(hops[i], lastRouterHash, lastTunnelId);
+                h = std::make_shared<BuildRequestRecord>(hops[i], lastRouterHash, lastTunnelId);
 
             lastTunnelId = h->getTunnelId();
             lastRouterHash = h->getLocalHash();
 
             m_hops.push_front(h);
         }
+
+        secureRecords();
     }
 
     Tunnel::Direction OutboundTunnel::getDirection() const

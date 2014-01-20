@@ -86,7 +86,7 @@ namespace i2pcpp {
 
     FragmentPtr Fragment::parse(ByteArrayConstItr &begin, ByteArrayConstItr end)
     {
-        size_t size = end - begin;
+        size_t size = std::distance(begin, end);
 
         if(size < 3)
             throw std::runtime_error("could not parse fragment");
