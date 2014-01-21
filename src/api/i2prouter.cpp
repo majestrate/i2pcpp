@@ -1,6 +1,8 @@
-#include "Router.h"
+#include <i2pcpp/router.hpp>
 
 #include <string>
+
+#include "Router.h"
 
 void *i2p_router_new(char *dbFile)
 {

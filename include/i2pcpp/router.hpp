@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-void *i2p_router_new(void);
+void *i2p_router_new(char *dbFile);
 
 #ifdef __cplusplus
 }
