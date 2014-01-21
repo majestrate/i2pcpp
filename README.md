@@ -4,7 +4,7 @@ i2pcpp is an I2P router written in C++11 by orion. It is targeted for the advanc
 
 ## Features
 
-*This list will be populated as features are implemented.*
+Currently the router is able to forward traffic between peers. It is unable to do much more at this time.
 
 ## Building
 
@@ -14,11 +14,11 @@ To compile, you will require the following components:
 
 * [Botan 1.11.5][1]
 * [boost 1.55.0][2]
-* [cmake 2.8.11.2][3] or greater
+* [cmake 2.8.11][3] or greater
 * [sqlite 3.8.0.2][4] or greater
 * [WebSocket++][5]
 
-clang 3.3+ is the only officially supported compiler, but there is an honest effort to be compatible with g++. i2pcpp will always work on the latest version of FreeBSD.
+clang 3.3+ is the only officially supported compiler, but there is an honest effort to be compatible with g++. i2pcpp will always work on the latest release version of FreeBSD.
 
 ### Using cmake
 
@@ -84,6 +84,7 @@ The following keys are supported:
 * ssu_bind_port (Port to bind to)
 * ssu_external_ip (IP to advertise)
 * ssu_external_port (Port to advertise)
+* min_peers (Minimum number of peers to maintain)
 * control_server (1 to enable, 0 to disable)
 * control_server_ip (IP for the control server to bind to)
 * control_server_port (Port for the control server to bind to)
@@ -122,7 +123,7 @@ This option takes an optional argument to specify the filename to log to. If no 
 
 The author hangs out in #i2p-dev on the irc2p network under the nickname orion. A GPG key is included in the `doc/` directory which can be used to send private messages and verify commits.
 
-GPG fingerprint: 350E 6173 B4C5 3976 AD82  27A4 0571 6F61 2464 26E9
+GPG fingerprint: 51F4 F421 CF7C 3CA0 26A4  24CD 83BA E5AA F4D1 5FC8
 
 [1]: http://botan.randombit.net/download.html
 [2]: http://www.boost.org/users/download/

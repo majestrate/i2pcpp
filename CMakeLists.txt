@@ -1,75 +1,11 @@
 project(i2pcpp CXX C)
-cmake_minimum_required(VERSION 2.8.9)
+cmake_minimum_required(VERSION 2.8.11)
 
-set(SRCS
-    Database.cpp
-    InboundMessageDispatcher.cpp
-    Log.cpp
-    OutboundMessageDispatcher.cpp
-    PeerManager.cpp
-    ProfileManager.cpp
-    Router.cpp
-    RouterContext.cpp
-    Signals.cpp
-    Version.cpp
-    control/LoggingBackend.cpp
-    control/Server.cpp
-    dht/Kademlia.cpp
-    dht/SearchManager.cpp
-    dht/SearchState.cpp
-    exceptions/FormattingError.cpp
-    exceptions/RecordNotFound.cpp
-    exceptions/SQLError.cpp
-    exceptions/StatementPrepareError.cpp
-    handlers/DatabaseSearchReply.cpp
-    handlers/DatabaseStore.cpp
-    handlers/DeliveryStatus.cpp
-    handlers/Message.cpp
-    handlers/TunnelData.cpp
-    handlers/TunnelGateway.cpp
-    handlers/VariableTunnelBuild.cpp
-    handlers/VariableTunnelBuildReply.cpp
-    i2np/DatabaseLookup.cpp
-    i2np/DatabaseSearchReply.cpp
-    i2np/DatabaseStore.cpp
-    i2np/DeliveryStatus.cpp
-    i2np/Message.cpp
-    i2np/Garlic.cpp
-    i2np/TunnelData.cpp
-    i2np/TunnelGateway.cpp
-    i2np/VariableTunnelBuild.cpp
-    i2np/VariableTunnelBuildReply.cpp
-    transport/ssu/AcknowledgementManager.cpp
-    transport/ssu/EstablishmentManager.cpp
-    transport/ssu/EstablishmentState.cpp
-    transport/ssu/InboundMessageFragments.cpp
-    transport/ssu/InboundMessageState.cpp
-    transport/ssu/OutboundMessageFragments.cpp
-    transport/ssu/OutboundMessageState.cpp
-    transport/ssu/Packet.cpp
-    transport/ssu/PacketBuilder.cpp
-    transport/ssu/PacketHandler.cpp
-    transport/ssu/PeerState.cpp
-    transport/ssu/PeerStateList.cpp
-    transport/Transport.cpp
-    transport/UDPTransport.cpp
-    tunnel/InboundTunnel.cpp
-    tunnel/OutboundTunnel.cpp
-    tunnel/Tunnel.cpp
-    tunnel/Fragment.cpp
-    tunnel/FirstFragment.cpp
-    tunnel/FollowOnFragment.cpp
-    tunnel/FragmentHandler.cpp
-    tunnel/FragmentState.cpp
-    tunnel/TunnelHop.cpp
-    tunnel/TunnelManager.cpp
-    tunnel/Message.cpp
-    util/Base64.cpp
-    util/I2PDH.cpp
-    util/I2PHMAC.cpp
-    util/gzip.cpp
-    )
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+set(CMAKE_INCLUDE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
+<<<<<<< HEAD
 set(TEST_SRCS
     dht/Kademlia.cpp
     exceptions/FormattingError.cpp
@@ -130,20 +66,24 @@ add_dependencies(i2p schema)
 target_link_libraries(i2p "${CMAKE_CURRENT_BINARY_DIR}/schema.sql.o")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+=======
+# --- EXTERNAL LIBRARIES ---
+>>>>>>> gitrepo/master
 
 # pthreads
 find_package(Threads)
-target_link_libraries (i2p "${CMAKE_THREAD_LIBS_INIT}")
 
 # zlib
 find_package(ZLIB REQUIRED)
-include_directories(BEFORE i2p ${ZLIB_INCLUDE_DIRS})
-target_link_libraries(i2p "${ZLIB_LIBRARIES}")
+
+# Boost
+set(Boost_USE_STATIC_LIBS OFF)
+set(Boost_USE_MULTITHREADED ON)
+set(Boost_USE_STATIC_RUNTIME OFF)
+find_package(Boost 1.55.0 REQUIRED COMPONENTS system thread filesystem chrono date_time log program_options OPTIONAL_COMPONENTS unit_test_framework)
 
 # Sqlite3
 find_package(SQLite3 REQUIRED)
-include_directories(BEFORE i2p ${SQLITE3_INCLUDE_DIRS})
-target_link_libraries(i2p "${SQLITE3_LIBRARIES}")
 
 # zlib
 find_package(ZLIB REQUIRED)
@@ -151,6 +91,7 @@ include_directories(BEFORE i2p ${ZLIB_INCLUDE_DIR})
 target_link_libraries(i2p ${ZLIB_LIBRARIES})
 
 # Botan
+<<<<<<< HEAD
 find_path(BOTAN_INCLUDE_DIR botan/botan.h PATHS "${BOTAN_INCLUDE_PREFIX}" /usr/include/botan-1.11 /usr/local/include/botan-1.11)
 find_path(BOTAN_INCLUDE_DIR botan/botan.h)
 find_library(BOTAN_LIBRARY_PATH botan-1.11 PATHS "${BOTAN_LIBRARY_PREFIX}" NO_DEFAULT_PATH)
@@ -185,14 +126,23 @@ if(Boost_FOUND)
 else(Boost_FOUND)
     message(FATAL_ERROR "Boost not found")
 endif(Boost_FOUND)
+=======
+find_package(Botan REQUIRED)
+>>>>>>> gitrepo/master
 
 # websocketpp
 find_path(WEBSOCKETPP_INCLUDE_DIRS websocketpp/server.hpp PATHS "${WEBSOCKETPP_INCLUDEDIR}" NO_DEFAULT_PATH)
 find_path(WEBSOCKETPP_INCLUDE_DIRS websocketpp/server.hpp)
 
-include_directories(BEFORE i2p ${WEBSOCKETPP_INCLUDE_DIRS})
-add_definitions(-D_WEBSOCKETPP_CPP11_STL_)
+# --- INTERNAL COMPONENTS ---
 
+# libs
+add_subdirectory(lib)
+
+# i2pcpp
+add_subdirectory(src)
+
+<<<<<<< HEAD
 # Setup datatypes library
 add_subdirectory(datatypes)
 include_directories(datatypes)
@@ -205,3 +155,11 @@ if(LUA_FOUND)
     include_directories(BEFORE i2p ${LUA_INCLUDE_DIR})
     target_link_libraries(i2p ${LUA_LIBRARIES})
 endif(LUA_FOUND)
+=======
+# tests
+if(NOT DEFINED I2PCPP_SKIP_TESTS)
+    add_subdirectory(tests)
+    enable_testing()
+    add_test(all "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/testi2p")
+endif(NOT DEFINED I2PCPP_SKIP_TESTS)
+>>>>>>> gitrepo/master
