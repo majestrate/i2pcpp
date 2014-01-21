@@ -40,9 +40,9 @@ def init(ndb_dir,ssu_port,db_fname='i2p.db',ssu_ip='0.0.0.0',max_peers=500,contr
         print ('set ssu external ip to '+extern_ip)
         put_config(cur,'ssu_external_ip',extern_ip)
         
-    if not has_config(cur,'max_peers'):
-        print ('set max peer count to %d'%max_peers)
-        put_config(cur,'max_peers',max_peers)
+    if not has_config(cur,'min _peers'):
+        print ('set min peer count to %d'%max_peers)
+        put_config(cur,'min_peers',max_peers)
 
     if not has_config(cur,'control_server'):
         print ('control server enabled')
