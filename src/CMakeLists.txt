@@ -68,7 +68,7 @@ if("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
         COMMAND ${CMAKE_STRIP} -s ${i2p_LOCATION})
 endif("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
 
-add_library(i2p SHARED api/i2prouter.cpp ${i2pcpp_sources})
+add_library(i2p SHARED api/router.cpp ${i2pcpp_sources})
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON) # Needed for build.h
 include_directories(${CMAKE_SOURCE_DIR}/include)

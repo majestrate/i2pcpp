@@ -1,4 +1,4 @@
-Comment/document the code and usage.
+Comment/document the code and usage (ongoing).
 Convert shared_ptr --> unique_ptr where necessary.
 Double check locking requirements. Ensure that locking is initiated by the object which owns the data to be locked (etc).
 JSON-RPC(?) and HTML5 control panel.
@@ -7,7 +7,7 @@ Investigate text based configuration.
 Identify and use c++11 algorithms where possible.
 Handle edge cases in --importdir.
 Add exceptions with backtrace support.
-Write unit tests.
+Write unit tests (ongoing).
 Ensure that unused objects get destroyed (expire tunnels after 10 minutes, etc).
 Make UDPTransport its own library.
 Investigate whether the Version.cpp/.h system should be modified.
@@ -15,5 +15,5 @@ Reimplement OMS internals in a more sane way (no bitset).
 Use a list<Fragment> instead of a vector<FragmentPtr> for PacketBuilder.
 Implement exploratory tunnel support.
 Implement LeaseSet lookups.
-Implement C89 interface.
+Add error codes to C API (handle all exceptions).
 Package everything nicely.
