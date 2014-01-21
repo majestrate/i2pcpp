@@ -10,7 +10,7 @@ set(sqlite3cc_sources
     util.cc
 )
 
-add_library(sqlite3cc STATIC ${sqlite3cc_sources})
+add_library(sqlite3cc SHARED ${sqlite3cc_sources})
 
 include_directories(BEFORE sqlite3cc ${CMAKE_SOURCE_DIR}/include)
 
