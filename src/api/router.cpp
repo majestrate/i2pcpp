@@ -44,3 +44,13 @@ char *i2p_db_config_get(void *router, char *name)
 
     return buf;
 }
+
+void i2p_router_start(void *router)
+{
+    ((Router *)router)->start();
+}
+
+void i2p_router_stop(void *router)
+{
+    ((Router *)router)->stop();
+}

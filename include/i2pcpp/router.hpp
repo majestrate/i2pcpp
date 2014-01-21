@@ -13,6 +13,8 @@ void i2p_router_free(void *router);
 void i2p_db_create(char *dbFile);
 void i2p_db_config_set(void *router, char *name, char *value);
 char *i2p_db_config_get(void *router, char *name);
+void i2p_router_start(void *router);
+void i2p_router_stop(void *router);
 
 #ifdef __cplusplus
 }
