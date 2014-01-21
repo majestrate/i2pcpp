@@ -68,7 +68,7 @@ if("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
         COMMAND ${CMAKE_STRIP} -s ${i2p_LOCATION})
 endif("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
 
-add_executable(i2p main.cpp ${i2pcpp_sources})
+add_library(i2p SHARED api/i2prouter.cpp ${i2pcpp_sources})
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON) # Needed for build.h
 include_directories(${CMAKE_SOURCE_DIR}/include)
@@ -98,7 +98,7 @@ target_link_libraries(i2p "${CMAKE_CURRENT_BINARY_DIR}/schema.sql.o")
 # --- EXTERNAL LIBRARIES ---
 
 # pthreads
-target_link_libraries (i2p "${CMAKE_THREAD_LIBS_INIT}")
+target_link_libraries(i2p "${CMAKE_THREAD_LIBS_INIT}")
 
 # zlib
 include_directories(BEFORE i2p ${ZLIB_INCLUDE_DIRS})
@@ -115,6 +115,7 @@ target_link_libraries(i2p "${BOTAN_LIBRARIES}")
 # Boost
 include_directories(BEFORE i2p ${Boost_INCLUDE_DIRS})
 target_link_libraries(i2p ${Boost_LIBRARIES})
+
 add_definitions(-DBOOST_ALL_DYN_LINK)
 
 # websocketpp
@@ -131,3 +132,8 @@ target_link_libraries(i2p util)
 
 # sqlite3cc library
 target_link_libraries(i2p sqlite3cc)
+
+# i2pcpp binary
+add_executable(i2pd main.cpp)
+set_target_properties(i2pd PROPERTIES OUTPUT_NAME i2p)
+target_link_libraries(i2pd i2p)

@@ -15,7 +15,7 @@ set(datatypes_sources
 
 include(cpp11)
 
-add_library(datatypes STATIC ${datatypes_sources})
+add_library(datatypes SHARED ${datatypes_sources})
 
 include_directories(BEFORE datatypes ${CMAKE_SOURCE_DIR}/include)
 

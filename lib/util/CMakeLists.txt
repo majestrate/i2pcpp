@@ -7,7 +7,7 @@ set(util_sources
 
 include(cpp11)
 
-add_library(util STATIC ${util_sources})
+add_library(util SHARED ${util_sources})
 
 include_directories(BEFORE util ${CMAKE_SOURCE_DIR}/include)
 
