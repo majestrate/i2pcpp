@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+#
+# Run like this: 
+#
+#   LD_LIBRARY_PATH='/path/to/build/directory/out/lib/' ./test.py
+#
+
 from i2pcpp.router import Router
 import time
 import logging
