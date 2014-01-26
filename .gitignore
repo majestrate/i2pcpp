@@ -9,3 +9,5 @@ build/
 *~
 *.orig
 *.me
+*.pyc
+*.so
