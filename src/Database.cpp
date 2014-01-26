@@ -67,9 +67,8 @@ namespace i2pcpp {
 
             {
                 sqlite::transaction_guard<> t(conn);
-
-                std::string schema((char *)_binary_schema_sql_start, (uintptr_t)_binary_schema_sql_size);
-
+                std::string schema((const char *)_binary_schema_sql_start);
+                
                 boost::char_separator<char> sep(";");
                 boost::tokenizer<boost::char_separator<char>> tok(schema, sep);
 

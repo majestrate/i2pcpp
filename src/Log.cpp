@@ -60,7 +60,7 @@ namespace i2pcpp {
 
         boost::shared_ptr<sink_t> sink(new sink_t(backend));
         boost::log::core::get()->add_sink(sink);
-        sink->set_filter(expr::attr<severity_level>("Severity") >= debug);
+        sink->set_filter(expr::attr<severity_level>("Severity") >= info);
         sink->set_formatter(&Log::formatter);
 
         boost::log::core::get()->add_global_attribute("Timestamp", attrs::local_clock());
