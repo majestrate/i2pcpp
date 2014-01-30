@@ -26,10 +26,6 @@ find_package(SQLite3 REQUIRED)
 # Botan
 find_package(Botan REQUIRED)
 
-# websocketpp
-find_path(WEBSOCKETPP_INCLUDE_DIRS websocketpp/server.hpp PATHS "${WEBSOCKETPP_INCLUDEDIR}" NO_DEFAULT_PATH)
-find_path(WEBSOCKETPP_INCLUDE_DIRS websocketpp/server.hpp)
-
 # --- INTERNAL COMPONENTS ---
 
 # libs
