@@ -104,7 +104,7 @@ namespace i2pcpp {
 
         sqlite::row r = q->step();
         if(!r)
-            throw std::runtime_error("config value not found");
+            throw std::runtime_error("config value not found: " + name);
 
         std::string value;
         r >> value;
