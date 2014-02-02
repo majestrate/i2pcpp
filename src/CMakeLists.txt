@@ -118,10 +118,6 @@ target_link_libraries(i2p ${Boost_LIBRARIES})
 
 add_definitions(-DBOOST_ALL_DYN_LINK)
 
-# websocketpp
-include_directories(BEFORE i2p ${WEBSOCKETPP_INCLUDE_DIRS})
-add_definitions(-D_WEBSOCKETPP_CPP11_STL_)
-
 # --- INTERNAL COMPONENTS ---
 
 # datatypes library
@@ -132,6 +128,9 @@ target_link_libraries(i2p util)
 
 # sqlite3cc library
 target_link_libraries(i2p sqlite3cc)
+
+# websocketpp
+add_definitions(-D_WEBSOCKETPP_CPP11_STL_)
 
 # i2pcpp binary
 add_executable(i2pd main.cpp)
