@@ -1,10 +1,10 @@
 #include <i2pcpp/router_c.h>
 
-#include <string>
+#include "Router.h"
 
 #include <botan/botan.h>
 
-#include "Router.h"
+#include <string>
 
 using namespace i2pcpp;
 
