@@ -5,11 +5,11 @@
 #include <i2pcpp/util/gzip.h>
 
 #include <botan/exceptn.h>
+#include <zlib.h>
 
 #include <cstring>
 #include <cstdlib>
 #include <map>
-#include <zlib.h>
 
 namespace i2pcpp {
 

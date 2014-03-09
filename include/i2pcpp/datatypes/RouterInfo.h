@@ -5,19 +5,17 @@
 #ifndef ROUTERINFO_H
 #define ROUTERINFO_H
 
+#include "Datatype.h"
+#include "Mapping.h"
+#include "RouterHash.h"
+#include "Date.h"
+#include "RouterIdentity.h"
+#include "RouterAddress.h"
+
 #include <array>
 #include <list>
 
-#include <botan/pipe.h>
-#include <botan/lookup.h>
-#include <botan/dsa.h>
-
-#include "Datatype.h"
-#include "Mapping.h"
-#include "RouterAddress.h"
-#include "RouterIdentity.h"
-#include "Date.h"
-#include "RouterHash.h"
+namespace Botan { class DSA_PrivateKey; }
 
 namespace i2pcpp {
 

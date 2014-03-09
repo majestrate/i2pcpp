@@ -5,11 +5,11 @@
 #ifndef ROUTERADDRESS_H
 #define ROUTERADDRESS_H
 
-#include <string>
-
 #include "Datatype.h"
 #include "Date.h"
 #include "Mapping.h"
+
+#include <string>
 
 namespace i2pcpp {
 

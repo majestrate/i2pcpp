@@ -4,6 +4,8 @@
  */
 #include <i2pcpp/datatypes/BuildRequestRecord.h>
 
+#include <i2pcpp/datatypes/RouterIdentity.h>
+
 #include <botan/auto_rng.h>
 
 namespace i2pcpp {
