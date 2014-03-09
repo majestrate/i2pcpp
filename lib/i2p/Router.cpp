@@ -4,14 +4,20 @@
  */
 #include "Router.h"
 
+#include <botan/botan.h>
+
 #include <i2pcpp/util/make_unique.h>
+
 #include "transport/UDPTransport.h"
 
 namespace i2pcpp {
     Router::Router(std::string const &dbFile) :
         m_work(m_ios),
         m_ctx(dbFile, m_ios),
-        m_log(boost::log::keywords::channel = "R") {}
+        m_log(boost::log::keywords::channel = "R")
+    {
+        Botan::LibraryInitializer init("thread_safe=true");
+    }
 
     Router::~Router()
     {

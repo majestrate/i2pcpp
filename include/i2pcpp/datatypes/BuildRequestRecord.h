@@ -9,7 +9,6 @@
 
 #include <botan/elgamal.h>
 
-#include "Datatype.h"
 #include "ByteArray.h"
 #include "BuildRecord.h"
 #include "RouterHash.h"

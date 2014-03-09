@@ -8,6 +8,7 @@
 #include <botan/pipe.h>
 #include <botan/pk_filts.h>
 #include <botan/lookup.h>
+#include <botan/elgamal.h>
 
 namespace i2pcpp {
     BuildRecord::BuildRecord(ByteArrayConstItr &begin, ByteArrayConstItr end)

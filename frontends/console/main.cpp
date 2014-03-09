@@ -8,8 +8,6 @@
 #include <mutex>
 #include <condition_variable>
 
-#include <botan/botan.h>
-
 #include <boost/filesystem.hpp>
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/variables_map.hpp>
@@ -17,9 +15,8 @@
 
 #include <i2pcpp/datatypes/RouterInfo.h>
 
-#include "Log.h"
-#include "Router.h"
-#include "Version.h"
+/*#include "Router.h"
+#include "Version.h"*/
 
 static volatile bool quit = false;
 static std::condition_variable cv;
@@ -35,7 +32,7 @@ int main(int argc, char **argv)
     using namespace i2pcpp;
     using namespace std;
 
-    try {
+    /*try {
         string dbFile;
 
         Log::initialize();
@@ -234,5 +231,5 @@ int main(int argc, char **argv)
         cerr << "error: " << e.what() << endl;
 
         return EXIT_FAILURE;
-    }
+    }*/
 }
