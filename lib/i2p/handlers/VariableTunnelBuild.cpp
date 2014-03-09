@@ -4,9 +4,10 @@
  */
 #include "VariableTunnelBuild.h"
 
-#include "../i2np/VariableTunnelBuild.h"
 #include "../Signals.h"
 #include "../RouterContext.h"
+
+#include "../i2np/VariableTunnelBuild.h"
 
 namespace i2pcpp {
     namespace Handlers {

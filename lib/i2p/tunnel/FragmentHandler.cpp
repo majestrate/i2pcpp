@@ -1,12 +1,12 @@
 #include "FragmentHandler.h"
 
-#include <i2pcpp/util/make_unique.h>
-
-#include "../i2np/TunnelGateway.h"
+#include "FirstFragment.h"
 
 #include "../RouterContext.h"
 
-#include "FirstFragment.h"
+#include "../i2np/TunnelGateway.h"
+
+#include <i2pcpp/util/make_unique.h>
 
 namespace i2pcpp {
     FragmentHandler::FragmentHandler(boost::asio::io_service &ios, RouterContext &ctx) :

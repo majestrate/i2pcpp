@@ -1,16 +1,17 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
-#include <array>
-#include <list>
+#include "Fragment.h"
 
-#include <botan/symkey.h>
+#include "../i2np/Message.h"
 
 #include <i2pcpp/datatypes/ByteArray.h>
 #include <i2pcpp/datatypes/StaticByteArray.h>
-#include "../i2np/Message.h"
 
-#include "Fragment.h"
+#include <botan/symkey.h>
+
+#include <array>
+#include <list>
 
 namespace i2pcpp {
     class Message {

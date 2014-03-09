@@ -5,8 +5,6 @@
 #ifndef I2NPMESSAGE_H
 #define I2NPMESSAGE_H
 
-#include <memory>
-
 #include <i2pcpp/datatypes/ByteArray.h>
 #include <i2pcpp/datatypes/Date.h>
 

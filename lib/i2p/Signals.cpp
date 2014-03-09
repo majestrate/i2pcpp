@@ -4,6 +4,8 @@
  */
 #include "Signals.h"
 
+#include <boost/asio.hpp>
+
 namespace i2pcpp {
     void Signals::invokeDatabaseStore(RouterHash const &from, StaticByteArray<32> const &k, bool isRouterInfo)
     {

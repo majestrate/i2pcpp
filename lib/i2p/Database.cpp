@@ -4,16 +4,18 @@
  */
 #include "Database.h"
 
+#include <i2pcpp/util/Base64.h>
+#include <i2pcpp/util/I2PDH.h>
+#include <i2pcpp/util/make_unique.h>
+
+#include <i2pcpp/datatypes/RouterInfo.h>
+
 #include <botan/auto_rng.h>
 #include <botan/elgamal.h>
 #include <botan/pkcs8.h>
 #include <botan/dsa.h>
 
 #include <boost/tokenizer.hpp>
-
-#include <i2pcpp/util/Base64.h>
-#include <i2pcpp/util/I2PDH.h>
-#include <i2pcpp/util/make_unique.h>
 
 extern uint8_t _binary_schema_sql_start[];
 extern uintptr_t _binary_schema_sql_size[];

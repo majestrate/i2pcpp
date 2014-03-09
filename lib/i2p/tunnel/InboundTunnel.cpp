@@ -2,6 +2,8 @@
 
 #include <botan/auto_rng.h>
 
+#include <i2pcpp/datatypes/RouterIdentity.h>
+
 namespace i2pcpp {
     InboundTunnel::InboundTunnel(RouterHash const &myHash, std::vector<RouterIdentity> const &hops)
     {

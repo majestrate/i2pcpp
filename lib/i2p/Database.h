@@ -5,18 +5,20 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
+#include <i2pcpp/datatypes/ByteArray.h>
+#include <i2pcpp/datatypes/RouterHash.h>
+
+#include "sqlite3cc.h"
+
+#include <sqlite3.h>
+
 #include <string>
 #include <forward_list>
 #include <unordered_map>
 
-#include <sqlite3.h>
-
-#include "sqlite3cc.h"
-
-#include <i2pcpp/datatypes/ByteArray.h>
-#include <i2pcpp/datatypes/RouterInfo.h>
-
 namespace i2pcpp {
+    class RouterInfo;
+
     /**
      * An utility wrapper for the sqlite3 functionality.
      */

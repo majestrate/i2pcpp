@@ -1,21 +1,22 @@
 #include "TunnelManager.h"
 
-#include <botan/auto_rng.h>
+#include "InboundTunnel.h"
+#include "OutboundTunnel.h"
+#include "Message.h"
+#include "Fragment.h"
+#include "FragmentHandler.h"
 
-#include <i2pcpp/util/make_unique.h>
+#include "../RouterContext.h"
 
 #include "../i2np/VariableTunnelBuild.h"
 #include "../i2np/VariableTunnelBuildReply.h"
 #include "../i2np/TunnelData.h"
 #include "../i2np/TunnelGateway.h"
 
-#include "../RouterContext.h"
+#include <i2pcpp/util/make_unique.h>
+#include <i2pcpp/datatypes/RouterInfo.h>
 
-#include "InboundTunnel.h"
-#include "OutboundTunnel.h"
-#include "Message.h"
-#include "Fragment.h"
-#include "FragmentHandler.h"
+#include <botan/auto_rng.h>
 
 namespace i2pcpp {
     TunnelManager::TunnelManager(boost::asio::io_service &ios, RouterContext &ctx) :

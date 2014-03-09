@@ -1,9 +1,9 @@
 #ifndef INBOUNDTUNNEL_H
 #define INBOUNDTUNNEL_H
 
-#include <vector>
-
 #include "Tunnel.h"
+
+#include <vector>
 
 namespace i2pcpp {
     class InboundTunnel : public Tunnel {

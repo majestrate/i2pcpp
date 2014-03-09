@@ -4,11 +4,13 @@
  */
 #include "SearchManager.h"
 
+#include "../RouterContext.h"
+
 #include "../i2np/DatabaseLookup.h"
+
 #include <i2pcpp/util/Base64.h>
 #include <i2pcpp/util/make_unique.h>
-
-#include "../RouterContext.h"
+#include <i2pcpp/datatypes/RouterInfo.h>
 
 namespace i2pcpp {
     namespace DHT {

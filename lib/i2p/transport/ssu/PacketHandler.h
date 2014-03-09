@@ -5,17 +5,19 @@
 #ifndef SSUPACKETHANDLER_H
 #define SSUPACKETHANDLER_H
 
+#include "InboundMessageFragments.h"
+
 #include "../../Log.h"
 
-#include "Packet.h"
-#include "PeerState.h"
-#include "EstablishmentState.h"
-#include "InboundMessageFragments.h"
+#include <i2pcpp/datatypes/SessionKey.h>
 
 namespace i2pcpp {
     class UDPTransport;
 
     namespace SSU {
+        class PeerState;
+        class Packet; typedef std::shared_ptr<Packet> PacketPtr;
+        class EstablishmentState; typedef std::shared_ptr<EstablishmentState> EstablishmentStatePtr;
 
         /**
          * Handles received i2pcpp::SSU::Packet objects.

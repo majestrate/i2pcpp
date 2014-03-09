@@ -5,9 +5,9 @@
 #ifndef SSUACKNOWLEDGEMENTMANAGER_H
 #define SSUACKNOWLEDGEMENTMANAGER_H
 
-#include <boost/asio.hpp>
-
 #include "../../Log.h"
+
+#include <boost/asio.hpp>
 
 namespace i2pcpp {
     class UDPTransport;

@@ -5,19 +5,21 @@
 #ifndef ESTABLISHMENTMANAGER_H
 #define ESTABLISHMENTMANAGER_H
 
-#include <unordered_map>
-#include <queue>
+#include "../../Log.h"
+
+#include <i2pcpp/datatypes/Endpoint.h>
+#include <i2pcpp/datatypes/RouterIdentity.h>
 
 #include <botan/dsa.h>
 
-#include "../../Log.h"
-
-#include "EstablishmentState.h"
+#include <unordered_map>
 
 namespace i2pcpp {
     class UDPTransport;
+    class Endpoint;
 
     namespace SSU {
+        class EstablishmentState; typedef std::shared_ptr<EstablishmentState> EstablishmentStatePtr;
 
         /**
          * Manages session establishment.

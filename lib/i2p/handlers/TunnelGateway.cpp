@@ -4,9 +4,9 @@
  */
 #include "TunnelGateway.h"
 
-#include "../i2np/TunnelGateway.h"
-
 #include "../RouterContext.h"
+
+#include "../i2np/TunnelGateway.h"
 
 namespace i2pcpp {
     namespace Handlers {

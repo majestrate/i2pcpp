@@ -5,14 +5,14 @@
 #ifndef LOG_H
 #define LOG_H
 
+#include "StatsBackend.h"
+
 #include <boost/log/sources/severity_channel_logger.hpp>
 #include <boost/log/sources/record_ostream.hpp>
 #include <boost/log/sinks/sync_frontend.hpp>
 #include <boost/log/attributes/constant.hpp>
 #include <boost/log/attributes/scoped_attribute.hpp>
 #include <boost/log/utility/manipulators/add_value.hpp>
-
-#include "StatsBackend.h"
 
 #define I2P_LOG(logger, sev) BOOST_LOG_SEV(logger, sev)
 #define I2P_LOG_TAG(logger, name, value) logger.add_attribute(name, boost::log::attributes::make_constant(value))

@@ -5,13 +5,12 @@
 #ifndef I2NPDATABASESTORE_H
 #define I2NPDATABASESTORE_H
 
-#include <array>
+#include "Message.h"
 
 #include <i2pcpp/datatypes/RouterHash.h>
-#include <i2pcpp/datatypes/StaticByteArray.h>
 #include <i2pcpp/datatypes/ByteArray.h>
 
-#include "Message.h"
+#include <array>
 
 namespace i2pcpp {
     namespace I2NP {

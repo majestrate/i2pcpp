@@ -4,8 +4,8 @@
  */
 #include "Log.h"
 
-#include <sstream>
-#include <locale>
+#include <i2pcpp/datatypes/Endpoint.h>
+#include <i2pcpp/datatypes/RouterHash.h>
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/posix_time/posix_time_io.hpp>
@@ -23,8 +23,8 @@
 #include <boost/log/utility/manipulators/add_value.hpp>
 #include <boost/log/support/exception.hpp>
 
-#include <i2pcpp/datatypes/Endpoint.h>
-#include <i2pcpp/datatypes/RouterHash.h>
+#include <sstream>
+#include <locale>
 
 namespace keywords = boost::log::keywords;
 namespace attrs = boost::log::attributes;

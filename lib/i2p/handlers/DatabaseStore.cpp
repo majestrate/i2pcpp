@@ -4,12 +4,14 @@
  */
 #include "DatabaseStore.h"
 
-#include <botan/pipe.h>
+#include "../RouterContext.h"
 
-#include <i2pcpp/util/gzip.h>
 #include "../i2np/DatabaseStore.h"
 
-#include "../RouterContext.h"
+#include <i2pcpp/util/gzip.h>
+#include <i2pcpp/datatypes/RouterInfo.h>
+
+#include <botan/pipe.h>
 
 namespace i2pcpp {
     namespace Handlers {

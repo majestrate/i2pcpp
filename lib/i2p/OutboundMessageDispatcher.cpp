@@ -6,6 +6,10 @@
 
 #include "RouterContext.h"
 
+#include "i2np/Message.h"
+
+#include <i2pcpp/datatypes/RouterInfo.h>
+
 namespace i2pcpp {
     OutboundMessageDispatcher::OutboundMessageDispatcher(RouterContext &ctx) :
         m_ctx(ctx),

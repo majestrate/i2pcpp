@@ -4,9 +4,11 @@
  */
 #include "PeerManager.h"
 
+#include "RouterContext.h"
+
 #include "i2np/DeliveryStatus.h"
 
-#include "RouterContext.h"
+#include <i2pcpp/datatypes/RouterInfo.h>
 
 namespace i2pcpp {
     PeerManager::PeerManager(boost::asio::io_service &ios, RouterContext &ctx) :

@@ -1,13 +1,13 @@
 #ifndef TUNNEL_H
 #define TUNNEL_H
 
-#include <list>
-
-#include <boost/asio.hpp>
+#include "../Log.h"
 
 #include <i2pcpp/datatypes/BuildRequestRecord.h>
 
-#include "../Log.h"
+#include <boost/asio.hpp>
+
+#include <list>
 
 namespace i2pcpp {
     class Tunnel {

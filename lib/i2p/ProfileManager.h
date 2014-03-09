@@ -5,10 +5,9 @@
 #ifndef PROFILEMANAGER_H
 #define PROFILEMANAGER_H
 
-#include <i2pcpp/datatypes/RouterInfo.h>
-
 namespace i2pcpp {
     class RouterContext;
+    class RouterInfo;
 
     /**
      * Manages peer profiles. Allows random peer selection.

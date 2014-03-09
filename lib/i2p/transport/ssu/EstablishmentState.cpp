@@ -4,10 +4,13 @@
  */
 #include "EstablishmentState.h"
 
+#include <i2pcpp/util/I2PDH.h>
+#include <i2pcpp/datatypes/RouterIdentity.h>
+
 #include <botan/auto_rng.h>
 #include <botan/pk_filts.h>
-
-#include <i2pcpp/util/I2PDH.h>
+#include <botan/dsa.h>
+#include <botan/dh.h>
 
 namespace i2pcpp {
     namespace SSU {

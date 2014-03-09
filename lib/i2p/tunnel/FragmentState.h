@@ -1,12 +1,12 @@
 #ifndef FRAGMENTSTATE_H
 #define FRAGMENTSTATE_H
 
-#include <list>
+#include "FirstFragment.h"
+#include "FollowOnFragment.h"
 
 #include <boost/asio.hpp>
 
-#include "FirstFragment.h"
-#include "FollowOnFragment.h"
+#include <list>
 
 namespace i2pcpp {
     class FragmentState {

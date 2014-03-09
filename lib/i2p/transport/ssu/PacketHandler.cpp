@@ -4,6 +4,8 @@
  */
 #include "PacketHandler.h"
 
+#include "EstablishmentState.h"
+
 #include "../UDPTransport.h"
 
 namespace i2pcpp {

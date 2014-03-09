@@ -1,5 +1,7 @@
 #include "OutboundTunnel.h"
 
+#include <i2pcpp/datatypes/RouterIdentity.h>
+
 namespace i2pcpp {
     OutboundTunnel::OutboundTunnel(std::vector<RouterIdentity> const &hops, RouterHash const &replyHash, uint32_t const replyTunnelId)
     {

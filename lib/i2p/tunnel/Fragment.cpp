@@ -1,11 +1,11 @@
 #include "Fragment.h"
 
-#include <botan/auto_rng.h>
+#include "FirstFragment.h"
+#include "FollowOnFragment.h"
 
 #include <i2pcpp/util/make_unique.h>
 
-#include "FirstFragment.h"
-#include "FollowOnFragment.h"
+#include <botan/auto_rng.h>
 
 namespace i2pcpp {
     void Fragment::setMsgId(uint32_t id)

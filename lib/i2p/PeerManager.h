@@ -5,13 +5,13 @@
 #ifndef PEERMANAGER_H
 #define PEERMANAGER_H
 
-#include <thread>
-
-#include <boost/asio.hpp>
+#include "Log.h"
 
 #include <i2pcpp/datatypes/RouterHash.h>
 
-#include "Log.h"
+#include <boost/asio.hpp>
+
+#include <thread>
 
 namespace i2pcpp {
     class RouterContext;

@@ -5,15 +5,15 @@
 #ifndef ROUTER_H
 #define ROUTER_H
 
+#include "Log.h"
+#include "RouterContext.h"
+
+#include <i2pcpp/datatypes/ByteArray.h>
+
 #include <boost/asio.hpp>
 
 #include <string>
 #include <thread>
-
-#include <i2pcpp/datatypes/ByteArray.h>
-
-#include "Log.h"
-#include "RouterContext.h"
 
 namespace i2pcpp {
 

@@ -5,15 +5,9 @@
 #ifndef UDPTRANSPORT_H
 #define UDPTRANSPORT_H
 
-#include <thread>
-
-#include <boost/asio.hpp>
-
-#include <i2pcpp/datatypes/RouterIdentity.h>
+#include "Transport.h"
 
 #include "../Log.h"
-
-#include "Transport.h"
 
 #include "ssu/Packet.h"
 #include "ssu/PacketHandler.h"
@@ -21,6 +15,12 @@
 #include "ssu/EstablishmentManager.h"
 #include "ssu/AcknowledgementManager.h"
 #include "ssu/OutboundMessageFragments.h"
+
+#include <i2pcpp/datatypes/RouterIdentity.h>
+
+#include <boost/asio.hpp>
+
+#include <thread>
 
 namespace i2pcpp {
 

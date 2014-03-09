@@ -4,17 +4,21 @@
  */
 #include "InboundMessageDispatcher.h"
 
-#include <iomanip>
+#include "RouterContext.h"
 
-#include <boost/bind.hpp>
-
-#include <botan/auto_rng.h>
-
-#include <i2pcpp/util/gzip.h>
 #include "i2np/DeliveryStatus.h"
 #include "i2np/DatabaseStore.h"
 
-#include "RouterContext.h"
+#include <i2pcpp/util/gzip.h>
+#include <i2pcpp/datatypes/RouterInfo.h>
+
+#include <boost/bind.hpp>
+#include <boost/asio.hpp>
+
+#include <botan/auto_rng.h>
+#include <botan/pipe.h>
+
+#include <iomanip>
 
 namespace i2pcpp {
     InboundMessageDispatcher::InboundMessageDispatcher(boost::asio::io_service &ios, RouterContext &ctx) :

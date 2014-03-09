@@ -5,17 +5,14 @@
 #ifndef SSUPEERSTATELIST_H
 #define SSUPEERSTATELIST_H
 
-#include <unordered_map>
-#include <mutex>
-
-#include <boost/multi_index_container.hpp>
-#include <boost/multi_index/hashed_index.hpp>
-#include <boost/multi_index/mem_fun.hpp>
+#include "PeerState.h"
 
 #include <i2pcpp/datatypes/Endpoint.h>
 #include <i2pcpp/datatypes/RouterHash.h>
 
-#include "PeerState.h"
+#include <boost/multi_index_container.hpp>
+#include <boost/multi_index/hashed_index.hpp>
+#include <boost/multi_index/mem_fun.hpp>
 
 namespace bmi = boost::multi_index;
 

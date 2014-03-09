@@ -5,22 +5,21 @@
 #ifndef DHTSEARCHMANAGER_H
 #define DHTSEARCHMANAGER_H
 
-#include <mutex>
-#include <set>
+#include "Kademlia.h"
+#include "SearchState.h"
+
+#include "../Log.h"
+
+#include <i2pcpp/datatypes/RouterHash.h>
 
 #include <boost/asio.hpp>
-
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/member.hpp>
 #include <boost/signals2.hpp>
 
-#include <i2pcpp/datatypes/RouterHash.h>
-
-#include "../Log.h"
-
-#include "Kademlia.h"
-#include "SearchState.h"
+#include <mutex>
+#include <set>
 
 namespace bmi = boost::multi_index;
 

@@ -5,11 +5,11 @@
 #ifndef I2NPVARIABLETUNNELBUILD_H
 #define I2NPVARIABLETUNNELBUILD_H
 
-#include <list>
+#include "Message.h"
 
 #include <i2pcpp/datatypes/BuildRecord.h>
 
-#include "Message.h"
+#include <list>
 
 namespace i2pcpp {
     namespace I2NP {

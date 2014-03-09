@@ -4,10 +4,6 @@
  */
 #include "Message.h"
 
-#include <botan/pipe.h>
-#include <botan/lookup.h>
-#include <botan/auto_rng.h>
-
 #include "DeliveryStatus.h"
 #include "DatabaseStore.h"
 #include "DatabaseSearchReply.h"
@@ -17,6 +13,10 @@
 #include "TunnelData.h"
 #include "TunnelGateway.h"
 #include "Garlic.h"
+
+#include <botan/pipe.h>
+#include <botan/lookup.h>
+#include <botan/auto_rng.h>
 
 namespace i2pcpp {
     namespace I2NP {

@@ -5,13 +5,13 @@
 #ifndef HANDLERSMESSAGE_H
 #define HANDLERSMESSAGE_H
 
-#include <memory>
-
-#include "../i2np/Message.h"
-#include <i2pcpp/datatypes/RouterHash.h>
 #include "../Log.h"
 
+#include <i2pcpp/datatypes/RouterHash.h>
+
 namespace i2pcpp {
+    namespace I2NP { class Message; typedef std::shared_ptr<Message> MessagePtr; }
+
     class RouterContext;
 
     namespace Handlers {

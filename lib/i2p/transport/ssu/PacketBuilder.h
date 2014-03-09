@@ -5,13 +5,18 @@
 #ifndef SSUPACKETBUILDER_H
 #define SSUPACKETBUILDER_H
 
-#include "Packet.h"
-#include "EstablishmentState.h"
+#include <i2pcpp/datatypes/ByteArray.h>
 
-#include <i2pcpp/datatypes/Endpoint.h>
+#include <vector>
+#include <map>
 
 namespace i2pcpp {
+    class Endpoint;
+
     namespace SSU {
+        class Packet; typedef std::shared_ptr<Packet> PacketPtr;
+        class EstablishmentState; typedef std::shared_ptr<EstablishmentState> EstablishmentStatePtr;
+
         typedef std::vector<uint32_t> CompleteAckList;
         typedef std::map<uint32_t, std::vector<bool>> PartialAckList;
 

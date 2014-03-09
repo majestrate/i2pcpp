@@ -1,12 +1,12 @@
 #ifndef FRAGMENT_H
 #define FRAGMENT_H
 
-#include <list>
-#include <memory>
+#include "../i2np/Message.h"
 
 #include <i2pcpp/datatypes/ByteArray.h>
 
-#include "../i2np/Message.h"
+#include <list>
+#include <memory>
 
 namespace i2pcpp {
     class Fragment {

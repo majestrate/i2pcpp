@@ -5,10 +5,6 @@
 #ifndef SSUINBOUNDMESSAGESTATE_H
 #define SSUINBOUNDMESSAGESTATE_H
 
-#include <memory>
-#include <map>
-#include <list>
-
 #include <i2pcpp/datatypes/RouterHash.h>
 
 namespace i2pcpp {

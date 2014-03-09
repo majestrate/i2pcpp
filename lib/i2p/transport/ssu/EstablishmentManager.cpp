@@ -4,13 +4,14 @@
  */
 #include "EstablishmentManager.h"
 
-#include <boost/bind.hpp>
-
-#include <i2pcpp/util/make_unique.h>
+#include "EstablishmentState.h"
+#include "PacketBuilder.h"
 
 #include "../UDPTransport.h"
 
-#include "PacketBuilder.h"
+#include <i2pcpp/util/make_unique.h>
+
+#include <boost/bind.hpp>
 
 namespace i2pcpp {
     namespace SSU {

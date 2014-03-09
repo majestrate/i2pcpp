@@ -4,11 +4,13 @@
  */
 #include "UDPTransport.h"
 
-#include <boost/exception/all.hpp>
-
 #include "ssu/PeerState.h"
 #include "ssu/OutboundMessageState.h"
 #include "ssu/PacketBuilder.h"
+
+#include <i2pcpp/datatypes/RouterInfo.h>
+
+#include <boost/exception/all.hpp>
 
 namespace i2pcpp {
     UDPTransport::UDPTransport(Botan::DSA_PrivateKey const &privKey, RouterIdentity const &ri) :

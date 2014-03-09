@@ -5,11 +5,11 @@
 #ifndef I2NPDATABASESEARCHREPLY_H
 #define I2NPDATABASESEARCHREPLY_H
 
-#include <list>
+#include "Message.h"
 
 #include <i2pcpp/datatypes/RouterHash.h>
 
-#include "Message.h"
+#include <list>
 
 namespace i2pcpp {
     namespace I2NP {

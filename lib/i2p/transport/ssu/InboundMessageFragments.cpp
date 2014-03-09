@@ -4,18 +4,18 @@
  */
 #include "InboundMessageFragments.h"
 
-#include <string>
-#include <bitset>
-#include <iomanip>
+#include "InboundMessageState.h"
+
+#include "../UDPTransport.h"
+
+#include <i2pcpp/util/make_unique.h>
 
 #include <botan/pipe.h>
 #include <botan/filters.h>
 
-#include <i2pcpp/util/make_unique.h>
-
-#include "../UDPTransport.h"
-
-#include "InboundMessageState.h"
+#include <string>
+#include <bitset>
+#include <iomanip>
 
 namespace i2pcpp {
     namespace SSU {

@@ -5,13 +5,11 @@
 #ifndef SSUPACKET_H
 #define SSUPACKET_H
 
-#include <memory>
-
-#include <botan/lookup.h>
-
 #include <i2pcpp/datatypes/Endpoint.h>
 #include <i2pcpp/datatypes/ByteArray.h>
 #include <i2pcpp/datatypes/SessionKey.h>
+
+#include <botan/lookup.h> // Get rid of me?
 
 namespace i2pcpp {
     namespace SSU {

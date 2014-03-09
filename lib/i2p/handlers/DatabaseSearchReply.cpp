@@ -4,10 +4,10 @@
  */
 #include "DatabaseSearchReply.h"
 
+#include "../RouterContext.h"
+
 #include "../i2np/DatabaseSearchReply.h"
 #include "../i2np/DatabaseLookup.h"
-
-#include "../RouterContext.h"
 
 namespace i2pcpp {
     namespace Handlers {

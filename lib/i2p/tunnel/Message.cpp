@@ -1,13 +1,13 @@
 #include "Message.h"
 
-#include <stdexcept>
-#include <cmath>
+#include <i2pcpp/util/make_unique.h>
 
 #include <botan/pipe.h>
 #include <botan/lookup.h>
 #include <botan/auto_rng.h>
 
-#include <i2pcpp/util/make_unique.h>
+#include <stdexcept>
+#include <cmath>
 
 namespace i2pcpp {
     Message::Message(StaticByteArray<1024> const &data)

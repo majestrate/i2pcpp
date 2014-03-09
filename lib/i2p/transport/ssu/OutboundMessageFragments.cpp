@@ -4,9 +4,9 @@
  */
 #include "OutboundMessageFragments.h"
 
-#include <i2pcpp/util/make_unique.h>
-
 #include "../UDPTransport.h"
+
+#include <i2pcpp/util/make_unique.h>
 
 namespace i2pcpp {
     namespace SSU {

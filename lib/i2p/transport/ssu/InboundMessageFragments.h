@@ -5,19 +5,17 @@
 #ifndef SSUINBOUNDMESSAGEFRAGMENTS_H
 #define SSUINBOUNDMESSAGEFRAGMENTS_H
 
-#include <mutex>
+#include "../../Log.h"
 
+#include "InboundMessageState.h"
+
+#include <i2pcpp/datatypes/ByteArray.h>
+
+#include <boost/asio.hpp>
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/member.hpp>
-
-#include "InboundMessageState.h"
-#include "PeerState.h"
-
-#include <i2pcpp/datatypes/ByteArray.h>
-
-#include "../../Log.h"
 
 namespace bmi = boost::multi_index;
 

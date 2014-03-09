@@ -4,15 +4,9 @@
  */
 #include "AcknowledgementManager.h"
 
-#include <boost/bind.hpp>
-
 #include "../UDPTransport.h"
 
-#include "Packet.h"
-#include "PacketBuilder.h"
-#include "PeerState.h"
-#include "InboundMessageState.h"
-#include "OutboundMessageState.h"
+#include <boost/bind.hpp>
 
 namespace i2pcpp {
     namespace SSU {

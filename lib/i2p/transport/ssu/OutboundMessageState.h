@@ -5,14 +5,14 @@
 #ifndef SSUOUTBOUNDMESSAGESTATE_H
 #define SSUOUTBOUNDMESSAGESTATE_H
 
-#include <vector>
-#include <memory>
+#include "PacketBuilder.h"
 
 #include <boost/dynamic_bitset.hpp>
+#include <boost/asio.hpp>
 
 #include <i2pcpp/datatypes/ByteArray.h>
 
-#include "PacketBuilder.h"
+#include <vector>
 
 namespace i2pcpp {
     namespace SSU {

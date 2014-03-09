@@ -5,13 +5,12 @@
 #ifndef TRANSPORT_H
 #define TRANSPORT_H
 
+#include <i2pcpp/datatypes/RouterHash.h>
+
 #include <boost/signals2.hpp>
 
-#include <i2pcpp/datatypes/Endpoint.h>
-#include <i2pcpp/datatypes/RouterHash.h>
-#include <i2pcpp/datatypes/RouterInfo.h>
-
 namespace i2pcpp {
+    class RouterInfo;
 
     /**
      * Provides an abstract base class for different transport types.

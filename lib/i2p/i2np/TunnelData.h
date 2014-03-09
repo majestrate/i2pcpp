@@ -5,9 +5,9 @@
 #ifndef I2NPTUNNELDATA_H
 #define I2NPTUNNELDATA_H
 
-#include <i2pcpp/datatypes/StaticByteArray.h>
-
 #include "Message.h"
+
+#include <i2pcpp/datatypes/StaticByteArray.h>
 
 namespace i2pcpp {
     namespace I2NP {

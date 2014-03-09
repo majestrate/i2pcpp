@@ -5,8 +5,6 @@
 #ifndef SSUPEERSTATE_H
 #define SSUPEERSTATE_H
 
-#include <boost/asio.hpp>
-
 #include <i2pcpp/datatypes/RouterHash.h>
 #include <i2pcpp/datatypes/Endpoint.h>
 #include <i2pcpp/datatypes/SessionKey.h>

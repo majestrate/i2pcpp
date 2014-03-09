@@ -5,17 +5,19 @@
 #ifndef OUTBOUNDMESSAGEDISPATCHER_H
 #define OUTBOUNDMESSAGEDISPATCHER_H
 
-#include <unordered_map>
-#include <mutex>
+#include "Log.h"
 
-#include <i2pcpp/datatypes/RouterHash.h>
-#include "i2np/Message.h"
 #include "transport/Transport.h"
 #include "dht/Kademlia.h"
 
-#include "Log.h"
+#include <i2pcpp/datatypes/RouterHash.h>
+
+#include <unordered_map>
+#include <mutex>
 
 namespace i2pcpp {
+    namespace I2NP { class Message; typedef std::shared_ptr<Message> MessagePtr; }
+
     class RouterContext;
 
     /**

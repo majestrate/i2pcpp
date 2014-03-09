@@ -4,6 +4,12 @@
  */
 #include "RouterContext.h"
 
+#include <i2pcpp/datatypes/RouterIdentity.h>
+
+#include <boost/asio.hpp>
+
+#include <botan/elgamal.h>
+#include <botan/dsa.h>
 #include <botan/auto_rng.h>
 
 namespace i2pcpp {

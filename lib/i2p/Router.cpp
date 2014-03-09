@@ -4,11 +4,12 @@
  */
 #include "Router.h"
 
-#include <botan/botan.h>
+#include "transport/UDPTransport.h"
 
 #include <i2pcpp/util/make_unique.h>
+#include <i2pcpp/datatypes/RouterInfo.h>
 
-#include "transport/UDPTransport.h"
+#include <botan/botan.h>
 
 namespace i2pcpp {
     Router::Router(std::string const &dbFile) :

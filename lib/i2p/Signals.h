@@ -5,11 +5,12 @@
 #ifndef SIGNALS_H
 #define SIGNALS_H
 
-#include <boost/asio.hpp>
-#include <boost/signals2.hpp>
-
 #include <i2pcpp/datatypes/BuildRecord.h>
 #include <i2pcpp/datatypes/RouterHash.h>
+
+#include <boost/signals2.hpp>
+
+namespace boost { namespace asio { class io_service; } }
 
 namespace i2pcpp {
     class Signals {

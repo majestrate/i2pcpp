@@ -1,9 +1,9 @@
 #ifndef OUTBOUNDTUNNEL_H
 #define OUTBOUNDTUNNEL_H
 
-#include <vector>
-
 #include "Tunnel.h"
+
+#include <vector>
 
 namespace i2pcpp {
     class OutboundTunnel : public Tunnel {

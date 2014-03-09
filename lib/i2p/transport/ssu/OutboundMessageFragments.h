@@ -5,13 +5,14 @@
 #ifndef SSUOUTBOUNDMESSAGEFRAGMENTS_H
 #define SSUOUTBOUNDMESSAGEFRAGMENTS_H
 
-#include "PeerState.h"
 #include "OutboundMessageState.h"
 
 namespace i2pcpp {
     class UDPTransport;
 
     namespace SSU {
+        class PeerState;
+
         /**
          * Manages (fragments) of messages sent by this router.
          */

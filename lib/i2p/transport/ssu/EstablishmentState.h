@@ -5,18 +5,16 @@
 #ifndef SSUESTABLISHMENTSTATE_H
 #define SSUESTABLISHMENTSTATE_H
 
-#include <memory>
-#include <mutex>
-
-#include <botan/dh.h>
-#include <botan/dsa.h>
-#include <botan/botan.h>
-
 #include <i2pcpp/datatypes/Endpoint.h>
 #include <i2pcpp/datatypes/SessionKey.h>
-#include <i2pcpp/datatypes/RouterIdentity.h>
+
+#include <botan/botan.h>
+
+namespace Botan { class DH_PrivateKey; class DSA_PrivateKey; }
 
 namespace i2pcpp {
+    class RouterIdentity;
+
     namespace SSU {
 
         /**

@@ -1,10 +1,10 @@
 #ifndef STATSBACKEND_H
 #define STATSBACKEND_H
 
-#include <mutex>
-
 #include <boost/log/sinks/basic_sink_backend.hpp>
 #include <boost/log/sinks/frontend_requirements.hpp>
+
+#include <mutex>
 
 namespace sinks = boost::log::sinks;
 

@@ -3,6 +3,7 @@
  * @brief Implements TunnelGateway.h
  */
 #include "TunnelGateway.h"
+
 #include <stdexcept>
 
 namespace i2pcpp {

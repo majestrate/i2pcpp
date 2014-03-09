@@ -5,9 +5,7 @@
 #ifndef INBOUNDMESSAGEDISPATCHER_H
 #define INBOUNDMESSAGEDISPATCHER_H
 
-#include <boost/asio.hpp>
-
-#include <i2pcpp/datatypes/RouterHash.h>
+#include "Log.h"
 
 #include "handlers/DeliveryStatus.h"
 #include "handlers/DatabaseStore.h"
@@ -17,7 +15,9 @@
 #include "handlers/TunnelData.h"
 #include "handlers/TunnelGateway.h"
 
-#include "Log.h"
+#include <i2pcpp/datatypes/RouterHash.h>
+
+namespace boost { namespace asio { class io_service; } }
 
 namespace i2pcpp {
     /**

@@ -5,9 +5,9 @@
 #ifndef I2NPTUNNELGATEWAY_H
 #define I2NPTUNNELGATEWAY_H
 
-#include <list>
-
 #include "Message.h"
+
+#include <list>
 
 namespace i2pcpp {
     namespace I2NP {

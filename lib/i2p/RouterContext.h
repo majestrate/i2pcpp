@@ -5,16 +5,6 @@
 #ifndef ROUTERCONTEXT_H
 #define ROUTERCONTEXT_H
 
-#include <boost/asio.hpp>
-
-#include <botan/elgamal.h>
-#include <botan/dsa.h>
-
-#include <i2pcpp/datatypes/RouterIdentity.h>
-#include "tunnel/TunnelManager.h"
-#include "dht/Kademlia.h"
-#include "dht/SearchManager.h"
-
 #include "Database.h"
 #include "InboundMessageDispatcher.h"
 #include "OutboundMessageDispatcher.h"
@@ -23,7 +13,15 @@
 #include "PeerManager.h"
 #include "Log.h"
 
+#include "tunnel/TunnelManager.h"
+#include "dht/Kademlia.h"
+#include "dht/SearchManager.h"
+
+namespace Botan { class ElGamal_PrivateKey; class DSA_PrivateKey; }
+
 namespace i2pcpp {
+    class RouterIdentity;
+
     /**
      * Stores the context in which a given i2pcpp::Router runs.
      * Mainly used for storage of manager objects.

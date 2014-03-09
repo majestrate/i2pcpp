@@ -1,13 +1,11 @@
 #ifndef FRAGMENTHANDLER_H
 #define FRAGMENTHANDLER_H
 
-#include <unordered_map>
-#include <list>
-#include <mutex>
-
 #include "../Log.h"
 
 #include "FragmentState.h"
+
+#include <unordered_map>
 
 namespace i2pcpp {
     class RouterContext;
