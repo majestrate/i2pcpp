@@ -11,7 +11,6 @@
 #include <thread>
 
 #include <i2pcpp/datatypes/ByteArray.h>
-#include "control/Server.h"
 
 #include "Log.h"
 #include "RouterContext.h"
@@ -86,8 +85,6 @@ namespace i2pcpp {
             boost::asio::io_service m_ios;
             boost::asio::io_service::work m_work;
             std::thread m_serviceThread;
-
-            std::unique_ptr<Control::Server> m_controlServer = nullptr;
 
             RouterContext m_ctx;
 

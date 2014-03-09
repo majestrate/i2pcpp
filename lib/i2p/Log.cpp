@@ -51,45 +51,6 @@ namespace i2pcpp {
         return strm;
     }
 
-    void Log::initialize()
-    {
-        typedef sinks::synchronous_sink<sinks::text_ostream_backend> sink_t;
-
-        boost::shared_ptr<sinks::text_ostream_backend> backend = boost::make_shared<sinks::text_ostream_backend>();
-        backend->add_stream(boost::shared_ptr<std::ostream>(&std::clog, boost::empty_deleter()));
-
-        boost::shared_ptr<sink_t> sink(new sink_t(backend));
-        boost::log::core::get()->add_sink(sink);
-        sink->set_filter(expr::attr<severity_level>("Severity") >= debug);
-        sink->set_formatter(&Log::formatter);
-
-        boost::log::core::get()->add_global_attribute("Timestamp", attrs::local_clock());
-    }
-
-    void Log::logToFile(const std::string &file)
-    {
-        boost::log::core::get()->remove_all_sinks();
-
-        boost::shared_ptr<sinks::text_file_backend> backend = boost::make_shared<sinks::text_file_backend>(
-                keywords::file_name = file
-        );
-        backend->auto_flush(true);
-
-        typedef sinks::synchronous_sink<sinks::text_file_backend> sink_t;
-        boost::shared_ptr<sink_t> sink(new sink_t(backend));
-        boost::log::core::get()->add_sink(sink);
-
-        sink->set_filter(expr::attr<severity_level>("Severity") >= debug);
-        sink->set_formatter(&Log::formatter);
-    }
-
-    void Log::addControlServerSink(boost::shared_ptr<Control::LoggingBackend> backend)
-    {
-        typedef sinks::asynchronous_sink<Control::LoggingBackend> stats_sink_t;
-        boost::shared_ptr<stats_sink_t> statsSink(new stats_sink_t(backend));
-        boost::log::core::get()->add_sink(statsSink);
-    }
-
     void Log::formatter(boost::log::record_view const &rec, boost::log::formatting_ostream &s)
     {
         const boost::log::attribute_value_set& attrSet = rec.attribute_values();

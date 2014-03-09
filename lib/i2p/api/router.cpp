@@ -1,4 +1,4 @@
-#include <i2pcpp/router.hpp>
+#include <i2pcpp/router_c.h>
 
 #include <string>
 
@@ -10,7 +10,6 @@ using namespace i2pcpp;
 
 void i2p_init()
 {
-    Log::initialize();
     Botan::LibraryInitializer init("thread_safe=true");
 }
 

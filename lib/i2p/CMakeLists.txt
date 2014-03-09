@@ -8,9 +8,9 @@ set(i2pcpp_sources
     Router.cpp
     RouterContext.cpp
     Signals.cpp
+    StatsBackend.cpp
     Version.cpp
-    control/LoggingBackend.cpp
-    control/Server.cpp
+    api/router.cpp
     dht/Kademlia.cpp
     dht/SearchManager.cpp
     dht/SearchState.cpp
@@ -68,7 +68,7 @@ if("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
         COMMAND ${CMAKE_STRIP} -s ${i2p_LOCATION})
 endif("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
 
-add_library(i2p SHARED api/router.cpp ${i2pcpp_sources})
+add_library(i2p SHARED ${i2pcpp_sources})
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON) # Needed for build.h
 include_directories(${CMAKE_SOURCE_DIR}/include)
@@ -128,11 +128,3 @@ target_link_libraries(i2p util)
 
 # sqlite3cc library
 target_link_libraries(i2p sqlite3cc)
-
-# websocketpp
-add_definitions(-D_WEBSOCKETPP_CPP11_STL_)
-
-# i2pcpp binary
-add_executable(i2pd main.cpp)
-set_target_properties(i2pd PROPERTIES OUTPUT_NAME i2p)
-target_link_libraries(i2pd i2p)

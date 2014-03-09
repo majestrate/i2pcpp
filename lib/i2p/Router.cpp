@@ -22,11 +22,6 @@ namespace i2pcpp {
     {
         I2P_LOG(m_log, info) << "local router hash: " << m_ctx.getIdentity()->getHash();
 
-        if(m_ctx.getDatabase().getConfigValue("control_server") == "1") {
-            m_controlServer = std::make_unique<Control::Server>(Endpoint(m_ctx.getDatabase().getConfigValue("control_server_ip"), std::stoi(m_ctx.getDatabase().getConfigValue("control_server_port"))));
-            m_controlServer->run();
-        }
-
         m_serviceThread = std::thread([&](){
             while(1) {
                 try {
@@ -72,9 +67,6 @@ namespace i2pcpp {
 
     void Router::stop()
     {
-        if(m_controlServer)
-            m_controlServer->stop();
-
         m_ios.stop();
     }
 

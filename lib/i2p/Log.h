@@ -12,7 +12,7 @@
 #include <boost/log/attributes/scoped_attribute.hpp>
 #include <boost/log/utility/manipulators/add_value.hpp>
 
-#include "control/LoggingBackend.h"
+#include "StatsBackend.h"
 
 #define I2P_LOG(logger, sev) BOOST_LOG_SEV(logger, sev)
 #define I2P_LOG_TAG(logger, name, value) logger.add_attribute(name, boost::log::attributes::make_constant(value))
@@ -40,22 +40,6 @@ namespace i2pcpp {
     class Log {
         public:
             Log() = delete;
-
-            /**
-             * Initializes boost::log.
-             */
-            static void initialize();
-
-            /**
-             * Changes the logfile.
-             * @param file the name of the new logfile
-             */
-            static void logToFile(const std::string &file);
-
-            /**
-             * Adds an asynchronous sink to a given logging backend \a backend.
-             */
-            static void addControlServerSink(boost::shared_ptr<Control::LoggingBackend> backend);
 
             /**
              * Formats a message (given by a boost::log::record_view object \a rec)
