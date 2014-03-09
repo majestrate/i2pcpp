@@ -32,6 +32,12 @@ namespace i2pcpp {
             ~Router();
 
             /**
+             * Initializes various global states. Call this once and only once
+             * per application, regardless of how many routers you start.
+             */
+            static void initialize();
+
+            /**
              * Starts the i2pcpp::Router.
              * That is, runs the boost::asio I/O service, registers the handlers,
              *  binds the signals and creates an i2pcpp::UDPTransport object.

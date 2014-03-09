@@ -10,7 +10,7 @@ set(i2pcpp_sources
     Signals.cpp
     StatsBackend.cpp
     Version.cpp
-    api/router.cpp
+    api/router_c.cpp
     dht/Kademlia.cpp
     dht/SearchManager.cpp
     dht/SearchState.cpp

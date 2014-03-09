@@ -2,7 +2,7 @@
  * @file Router.cpp
  * @brief Implements Router.h
  */
-#include "Router.h"
+#include <i2pcpp/Router.h>
 
 #include "transport/UDPTransport.h"
 
@@ -15,14 +15,16 @@ namespace i2pcpp {
     Router::Router(std::string const &dbFile) :
         m_work(m_ios),
         m_ctx(dbFile, m_ios),
-        m_log(boost::log::keywords::channel = "R")
-    {
-        Botan::LibraryInitializer init("thread_safe=true");
-    }
+        m_log(boost::log::keywords::channel = "R") {}
 
     Router::~Router()
     {
         if(m_serviceThread.joinable()) m_serviceThread.join();
+    }
+
+    void Router::initialize()
+    {
+        Botan::LibraryInitializer init("thread_safe=true");
     }
 
     void Router::start()

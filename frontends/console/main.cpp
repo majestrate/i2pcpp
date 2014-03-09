@@ -2,21 +2,20 @@
  * @file main.cpp
  * @brief Contains the starting point, main.
  */
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <mutex>
-#include <condition_variable>
+#include <i2pcpp/Router.h>
+
+#include <i2pcpp/datatypes/RouterInfo.h>
 
 #include <boost/filesystem.hpp>
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/variables_map.hpp>
 #include <boost/program_options/parsers.hpp>
 
-#include <i2pcpp/datatypes/RouterInfo.h>
-
-/*#include "Router.h"
-#include "Version.h"*/
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <mutex>
+#include <condition_variable>
 
 static volatile bool quit = false;
 static std::condition_variable cv;
@@ -32,12 +31,8 @@ int main(int argc, char **argv)
     using namespace i2pcpp;
     using namespace std;
 
-    /*try {
+    try {
         string dbFile;
-
-        Log::initialize();
-        i2p_logger_mt lg(boost::log::keywords::channel = "M");
-        Botan::LibraryInitializer init("thread_safe=true");
 
         if(signal(SIGINT, &sighandler) == SIG_ERR) {
             cerr << "error setting up signal handler" << endl;
@@ -97,7 +92,7 @@ int main(int argc, char **argv)
             return EXIT_SUCCESS;
         }
 
-        Router r(dbFile);
+        /*Router r(dbFile);
 
         if(vm.count("log")) {
             // TODO Log rotation, etc
@@ -220,7 +215,7 @@ int main(int argc, char **argv)
 
         I2P_LOG(lg, debug) << "shutting down";
 
-        r.stop();
+        r.stop();*/
 
         return EXIT_SUCCESS;
     } catch(boost::program_options::error &e) {
@@ -231,5 +226,5 @@ int main(int argc, char **argv)
         cerr << "error: " << e.what() << endl;
 
         return EXIT_FAILURE;
-    }*/
+    }
 }

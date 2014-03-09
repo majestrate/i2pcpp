@@ -32,7 +32,7 @@ find_package(Botan REQUIRED)
 add_subdirectory(lib)
 
 # frontends
-#add_subdirectory(frontends)
+add_subdirectory(frontends)
 
 # tests
 if(NOT DEFINED I2PCPP_SKIP_TESTS)

@@ -1,6 +1,5 @@
 #include <i2pcpp/router_c.h>
-
-#include "Router.h"
+#include <i2pcpp/Router.h>
 
 #include <botan/botan.h>
 
