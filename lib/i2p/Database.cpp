@@ -4,11 +4,15 @@
  */
 #include "Database.h"
 
+#include "statement_guard.h"
+
 #include <i2pcpp/util/Base64.h>
 #include <i2pcpp/util/I2PDH.h>
 #include <i2pcpp/util/make_unique.h>
 
 #include <i2pcpp/datatypes/RouterInfo.h>
+
+#include <sqlite3cc.h>
 
 #include <botan/auto_rng.h>
 #include <botan/elgamal.h>
@@ -102,7 +106,7 @@ namespace i2pcpp {
     std::string Database::getConfigValue(std::string const &name)
     {
         auto q = Database::queries["get_config"];
-        Database::statement_guard sg(q, name);
+        statement_guard sg(q, name);
 
         sqlite::row r = q->step();
         if(!r)
@@ -115,14 +119,14 @@ namespace i2pcpp {
 
     void Database::setConfigValue(std::string const &name, std::string const &value)
     {
-        Database::statement_guard sg(Database::commands["set_config"], name, value, sqlite::exec);
+        statement_guard sg(Database::commands["set_config"], name, value, sqlite::exec);
     }
 
     RouterHash Database::getRandomRouter()
     {
         // SELECT router_id FROM router_options WHERE router_options.name='caps' AND router_options.value LIKE '%f%' ORDER BY RANDOM() LIMIT 1;
         auto q = Database::queries["get_random_router"];
-        Database::statement_guard sg(q);
+        statement_guard sg(q);
 
         sqlite::row r = q->step();
         if(!r)
@@ -136,7 +140,7 @@ namespace i2pcpp {
     bool Database::routerExists(RouterHash const &routerHash)
     {
         auto q = Database::queries["router_exists"];
-        Database::statement_guard sg(q, Base64::encode(routerHash));
+        statement_guard sg(q, Base64::encode(routerHash));
 
         bool exists;
         q->step() >> exists;
@@ -154,7 +158,7 @@ namespace i2pcpp {
 
         // *** First query
         auto q1 = Database::queries["get_router"];
-        Database::statement_guard sg1(q1, routerHash);
+        statement_guard sg1(q1, routerHash);
 
         sqlite::row r1 = q1->step();
         if(!r1)
@@ -172,7 +176,7 @@ namespace i2pcpp {
 
         // *** Second query
         auto q2 = Database::queries["get_router_options"];
-        Database::statement_guard sg2(q2, routerHash);
+        statement_guard sg2(q2, routerHash);
 
         Mapping router_options;
         while(auto r2 = q2->step()) {
@@ -189,7 +193,7 @@ namespace i2pcpp {
 
         // *** Third query
         auto q3 = Database::queries["get_router_addresses"];
-        Database::statement_guard sg3(q3, routerHash);
+        statement_guard sg3(q3, routerHash);
 
         while(auto r3 = q3->step()) {
             int index, cost;
@@ -202,7 +206,7 @@ namespace i2pcpp {
 
             // *** Fourth query
             auto q4 = Database::queries["router_address_options"];
-            Database::statement_guard sg4(q4, routerHash, index);
+            statement_guard sg4(q4, routerHash, index);
 
             Mapping address_options;
             while(auto r4 = q4->step()) {
@@ -226,11 +230,11 @@ namespace i2pcpp {
     {
         sqlite::transaction_guard<> t(*m_conn);
 
-        Database::statement_guard sg1(Database::commands["delete_profile"], rh, sqlite::exec);
-        Database::statement_guard sg2(Database::commands["delete_router_address_options"], rh, sqlite::exec);
-        Database::statement_guard sg3(Database::commands["delete_router_addresses"], rh, sqlite::exec);
-        Database::statement_guard sg4(Database::commands["delete_router_options"], rh, sqlite::exec);
-        Database::statement_guard sg5(Database::commands["delete_router"], rh, sqlite::exec);
+        statement_guard sg1(Database::commands["delete_profile"], rh, sqlite::exec);
+        statement_guard sg2(Database::commands["delete_router_address_options"], rh, sqlite::exec);
+        statement_guard sg3(Database::commands["delete_router_addresses"], rh, sqlite::exec);
+        statement_guard sg4(Database::commands["delete_router_options"], rh, sqlite::exec);
+        statement_guard sg5(Database::commands["delete_router"], rh, sqlite::exec);
 
         t.commit();
     }
@@ -239,11 +243,11 @@ namespace i2pcpp {
     {
         sqlite::transaction_guard<> t(*m_conn);
 
-        Database::statement_guard sg1(Database::commands["truncate_profiles"], sqlite::exec);
-        Database::statement_guard sg2(Database::commands["truncate_router_address_options"], sqlite::exec);
-        Database::statement_guard sg3(Database::commands["truncate_router_addresses"], sqlite::exec);
-        Database::statement_guard sg4(Database::commands["truncate_router_options"], sqlite::exec);
-        Database::statement_guard sg5(Database::commands["truncate_router_options"], sqlite::exec);
+        statement_guard sg1(Database::commands["truncate_profiles"], sqlite::exec);
+        statement_guard sg2(Database::commands["truncate_router_address_options"], sqlite::exec);
+        statement_guard sg3(Database::commands["truncate_router_addresses"], sqlite::exec);
+        statement_guard sg4(Database::commands["truncate_router_options"], sqlite::exec);
+        statement_guard sg5(Database::commands["truncate_router_options"], sqlite::exec);
 
         t.commit();
     }
@@ -272,20 +276,20 @@ namespace i2pcpp {
         const ByteArray& pub    = info.getPublished().serialize();
         const ByteArray& sig    = info.getSignature();
 
-        Database::statement_guard sg1(Database::commands["insert_router"], rh, encKey, sigKey, cert, pub, sig, sqlite::exec);
+        statement_guard sg1(Database::commands["insert_router"], rh, encKey, sigKey, cert, pub, sig, sqlite::exec);
 
         int i = 0;
         for(auto& a: info) {
             std::string istr = std::to_string(i);
-            Database::statement_guard sg2(Database::commands["insert_router_address"], rh, istr, (int)a.getCost(), a.getExpiration().serialize(), a.getTransport(), sqlite::exec);
+            statement_guard sg2(Database::commands["insert_router_address"], rh, istr, (int)a.getCost(), a.getExpiration().serialize(), a.getTransport(), sqlite::exec);
 
             for(auto& o: a.getOptions())
-                Database::statement_guard sg3(Database::commands["insert_router_address_option"], rh, istr, o.first, o.second, sqlite::exec);
+                statement_guard sg3(Database::commands["insert_router_address_option"], rh, istr, o.first, o.second, sqlite::exec);
             i++;
         }
 
         for(auto& o: info.getOptions())
-            Database::statement_guard sg4(Database::commands["insert_router_option"], rh, o.first, o.second, sqlite::exec);
+            statement_guard sg4(Database::commands["insert_router_option"], rh, o.first, o.second, sqlite::exec);
 
         t.commit();
     }

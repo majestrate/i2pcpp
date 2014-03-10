@@ -16,6 +16,7 @@ include_directories(BEFORE sqlite3cc ${CMAKE_SOURCE_DIR}/include)
 
 # Sqlite3
 include_directories(BEFORE sqlite3cc ${SQLITE3_INCLUDE_DIRS})
+target_link_libraries(sqlite3cc "${SQLITE3_LIBRARIES}")
 
 # Boost
 include_directories(${Boost_INCLUDE_DIRS})

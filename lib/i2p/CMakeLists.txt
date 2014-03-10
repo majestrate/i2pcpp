@@ -97,16 +97,10 @@ target_link_libraries(i2p "${CMAKE_CURRENT_BINARY_DIR}/schema.sql.o")
 
 # --- EXTERNAL LIBRARIES ---
 
-# pthreads
-target_link_libraries(i2p "${CMAKE_THREAD_LIBS_INIT}")
-
-# zlib
-include_directories(BEFORE i2p ${ZLIB_INCLUDE_DIRS})
-target_link_libraries(i2p "${ZLIB_LIBRARIES}")
-
 # Sqlite3
 include_directories(BEFORE i2p ${SQLITE3_INCLUDE_DIRS})
-target_link_libraries(i2p "${SQLITE3_LIBRARIES}")
+# No need to link directly against sqlite3 because sqlite3cc
+# takes care of that for us.
 
 # Botan
 include_directories(BEFORE i2p ${BOTAN_INCLUDE_DIRS})

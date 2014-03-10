@@ -8,13 +8,21 @@
 #include <i2pcpp/datatypes/ByteArray.h>
 #include <i2pcpp/datatypes/RouterHash.h>
 
-#include "sqlite3cc.h"
-
-#include <sqlite3.h>
+#include <boost/shared_ptr.hpp>
 
 #include <string>
 #include <forward_list>
 #include <unordered_map>
+
+namespace sqlite {
+    class connection;
+    class command;
+    class query;
+
+    namespace detail {
+        class basic_statement;
+    }
+}
 
 namespace i2pcpp {
     class RouterInfo;
@@ -103,41 +111,7 @@ namespace i2pcpp {
             std::forward_list<RouterHash> getAllHashes();
 
         private:
-            class statement_guard {
-                boost::shared_ptr<sqlite::detail::basic_statement> m_statement;
-
-                void bind() {}
-
-                template<typename T>
-                void bind(T&& t)
-                {
-                    *m_statement << t;
-                }
-
-                template<typename T, typename ...U>
-                void bind(T&& t, U&& ...u)
-                {
-                    *m_statement << t;
-                    bind(u...);
-                }
-
-                public:
-                template<typename ...Params>
-                statement_guard(boost::shared_ptr<sqlite::detail::basic_statement> s,
-                        Params&&... p) : m_statement(s)
-                {
-                    bind(std::forward<Params>(p)...);
-                }
-
-                ~statement_guard()
-                {
-                    m_statement->clear_bindings();
-                    m_statement->reset();
-                }
-
-            };
-
-            std::unique_ptr<sqlite::connection> m_conn;
+            std::shared_ptr<sqlite::connection> m_conn;
 
             static std::unordered_map<std::string, boost::shared_ptr<sqlite::command>> commands;
             static std::unordered_map<std::string, boost::shared_ptr<sqlite::query>> queries;
