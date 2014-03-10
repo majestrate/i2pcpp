@@ -3,14 +3,14 @@
  * @brief Contains the starting point, main.
  */
 #include <i2pcpp/Router.h>
-
-#include <i2pcpp/datatypes/RouterInfo.h>
+#include <i2pcpp/Version.h>
 
 #include <boost/filesystem.hpp>
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/variables_map.hpp>
 #include <boost/program_options/parsers.hpp>
 
+#include <signal.h>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -85,9 +85,9 @@ int main(int argc, char **argv)
         }
 
         if(vm.count("init")) {
-            Database::createDb(dbFile);
+            //Database::createDb(dbFile);
 
-            I2P_LOG(lg, info) << "database created successfully";
+            //I2P_LOG(lg, info) << "database created successfully";
 
             return EXIT_SUCCESS;
         }

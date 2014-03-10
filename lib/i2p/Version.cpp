@@ -44,7 +44,7 @@
 #    endif
 #endif
 
-#include "Version.h"
+#include "../../include/i2pcpp/Version.h"
 
 namespace i2pcpp {
     const int CLIENT_VERSION =

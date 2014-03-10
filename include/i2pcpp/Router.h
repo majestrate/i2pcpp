@@ -5,17 +5,12 @@
 #ifndef ROUTER_H
 #define ROUTER_H
 
-#include "Log.h"
-#include "RouterContext.h"
-
 #include <i2pcpp/datatypes/ByteArray.h>
 
-#include <boost/asio.hpp>
-
 #include <string>
-#include <thread>
 
 namespace i2pcpp {
+    class RouterInfo;
 
     /**
      * Represents an I2P router.
@@ -88,13 +83,8 @@ namespace i2pcpp {
             std::string getConfigValue(const std::string& key);
 
         private:
-            boost::asio::io_service m_ios;
-            boost::asio::io_service::work m_work;
-            std::thread m_serviceThread;
-
-            RouterContext m_ctx;
-
-            i2p_logger_mt m_log; ///< Logging object
+            struct RouterImpl;
+            std::unique_ptr<RouterImpl> m_impl;
     };
 }
 
