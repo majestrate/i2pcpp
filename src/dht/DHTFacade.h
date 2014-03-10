@@ -10,6 +10,7 @@
 
 namespace i2pcpp {
     class RouterContext;
+
     namespace DHT {
 
         /**
@@ -22,22 +23,22 @@ namespace i2pcpp {
              * Constructs from a reference to the i2pcpp::RouterContext
              */
             DHTFacade(RouterContext& ctx);
-            
+
             DHTFacade(const DHTFacade&) = delete;
             DHTFacade& operator=(DHTFacade&) = delete;
-
 
             /**
              * Starts a lookup operation for a given i2pcpp::RouterHash.
              * @param hash the hash of the router to lookup
              * @return true if the lookup was succesfully started, false otherwise
              */
-            bool lookup(const RouterHash& hash); 
+            bool lookup(const RouterHash& hash);
 
             SearchManager& getSearchManager();
+
         private:
-            std::shared_ptr<Kademlia> m_dht;
-            SearchManager m_searchManager; 
+            std::unique_ptr<Kademlia> m_dht;
+            SearchManager m_searchManager;
         };
     }
 }

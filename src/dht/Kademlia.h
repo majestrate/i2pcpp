@@ -97,7 +97,7 @@ namespace i2pcpp {
                  *  as possible are returned
                  */
                 result_type find(key_type const &k, std::size_t count) const;
-                
+
                 /**
                  * Changes the reference key. This is used to find the bucket
                  *  associated with a given key.
