@@ -12,8 +12,7 @@
 
 #include <i2pcpp/datatypes/RouterIdentity.h>
 #include "tunnel/TunnelManager.h"
-#include "dht/Kademlia.h"
-#include "dht/SearchManager.h"
+#include "dht/DHTFacade.h"
 
 #include "Database.h"
 #include "InboundMessageDispatcher.h"
@@ -92,16 +91,18 @@ namespace i2pcpp {
             PeerManager& getPeerManager();
 
             /**
-             * @return a pointer to the i2pcpp::DHT::Kademlia
+             * @return a reference to the i2pcpp::DHT::DHTFacade
              */
-            DHT::KademliaPtr getDHT();
+            DHT::DHTFacade& getDHT();
 
             /**
-             * @return a reference to the i2pcpp::DHT::SearchManager
+             * @return a reference to the boost::asio::io_service object
              */
-            DHT::SearchManager& getSearchManager();
+            boost::asio::io_service& getIoService();
 
         private:
+            boost::asio::io_service& m_ios;
+
             /// Private key for ElGamal encryption
             std::shared_ptr<Botan::ElGamal_PrivateKey> m_encryptionKey;
 
@@ -120,8 +121,7 @@ namespace i2pcpp {
             InboundMessageDispatcher m_inMsgDispatcher;
             OutboundMessageDispatcher m_outMsgDispatcher;
 
-            DHT::KademliaPtr m_dht;
-            DHT::SearchManager m_searchManager;
+            DHT::DHTFacade m_dht;
 
             Signals m_signals;
     };

@@ -12,8 +12,8 @@
 
 namespace i2pcpp {
     namespace DHT {
-        SearchManager::SearchManager(boost::asio::io_service &ios, RouterContext &ctx) :
-            m_ios(ios),
+        SearchManager::SearchManager(RouterContext &ctx) :
+            m_ios(ctx.getIoService()),
             m_ctx(ctx),
             m_log(boost::log::keywords::channel = "SM") {}
 
