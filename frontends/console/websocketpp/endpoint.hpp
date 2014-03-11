@@ -87,21 +87,22 @@ public:
 
     typedef lib::shared_ptr<connection_weak_ptr> hdl_type;
 
-    explicit endpoint(bool is_server)
+    explicit endpoint(bool p_is_server)
       : m_alog(config::alog_level, &std::cout)
       , m_elog(config::elog_level, &std::cerr)
       , m_user_agent(::websocketpp::user_agent)
       , m_open_handshake_timeout_dur(config::timeout_open_handshake)
       , m_close_handshake_timeout_dur(config::timeout_close_handshake)
       , m_pong_timeout_dur(config::timeout_pong)
-      , m_is_server(is_server)
+      , m_max_message_size(config::max_message_size)
+      , m_is_server(p_is_server)
     {
         m_alog.set_channels(config::alog_level);
         m_elog.set_channels(config::elog_level);
 
-        m_alog.write(log::alevel::devel,"endpoint constructor");
+        m_alog.write(log::alevel::devel, "endpoint constructor");
 
-        transport_type::init_logging(&m_alog,&m_elog);
+        transport_type::init_logging(&m_alog, &m_elog);
     }
 
     /// Returns the user agent string that this endpoint will use
@@ -272,9 +273,9 @@ public:
         m_message_handler = h;
     }
 
-    /////////////////////////
-    // Connection timeouts //
-    /////////////////////////
+    //////////////////////////////////////////
+    // Connection timeouts and other limits //
+    //////////////////////////////////////////
 
     /// Set open handshake timeout
     /**
@@ -346,6 +347,36 @@ public:
     void set_pong_timeout(long dur) {
         scoped_lock_type guard(m_mutex);
         m_pong_timeout_dur = dur;
+    }
+
+    /// Get default maximum message size
+    /**
+     * Get the default maximum message size that will be used for new connections created
+     * by this endpoint. The maximum message size determines the point at which the
+     * connection will fail a connection with the message_too_big protocol error.
+     *
+     * The default is set by the max_message_size value from the template config
+     *
+     * @since 0.4.0-alpha1
+     */
+    size_t get_max_message_size() const {
+        return m_max_message_size;
+    }
+    
+    /// Set default maximum message size
+    /**
+     * Set the default maximum message size that will be used for new connections created
+     * by this endpoint. Maximum message size determines the point at which the connection
+     * will fail a connection with the message_too_big protocol error.
+     *
+     * The default is set by the max_message_size value from the template config
+     *
+     * @since 0.4.0-alpha1
+     *
+     * @param new_value The value to set as the maximum message size.
+     */
+    void set_max_message_size(size_t new_value) {
+        m_max_message_size = new_value;
     }
 
     /*************************************/
@@ -534,6 +565,7 @@ private:
     long                        m_open_handshake_timeout_dur;
     long                        m_close_handshake_timeout_dur;
     long                        m_pong_timeout_dur;
+    size_t                      m_max_message_size;
 
     rng_type m_rng;
 

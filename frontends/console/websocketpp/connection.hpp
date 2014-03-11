@@ -42,6 +42,7 @@
 #include <algorithm>
 #include <iostream>
 #include <queue>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -279,9 +280,9 @@ private:
     };
 public:
 
-    explicit connection(bool is_server, std::string const & ua, alog_type& alog,
+    explicit connection(bool p_is_server, std::string const & ua, alog_type& alog,
         elog_type& elog, rng_type & rng)
-      : transport_con_type(is_server,alog,elog)
+      : transport_con_type(p_is_server, alog, elog)
       , m_handle_read_frame(lib::bind(
             &type::handle_read_frame,
             this,
@@ -297,13 +298,14 @@ public:
       , m_open_handshake_timeout_dur(config::timeout_open_handshake)
       , m_close_handshake_timeout_dur(config::timeout_close_handshake)
       , m_pong_timeout_dur(config::timeout_pong)
+      , m_max_message_size(config::max_message_size)
       , m_state(session::state::connecting)
       , m_internal_state(session::internal_state::USER_INIT)
       , m_msg_manager(new con_msg_manager_type())
       , m_send_buffer_size(0)
       , m_write_flag(false)
       , m_read_flag(true)
-      , m_is_server(is_server)
+      , m_is_server(p_is_server)
       , m_alog(alog)
       , m_elog(elog)
       , m_rng(rng)
@@ -456,9 +458,9 @@ public:
         m_message_handler = h;
     }
 
-    /////////////////////////
-    // Connection timeouts //
-    /////////////////////////
+    //////////////////////////////////////////
+    // Connection timeouts and other limits //
+    //////////////////////////////////////////
 
     /// Set open handshake timeout
     /**
@@ -527,6 +529,38 @@ public:
      */
     void set_pong_timeout(long dur) {
         m_pong_timeout_dur = dur;
+    }
+
+    /// Get maximum message size
+    /**
+     * Get maximum message size. Maximum message size determines the point at which the
+     * connection will fail a connection with the message_too_big protocol error.
+     *
+     * The default is set by the endpoint that creates the connection.
+     *
+     * @since 0.4.0-alpha1
+     */
+    size_t get_max_message_size() const {
+        return m_max_message_size;
+    }
+    
+    /// Set maximum message size
+    /**
+     * Set maximum message size. Maximum message size determines the point at which the
+     * connection will fail a connection with the message_too_big protocol error. This
+     * value may be changed during the connection.
+     *
+     * The default is set by the endpoint that creates the connection.
+     *
+     * @since 0.4.0-alpha1
+     *
+     * @param new_value The value to set as the maximum message size.
+     */
+    void set_max_message_size(size_t new_value) {
+        m_max_message_size = new_value;
+        if (m_processor) {
+            m_processor->set_max_message_size(new_value);
+        }
     }
 
     //////////////////////////////////
@@ -1319,6 +1353,14 @@ private:
      */
     void log_fail_result();
 
+    /// Prints information about an arbitrary error code on the specified channel
+    template <typename error_type>
+    void log_err(log::level l, char const * msg, error_type const & ec) {
+        std::stringstream s;
+        s << msg << " error: " << ec << " (" << ec.message() << ")";
+        m_elog.write(l, s.str());
+    }
+
     // internal handler functions
     read_handler            m_handle_read_frame;
     write_frame_handler     m_write_frame_handler;
@@ -1345,6 +1387,7 @@ private:
     long                    m_open_handshake_timeout_dur;
     long                    m_close_handshake_timeout_dur;
     long                    m_pong_timeout_dur;
+    size_t                  m_max_message_size;
 
     /// External connection state
     /**
