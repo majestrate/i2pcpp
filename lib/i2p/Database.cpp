@@ -4,6 +4,7 @@
  */
 #include "../../include/i2pcpp/Database.h"
 
+#include "sqlite3cc.h"
 #include "statement_guard.h"
 
 #include <i2pcpp/util/Base64.h>
@@ -11,8 +12,6 @@
 #include <i2pcpp/util/make_unique.h>
 
 #include <i2pcpp/datatypes/RouterInfo.h>
-
-#include <sqlite3cc.h>
 
 #include <botan/auto_rng.h>
 #include <botan/elgamal.h>

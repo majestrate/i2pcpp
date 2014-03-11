@@ -56,6 +56,18 @@ set(i2pcpp_sources
     tunnel/Message.cpp
 )
 
+set(sqlite3cc_sources
+    sqlite3cc/basic_statement.cc
+    sqlite3cc/command.cc
+    sqlite3cc/connection.cc
+    sqlite3cc/exception.cc
+    sqlite3cc/manipulator.cc
+    sqlite3cc/query.cc
+    sqlite3cc/row.cc
+    sqlite3cc/transaction.cc
+    sqlite3cc/util.cc
+)
+
 include(cpp11)
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
@@ -66,7 +78,7 @@ if("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
         COMMAND ${CMAKE_STRIP} -s ${i2p_LOCATION})
 endif("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
 
-add_library(i2p SHARED ${i2pcpp_sources})
+add_library(i2p SHARED ${sqlite3cc_sources} ${i2pcpp_sources})
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON) # Needed for build.h
 include_directories(${CMAKE_SOURCE_DIR}/include)
@@ -97,8 +109,7 @@ target_link_libraries(i2p "${CMAKE_CURRENT_BINARY_DIR}/schema.sql.o")
 
 # Sqlite3
 include_directories(BEFORE i2p ${SQLITE3_INCLUDE_DIRS})
-# No need to link directly against sqlite3 because sqlite3cc
-# takes care of that for us.
+target_link_libraries(i2p "${SQLITE3_LIBRARIES}")
 
 # Botan
 include_directories(BEFORE i2p ${BOTAN_INCLUDE_DIRS})
@@ -117,6 +128,3 @@ target_link_libraries(i2p datatypes)
 
 # util library
 target_link_libraries(i2p util)
-
-# sqlite3cc library
-target_link_libraries(i2p sqlite3cc)
