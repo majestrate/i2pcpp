@@ -103,6 +103,7 @@ int main(int argc, char **argv)
             return EXIT_SUCCESS;
         }
 
+        Router::initialize();
         auto db = std::make_shared<Database>(dbFile);
         Router r(db);
 

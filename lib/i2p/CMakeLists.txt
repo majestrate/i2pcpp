@@ -8,7 +8,9 @@ set(i2pcpp_sources
     RouterContext.cpp
     Signals.cpp
     Version.cpp
-    #api/router_c.cpp
+    c_api/i2p.cpp
+    c_api/db.cpp
+    c_api/router.cpp
     dht/Kademlia.cpp
     dht/SearchManager.cpp
     dht/SearchState.cpp
