@@ -4,6 +4,7 @@
  */
 #include <i2pcpp/Router.h>
 #include <i2pcpp/Version.h>
+#include <i2pcpp/Database.h>
 
 #include <boost/filesystem.hpp>
 #include <boost/program_options/options_description.hpp>
@@ -48,8 +49,8 @@ int main(int argc, char **argv)
             ("version,v", "Print application version")
             ("log,l", po::value<string>()->implicit_value("i2p.log"), "Log to file instead of clog");
 
-        po::options_description db("Database manipulation");
-        db.add_options()
+        po::options_description dbDesc("Database manipulation");
+        dbDesc.add_options()
             ("db", po::value<string>(&dbFile)->default_value("i2p.db"), "Database file to operate on")
             ("init", "Initialize a fresh copy of the database")
             ("import", po::value<string>(), "Import a single routerInfo file")
@@ -63,7 +64,7 @@ int main(int argc, char **argv)
             ("set", po::value<vector<string>>()->multitoken(), "Set a configuration setting (key value)");
 
         po::options_description all_opts;
-        all_opts.add(general).add(db).add(config);
+        all_opts.add(general).add(dbDesc).add(config);
 
         po::variables_map vm;
 
@@ -72,7 +73,7 @@ int main(int argc, char **argv)
 
         if(vm.count("help")) {
             cout << general << endl;
-            cout << db << endl;
+            cout << dbDesc << endl;
             cout << config << endl;
 
             return EXIT_SUCCESS;
@@ -85,16 +86,17 @@ int main(int argc, char **argv)
         }
 
         if(vm.count("init")) {
-            //Database::createDb(dbFile);
+            Database::createDb(dbFile);
 
             //I2P_LOG(lg, info) << "database created successfully";
 
             return EXIT_SUCCESS;
         }
 
-        /*Router r(dbFile);
+        auto db = std::make_shared<Database>(dbFile);
+        Router r(db);
 
-        if(vm.count("log")) {
+        /*if(vm.count("log")) {
             // TODO Log rotation, etc
             Log::logToFile(vm["log"].as<string>());
         }

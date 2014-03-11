@@ -14,6 +14,6 @@ namespace i2pcpp {
 
     const RouterInfo ProfileManager::getPeer()
     {
-        return m_ctx.getDatabase().getRouterInfo(m_ctx.getDatabase().getRandomRouter());
+        return m_ctx.getDatabase()->getRouterInfo(m_ctx.getDatabase()->getRandomRouter());
     }
 }

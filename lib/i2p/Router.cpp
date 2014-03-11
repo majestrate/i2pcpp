@@ -4,6 +4,8 @@
  */
 #include "../../include/i2pcpp/Router.h"
 
+#include "../../include/i2pcpp/Database.h"
+
 #include "Log.h"
 #include "RouterContext.h"
 
@@ -19,9 +21,9 @@
 
 namespace i2pcpp {
     struct Router::RouterImpl {
-        RouterImpl(std::string const &dbFile) :
+        RouterImpl(std::shared_ptr<Database> const &db) :
             work(ios),
-            ctx(dbFile, ios),
+            ctx(db, ios),
             log(boost::log::keywords::channel = "R") {}
 
         boost::asio::io_service ios;
@@ -33,9 +35,9 @@ namespace i2pcpp {
         i2p_logger_mt log; ///< Logging object
     };
 
-    Router::Router(std::string const &dbFile)
+    Router::Router(std::shared_ptr<Database> const &db)
     {
-        m_impl = std::make_unique<RouterImpl>(dbFile);
+        m_impl = std::make_unique<RouterImpl>(db);
     }
 
     Router::~Router()
@@ -89,7 +91,7 @@ namespace i2pcpp {
         m_impl->ctx.getSearchManager().registerFailure(boost::bind(&OutboundMessageDispatcher::dhtFailure, boost::ref(m_impl->ctx.getOutMsgDisp()), _1));
 
         std::shared_ptr<UDPTransport> u = std::static_pointer_cast<UDPTransport>(t);
-        u->start(Endpoint(m_impl->ctx.getDatabase().getConfigValue("ssu_bind_ip"), std::stoi(m_impl->ctx.getDatabase().getConfigValue("ssu_bind_port"))));
+        u->start(Endpoint(m_impl->ctx.getDatabase()->getConfigValue("ssu_bind_ip"), std::stoi(m_impl->ctx.getDatabase()->getConfigValue("ssu_bind_port"))));
 
         m_impl->ctx.getPeerManager().begin();
         //m_impl->ctx.getTunnelManager().begin();
@@ -98,53 +100,5 @@ namespace i2pcpp {
     void Router::stop()
     {
         m_impl->ios.stop();
-    }
-
-    ByteArray Router::getRouterInfo()
-    {
-        // TODO Get this out of here
-        Mapping am;
-        am.setValue("caps", "BC");
-        am.setValue("host", m_impl->ctx.getDatabase().getConfigValue("ssu_external_ip"));
-        am.setValue("key", Base64::encode(m_impl->ctx.getIdentity()->getHash()));
-        am.setValue("port", m_impl->ctx.getDatabase().getConfigValue("ssu_external_port"));
-        RouterAddress a(5, Date(0), "SSU", am);
-
-        Mapping rm;
-        rm.setValue("coreVersion", "0.9.9");
-        rm.setValue("netId", "2");
-        rm.setValue("router.version", "0.9.9");
-        rm.setValue("stat_uptime", "90m");
-        rm.setValue("caps", "OR");
-        RouterInfo myInfo(*m_impl->ctx.getIdentity(), Date(), rm);
-        myInfo.addAddress(a);
-        myInfo.sign(m_impl->ctx.getSigningKey());
-
-        return myInfo.serialize();
-    }
-
-    void Router::importRouter(RouterInfo const &router)
-    {
-        m_impl->ctx.getDatabase().setRouterInfo(router);
-    }
-
-    void Router::importRouter(std::vector<RouterInfo> const &routers)
-    {
-        m_impl->ctx.getDatabase().setRouterInfo(routers);
-    }
-
-    void Router::deleteAllRouters()
-    {
-        m_impl->ctx.getDatabase().deleteAllRouters();
-    }
-
-    void Router::setConfigValue(const std::string& key, const std::string& value)
-    {
-        m_impl->ctx.getDatabase().setConfigValue(key, value);
-    }
-
-    std::string Router::getConfigValue(const std::string& key)
-    {
-        return m_impl->ctx.getDatabase().getConfigValue(key);
     }
 }

@@ -5,7 +5,7 @@
 #ifndef ROUTERCONTEXT_H
 #define ROUTERCONTEXT_H
 
-#include "Database.h"
+#include "../../include/i2pcpp/Database.h"
 #include "InboundMessageDispatcher.h"
 #include "OutboundMessageDispatcher.h"
 #include "Signals.h"
@@ -34,7 +34,7 @@ namespace i2pcpp {
              * @param dbFile the file containing the database file
              * @param ios the boost::asio::io_service object of the i2pcpp::Router
              */
-            RouterContext(std::string const &dbFile, boost::asio::io_service &ios);
+            RouterContext(std::shared_ptr<Database> const &db, boost::asio::io_service &ios);
 
             RouterContext(const RouterContext &) = delete;
             RouterContext& operator=(RouterContext &) = delete;
@@ -57,7 +57,7 @@ namespace i2pcpp {
             /**
              * @return a reference to the i2pcpp::Database object of this router
              */
-            Database& getDatabase();
+            std::shared_ptr<Database> getDatabase();
 
             /**
              * @return a reference to the i2pcpp::InboundMessageDispatcher
@@ -109,7 +109,7 @@ namespace i2pcpp {
             /// Pointer to RI object
             std::shared_ptr<RouterIdentity> m_identity;
 
-            Database m_db;
+            std::shared_ptr<Database> m_db;
 
             TunnelManager m_tunnelManager;
             ProfileManager m_profileManager;

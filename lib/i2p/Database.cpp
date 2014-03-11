@@ -2,7 +2,7 @@
  * @file Database.cpp
  * @brief Implements Database.h
  */
-#include "Database.h"
+#include "../../include/i2pcpp/Database.h"
 
 #include "statement_guard.h"
 

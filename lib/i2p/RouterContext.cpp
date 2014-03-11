@@ -13,8 +13,8 @@
 #include <botan/auto_rng.h>
 
 namespace i2pcpp {
-    RouterContext::RouterContext(std::string const &dbFile, boost::asio::io_service &ios) :
-        m_db(dbFile),
+    RouterContext::RouterContext(std::shared_ptr<Database> const &db, boost::asio::io_service &ios) :
+        m_db(db),
         m_inMsgDispatcher(ios, *this),
         m_outMsgDispatcher(*this),
         m_signals(ios),
@@ -26,11 +26,11 @@ namespace i2pcpp {
         // Load the private keys from the database
         Botan::AutoSeeded_RNG rng;
 
-        std::string encryptingKeyPEM = m_db.getConfigValue("private_encryption_key");
+        std::string encryptingKeyPEM = m_db->getConfigValue("private_encryption_key");
         Botan::DataSource_Memory dsm((unsigned char *)encryptingKeyPEM.data(), encryptingKeyPEM.size());
         m_encryptionKey = std::shared_ptr<Botan::ElGamal_PrivateKey>(dynamic_cast<Botan::ElGamal_PrivateKey *>(Botan::PKCS8::load_key(dsm, rng, (std::string)"")));
 
-        std::string signingKeyPEM = m_db.getConfigValue("private_signing_key");
+        std::string signingKeyPEM = m_db->getConfigValue("private_signing_key");
         Botan::DataSource_Memory dsm2((unsigned char *)signingKeyPEM.data(), signingKeyPEM.size());
         m_signingKey = std::shared_ptr<Botan::DSA_PrivateKey>(dynamic_cast<Botan::DSA_PrivateKey *>(Botan::PKCS8::load_key(dsm2, rng, (std::string)"")));
 
@@ -43,7 +43,7 @@ namespace i2pcpp {
 
         // Populate the DHT
         m_dht = std::make_shared<DHT::Kademlia>(m_identity->getHash());
-        std::forward_list<RouterHash> hashes = m_db.getAllHashes();
+        std::forward_list<RouterHash> hashes = m_db->getAllHashes();
         for(auto& h: hashes)
             m_dht->insert(DHT::Kademlia::makeKey(h), h);
     }
@@ -63,7 +63,7 @@ namespace i2pcpp {
         return m_identity;
     }
 
-    Database& RouterContext::getDatabase()
+    std::shared_ptr<Database> RouterContext::getDatabase()
     {
         return m_db;
     }

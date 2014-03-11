@@ -44,7 +44,7 @@ namespace i2pcpp {
                             RouterInfo ri(begin, inflatedData.cend());
 
                             if(ri.verifySignature()) {
-                                m_ctx.getDatabase().setRouterInfo(ri);
+                                m_ctx.getDatabase()->setRouterInfo(ri);
                                 I2P_LOG(m_log, debug) << "added RouterInfo to DB";
 
                                 m_ctx.getSignals().invokeDatabaseStore(from, ri.getIdentity().getHash(), true);

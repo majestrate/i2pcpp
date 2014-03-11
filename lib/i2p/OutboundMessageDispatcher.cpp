@@ -34,8 +34,8 @@ namespace i2pcpp {
 
             queueMessage(to, msg);
 
-            if(m_ctx.getDatabase().routerExists(to))
-                m_transport->connect(m_ctx.getDatabase().getRouterInfo(to));
+            if(m_ctx.getDatabase()->routerExists(to))
+                m_transport->connect(m_ctx.getDatabase()->getRouterInfo(to));
             else {
                 I2P_LOG(m_log, debug) << "RouterInfo not in DB, creating search job";
 
@@ -90,7 +90,7 @@ namespace i2pcpp {
             I2P_LOG_SCOPED_TAG(m_log, "RouterHash", v);
             I2P_LOG(m_log, debug) << "DHT lookup succeeded, connecting to peer";
 
-            m_transport->connect(m_ctx.getDatabase().getRouterInfo(v));
+            m_transport->connect(m_ctx.getDatabase()->getRouterInfo(v));
         }
     }
 
