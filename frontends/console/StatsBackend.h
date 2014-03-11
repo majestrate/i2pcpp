@@ -20,7 +20,7 @@ class StatsBackend : public sinks::basic_sink_backend<
         std::pair<uint64_t, uint64_t> getBytesAndReset();
 
     private:
-        std::mutex m_mutex;
+        mutable std::mutex m_mutex;
 
         uint64_t m_receivedBytes = 0;
         uint64_t m_sentBytes = 0;

@@ -3,12 +3,15 @@
  * @brief Contains the starting point, main.
  */
 #include "Logger.h"
+#include "Server.h"
 
 #include <i2pcpp/Router.h>
 #include <i2pcpp/Version.h>
 #include <i2pcpp/Database.h>
 
 #include <i2pcpp/datatypes/RouterInfo.h>
+#include <i2pcpp/datatypes/Endpoint.h>
+#include <i2pcpp/util/make_unique.h>
 
 #include <boost/filesystem.hpp>
 #include <boost/program_options/options_description.hpp>
@@ -21,8 +24,6 @@
 #include <string>
 #include <mutex>
 #include <condition_variable>
-
-using namespace i2pcpp;
 
 static volatile bool quit = false;
 static std::condition_variable cv;
@@ -39,13 +40,13 @@ int main(int argc, char **argv)
     using namespace std;
 
     try {
-        string dbFile;
-
         if(signal(SIGINT, &sighandler) == SIG_ERR) {
             cerr << "error setting up signal handler" << endl;
 
             return EXIT_FAILURE;
         }
+
+        string dbFile;
 
         namespace po = boost::program_options;
 
@@ -219,6 +220,15 @@ int main(int argc, char **argv)
             return EXIT_SUCCESS;
         }
 
+        std::unique_ptr<Server> s;
+        if(db->getConfigValue("control_server") == "1") {
+            Endpoint ep(db->getConfigValue("control_server_ip"), stoi(db->getConfigValue("control_server_port")));
+            s = std::make_unique<Server>(ep);
+
+            I2P_LOG(lg, info) << "starting control server";
+            s->run();
+        }
+
         I2P_LOG(lg, info) << "starting router";
         r.start();
 
@@ -229,6 +239,9 @@ int main(int argc, char **argv)
         I2P_LOG(lg, debug) << "shutting down";
 
         r.stop();
+
+        if(s)
+            s->stop();
 
         return EXIT_SUCCESS;
     } catch(boost::program_options::error &e) {

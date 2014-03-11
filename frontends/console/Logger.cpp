@@ -8,7 +8,6 @@
 
 #include <boost/log/expressions.hpp>
 #include <boost/log/sources/global_logger_storage.hpp>
-#include <boost/log/sinks/async_frontend.hpp>
 #include <boost/log/sinks/sync_frontend.hpp>
 #include <boost/log/sinks/text_ostream_backend.hpp>
 #include <boost/log/sinks/text_file_backend.hpp>
@@ -54,15 +53,6 @@ namespace i2pcpp {
 
         return strm;
     }
-}
-
-Logger::Logger()
-{
-    m_stats = boost::make_shared<StatsBackend>();
-
-    typedef sinks::asynchronous_sink<StatsBackend> stats_sink_t;
-    boost::shared_ptr<stats_sink_t> statsSink(new stats_sink_t(m_stats));
-    boost::log::core::get()->add_sink(statsSink);
 }
 
 void Logger::logToConsole()

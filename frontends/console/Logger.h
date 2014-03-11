@@ -9,6 +9,7 @@
 
 #include <boost/log/sources/record_ostream.hpp>
 #include <boost/log/sources/severity_channel_logger.hpp>
+#include <boost/log/sinks/async_frontend.hpp>
 
 #include <string>
 
@@ -20,10 +21,16 @@ typedef boost::log::sources::severity_channel_logger_mt<i2pcpp::severity_level, 
 
 class Logger {
     public:
-        Logger();
-
         static void logToConsole();
         static void logToFile(const std::string &file);
+
+        template<typename T>
+        static void addBackendToAsyncSink(boost::shared_ptr<T> backend)
+        {
+            typedef sinks::asynchronous_sink<T> sink_t;
+            boost::shared_ptr<sink_t> sink(new sink_t(backend));
+            boost::log::core::get()->add_sink(sink);
+        }
 
     private:
         static void formatter(boost::log::record_view const &rec, boost::log::formatting_ostream &s);
