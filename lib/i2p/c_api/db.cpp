@@ -1,8 +1,13 @@
-#include "../../include/i2pcpp/c_api/db.h"
+#include "../../../include/i2pcpp/c_api/db.h"
 
-#include "../../include/i2pcpp/Database.h"
+#include "util.h"
+
+#include "../../../include/i2pcpp/Database.h"
+
+#include <i2pcpp/datatypes/RouterHash.h>
 
 #include <string>
+#include <array>
 
 using namespace i2pcpp;
 
@@ -30,4 +35,10 @@ char *i2p_db_config_get(void *db, char *name)
     std::memcpy(buf, result.c_str(), sizeof(*buf));
 
     return buf;
+}
+
+bool i2p_db_router_exists(void *db, char *hash)
+{
+    RouterHash rh = i2p_util_to_routerhash(hash);
+    return ((Database *)db)->routerExists(rh);
 }

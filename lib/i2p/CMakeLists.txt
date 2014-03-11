@@ -11,6 +11,7 @@ set(i2pcpp_sources
     c_api/i2p.cpp
     c_api/db.cpp
     c_api/router.cpp
+    c_api/util.cpp
     dht/Kademlia.cpp
     dht/SearchManager.cpp
     dht/SearchState.cpp
