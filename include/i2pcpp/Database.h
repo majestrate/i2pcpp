@@ -68,7 +68,7 @@ namespace i2pcpp {
 
             /**
              * @return true if we know the router with i2pcpp::RouterHash
-             *  \a routerHash, false otehrwise
+             *  \a routerHash, false otherwise
              */
             bool routerExists(RouterHash const &routerHash);
 

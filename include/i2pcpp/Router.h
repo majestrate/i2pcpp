@@ -19,8 +19,8 @@ namespace i2pcpp {
     class Router {
         public:
             /**
-             * Constructs a router from a database file.
-             * @param dbFile the name of the datatabase file
+             * Constructs a router.
+             * @param db a valid i2pcpp::Database object.
              */
             Router(std::shared_ptr<Database> const &db);
             Router(const Router &) = delete;
