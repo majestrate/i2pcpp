@@ -2,7 +2,7 @@ include(cpp11)
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
-add_executable(i2pd main.cpp)
+add_executable(i2pd main.cpp Logger.cpp StatsBackend.cpp)
 set_target_properties(i2pd PROPERTIES OUTPUT_NAME i2p)
 target_link_libraries(i2pd i2p)
 

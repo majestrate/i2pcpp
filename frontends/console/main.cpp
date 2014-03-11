@@ -2,9 +2,13 @@
  * @file main.cpp
  * @brief Contains the starting point, main.
  */
+#include "Logger.h"
+
 #include <i2pcpp/Router.h>
 #include <i2pcpp/Version.h>
 #include <i2pcpp/Database.h>
+
+#include <i2pcpp/datatypes/RouterInfo.h>
 
 #include <boost/filesystem.hpp>
 #include <boost/program_options/options_description.hpp>
@@ -17,6 +21,8 @@
 #include <string>
 #include <mutex>
 #include <condition_variable>
+
+using namespace i2pcpp;
 
 static volatile bool quit = false;
 static std::condition_variable cv;
@@ -85,10 +91,13 @@ int main(int argc, char **argv)
             return EXIT_SUCCESS;
         }
 
+        Logger l;
+        i2p_logger_mt lg(boost::log::keywords::channel = "M");
+
         if(vm.count("init")) {
             Database::createDb(dbFile);
 
-            //I2P_LOG(lg, info) << "database created successfully";
+            I2P_LOG(lg, info) << "database created successfully";
 
             return EXIT_SUCCESS;
         }
@@ -96,17 +105,19 @@ int main(int argc, char **argv)
         auto db = std::make_shared<Database>(dbFile);
         Router r(db);
 
-        /*if(vm.count("log")) {
+        if(vm.count("log")) {
             // TODO Log rotation, etc
-            Log::logToFile(vm["log"].as<string>());
+            Logger::logToFile(vm["log"].as<string>());
+        } else {
+            Logger::logToConsole();
         }
 
-        if(vm.count("export")) {
+        /*if(vm.count("export")) {
             string file = vm["export"].as<string>();
             ofstream f(file, ios::binary);
 
             if(f.is_open()) {
-                ByteArray info = r.getRouterInfo();
+                ByteArray info = db->getRouterInfo();
                 f.write((char *)info.data(), info.size());
                 f.close();
 
@@ -116,7 +127,7 @@ int main(int argc, char **argv)
 
                 return EXIT_FAILURE;
             }
-        }
+        }*/
 
         if(vm.count("import")) {
             string file = vm["import"].as<string>();
@@ -127,7 +138,7 @@ int main(int argc, char **argv)
                 f.close();
                 auto begin = ribytes.cbegin();
                 RouterInfo ri = RouterInfo(begin, ribytes.cend());
-                r.importRouter(ri);
+                db->setRouterInfo(ri);
                 I2P_LOG(lg, info) << "successfully imported RouterInfo file with hash " << ri.getIdentity().getHash();
 
                 return EXIT_SUCCESS;
@@ -177,20 +188,20 @@ int main(int argc, char **argv)
                 }
             }
 
-            r.importRouter(routers);
+            db->setRouterInfo(routers);
             I2P_LOG(lg, info) << "successfully imported " << routers.size() << " routers";
 
             return EXIT_SUCCESS;
         }
 
         if(vm.count("wipe")) {
-            r.deleteAllRouters();
+            db->deleteAllRouters();
 
             return EXIT_SUCCESS;
         }
 
         if(vm.count("get")) {
-            cout << r.getConfigValue(vm["get"].as<string>()) << endl;
+            cout << db->getConfigValue(vm["get"].as<string>()) << endl;
 
             return EXIT_SUCCESS;
         }
@@ -203,7 +214,7 @@ int main(int argc, char **argv)
                 return EXIT_FAILURE;
             }
 
-            r.setConfigValue(tokens[0], tokens[1]);
+            db->setConfigValue(tokens[0], tokens[1]);
 
             return EXIT_SUCCESS;
         }
@@ -217,7 +228,7 @@ int main(int argc, char **argv)
 
         I2P_LOG(lg, debug) << "shutting down";
 
-        r.stop();*/
+        r.stop();
 
         return EXIT_SUCCESS;
     } catch(boost::program_options::error &e) {

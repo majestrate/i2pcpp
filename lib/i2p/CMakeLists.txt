@@ -1,14 +1,12 @@
 set(i2pcpp_sources
     Database.cpp
     InboundMessageDispatcher.cpp
-    Log.cpp
     OutboundMessageDispatcher.cpp
     PeerManager.cpp
     ProfileManager.cpp
     Router.cpp
     RouterContext.cpp
     Signals.cpp
-    StatsBackend.cpp
     Version.cpp
     #api/router_c.cpp
     dht/Kademlia.cpp
