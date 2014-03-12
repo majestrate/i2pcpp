@@ -110,6 +110,10 @@ target_link_libraries(i2p "${CMAKE_CURRENT_BINARY_DIR}/schema.sql.o")
 
 # --- EXTERNAL LIBRARIES ---
 
+# pthreads
+if(CMAKE_SYSTEM_NAME STREQUAL Linux)
+  target_link_libraries(i2p "${CMAKE_THREAD_LIBS_INIT}")
+endif(CMAKE_SYSTEM_NAME STREQUAL Linux)
 # Sqlite3
 include_directories(BEFORE i2p ${SQLITE3_INCLUDE_DIRS})
 target_link_libraries(i2p "${SQLITE3_LIBRARIES}")

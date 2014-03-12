@@ -7,6 +7,8 @@
 
 #include "OutboundMessageState.h"
 
+#include <mutex>
+
 namespace i2pcpp {
     class UDPTransport;
 

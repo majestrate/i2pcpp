@@ -17,6 +17,8 @@
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/member.hpp>
 
+#include <mutex>
+
 namespace bmi = boost::multi_index;
 
 namespace i2pcpp {

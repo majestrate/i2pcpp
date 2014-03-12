@@ -1,5 +1,7 @@
 #include "util.h"
 
+#include <cstring>
+
 using namespace i2pcpp;
 
 RouterHash i2p_util_to_routerhash(char *hash)
