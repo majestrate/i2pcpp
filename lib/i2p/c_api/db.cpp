@@ -8,6 +8,7 @@
 
 #include <string>
 #include <array>
+#include <memory>
 
 using namespace i2pcpp;
 
