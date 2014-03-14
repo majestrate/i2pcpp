@@ -15,6 +15,7 @@ set(i2pcpp_sources
     dht/SearchManager.cpp
     dht/SearchState.cpp
     dht/DHTFacade.cpp
+    dht/NegativeLookupCache.cpp
     handlers/DatabaseSearchReply.cpp
     handlers/DatabaseStore.cpp
     handlers/DeliveryStatus.cpp
