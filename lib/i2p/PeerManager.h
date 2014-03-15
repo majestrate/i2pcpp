@@ -22,10 +22,10 @@ namespace i2pcpp {
     class PeerManager {
         public:
             /**
-             * Constructs from an I/O service and an i2pcpp::RouterContext.
+             * Constructs from a i2pcpp::RouterContext.
              * Sets the deadline duration to 5 seconds.
              */
-            PeerManager(boost::asio::io_service &ios, RouterContext &ctx);
+            PeerManager(RouterContext &ctx);
             PeerManager(const PeerManager &) = delete;
             PeerManager& operator=(PeerManager &) = delete;
 

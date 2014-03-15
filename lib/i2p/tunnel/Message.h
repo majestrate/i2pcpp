@@ -1,5 +1,5 @@
-#ifndef MESSAGE_H
-#define MESSAGE_H
+#ifndef TUNNELMESSAGE_H
+#define TUNNELMESSAGE_H
 
 #include "Fragment.h"
 
@@ -14,27 +14,55 @@
 #include <list>
 
 namespace i2pcpp {
-    class Message {
-        public:
-            Message(StaticByteArray<1024> const &data);
-            Message(std::list<FragmentPtr> &fragments);
+    namespace Tunnel {
+        class Message {
+            public:
+                /**
+                 * Constructs a Message from 16 bytes of IV and 1008 bytes
+                 * of encrypted data.
+                 */
+                Message(StaticByteArray<1024> const &data);
 
-            std::list<FragmentPtr> parse() const;
-            StaticByteArray<1024> getEncryptedData() const;
-            void encrypt(Botan::SymmetricKey const &ivKey, Botan::SymmetricKey const &layerKey);
-            void compile();
+                /**
+                 * Constructs a Message from a list of unencrpyted fragments.
+                 */
+                Message(std::list<FragmentPtr> &fragments);
 
-        private:
-            void calculateChecksum();
-            bool verifyChecksum() const;
+                /**
+                 * After the Message has been decrypted, this method will
+                 * parse the data.
+                 * @return a list of i2pcpp::Tunnel::FragmentPtr
+                 */
+                std::list<FragmentPtr> parse() const;
 
-            uint32_t m_checksum;
-            std::list<FragmentPtr> m_fragments;
-            uint16_t m_payloadSize = 0;
+                /**
+                 * @return the encrypted message, if it was set previously.
+                 */
+                StaticByteArray<1024> getEncryptedData() const;
 
-            StaticByteArray<16> m_iv;
-            StaticByteArray<1008> m_encrypted;
-    };
+                /**
+                 * Encrypts the compiled message.
+                 */
+                void encrypt(Botan::SymmetricKey const &ivKey, Botan::SymmetricKey const &layerKey);
+
+                /**
+                 * Compiles the fragments together in preparation for
+                 * encryption.
+                 */
+                void compile();
+
+            private:
+                void calculateChecksum();
+                bool verifyChecksum() const;
+
+                uint32_t m_checksum;
+                std::list<FragmentPtr> m_fragments;
+                uint16_t m_payloadSize = 0;
+
+                StaticByteArray<16> m_iv;
+                StaticByteArray<1008> m_encrypted;
+        };
+    }
 }
 
 #endif

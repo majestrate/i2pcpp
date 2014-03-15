@@ -1,127 +1,129 @@
 #include "FirstFragment.h"
 
 namespace i2pcpp {
-    ByteArray FirstFragment::compile() const
-    {
-        ByteArray output;
+    namespace Tunnel {
+        ByteArray FirstFragment::compile() const
+        {
+            ByteArray output;
 
-        unsigned char flag = 0x00;
+            unsigned char flag = 0x00;
 
-        flag |= (unsigned char)m_mode << 5;
-        flag |= (unsigned char)m_fragmented << 3;
-        output.insert(output.end(), flag);
+            flag |= (unsigned char)m_mode << 5;
+            flag |= (unsigned char)m_fragmented << 3;
+            output.insert(output.end(), flag);
 
-        if(m_mode == DeliveryMode::TUNNEL) {
-            output.insert(output.end(), m_tunnelId >> 24);
-            output.insert(output.end(), m_tunnelId >> 16);
-            output.insert(output.end(), m_tunnelId >> 8);
-            output.insert(output.end(), m_tunnelId);
+            if(m_mode == DeliveryMode::TUNNEL) {
+                output.insert(output.end(), m_tunnelId >> 24);
+                output.insert(output.end(), m_tunnelId >> 16);
+                output.insert(output.end(), m_tunnelId >> 8);
+                output.insert(output.end(), m_tunnelId);
 
-            output.insert(output.end(), m_toHash.cbegin(), m_toHash.cend());
+                output.insert(output.end(), m_toHash.cbegin(), m_toHash.cend());
+            }
+
+            if(m_fragmented) {
+                output.insert(output.end(), m_msgId >> 24);
+                output.insert(output.end(), m_msgId >> 16);
+                output.insert(output.end(), m_msgId >> 8);
+                output.insert(output.end(), m_msgId);
+            }
+
+            uint16_t size = (uint16_t)m_payload.size();
+            output.insert(output.end(), size >> 8);
+            output.insert(output.end(), size);
+
+            output.insert(output.end(), m_payload.cbegin(), m_payload.cend());
+
+            return output;
         }
 
-        if(m_fragmented) {
-            output.insert(output.end(), m_msgId >> 24);
-            output.insert(output.end(), m_msgId >> 16);
-            output.insert(output.end(), m_msgId >> 8);
-            output.insert(output.end(), m_msgId);
+        bool FirstFragment::mustFragment(uint16_t desiredSize, uint16_t max) const
+        {
+            return (headerSize() + desiredSize > max);
         }
 
-        uint16_t size = (uint16_t)m_payload.size();
-        output.insert(output.end(), size >> 8);
-        output.insert(output.end(), size);
+        void FirstFragment::setFragmented(bool f)
+        {
+            m_fragmented = f;
+        }
 
-        output.insert(output.end(), m_payload.cbegin(), m_payload.cend());
+        bool FirstFragment::isFragmented() const
+        {
+            return m_fragmented;
+        }
 
-        return output;
-    }
+        uint32_t FirstFragment::getTunnelId() const
+        {
+            return m_tunnelId;
+        }
 
-    bool FirstFragment::mustFragment(uint16_t desiredSize, uint16_t max) const
-    {
-        return (headerSize() + desiredSize > max);
-    }
+        const RouterHash& FirstFragment::getToHash() const
+        {
+            return m_toHash;
+        }
 
-    void FirstFragment::setFragmented(bool f)
-    {
-        m_fragmented = f;
-    }
+        FirstFragment::DeliveryMode FirstFragment::getDeliveryMode() const
+        {
+            return m_mode;
+        }
 
-    bool FirstFragment::isFragmented() const
-    {
-        return m_fragmented;
-    }
+        FirstFragment FirstFragment::parse(ByteArrayConstItr &begin, ByteArrayConstItr end)
+        {
+            FirstFragment ff;
 
-    uint32_t FirstFragment::getTunnelId() const
-    {
-        return m_tunnelId;
-    }
+            unsigned char flag = *(begin++);
+            ff.m_mode = (DeliveryMode)((flag >> 5) & 0x03);
+            ff.m_fragmented = flag & (1 << 3);
 
-    const RouterHash& FirstFragment::getToHash() const
-    {
-        return m_toHash;
-    }
+            switch(ff.m_mode) {
+                case DeliveryMode::TUNNEL:
+                    ff.m_tunnelId = parseUint32(begin);
+                    std::copy(begin, begin + 32, ff.m_toHash.begin());
+                    begin += 32;
 
-    FirstFragment::DeliveryMode FirstFragment::getDeliveryMode() const
-    {
-        return m_mode;
-    }
+                    break;
 
-    FirstFragment FirstFragment::parse(ByteArrayConstItr &begin, ByteArrayConstItr end)
-    {
-        FirstFragment ff;
+                case DeliveryMode::ROUTER:
+                    std::copy(begin, begin + 32, ff.m_toHash.begin());
+                    begin += 32;
 
-        unsigned char flag = *(begin++);
-        ff.m_mode = (DeliveryMode)((flag >> 5) & 0x03);
-        ff.m_fragmented = flag & (1 << 3);
+                    break;
 
-        switch(ff.m_mode) {
-            case DeliveryMode::TUNNEL:
-                ff.m_tunnelId = parseUint32(begin);
-                std::copy(begin, begin + 32, ff.m_toHash.begin());
-                begin += 32;
+                default:
+                    throw std::runtime_error("unhandled first fragment delivery mode");
+            };
 
-                break;
+            if(ff.m_fragmented)
+                ff.m_msgId = parseUint32(begin);
 
-            case DeliveryMode::ROUTER:
-                std::copy(begin, begin + 32, ff.m_toHash.begin());
-                begin += 32;
+            uint16_t size = parseUint16(begin);
+            if(std::distance(begin, end) < size)
+                throw std::runtime_error("malformed first fragment");
 
-                break;
+            ff.m_payload = ByteArray(begin, begin + size);
+            begin += size;
 
-            default:
-                throw std::runtime_error("unhandled first fragment delivery mode");
-        };
+            return ff;
+        }
 
-        if(ff.m_fragmented)
-            ff.m_msgId = parseUint32(begin);
+        uint8_t FirstFragment::headerSize() const
+        {
+            switch(m_mode) {
+                case DeliveryMode::LOCAL:
+                    if(!m_fragmented)
+                        return 3;
+                    else
+                        return 7;
 
-        uint16_t size = parseUint16(begin);
-        if(std::distance(begin, end) < size)
-            throw std::runtime_error("malformed first fragment");
+                case DeliveryMode::TUNNEL:
+                    if(!m_fragmented)
+                        return 39;
+                    else
+                        return 43;
 
-        ff.m_payload = ByteArray(begin, begin + size);
-        begin += size;
-
-        return ff;
-    }
-
-    uint8_t FirstFragment::headerSize() const
-    {
-        switch(m_mode) {
-            case DeliveryMode::LOCAL:
-                if(!m_fragmented)
-                    return 3;
-                else
-                    return 7;
-
-            case DeliveryMode::TUNNEL:
-                if(!m_fragmented)
-                    return 39;
-                else
-                    return 43;
-
-            default:
-                throw std::logic_error("Unimplemented FirstFragment delivery mode");
+                default:
+                    throw std::logic_error("Unimplemented FirstFragment delivery mode");
+            }
         }
     }
 }

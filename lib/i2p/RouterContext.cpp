@@ -15,13 +15,14 @@
 namespace i2pcpp {
     RouterContext::RouterContext(std::shared_ptr<Database> const &db, boost::asio::io_service &ios) :
         m_db(db),
-        m_inMsgDispatcher(ios, *this),
+        m_ios(ios),
+        m_inMsgDispatcher(*this),
         m_outMsgDispatcher(*this),
         m_signals(ios),
-        m_tunnelManager(ios, *this),
+        m_tunnelManager(*this),
         m_profileManager(*this),
-        m_peerManager(ios, *this),
-        m_searchManager(ios, *this)
+        m_peerManager(*this),
+        m_searchManager(*this)
     {
         // Load the private keys from the database
         Botan::AutoSeeded_RNG rng;
@@ -83,7 +84,7 @@ namespace i2pcpp {
         return m_signals;
     }
 
-    TunnelManager& RouterContext::getTunnelManager()
+    Tunnel::Manager& RouterContext::getTunnelManager()
     {
         return m_tunnelManager;
     }
@@ -106,5 +107,10 @@ namespace i2pcpp {
     DHT::SearchManager& RouterContext::getSearchManager()
     {
         return m_searchManager;
+    }
+
+    boost::asio::io_service& RouterContext::getIoService()
+    {
+        return m_ios;
     }
 }

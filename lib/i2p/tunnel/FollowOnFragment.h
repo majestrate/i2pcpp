@@ -1,30 +1,55 @@
-#ifndef FOLLOWONFRAGMENT_H
-#define FOLLOWONFRAGMENT_H
+#ifndef TUNNELFOLLOWONFRAGMENT_H
+#define TUNNELFOLLOWONFRAGMENT_H
 
 #include "Fragment.h"
 
 namespace i2pcpp {
-    class FollowOnFragment : public Fragment {
-        public:
-            FollowOnFragment(uint32_t msgId, uint8_t n);
+    namespace Tunnel {
+        class FollowOnFragment : public Fragment {
+            public:
+                /**
+                 * Constructs a follow on fragment from a message ID and \a n,
+                 * a fragment number.
+                 */
+                FollowOnFragment(uint32_t msgId, uint8_t n);
 
-            void setLast(bool isLast);
-            bool isLast() const;
+                /**
+                 * Set to true is this is the last fragment in a tunnel message
+                 * (bit 0 of frag field).
+                 */
+                void setLast(bool isLast);
 
-            uint8_t getFragNum() const;
+                /**
+                 * @return whether this is the last fragment in a tunnel message
+                 * (bit 0 of frag field).
+                 */
+                bool isLast() const;
 
-            ByteArray compile() const;
+                /**
+                 * @return the fragment number associated with this fragment.
+                 */
+                uint8_t getFragNum() const;
 
-            static FollowOnFragment parse(ByteArrayConstItr &begin, ByteArrayConstItr end);
+                /**
+                 * Compiles the class to a i2pcpp::ByteArray.
+                 */
+                ByteArray compile() const;
 
-        private:
-            uint8_t headerSize() const;
+                /**
+                 * Constructs a i2pcpp::Tunnel::FollowOnFragment from a pair of
+                 * const i2pcpp::ByteArray iterators.
+                 */
+                static FollowOnFragment parse(ByteArrayConstItr &begin, ByteArrayConstItr end);
 
-            uint8_t m_fragNum;
-            bool m_isLast = false;
-    };
+            private:
+                uint8_t headerSize() const;
 
-    typedef std::unique_ptr<FollowOnFragment> FollowOnFragmentPtr;
+                uint8_t m_fragNum;
+                bool m_isLast = false;
+        };
+
+        typedef std::unique_ptr<FollowOnFragment> FollowOnFragmentPtr;
+    }
 }
 
 #endif

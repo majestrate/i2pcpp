@@ -55,7 +55,7 @@ set(i2pcpp_sources
     tunnel/FollowOnFragment.cpp
     tunnel/FragmentHandler.cpp
     tunnel/FragmentState.cpp
-    tunnel/TunnelManager.cpp
+    tunnel/Manager.cpp
     tunnel/Message.cpp
 )
 

@@ -1,17 +1,25 @@
-#ifndef OUTBOUNDTUNNEL_H
-#define OUTBOUNDTUNNEL_H
+#ifndef TUNNELOUTBOUNDTUNNEL_H
+#define TUNNELOUTBOUNDTUNNEL_H
 
 #include "Tunnel.h"
 
 #include <vector>
 
 namespace i2pcpp {
-    class OutboundTunnel : public Tunnel {
-        public:
-            OutboundTunnel(std::vector<RouterIdentity> const &hops, RouterHash const &replyHash, uint32_t const replyTunnelId);
+    namespace Tunnel {
+        class OutboundTunnel : public Tunnel {
+            public:
+                /**
+                 * Constructs an outbound tunnel given a vector of RouterIdentities \a hops, a \a replyHash, and a \a replyTunnelId.
+                 */
+                OutboundTunnel(std::vector<RouterIdentity> const &hops, RouterHash const &replyHash, uint32_t const replyTunnelId);
 
-            Tunnel::Direction getDirection() const;
-    };
+                /**
+                 * Returns the direction of this tunnel (always outbound).
+                 */
+                Tunnel::Direction getDirection() const;
+        };
+    }
 }
 
 #endif

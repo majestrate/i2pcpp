@@ -83,9 +83,9 @@ namespace i2pcpp {
         m_impl->ctx.getSignals().registerSearchReply(boost::bind(&DHT::SearchManager::searchReply, boost::ref(m_impl->ctx.getSearchManager()), _1, _2, _3));
         m_impl->ctx.getSignals().registerDatabaseStore(boost::bind(&DHT::SearchManager::databaseStore, boost::ref(m_impl->ctx.getSearchManager()), _1, _2, _3));
 
-        m_impl->ctx.getSignals().registerTunnelRecordsReceived(boost::bind(&TunnelManager::receiveRecords, boost::ref(m_impl->ctx.getTunnelManager()), _1, _2));
-        m_impl->ctx.getSignals().registerTunnelGatewayData(boost::bind(&TunnelManager::receiveGatewayData, boost::ref(m_impl->ctx.getTunnelManager()), _1, _2, _3));
-        m_impl->ctx.getSignals().registerTunnelData(boost::bind(&TunnelManager::receiveData, boost::ref(m_impl->ctx.getTunnelManager()), _1, _2, _3));
+        m_impl->ctx.getSignals().registerTunnelRecordsReceived(boost::bind(&Tunnel::Manager::receiveRecords, boost::ref(m_impl->ctx.getTunnelManager()), _1, _2));
+        m_impl->ctx.getSignals().registerTunnelGatewayData(boost::bind(&Tunnel::Manager::receiveGatewayData, boost::ref(m_impl->ctx.getTunnelManager()), _1, _2, _3));
+        m_impl->ctx.getSignals().registerTunnelData(boost::bind(&Tunnel::Manager::receiveData, boost::ref(m_impl->ctx.getTunnelManager()), _1, _2, _3));
 
         m_impl->ctx.getSearchManager().registerSuccess(boost::bind(&OutboundMessageDispatcher::dhtSuccess, boost::ref(m_impl->ctx.getOutMsgDisp()), _1, _2));
         m_impl->ctx.getSearchManager().registerFailure(boost::bind(&OutboundMessageDispatcher::dhtFailure, boost::ref(m_impl->ctx.getOutMsgDisp()), _1));

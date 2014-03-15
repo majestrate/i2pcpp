@@ -55,10 +55,9 @@ namespace i2pcpp {
 
                 public:
                     /**
-                     * Constructs from a reference to an I/O service and the
-                     *  i2pcpp::RouterContext.
+                     * Constructs from a i2pcpp::RouterContext.
                      */
-                    SearchManager(boost::asio::io_service& ios, RouterContext& ctx);
+                    SearchManager(RouterContext& ctx);
 
                     SearchManager(const SearchManager &) = delete;
                     SearchManager& operator=(SearchManager &) = delete;

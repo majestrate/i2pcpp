@@ -13,7 +13,7 @@
 #include "PeerManager.h"
 #include "Log.h"
 
-#include "tunnel/TunnelManager.h"
+#include "tunnel/Manager.h"
 #include "dht/Kademlia.h"
 #include "dht/SearchManager.h"
 
@@ -75,9 +75,9 @@ namespace i2pcpp {
             Signals& getSignals();
 
             /**
-             * @return a reference to the i2pcpp::TunnelManager
+             * @return a reference to the i2pcpp::Tunnel::Manager
              */
-            TunnelManager& getTunnelManager();
+            Tunnel::Manager& getTunnelManager();
 
             /**
              * @return a reference to the i2pcpp::ProfileManager
@@ -99,7 +99,14 @@ namespace i2pcpp {
              */
             DHT::SearchManager& getSearchManager();
 
+            /**
+             * @return a reference to the boost::asio::io_service object
+             */
+            boost::asio::io_service& getIoService();
+
         private:
+            boost::asio::io_service& m_ios;
+
             /// Private key for ElGamal encryption
             std::shared_ptr<Botan::ElGamal_PrivateKey> m_encryptionKey;
 
@@ -111,7 +118,7 @@ namespace i2pcpp {
 
             std::shared_ptr<Database> m_db;
 
-            TunnelManager m_tunnelManager;
+            Tunnel::Manager m_tunnelManager;
             ProfileManager m_profileManager;
             PeerManager m_peerManager;
 
