@@ -5,12 +5,12 @@
 #ifndef ENDPOINT_H
 #define ENDPOINT_H
 
-#include <string>
-#include <functional>
+#include "ByteArray.h"
 
 #include <boost/asio.hpp>
 
-#include "ByteArray.h"
+#include <string>
+#include <functional>
 
 namespace i2pcpp {
     /**

@@ -5,11 +5,11 @@
 #ifndef ROUTERIDENTITY_H
 #define ROUTERIDENTITY_H
 
-#include <array>
-
 #include "Datatype.h"
 #include "RouterHash.h"
 #include "Certificate.h"
+
+#include <array>
 
 namespace i2pcpp {
     /**

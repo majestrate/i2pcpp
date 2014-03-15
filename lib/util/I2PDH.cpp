@@ -1,5 +1,7 @@
 #include <i2pcpp/util/I2PDH.h>
 
+#include <botan/dl_group.h>
+
 namespace i2pcpp {
     const Botan::DL_Group DH::getGroup()
     {

@@ -5,14 +5,14 @@
 #ifndef BUILDRECORD_H
 #define BUILDRECORD_H
 
-#include <bitset>
-#include <memory>
-
-#include <botan/elgamal.h>
-
 #include "Datatype.h"
 #include "ByteArray.h"
 #include "SessionKey.h"
+
+#include <bitset>
+#include <memory>
+
+namespace Botan { class ElGamal_PrivateKey; }
 
 namespace i2pcpp {
     /**

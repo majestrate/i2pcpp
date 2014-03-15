@@ -4,12 +4,15 @@
  */
 #include <i2pcpp/datatypes/RouterInfo.h>
 
+#include <i2pcpp/util/I2PDH.h>
+
 #include <botan/pipe.h>
 #include <botan/pubkey.h>
 #include <botan/pk_filts.h>
 #include <botan/auto_rng.h>
-
-#include <i2pcpp/util/I2PDH.h>
+#include <botan/pipe.h>
+#include <botan/lookup.h>
+#include <botan/dsa.h>
 
 namespace i2pcpp {
     RouterInfo::RouterInfo(RouterIdentity const &identity, Date const &published, Mapping const &options, ByteArray const &signature) :

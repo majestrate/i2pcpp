@@ -5,10 +5,10 @@
 #ifndef MAPPING_H
 #define MAPPING_H
 
+#include "Datatype.h"
+
 #include <map>
 #include <string>
-
-#include "Datatype.h"
 
 namespace i2pcpp {
     /**

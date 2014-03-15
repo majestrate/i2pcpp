@@ -1,11 +1,12 @@
 #ifndef STATICBYTEARRAY_H
 #define STATICBYTEARRAY_H
 
+#include "ByteArray.h"
+
+#include <i2pcpp/util/Base64.h>
+
 #include <array>
 #include <iostream>
-
-#include <i2pcpp/datatypes/ByteArray.h>
-#include <i2pcpp/util/Base64.h>
 
 namespace i2pcpp {
     template<std::size_t L>

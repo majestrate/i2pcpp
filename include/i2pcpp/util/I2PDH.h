@@ -1,7 +1,7 @@
 #ifndef I2PDH_H
 #define I2PDH_H
 
-#include <botan/dl_group.h>
+namespace Botan { class DL_Group; }
 
 namespace i2pcpp {
     class DH {

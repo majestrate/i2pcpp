@@ -5,17 +5,14 @@
 #ifndef BUILDREQUESTRECORD_H
 #define BUILDREQUESTRECORD_H
 
-#include <memory>
-
-#include <botan/elgamal.h>
-
-#include "Datatype.h"
 #include "ByteArray.h"
-#include "BuildRecord.h"
 #include "RouterHash.h"
-#include "RouterIdentity.h"
+
+#include "BuildRecord.h"
 
 namespace i2pcpp {
+    class RouterIdentity;
+
     /**
      * Holds the tunnel build request record.
      * @see i2pcpp::I2NP::VariableTunnelBuild

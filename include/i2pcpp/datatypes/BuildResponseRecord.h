@@ -6,6 +6,7 @@
 #define BUILDRESPONSERECORD_H
 
 #include "SessionKey.h"
+
 #include "BuildRecord.h"
 
 namespace i2pcpp {
