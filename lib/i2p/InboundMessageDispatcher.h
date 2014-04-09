@@ -29,7 +29,7 @@ namespace i2pcpp {
              * Constructs from a reference to an I/O service and an
              *  i2pcpp::RouterContext.
              */
-            InboundMessageDispatcher(RouterContext &ctx);
+            InboundMessageDispatcher(boost::asio::io_service &ios, RouterContext &ctx);
             InboundMessageDispatcher(const InboundMessageDispatcher &) = delete;
             InboundMessageDispatcher& operator=(InboundMessageDispatcher &) = delete;
 

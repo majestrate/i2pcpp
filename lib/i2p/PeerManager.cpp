@@ -11,9 +11,9 @@
 #include <i2pcpp/datatypes/RouterInfo.h>
 
 namespace i2pcpp {
-    PeerManager::PeerManager(RouterContext &ctx) :
+    PeerManager::PeerManager(boost::asio::io_service &ios, RouterContext &ctx) :
+        m_ios(ios),
         m_ctx(ctx),
-        m_ios(m_ctx.getIoService()),
         m_timer(m_ios, boost::posix_time::time_duration(0, 0, 5)),
         m_log(boost::log::keywords::channel = "PM") {}
 

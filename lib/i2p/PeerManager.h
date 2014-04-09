@@ -25,7 +25,7 @@ namespace i2pcpp {
              * Constructs from a i2pcpp::RouterContext.
              * Sets the deadline duration to 5 seconds.
              */
-            PeerManager(RouterContext &ctx);
+            PeerManager(boost::asio::io_service &ios, RouterContext &ctx);
             PeerManager(const PeerManager &) = delete;
             PeerManager& operator=(PeerManager &) = delete;
 

@@ -20,10 +20,10 @@
 
 namespace i2pcpp {
     namespace Tunnel {
-        Manager::Manager(RouterContext &ctx) :
+        Manager::Manager(boost::asio::io_service &ios, RouterContext &ctx) :
+            m_ios(ios),
             m_ctx(ctx),
-            m_ios(m_ctx.getIoService()),
-            m_fragmentHandler(ctx),
+            m_fragmentHandler(ios, ctx),
             m_timer(m_ios, boost::posix_time::time_duration(0, 0, 1)),
             m_log(boost::log::keywords::channel = "TM") {}
 

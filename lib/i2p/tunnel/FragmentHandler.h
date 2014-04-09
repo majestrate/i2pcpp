@@ -15,7 +15,7 @@ namespace i2pcpp {
     namespace Tunnel {
         class FragmentHandler {
             public:
-                FragmentHandler(RouterContext &ctx);
+                FragmentHandler(boost::asio::io_service &ios, RouterContext &ctx);
                 FragmentHandler(const FragmentHandler &) = delete;
                 FragmentHandler& operator=(FragmentHandler &) = delete;
 
@@ -40,8 +40,8 @@ namespace i2pcpp {
                  */
                 void timerCallback(const boost::system::error_code& e, const uint32_t msgId);
 
-                RouterContext &m_ctx;
                 boost::asio::io_service &m_ios;
+                RouterContext &m_ctx;
 
                 /// A map of message IDs to fragment states.
                 std::unordered_map<uint32_t, FragmentState> m_states;
