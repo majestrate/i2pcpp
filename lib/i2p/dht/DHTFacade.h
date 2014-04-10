@@ -22,7 +22,7 @@ namespace i2pcpp {
             /**
              * Constructs from a reference to the i2pcpp::RouterContext
              */
-            DHTFacade(RouterContext& ctx);
+            DHTFacade(boost::asio::io_service &ios, RouterContext& ctx);
 
             DHTFacade(const DHTFacade&) = delete;
             DHTFacade& operator=(DHTFacade&) = delete;

@@ -10,9 +10,9 @@
 
 namespace i2pcpp {
     namespace Tunnel {
-        FragmentHandler::FragmentHandler(RouterContext &ctx) :
+        FragmentHandler::FragmentHandler(boost::asio::io_service &ios, RouterContext &ctx) :
+            m_ios(ios),
             m_ctx(ctx),
-            m_ios(m_ctx.getIoService()),
             m_log(boost::log::keywords::channel = "FH") {}
 
         void FragmentHandler::receiveFragments(std::list<FragmentPtr> fragments)

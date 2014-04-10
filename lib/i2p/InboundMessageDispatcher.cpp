@@ -21,9 +21,9 @@
 #include <iomanip>
 
 namespace i2pcpp {
-    InboundMessageDispatcher::InboundMessageDispatcher(RouterContext &ctx) :
+    InboundMessageDispatcher::InboundMessageDispatcher(boost::asio::io_service &ios, RouterContext &ctx) :
+        m_ios(ios),
         m_ctx(ctx),
-        m_ios(m_ctx.getIoService()),
         m_deliveryStatusHandler(ctx),
         m_dbStoreHandler(ctx),
         m_dbSearchReplyHandler(ctx),

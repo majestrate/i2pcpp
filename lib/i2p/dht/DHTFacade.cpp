@@ -12,9 +12,9 @@
 namespace i2pcpp {
     namespace DHT {
 
-        DHTFacade::DHTFacade(RouterContext& ctx) :
+        DHTFacade::DHTFacade(boost::asio::io_service &ios, RouterContext& ctx) :
             m_dht(std::make_unique<DHT::Kademlia>(ctx.getIdentity()->getHash())),
-            m_searchManager(ctx)
+            m_searchManager(ios, ctx)
         {
             // Populate the DHT
             for(const auto& h: ctx.getDatabase()->getAllHashes())

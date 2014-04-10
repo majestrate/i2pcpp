@@ -21,7 +21,7 @@ namespace i2pcpp {
     namespace Tunnel {
         class Manager {
             public:
-                Manager(RouterContext &ctx);
+                Manager(boost::asio::io_service &ios, RouterContext &ctx);
                 Manager(const Manager &) = delete;
                 Manager& operator=(Manager &) = delete;
 
