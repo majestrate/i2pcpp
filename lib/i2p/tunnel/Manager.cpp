@@ -74,7 +74,7 @@ namespace i2pcpp {
                 I2P_LOG(m_log, debug) << "found BRR with our identity";
 
                 /* We found a record that belongs to us. Let's decrypt and parse it. */
-                BuildRequestRecordPtr req = std::static_pointer_cast<BuildRequestRecord>(*itr);
+                auto req = std::make_shared<BuildRequestRecord>(**itr);
                 req->decrypt(m_ctx.getEncryptionKey());
                 req->parse();
 
@@ -100,8 +100,8 @@ namespace i2pcpp {
                 for(auto& x: records)
                     x->encrypt(req->getReplyIV(), req->getReplyKey());
 
-                /*  If we're the endpoint, wrap the records in a Tunnel Gateway message before
-                 *  sending it to the next hop.
+                /* If we're the endpoint, wrap the records in a Tunnel Gateway message before
+                 * sending it to the next hop.
                  */
                 if(req->getType() == BuildRequestRecord::Type::ENDPOINT) {
                     I2P_LOG(m_log, debug) << "forwarding BRRs to IBGW: " << req->getNextHash() << ", tunnel ID: " << req->getNextTunnelId() << ", nextMsgId: " << req->getNextMsgId();

@@ -34,7 +34,7 @@ namespace i2pcpp {
         if(givenHash != calcHash)
             throw std::runtime_error("hash verification failed in BuildResponseRecord");
 
-        m_reply = (Reply)m_data[527];
+        m_reply = (Reply)m_data[511];
     }
 
     void BuildResponseRecord::compile()
@@ -42,7 +42,7 @@ namespace i2pcpp {
         Botan::AutoSeeded_RNG rng;
 
         rng.randomize(m_data.data() + 16, 495);
-        m_data[527] = (unsigned char)m_reply;
+        m_data[511] = (unsigned char)m_reply;
 
         Botan::Pipe hashPipe(new Botan::Hash_Filter("SHA-256"));
         hashPipe.start_msg();
