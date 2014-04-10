@@ -64,7 +64,8 @@ namespace i2pcpp {
                 typedef std::pair<map_type::const_iterator, map_type::const_iterator> result_type;
 
                 /**
-                 * Constructs an i2pcpp::DHT::Kademlia from a reference to a key.
+                 * Constructs an i2pcpp::DHT::Kademlia from a reference to a key. Lookups
+                 * are relative to this value.
                  * @note generally this is taken as i2pcpp::RouterHash of this router
                  */
                 Kademlia(key_type const &reference);

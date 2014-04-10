@@ -33,8 +33,10 @@ namespace i2pcpp {
         void SearchManager::createSearch(Kademlia::key_type const &k, Kademlia::result_type const &startingPoints)
         {
             // If the key is in the NLC, immediately trigger failure
-            if(m_nlc.contains(k))
-                return m_ios.post(boost::bind(boost::ref(m_failureSignal), k));
+            if(m_nlc.contains(k)) {
+                m_ios.post(boost::bind(boost::ref(m_failureSignal), k));
+                return;
+            }
             
             std::lock_guard<std::mutex> lock(m_searchesMutex);
             

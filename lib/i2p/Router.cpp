@@ -96,12 +96,12 @@ namespace i2pcpp {
         ));
         m_impl->ctx.getSignals().registerPeerConnected(boost::bind(
             &DHT::SearchManager::connected,
-            boost::ref(m_impl->ctx.getDHT().getSearchManager()), _1
+            boost::ref(m_impl->ctx.getDHT()->getSearchManager()), _1
         ));
 
         m_impl->ctx.getSignals().registerConnectionFailure(boost::bind(
             &DHT::SearchManager::connectionFailure,
-            boost::ref(m_impl->ctx.getDHT().getSearchManager()), _1
+            boost::ref(m_impl->ctx.getDHT()->getSearchManager()), _1
         ));
         m_impl->ctx.getSignals().registerConnectionFailure(boost::bind(
             &PeerManager::failure, boost::ref(m_impl->ctx.getPeerManager()), _1
@@ -109,11 +109,11 @@ namespace i2pcpp {
 
         m_impl->ctx.getSignals().registerSearchReply(boost::bind(
             &DHT::SearchManager::searchReply,
-            boost::ref(m_impl->ctx.getDHT().getSearchManager()), _1, _2, _3
+            boost::ref(m_impl->ctx.getDHT()->getSearchManager()), _1, _2, _3
         ));
         m_impl->ctx.getSignals().registerDatabaseStore(boost::bind(
             &DHT::SearchManager::databaseStore,
-            boost::ref(m_impl->ctx.getDHT().getSearchManager()), _1, _2, _3
+            boost::ref(m_impl->ctx.getDHT()->getSearchManager()), _1, _2, _3
         ));
 
         m_impl->ctx.getSignals().registerTunnelRecordsReceived(boost::bind(
@@ -129,11 +129,11 @@ namespace i2pcpp {
             boost::ref(m_impl->ctx.getTunnelManager()), _1, _2, _3
         ));
 
-        m_impl->ctx.getDHT().getSearchManager().registerSuccess(boost::bind(
+        m_impl->ctx.getDHT()->getSearchManager().registerSuccess(boost::bind(
             &OutboundMessageDispatcher::dhtSuccess,
             boost::ref(m_impl->ctx.getOutMsgDisp()), _1, _2
         ));
-        m_impl->ctx.getDHT().getSearchManager().registerFailure(
+        m_impl->ctx.getDHT()->getSearchManager().registerFailure(
             boost::bind(&OutboundMessageDispatcher::dhtFailure,
             boost::ref(m_impl->ctx.getOutMsgDisp()), _1
         ));

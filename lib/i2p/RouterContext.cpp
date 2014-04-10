@@ -21,8 +21,7 @@ namespace i2pcpp {
         m_signals(ios),
         m_tunnelManager(ios, *this),
         m_profileManager(*this),
-        m_peerManager(ios, *this),
-        m_dht(ios, *this)
+        m_peerManager(ios, *this)
     {
         // Load the private keys from the database
         Botan::AutoSeeded_RNG rng;
@@ -41,6 +40,8 @@ namespace i2pcpp {
 
         ByteArray encryptionKeyBytes = Botan::BigInt::encode(encryptionKeyPublic), signingKeyBytes = Botan::BigInt::encode(signingKeyPublic);
         m_identity = std::make_shared<RouterIdentity>(encryptionKeyBytes, signingKeyBytes, Certificate());
+
+        m_dht = std::make_shared<DHT::DHTFacade>(ios, m_identity->getHash(), db->getAllHashes(), *this);
     }
 
     std::shared_ptr<const Botan::ElGamal_PrivateKey> RouterContext::getEncryptionKey() const
@@ -93,7 +94,7 @@ namespace i2pcpp {
         return m_peerManager;
     }
 
-    DHT::DHTFacade& RouterContext::getDHT()
+    std::shared_ptr<DHT::DHTFacade> RouterContext::getDHT()
     {
         return m_dht;
     }

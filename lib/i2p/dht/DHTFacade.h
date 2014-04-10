@@ -5,6 +5,8 @@
 #ifndef _DHTFACADE_H_INCLUDE_GUARD
 #define _DHTFACADE_H_INCLUDE_GUARD
 
+#include <forward_list>
+
 #include "Kademlia.h"
 #include "SearchManager.h"
 
@@ -20,9 +22,13 @@ namespace i2pcpp {
 
         public:
             /**
-             * Constructs from a reference to the i2pcpp::RouterContext
+             * Constructs from a boost::asio::io_service, local router hash (where
+             * lookups are relative to), and forward_list of initial RouterHashes.
              */
-            DHTFacade(boost::asio::io_service &ios, RouterContext& ctx);
+            DHTFacade(boost::asio::io_service &ios,
+                    RouterHash const &local,
+                    std::forward_list<RouterHash> const &hashes,
+                    RouterContext &ctx);
 
             DHTFacade(const DHTFacade&) = delete;
             DHTFacade& operator=(DHTFacade&) = delete;
@@ -37,7 +43,7 @@ namespace i2pcpp {
             SearchManager& getSearchManager();
 
         private:
-            std::unique_ptr<Kademlia> m_dht;
+            Kademlia m_dht;
             SearchManager m_searchManager;
         };
     }

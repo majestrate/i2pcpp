@@ -38,7 +38,7 @@ namespace i2pcpp {
                 m_transport->connect(m_ctx.getDatabase()->getRouterInfo(to));
             else {
                 I2P_LOG(m_log, debug) << "RouterInfo not in DB, creating search job";
-                bool result = m_ctx.getDHT().lookup(to);
+                bool result = m_ctx.getDHT()->lookup(to);
                 if(!result) {
                     I2P_LOG(m_log, error) << "could not find a good place to start search, aborting";
                     m_pending.erase(to);
