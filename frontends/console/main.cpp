@@ -251,7 +251,7 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     } catch(std::exception &e) {
         cerr << "error: " << e.what() << endl;
-
+        
         return EXIT_FAILURE;
     }
 }

@@ -42,7 +42,13 @@ namespace i2pcpp {
                 OutboundMessageState& oms = itr->second;
 
                 std::vector<PacketBuilder::FragmentPtr> fragList;
-                fragList.push_back(oms.getNextFragment());
+                auto fragment = oms.getNextFragment();
+
+                if (fragment == nullptr) {
+                    throw std::runtime_error("no ssu fragment when sending");
+                }
+
+                fragList.push_back(fragment);
 
                 oms.markFragmentSent(fragList[0]->fragNum);
 

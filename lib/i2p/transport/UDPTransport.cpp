@@ -21,7 +21,7 @@ namespace i2pcpp {
         m_establishmentManager(*this, privKey, ri),
         m_ackManager(*this),
         m_omf(*this),
-        m_log(boost::log::keywords::channel = "SSU") {}
+        m_log(I2P_LOG_CHANNEL("SSU")) {}
 
     UDPTransport::~UDPTransport()
     {
@@ -57,11 +57,12 @@ namespace i2pcpp {
                         m_ios.run();
                         break;
                     } catch(std::exception &e) {
-                        I2P_LOG(m_log, error) << "exception thrown: " << e.what();
+                        I2P_LOG(m_log, error) << "exception thrown in transport: " << e.what();
                     }
                 }
             });
         } catch(boost::system::system_error &e) {
+            I2P_LOG(m_log, error) << "system error in transport: " << e.what();
             shutdown();
             throw;
         }
@@ -146,6 +147,7 @@ namespace i2pcpp {
 
     void UDPTransport::shutdown()
     {
+        I2P_LOG(m_log, info) << "shutdown transport";
         std::lock_guard<std::mutex> lock(m_peers.getMutex());
 
         for(auto itr = m_peers.cbegin(); itr != m_peers.cend(); ++itr) {
@@ -202,7 +204,7 @@ namespace i2pcpp {
                         )
                     );
         } else {
-            I2P_LOG(m_log, debug) << "error: " << e.message();
+            I2P_LOG(m_log, debug) << "error when recieving: " << e.message();
         }
     }
 

@@ -16,6 +16,7 @@
 #define I2P_LOG(logger, sev) BOOST_LOG_SEV(logger, sev)
 #define I2P_LOG_TAG(logger, name, value) logger.add_attribute(name, boost::log::attributes::make_constant(value))
 #define I2P_LOG_SCOPED_TAG(logger, name, value) BOOST_LOG_SCOPED_LOGGER_TAG(logger, name, value)
+#define I2P_LOG_CHANNEL(ch) boost::log::keywords::channel = ch
 
 namespace i2pcpp {
     typedef boost::log::sources::severity_channel_logger_mt<severity_level, std::string> i2p_logger_mt;

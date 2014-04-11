@@ -17,7 +17,7 @@ namespace i2pcpp {
     namespace Handlers {
         DatabaseStore::DatabaseStore(RouterContext &ctx) :
             Message(ctx),
-            m_log(boost::log::keywords::channel = "H[DSto]") {}
+            m_log(I2P_LOG_CHANNEL("H[DSto]")) {}
 
         void DatabaseStore::handleMessage(RouterHash const from, I2NP::MessagePtr const msg)
         {

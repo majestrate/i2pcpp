@@ -13,7 +13,7 @@
 namespace i2pcpp {
     OutboundMessageDispatcher::OutboundMessageDispatcher(RouterContext &ctx) :
         m_ctx(ctx),
-        m_log(boost::log::keywords::channel = "OMD") {}
+        m_log(I2P_LOG_CHANNEL("OMD")) {}
 
     void OutboundMessageDispatcher::sendMessage(RouterHash const &to, I2NP::MessagePtr const &msg)
     {

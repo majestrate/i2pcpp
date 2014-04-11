@@ -10,15 +10,17 @@
 
 #include <i2pcpp/datatypes/RouterInfo.h>
 
+
 namespace i2pcpp {
     PeerManager::PeerManager(boost::asio::io_service &ios, RouterContext &ctx) :
         m_ios(ios),
         m_ctx(ctx),
         m_timer(m_ios, boost::posix_time::time_duration(0, 0, 5)),
-        m_log(boost::log::keywords::channel = "PM") {}
+        m_log(I2P_LOG_CHANNEL("PM")) {}
 
     void PeerManager::begin()
     {
+        I2P_LOG(m_log,info) << "PeerManager beginning";
         m_timer.async_wait(boost::bind(&PeerManager::callback, this, boost::asio::placeholders::error));
     }
 

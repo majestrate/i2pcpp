@@ -7,3 +7,10 @@ build/
 *.swp
 *.tgz
 *~
+<<<<<<< HEAD
+=======
+*.orig
+*.me
+*.pyc
+*.so
+>>>>>>> master
