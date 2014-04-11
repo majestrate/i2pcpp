@@ -105,21 +105,21 @@ function make_graph(elem, h)
     return [graph, render ]
 }
 
-var send = make_graph(document.getElementById("graph_send"), 300)
+var send = make_graph(document.getElementById("graph_send"), 200)
 var send_axis_render = send[1];
 var graph_send = send[0];
 
 send_axis_render();
 graph_send.render();
 
-var recv = make_graph(document.getElementById("graph_recv"), 300);
+var recv = make_graph(document.getElementById("graph_recv"), 200);
 var recv_axis_render = recv[1];
 var graph_recv = recv[0];
 
 recv_axis_render();
 graph_recv.render();
 
-var peers = make_graph(document.getElementById("graph_peers"), 300);
+var peers = make_graph(document.getElementById("graph_peers"), 200);
 var peers_axis_render = peers[1];
 var graph_peers = peers[0];
 
