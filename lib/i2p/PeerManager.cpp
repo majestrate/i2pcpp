@@ -43,7 +43,7 @@ namespace i2pcpp {
             uint32_t numPeers = m_ctx.getOutMsgDisp().getTransport()->numPeers();
 
             I2P_LOG(m_log, debug) << "current number of peers: " << numPeers;
-
+            I2P_LOG(m_log, debug) << boost::log::add_value("peers", (uint32_t) numPeers);
             int32_t gap = minPeers - numPeers;
             for(int32_t i = 0; i < gap; i++)
                 m_ctx.getOutMsgDisp().getTransport()->connect(m_ctx.getProfileManager().getPeer());

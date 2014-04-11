@@ -5,8 +5,16 @@
 #include <boost/log/sinks/frontend_requirements.hpp>
 
 #include <mutex>
+#include <string>
 
 namespace sinks = boost::log::sinks;
+
+struct stats_t {
+    uint64_t bytes_sent = 0;
+    uint64_t bytes_recv = 0;
+    uint32_t peer_count = 0;
+    std::string json();
+};
 
 class StatsBackend : public sinks::basic_sink_backend<
                           sinks::combine_requirements<
@@ -17,13 +25,11 @@ class StatsBackend : public sinks::basic_sink_backend<
     public:
         void consume(boost::log::record_view const& rec);
 
-        std::pair<uint64_t, uint64_t> getBytesAndReset();
+        stats_t getStats();
 
     private:
         mutable std::mutex m_mutex;
-
-        uint64_t m_receivedBytes = 0;
-        uint64_t m_sentBytes = 0;
+        stats_t m_stats;
 };
 
 #endif

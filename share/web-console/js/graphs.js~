@@ -1,0 +1,105 @@
+ 
+function make_amount(val) {
+    if ( val > 1024 ) {
+        val = val / 1024;
+        if ( val > 1024) {
+            return Math.floor(val) + "Mbps";
+        }
+        return Math.floor(val) + "Kbps";
+    }
+    return Math.floor(val) + "bps";
+}
+
+function calc_mean(arr) {
+    var s = 0;
+    for ( var ind = 0; ind < arr.length; ind++ ) {
+        s += arr[ind];                             
+    }
+    return ( 0.0 + s ) / arr.length;
+}
+
+var stats_new =  function() {
+    return {
+        send_hist: [],
+        recv_hist: [],
+        hist_count: 0,
+        hist_len: 0,
+        hist_mean_interval: 5,
+        send_mean: 0,
+        recv_mean: 0
+    };
+}
+
+var statsConnection = new WebSocket("ws://127.0.0.1:10010/stats");
+
+statsConnection.onopen = function() { }
+
+var g_h = 300;
+var g_w = 900;
+
+var palette = new Rickshaw.Color.Palette( { scheme: 'spectrum14' } );
+
+function make_graph(elem_tag) {
+    var graph = new Rickshaw.Graph({ 
+        element: document.querySelector("#graph_send"),
+        width: g_w,
+        height: g_h / 2,
+        renderer: 'multi',
+        
+        stroke: true,
+        series: new Rickshaw.Series.FixedDuration([
+            { name: 'mean'  , renderer: 'bar' },
+            { name: 'amount' , renderer: 'line' , color: '#33d' }, 
+            ],
+            palette,
+            {
+                timeInterval: 10000,
+                maxDataPoints: 180,
+                timeBase: new Date().getTime() / 1000
+            })
+    });
+
+    var x_axis = new Rickshaw.Graph.Axis.Time({
+        graph: graph,
+        ticksTreatment: 'glow',
+        timeFixture: new Rickshaw.Fixtures.Time.Local()
+    })
+    var y_axis = new Rickshaw.Graph.Axis.Y({
+        graph: graph,
+        tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
+        ticksTreatment: 'glow'
+    });
+}
+
+graph_send.render();
+graph_recv.render();
+
+
+            statsConnection.onmessage = function(msg) {
+                var data = JSON.parse(msg.data);
+                var bw = data['bandwidth'];
+                var peers = data['peers'];
+                sa = bw[0]* 8;
+                ra = bw[1] * 8;
+                send_h.push(sa);
+                recv_h.push(ra);
+                h_l += 1;
+                h_c += 1;
+                while ( h_l > mi ) {
+                    send_h.shift();
+                    recv_h.shift();
+                    h_l--;
+                }
+                //if ( h_c % mi == 0) {
+                    s_m = calc_mean(send_h);
+                    r_m = calc_mean(recv_h);
+                //}
+                
+                	
+                graph_send.series.addData( { amount: sa , mean: s_m } );
+                graph_send.render();
+                graph_recv.series.addData( { amount: ra , mean: r_m } );
+                graph_recv.render();
+                document.getElementById("send_str").innerHTML = "Current: " + make_amount(sa) + " Mean: " + make_amount(s_m);
+                document.getElementById("recv_str").innerHTML = "Current: " + make_amount(ra) + " Mean: " + make_amount(r_m);
+            };

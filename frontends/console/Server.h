@@ -30,7 +30,7 @@ class Server {
         void on_open(wspp::connection_hdl handle);
         void on_close(wspp::connection_hdl handle);
 
-        void broadcastStats(uint64_t bytesSent, uint64_t bytesReceived);
+        void broadcastStats(stats_t & stats);
         void timerCallback(const boost::system::error_code &e);
 
         i2pcpp::Endpoint m_endpoint;
