@@ -137,7 +137,6 @@ var stats = stats_new();
 statsConnection.onmessage = function(msg) 
 {
     var data = JSON.parse(msg.data);
-    console.log(msg.data);
     stats_update(stats, data);
     stats_put_graph(stats.recv, graph_recv);
     graph_recv.render();
