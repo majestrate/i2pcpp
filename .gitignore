@@ -6,3 +6,4 @@ build/
 *.db
 *.swp
 *.tgz
+*~
