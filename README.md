@@ -23,18 +23,18 @@ Make a build directory
 
 If your version of boost is 1.55.0 or higher run:
 
-    cmake .. -DCMAKE_BUILD_TYPE=Debug
+    cmake $HOME/i2pcpp -DCMAKE_BUILD_TYPE=Debug
 
 Otherwise download boost 1.55.0, unpack to a folder (in this case we'll use $HOME/boost_1_55_0/)
 compile it but don't install. then run:
 
-    cmake .. --DCMAKE_BUILD_TYPE=Debug -DBOOST_ROOT=$HOME/boost_1_55_0
+    cmake $HOME/i2pcpp --DCMAKE_BUILD_TYPE=Debug -DBOOST_ROOT=$HOME/boost_1_55_0
 
 For this bleeding edge branch I provide an easy intialization script.
 You need to have an existing i2p netdb, this version does NOT come with initial peers.
 
-    python3 ./share/i2pinit.py --port 11050 --netdb $HOME/.i2p/netDb
-    ./build/out/bin/i2p
+    python3 $HOME/i2pcpp/share/i2pinit.py --port 11050 --netdb $HOME/.i2p/netDb
+    $HOME/i2pcpp/build/out/bin/i2p
 
 ## Building
 
