@@ -41,8 +41,7 @@ var stats_new = function()
 
 var stats_update = function(stats, j_obj)
 {
-    var bw = j_obj['bandwidth'];
-    var peers = j_obj['peers'];
+    var bw = j_obj.bandwidth;
     stats.send.value = bw[0] * 8;
     stats.recv.value = bw[1] * 8;
     stats.send.hist.push(stats.send.value);
@@ -67,7 +66,8 @@ var stats_put_graph = function(stat, graph)
 
 var statsConnection = new WebSocket("ws://127.0.0.1:10010/stats");
 
-statsConnection.onopen = function() { document.getElementById("connection_label").innerHTML = "connected"; }
+statsConnection.onopen = function() { $("#connection_label").html("Connected"); }
+statsConnection.onclose = function() { $("#connection_label").html("Disconnected"); }
 
 function make_graph(elem, h) 
 {
@@ -102,24 +102,24 @@ function make_graph(elem, h)
         ticksTreatment: 'glow'
     });
     var render = function() { x_axis.render(); y_axis.render(); };
-    return [graph, render ]
+    return [graph, render]
 }
 
-var send = make_graph(document.getElementById("graph_send"), 200)
+var send = make_graph($("#graph_send").get(0), 200)
 var send_axis_render = send[1];
 var graph_send = send[0];
 
 send_axis_render();
 graph_send.render();
 
-var recv = make_graph(document.getElementById("graph_recv"), 200);
+var recv = make_graph($("#graph_recv").get(0), 200);
 var recv_axis_render = recv[1];
 var graph_recv = recv[0];
 
 recv_axis_render();
 graph_recv.render();
 
-var peers = make_graph(document.getElementById("graph_peers"), 200);
+var peers = make_graph($("#graph_peers").get(0), 200);
 var peers_axis_render = peers[1];
 var graph_peers = peers[0];
 
@@ -129,7 +129,7 @@ graph_recv.render();
 
 var update_label = function(stat, elem) 
 {
-    elem.innerHTML = "Current: " + make_amount(stat.value) + " Mean: " + make_amount(stat.mean);
+    $(elem).html("Current: " + make_amount(stat.value) + " Mean: " + make_amount(stat.mean));
 }
 
 var stats = stats_new();
@@ -148,7 +148,7 @@ statsConnection.onmessage = function(msg)
     graph_peers.series.addData({ amount: data.peers, mean: 0});
     graph_peers.render();
 
-    update_label(stats.recv, document.getElementById("recv_str"));
-    update_label(stats.send, document.getElementById("send_str"));
-    document.getElementById("peers_str").innerHTML = data.peers + " Peers";
+    update_label(stats.recv, "#recv_str");
+    update_label(stats.send, "#send_str");
+    $("#peers_str").html(data.peers + " Peers");
 };

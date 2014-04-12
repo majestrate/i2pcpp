@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# this script generates initial keys and populates netdb as needed
+# this script sets intial config values and populates netdb as needed
 #
 
 import sqlite3, os
@@ -70,4 +70,5 @@ if __name__ == '__main__':
     args = ap.parse_args()
 
     init(ssu_port=args.port,ndb_dir=args.netdb)
-            
+    print ('please forward port %d to this machine' % args.port)
+    print ('then run ./i2p or ./i2p -l if you want to have it log to disk')

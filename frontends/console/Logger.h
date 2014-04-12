@@ -21,8 +21,8 @@ typedef boost::log::sources::severity_channel_logger_mt<i2pcpp::severity_level, 
 
 class Logger {
     public:
-        static void logToConsole();
-        static void logToFile(const std::string &file);
+      	static void logToConsole(i2pcpp::severity_level log_level);
+	      static void logToFile(const std::string &file, i2pcpp::severity_level log_level);
 
         template<typename T>
         static void addBackendToAsyncSink(boost::shared_ptr<T> backend)
