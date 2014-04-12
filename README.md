@@ -15,7 +15,6 @@ Currently the router is able to forward traffic between peers. It is unable to d
 Get the source code
 
     git clone https://github.com/majestrate/i2pcpp $HOME/i2pcpp
-    cd $HOME/i2pcpp
 
 Make a build directory
 
