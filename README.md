@@ -14,13 +14,13 @@ Currently the router is able to forward traffic between peers. It is unable to d
 
 Get the source code
 
-`git clone https://github.com/majestrate/i2pcpp $HOME/i2pcpp
-cd $HOME/i2pcpp`
+`git clone https://github.com/majestrate/i2pcpp $HOME/i2pcpp`
+`cd $HOME/i2pcpp`
 
 Make a build directory
 
-`mkdir $HOME/i2pcpp/build
-cd $HOME/i2pcpp/build`
+`mkdir $HOME/i2pcpp/build`
+`cd $HOME/i2pcpp/build`
 
 If your version of boost is 1.55.0 or higher run:
 
@@ -34,8 +34,8 @@ compile it but don't install. then run:
 For this bleeding edge branch I provide an easy intialization script.
 You need to have an existing i2p netdb, this version does NOT come with initial peers.
 
-`python3 ./share/i2pinit.py --port 11050 --netdb $HOME/.i2p/netDb
-./build/out/bin/i2p`
+`python3 ./share/i2pinit.py --port 11050 --netdb $HOME/.i2p/netDb`
+`./build/out/bin/i2p`
 
 ## Building
 
