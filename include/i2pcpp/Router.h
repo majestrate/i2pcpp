@@ -11,6 +11,7 @@
 
 namespace i2pcpp {
     class RouterInfo;
+    class Transport;
     class Database;
 
     /**
@@ -32,6 +33,12 @@ namespace i2pcpp {
              * per application, regardless of how many routers you start.
              */
             static void initialize();
+
+            /**
+             * Registers a transport with libi2p. The transport must already have
+             * been initialized properly.
+             */
+            void addTransport(std::shared_ptr<Transport> t);
 
             /**
              * Starts the i2pcpp::Router.

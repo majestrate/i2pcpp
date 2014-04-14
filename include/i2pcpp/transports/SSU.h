@@ -1,20 +1,20 @@
 /**
- * @file UDPTransport.h
- * @brief Defines the i2pcpp::UDPTransport class.
+ * @file SSU.h
+ * @brief Defines the i2pcpp::SSU::SSU class.
  */
-#ifndef UDPTRANSPORT_H
-#define UDPTRANSPORT_H
+#ifndef SSU_H
+#define SSU_H
 
-#include "Transport.h"
+#include "../Transport.h"
 
-#include "../Log.h"
+#include "../../../lib/i2p/Log.h" // XXX BAD
 
-#include "ssu/Packet.h"
-#include "ssu/PacketHandler.h"
-#include "ssu/PeerStateList.h"
-#include "ssu/EstablishmentManager.h"
-#include "ssu/AcknowledgementManager.h"
-#include "ssu/OutboundMessageFragments.h"
+#include "Packet.h"
+#include "PacketHandler.h"
+#include "PeerStateList.h"
+#include "EstablishmentManager.h"
+#include "AcknowledgementManager.h"
+#include "OutboundMessageFragments.h"
 
 #include <i2pcpp/datatypes/RouterIdentity.h>
 

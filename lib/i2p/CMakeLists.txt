@@ -7,6 +7,7 @@ set(i2pcpp_sources
     Router.cpp
     RouterContext.cpp
     Signals.cpp
+    Transport.cpp
     Version.cpp
     c_api/i2p.cpp
     c_api/db.cpp
@@ -35,20 +36,6 @@ set(i2pcpp_sources
     i2np/TunnelGateway.cpp
     i2np/VariableTunnelBuild.cpp
     i2np/VariableTunnelBuildReply.cpp
-    transport/ssu/AcknowledgementManager.cpp
-    transport/ssu/EstablishmentManager.cpp
-    transport/ssu/EstablishmentState.cpp
-    transport/ssu/InboundMessageFragments.cpp
-    transport/ssu/InboundMessageState.cpp
-    transport/ssu/OutboundMessageFragments.cpp
-    transport/ssu/OutboundMessageState.cpp
-    transport/ssu/Packet.cpp
-    transport/ssu/PacketBuilder.cpp
-    transport/ssu/PacketHandler.cpp
-    transport/ssu/PeerState.cpp
-    transport/ssu/PeerStateList.cpp
-    transport/Transport.cpp
-    transport/UDPTransport.cpp
     tunnel/InboundTunnel.cpp
     tunnel/OutboundTunnel.cpp
     tunnel/Tunnel.cpp

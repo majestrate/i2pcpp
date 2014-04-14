@@ -6,8 +6,8 @@
 #define OUTBOUNDMESSAGEDISPATCHER_H
 
 #include "Log.h"
+#include "../../include/i2pcpp/Transport.h"
 
-#include "transport/Transport.h"
 #include "dht/Kademlia.h"
 
 #include <i2pcpp/datatypes/RouterHash.h>

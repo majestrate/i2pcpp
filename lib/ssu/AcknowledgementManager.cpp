@@ -4,7 +4,7 @@
  */
 #include "AcknowledgementManager.h"
 
-#include "../UDPTransport.h"
+#include "../../include/i2pcpp/transports/SSU.h"
 
 #include <boost/bind.hpp>
 

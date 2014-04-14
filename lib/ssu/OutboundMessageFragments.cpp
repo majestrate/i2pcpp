@@ -4,7 +4,7 @@
  */
 #include "OutboundMessageFragments.h"
 
-#include "../UDPTransport.h"
+#include "../../include/i2pcpp/transports/SSU.h"
 
 #include <i2pcpp/util/make_unique.h>
 

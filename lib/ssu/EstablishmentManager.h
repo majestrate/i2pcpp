@@ -5,7 +5,7 @@
 #ifndef ESTABLISHMENTMANAGER_H
 #define ESTABLISHMENTMANAGER_H
 
-#include "../../Log.h"
+#include "../i2p/Log.h" // XXX BAD
 
 #include <i2pcpp/datatypes/Endpoint.h>
 #include <i2pcpp/datatypes/RouterIdentity.h>

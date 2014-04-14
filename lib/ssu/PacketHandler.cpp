@@ -5,8 +5,7 @@
 #include "PacketHandler.h"
 
 #include "EstablishmentState.h"
-
-#include "../UDPTransport.h"
+#include "../../include/i2pcpp/transports/SSU.h"
 
 namespace i2pcpp {
     namespace SSU {

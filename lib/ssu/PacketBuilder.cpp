@@ -7,7 +7,7 @@
 #include "Packet.h"
 #include "EstablishmentState.h"
 
-#include "../../Log.h"
+#include "../i2p/Log.h" // XXX BAD
 
 #include <i2pcpp/datatypes/RouterIdentity.h>
 

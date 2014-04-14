@@ -9,6 +9,7 @@
 #include <i2pcpp/Version.h>
 #include <i2pcpp/Database.h>
 
+#include <i2pcpp/transports/SSU.h>
 #include <i2pcpp/datatypes/RouterInfo.h>
 #include <i2pcpp/datatypes/Endpoint.h>
 #include <i2pcpp/util/make_unique.h>

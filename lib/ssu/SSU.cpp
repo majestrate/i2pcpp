@@ -1,12 +1,12 @@
 /**
  * @file UDPTransport.cpp
- * @brief Implements UDPTransport.h
+ * @brief Implements SSU.h
  */
-#include "UDPTransport.h"
+#include "../../include/i2pcpp/transports/SSU.h"
 
-#include "ssu/PeerState.h"
-#include "ssu/OutboundMessageState.h"
-#include "ssu/PacketBuilder.h"
+#include "PeerState.h"
+#include "OutboundMessageState.h"
+#include "PacketBuilder.h"
 
 #include <i2pcpp/datatypes/RouterInfo.h>
 
