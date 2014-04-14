@@ -47,7 +47,7 @@ namespace i2pcpp {
             SearchState ss(k, startingPoints.first->second);
 
             for(auto it = std::next(startingPoints.first); it != startingPoints.second; ++it)
-                ss.alternates.push(it->second);
+                ss.addAlternate(it->second);
 
             m_searches.insert(ss);
 
@@ -114,7 +114,7 @@ namespace i2pcpp {
                     );
 
                     I2NP::MessagePtr dbl(new I2NP::DatabaseLookup(
-                        ss.goal, m_ctx.getIdentity()->getHash(), 0, ss.excluded
+                        ss.goal, m_ctx.getIdentity()->getHash(), 0, ss.getExcluded()
                     ));
                     m_ctx.getOutMsgDisp().sendMessage(rh, dbl);
                 }
@@ -133,19 +133,17 @@ namespace i2pcpp {
                 SearchStateByCurrent::iterator itr = m_searches.get<1>().find(rh);
                 const SearchState& ss = *itr;
 
-                m_searches.get<1>().modify(itr, InsertTried(rh));
+                m_searches.get<1>().modify(itr, PopAlternates());
 
-                RouterHash front;
-                if(ss.alternates.size()) {
-                    front = ss.alternates.front();
-                    while(!m_ctx.getDatabase()->routerExists(front)) {
-                        I2P_LOG(m_log, debug) << "could not try alternate " << front
+                if(ss.countAlternates()) {
+                    while(!m_ctx.getDatabase()->routerExists(ss.current)) {
+                        I2P_LOG(m_log, debug) << "could not try alternate " << ss.current
                                               << " because it doesn't exist";
 
-                        m_searches.get<1>().modify(itr, PopAlternates());
-
-                        if(ss.alternates.size())
-                            front = ss.alternates.front();
+                        // Skip this bad alternate
+                        // If no alternates are left, stop the lookup
+                        if(ss.countAlternates())
+                            m_searches.get<1>().modify(itr, PopAlternates());
                         else {
                             I2P_LOG(m_log, debug) << "no more alternates left, search failed";
 
@@ -153,11 +151,12 @@ namespace i2pcpp {
                         }
                     }
 
-                    while(ss.tried.count(front)) {
-                        m_searches.get<1>().modify(itr, PopAlternates());
-
-                        if(ss.alternates.size())
-                            front = ss.alternates.front();
+                    // It's possible that we have already tried this alternate
+                    // If so, skip it
+                    // Note: this only happens when it's a duplicate
+                    while(ss.isTried(ss.current)) {
+                        if(ss.countAlternates())
+                            m_searches.get<1>().modify(itr, PopAlternates());
                         else {
                             I2P_LOG(m_log, debug) << "no more alternates left, search failed";
 
@@ -165,11 +164,11 @@ namespace i2pcpp {
                         }
                     }
 
-                    I2P_LOG(m_log, debug) << "connecting to alternate " << front;
+                    I2P_LOG(m_log, debug) << "connecting to alternate " << ss.current;
 
-                    m_searches.get<1>().modify(itr, ModifyState(front, rh));
-
-                    m_ctx.getOutMsgDisp().getTransport()->connect(m_ctx.getDatabase()->getRouterInfo(front));
+                    m_ctx.getOutMsgDisp().getTransport()->connect(
+                        m_ctx.getDatabase()->getRouterInfo(ss.current)
+                    );
                 } else {
                     I2P_LOG(m_log, debug) << "connection failed and there are no more alternates, search failed";
 
@@ -192,42 +191,33 @@ namespace i2pcpp {
                 const SearchState& ss = *itr;
                 
                 if(ss.state == SearchState::CurrentState::LOOKUP_SENT) {
-                    m_searches.get<0>().modify(itr, InsertTried(from));
-
-                    for(const auto& h: hashes) { // Add possible alternates
-                        if(!ss.tried.count(h))
+                    for(const auto& h: hashes) { // Add new alternates
+                        if(!ss.isTried(h) && !ss.isAlternate(h))
                             m_searches.get<0>().modify(itr, PushAlternates(h));
                     }
 
-                    if(!ss.alternates.size()) { // Do we have any alternates
+                    if(!ss.countAlternates()) { // Do we have any alternates?
                         I2P_LOG(m_log, debug) << "no more alternates left, search failed";
                         return cancel(ss.goal);
                     }
 
-                    RouterHash front;
-                    while(ss.tried.count(front)) { // Select the next alternate
-                        front = ss.alternates.front();
-                        m_searches.get<0>().modify(itr, PopAlternates());
-                    }
-
-                    if(!m_ctx.getDatabase()->routerExists(front)) {
-                        I2P_LOG(m_log, debug) << "received unknown peer hash " << front
+                    if(!m_ctx.getDatabase()->routerExists(ss.getNext())) {
+                        I2P_LOG(m_log, debug) << "received unknown peer hash " << ss.getNext()
                                               << ", asking for its RouterInfo";
 
-                        m_searches.get<0>().modify(itr, ModifyState(front));
-
                         I2NP::MessagePtr dbl(new I2NP::DatabaseLookup(
-                            front, m_ctx.getIdentity()->getHash(), 0, ss.excluded
+                            ss.current, m_ctx.getIdentity()->getHash(), 0, ss.getExcluded()
                         ));
                         m_ctx.getOutMsgDisp().sendMessage(from, dbl);
                     } else {
-                        I2P_LOG(m_log, debug) << "received known peer hash " << front
+                        I2P_LOG(m_log, debug) << "received known peer hash " << ss.getNext()
                                               << ", connecting";
-
-                        m_searches.get<0>().modify(itr, ModifyState(front, from));
+                        // Select the next alternate
+                        m_searches.get<0>().modify(itr, PopAlternates());
+                        m_searches.get<0>().modify(itr, ModifyState(from));
 
                         m_ctx.getOutMsgDisp().getTransport()->connect(
-                            m_ctx.getDatabase()->getRouterInfo(front)
+                            m_ctx.getDatabase()->getRouterInfo(ss.current)
                         );
                     }
                     
@@ -242,7 +232,7 @@ namespace i2pcpp {
 
             std::lock_guard<std::mutex> lock(m_searchesMutex);
 
-            if(m_searches.get<0>().count(k)) {
+            if(m_searches.get<0>().count(k)) { // k is the Kademlia key we were looking for
                 I2P_LOG(m_log, debug) << "received DatabaseStore for our goal, terminating search";
 
                 SearchStateByGoal::iterator itr = m_searches.get<0>().find(k);
@@ -261,19 +251,22 @@ namespace i2pcpp {
                 return;
             }
 
-            if(isRouterInfo) {
+            if(isRouterInfo) { // k is a RouterHash
                 if(m_searches.get<1>().count(from)) {
                     I2P_LOG(m_log, debug) << "found Routerhash in pending search table";
 
                     SearchStateByCurrent::iterator itr = m_searches.get<1>().find(from);
                     const SearchState& ss = *itr;
 
-                    if(ss.next == k) {
+                    if(ss.getNext() == k) {
                         I2P_LOG(m_log, debug) << "stored hash is one we're waiting for, connecting";
 
-                        m_searches.get<1>().modify(itr, ModifyState(k, from));
-
-                        m_ctx.getOutMsgDisp().getTransport()->connect(m_ctx.getDatabase()->getRouterInfo(k));
+                        // Select the next alternate
+                        m_searches.get<1>().modify(itr, PopAlternates());
+                        m_searches.get<1>().modify(itr, ModifyState(from));
+                        m_ctx.getOutMsgDisp().getTransport()->connect(
+                                m_ctx.getDatabase()->getRouterInfo(k)
+                        );
                     }
                 }
             }
