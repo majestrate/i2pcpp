@@ -47,15 +47,11 @@ namespace i2pcpp {
                             >,
                             bmi::hashed_non_unique<
                                 BOOST_MULTI_INDEX_MEMBER(SearchState, RouterHash, current)
-                            >,
-                            bmi::hashed_non_unique<
-                                BOOST_MULTI_INDEX_MEMBER(SearchState, RouterHash, next)
                             >
                         >
                     > SearchStateContainer;
                     typedef SearchStateContainer::nth_index<0>::type SearchStateByGoal;
                     typedef SearchStateContainer::nth_index<1>::type SearchStateByCurrent;
-                    typedef SearchStateContainer::nth_index<2>::type SearchStateByNext;
 
                 public:
                     /**
