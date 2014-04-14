@@ -21,8 +21,7 @@ namespace i2pcpp {
         m_signals(ios),
         m_tunnelManager(ios, *this),
         m_profileManager(*this),
-        m_peerManager(ios, *this),
-        m_searchManager(ios, *this)
+        m_peerManager(ios, *this)
     {
         // Load the private keys from the database
         Botan::AutoSeeded_RNG rng;
@@ -42,11 +41,7 @@ namespace i2pcpp {
         ByteArray encryptionKeyBytes = Botan::BigInt::encode(encryptionKeyPublic), signingKeyBytes = Botan::BigInt::encode(signingKeyPublic);
         m_identity = std::make_shared<RouterIdentity>(encryptionKeyBytes, signingKeyBytes, Certificate());
 
-        // Populate the DHT
-        m_dht = std::make_shared<DHT::Kademlia>(m_identity->getHash());
-        std::forward_list<RouterHash> hashes = m_db->getAllHashes();
-        for(auto& h: hashes)
-            m_dht->insert(DHT::Kademlia::makeKey(h), h);
+        m_dht = std::make_shared<DHT::DHTFacade>(ios, m_identity->getHash(), db->getAllHashes(), *this);
     }
 
     std::shared_ptr<const Botan::ElGamal_PrivateKey> RouterContext::getEncryptionKey() const
@@ -99,14 +94,9 @@ namespace i2pcpp {
         return m_peerManager;
     }
 
-    DHT::KademliaPtr RouterContext::getDHT()
+    std::shared_ptr<DHT::DHTFacade> RouterContext::getDHT()
     {
         return m_dht;
-    }
-
-    DHT::SearchManager& RouterContext::getSearchManager()
-    {
-        return m_searchManager;
     }
 
     boost::asio::io_service& RouterContext::getIoService()

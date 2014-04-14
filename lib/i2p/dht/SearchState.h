@@ -34,6 +34,13 @@ namespace i2pcpp {
                 LOOKUP_SENT
             };
 
+            /**
+             * Constructs from a goal and an i2pcpp::RouterHash to contact 
+             * @param goal the key to find
+             * @param start the first router to contact
+             */
+            SearchState(const Kademlia::key_type& goal, const RouterHash& start);
+
             Kademlia::key_type goal;
             RouterHash current;
             RouterHash next;

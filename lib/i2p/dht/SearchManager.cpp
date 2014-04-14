@@ -17,6 +17,7 @@ namespace i2pcpp {
         SearchManager::SearchManager(boost::asio::io_service &ios, RouterContext &ctx) :
             m_ios(ios),
             m_ctx(ctx),
+            m_nlc(m_ios, boost::posix_time::time_duration(5, 0, 0)),
             m_log(boost::log::keywords::channel = "SM") {}
 
         boost::signals2::connection SearchManager::registerSuccess(SuccessSignal::slot_type const &sh)
@@ -31,37 +32,47 @@ namespace i2pcpp {
 
         void SearchManager::createSearch(Kademlia::key_type const &k, Kademlia::result_type const &startingPoints)
         {
+            // If the key is in the NLC, immediately trigger failure
+            if(m_nlc.contains(k)) {
+                m_ios.post(boost::bind(boost::ref(m_failureSignal), k));
+                return;
+            }
+            
             std::lock_guard<std::mutex> lock(m_searchesMutex);
+            
+            // If we're already searching for this key, don't start
+            if(m_searches.get<0>().count(k))
+                return;
 
-            if(m_searches.get<0>().count(k)) return;
+            SearchState ss(k, startingPoints.first->second);
 
-            SearchState ss;
-            ss.goal = k;
-
-            auto itr = startingPoints.first;
-            auto& end = startingPoints.second;
-
-            auto& firstPeerToAsk = (*itr).second;
-            ss.current = firstPeerToAsk;
-            ++itr;
-
-            for(; itr != end; ++itr)
-                ss.alternates.push((*itr).second);
+            for(auto it = std::next(startingPoints.first); it != startingPoints.second; ++it)
+                ss.alternates.push(it->second);
 
             m_searches.insert(ss);
 
-            m_timers[k] = std::make_unique<boost::asio::deadline_timer>(m_ios, boost::posix_time::time_duration(0, 2, 0));
-            m_timers[k]->async_wait(boost::bind(&SearchManager::timeout, this, boost::asio::placeholders::error, k));
+            // Start the timeout-timer (2s)
+            m_timers[k] = std::make_unique<boost::asio::deadline_timer>(
+                m_ios, boost::posix_time::time_duration(0, 2, 0)
+            );
+            m_timers[k]->async_wait(boost::bind(
+                &SearchManager::timeout, this, boost::asio::placeholders::error, k
+            ));
 
-            I2P_LOG(m_log, debug) << "created SearchState for " << Base64::encode(ByteArray(k.cbegin(), k.cend())) << " starting with " << firstPeerToAsk;
+            I2P_LOG(m_log, debug) << "created SearchState for "
+                                  << Base64::encode(ByteArray(k.cbegin(), k.cend()))
+                                  << " starting with " << ss.current;
 
-            m_ctx.getOutMsgDisp().getTransport()->connect(m_ctx.getDatabase()->getRouterInfo(firstPeerToAsk));
+            m_ctx.getOutMsgDisp().getTransport()->connect(
+                m_ctx.getDatabase()->getRouterInfo(ss.current)
+            );
         }
 
         void SearchManager::timeout(const boost::system::error_code& e, Kademlia::key_type const k)
         {
             if(!e) {
-                I2P_LOG(m_log, debug) << "timeout for " << Base64::encode(ByteArray(k.cbegin(), k.cend()));
+                I2P_LOG(m_log, debug) << "timeout for "
+                                      << Base64::encode(ByteArray(k.cbegin(), k.cend()));
 
                 std::lock_guard<std::mutex> lock(m_searchesMutex);
                 cancel(k);
@@ -71,12 +82,14 @@ namespace i2pcpp {
         void SearchManager::cancel(Kademlia::key_type const &k)
         {
             SearchStateByGoal::iterator itr = m_searches.get<0>().find(k);
-
+            
             if(itr != m_searches.get<0>().end()) {
                 m_ios.post(boost::bind(boost::ref(m_failureSignal), itr->goal));
 
                 m_searches.get<0>().erase(itr);
                 m_timers.erase(k);
+
+                m_nlc.insert(k);
             }
         }
 
@@ -96,9 +109,13 @@ namespace i2pcpp {
                 if(ss.state == SearchState::CurrentState::CONNECTING) {
                     I2P_LOG(m_log, debug) << "found good SearchState, sending DatabaseLookup";
 
-                    m_searches.get<1>().modify(itr, ModifyState(SearchState::CurrentState::LOOKUP_SENT));
+                    m_searches.get<1>().modify(
+                        itr, ModifyState(SearchState::CurrentState::LOOKUP_SENT)
+                    );
 
-                    I2NP::MessagePtr dbl(new I2NP::DatabaseLookup(ss.goal, m_ctx.getIdentity()->getHash(), 0, ss.excluded));
+                    I2NP::MessagePtr dbl(new I2NP::DatabaseLookup(
+                        ss.goal, m_ctx.getIdentity()->getHash(), 0, ss.excluded
+                    ));
                     m_ctx.getOutMsgDisp().sendMessage(rh, dbl);
                 }
             }
@@ -108,6 +125,7 @@ namespace i2pcpp {
         {
             I2P_LOG_SCOPED_TAG(m_log, "RouterHash", rh);
             I2P_LOG(m_log, debug) << "connection failed";
+
 
             std::lock_guard<std::mutex> lock(m_searchesMutex);
 
@@ -121,7 +139,8 @@ namespace i2pcpp {
                 if(ss.alternates.size()) {
                     front = ss.alternates.front();
                     while(!m_ctx.getDatabase()->routerExists(front)) {
-                        I2P_LOG(m_log, debug) << "could not try alternate " << front << " because it doesn't exist";
+                        I2P_LOG(m_log, debug) << "could not try alternate " << front
+                                              << " because it doesn't exist";
 
                         m_searches.get<1>().modify(itr, PopAlternates());
 
@@ -130,9 +149,7 @@ namespace i2pcpp {
                         else {
                             I2P_LOG(m_log, debug) << "no more alternates left, search failed";
 
-                            cancel(ss.goal);
-
-                            return;
+                            return cancel(ss.goal);
                         }
                     }
 
@@ -144,9 +161,7 @@ namespace i2pcpp {
                         else {
                             I2P_LOG(m_log, debug) << "no more alternates left, search failed";
 
-                            cancel(ss.goal);
-
-                            return;
+                            return cancel(ss.goal);
                         }
                     }
 
@@ -158,9 +173,7 @@ namespace i2pcpp {
                 } else {
                     I2P_LOG(m_log, debug) << "connection failed and there are no more alternates, search failed";
 
-                    cancel(ss.goal);
-
-                    return;
+                    return cancel(ss.goal);
                 }
             }
         }
@@ -177,47 +190,47 @@ namespace i2pcpp {
 
                 SearchStateByGoal::iterator itr = m_searches.get<0>().find(query);
                 const SearchState& ss = *itr;
-
+                
                 if(ss.state == SearchState::CurrentState::LOOKUP_SENT) {
                     m_searches.get<0>().modify(itr, InsertTried(from));
 
-                    for(auto h: hashes) {
+                    for(const auto& h: hashes) { // Add possible alternates
                         if(!ss.tried.count(h))
                             m_searches.get<0>().modify(itr, PushAlternates(h));
                     }
 
-                    RouterHash front;
-                    if(ss.alternates.size()) {
-                        front = ss.alternates.front();
-                        while(ss.tried.count(front)) {
-                            m_searches.get<0>().modify(itr, PopAlternates());
-
-                            if(ss.alternates.size())
-                                front = ss.alternates.front();
-                            else {
-                                I2P_LOG(m_log, debug) << "no more alternates left, search failed";
-
-                                cancel(ss.goal);
-
-                                return;
-                            }
-                        }
-
-                        if(!m_ctx.getDatabase()->routerExists(front)) {
-                            I2P_LOG(m_log, debug) << "received unknown peer hash " << front << ", asking for its RouterInfo";
-
-                            m_searches.get<0>().modify(itr, ModifyState(front));
-
-                            I2NP::MessagePtr dbl(new I2NP::DatabaseLookup(front, m_ctx.getIdentity()->getHash(), 0, ss.excluded));
-                            m_ctx.getOutMsgDisp().sendMessage(from, dbl);
-                        } else {
-                            I2P_LOG(m_log, debug) << "received known peer hash " << front << ", connecting";
-
-                            m_searches.get<0>().modify(itr, ModifyState(front, from));
-
-                            m_ctx.getOutMsgDisp().getTransport()->connect(m_ctx.getDatabase()->getRouterInfo(front));
-                        }
+                    if(!ss.alternates.size()) { // Do we have any alternates
+                        I2P_LOG(m_log, debug) << "no more alternates left, search failed";
+                        return cancel(ss.goal);
                     }
+
+                    RouterHash front;
+                    while(ss.tried.count(front)) { // Select the next alternate
+                        front = ss.alternates.front();
+                        m_searches.get<0>().modify(itr, PopAlternates());
+                    }
+
+                    if(!m_ctx.getDatabase()->routerExists(front)) {
+                        I2P_LOG(m_log, debug) << "received unknown peer hash " << front
+                                              << ", asking for its RouterInfo";
+
+                        m_searches.get<0>().modify(itr, ModifyState(front));
+
+                        I2NP::MessagePtr dbl(new I2NP::DatabaseLookup(
+                            front, m_ctx.getIdentity()->getHash(), 0, ss.excluded
+                        ));
+                        m_ctx.getOutMsgDisp().sendMessage(from, dbl);
+                    } else {
+                        I2P_LOG(m_log, debug) << "received known peer hash " << front
+                                              << ", connecting";
+
+                        m_searches.get<0>().modify(itr, ModifyState(front, from));
+
+                        m_ctx.getOutMsgDisp().getTransport()->connect(
+                            m_ctx.getDatabase()->getRouterInfo(front)
+                        );
+                    }
+                    
                 }
             }
         }
@@ -236,7 +249,11 @@ namespace i2pcpp {
                 const SearchState& ss = *itr;
 
                 if(isRouterInfo)
-                    m_ios.post(boost::bind(boost::ref(m_successSignal), ss.goal, m_ctx.getDatabase()->getRouterInfo(k).getIdentity().getHash()));
+                    m_ios.post(boost::bind(
+                        boost::ref(m_successSignal),
+                        ss.goal,
+                        m_ctx.getDatabase()->getRouterInfo(k).getIdentity().getHash()
+                    ));
 
                 m_searches.get<0>().erase(itr);
                 m_timers.erase(k);

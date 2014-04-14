@@ -45,10 +45,11 @@ namespace i2pcpp {
                 typedef StaticByteArray<KEY_SIZE> key_type;
 
                 /**
-                 * Values are i2pcpp::RouterHash objects, which identify routers
-                 *  in the network.
+                 * Values are SHA256 hashes.
+                 * For i2pcpp::LeaseSet objects these are destinations.
+                 * For i2pcpp::RouterInfo objects these are router hashes.
                  */
-                typedef RouterHash value_type;
+                typedef StaticByteArray<32> value_type;
 
                 /**
                  * Stores the values, the size_t object is used to store the
@@ -63,7 +64,8 @@ namespace i2pcpp {
                 typedef std::pair<map_type::const_iterator, map_type::const_iterator> result_type;
 
                 /**
-                 * Constructs an i2pcpp::DHT::Kademlia from a reference to a key.
+                 * Constructs an i2pcpp::DHT::Kademlia from a reference to a key. Lookups
+                 * are relative to this value.
                  * @note generally this is taken as i2pcpp::RouterHash of this router
                  */
                 Kademlia(key_type const &reference);
@@ -87,6 +89,15 @@ namespace i2pcpp {
                  *  the given key \a k
                  */
                 result_type find(key_type const &k) const;
+
+                /**
+                 * @return the range associated with the K-bucket that contains
+                 *  the given key \a k
+                 * @param count the maximum amount of entries to be returned
+                 * @note if less than count entries are available, as many entries
+                 *  as possible are returned
+                 */
+                result_type find(key_type const &k, std::size_t count) const;
 
                 /**
                  * Changes the reference key. This is used to find the bucket

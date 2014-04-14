@@ -5,8 +5,7 @@
 #ifndef DHTSEARCHMANAGER_H
 #define DHTSEARCHMANAGER_H
 
-#include "Kademlia.h"
-#include "SearchState.h"
+#include <mutex>
 
 #include "../Log.h"
 
@@ -18,8 +17,13 @@
 #include <boost/multi_index/member.hpp>
 #include <boost/signals2.hpp>
 
-#include <mutex>
-#include <set>
+#include <i2pcpp/datatypes/RouterHash.h>
+
+#include "../Log.h"
+
+#include "Kademlia.h"
+#include "SearchState.h"
+#include "NegativeLookupCache.h"
 
 namespace bmi = boost::multi_index;
 
@@ -55,9 +59,9 @@ namespace i2pcpp {
 
                 public:
                     /**
-                     * Constructs from a i2pcpp::RouterContext.
+                     * Constructs from a reference to the i2pcpp::RouterContext.
                      */
-                    SearchManager(boost::asio::io_service &ios, RouterContext& ctx);
+                    SearchManager(boost::asio::io_service &ios, RouterContext &ctx);
 
                     SearchManager(const SearchManager &) = delete;
                     SearchManager& operator=(SearchManager &) = delete;
@@ -132,11 +136,14 @@ namespace i2pcpp {
 
                     /**
                      * Cancels the search operation for a key \a k.
+                     * This is done when the search failed.
+                     * As a consequence an entry is added to the NLC.
                      */
                     void cancel(Kademlia::key_type const &k);
 
                     boost::asio::io_service& m_ios;
                     RouterContext& m_ctx;
+                    NegativeLookupCache m_nlc;
 
                     std::map<Kademlia::key_type, std::unique_ptr<boost::asio::deadline_timer>> m_timers;
 

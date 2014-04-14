@@ -5,17 +5,18 @@
 #ifndef ROUTERCONTEXT_H
 #define ROUTERCONTEXT_H
 
+#include <boost/asio.hpp>
+
 #include "../../include/i2pcpp/Database.h"
+
 #include "InboundMessageDispatcher.h"
 #include "OutboundMessageDispatcher.h"
 #include "Signals.h"
 #include "ProfileManager.h"
 #include "PeerManager.h"
 #include "Log.h"
-
+#include "dht/DHTFacade.h"
 #include "tunnel/Manager.h"
-#include "dht/Kademlia.h"
-#include "dht/SearchManager.h"
 
 namespace Botan { class ElGamal_PrivateKey; class DSA_PrivateKey; }
 
@@ -90,14 +91,9 @@ namespace i2pcpp {
             PeerManager& getPeerManager();
 
             /**
-             * @return a pointer to the i2pcpp::DHT::Kademlia
+             * @return a reference to the i2pcpp::DHT::DHTFacade
              */
-            DHT::KademliaPtr getDHT();
-
-            /**
-             * @return a reference to the i2pcpp::DHT::SearchManager
-             */
-            DHT::SearchManager& getSearchManager();
+            std::shared_ptr<DHT::DHTFacade> getDHT();
 
             /**
              * @return a reference to the boost::asio::io_service object
@@ -125,8 +121,7 @@ namespace i2pcpp {
             InboundMessageDispatcher m_inMsgDispatcher;
             OutboundMessageDispatcher m_outMsgDispatcher;
 
-            DHT::KademliaPtr m_dht;
-            DHT::SearchManager m_searchManager;
+            std::shared_ptr<DHT::DHTFacade> m_dht;
 
             Signals m_signals;
     };

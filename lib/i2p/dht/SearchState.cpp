@@ -6,6 +6,12 @@
 
 namespace i2pcpp {
     namespace DHT {
+
+        SearchState::SearchState(const Kademlia::key_type& goal, const RouterHash& start)
+            : goal(goal), current(start)
+        {
+        }
+
         void PopAlternates::operator()(SearchState &ss) { ss.alternates.pop(); }
 
         PushAlternates::PushAlternates(RouterHash const &alt) :

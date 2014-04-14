@@ -30,6 +30,15 @@ namespace i2pcpp {
             return m_table.equal_range(getBucket(k));
         }
 
+        Kademlia::result_type Kademlia::find(Kademlia::key_type const &k, std::size_t c) const
+        {
+            auto iters = m_table.equal_range(getBucket(k));
+            if(std::distance(iters.first, iters.second) < c)
+                return iters;
+            else
+                return std::make_pair(iters.first, std::next(iters.first, c));
+        }
+
         void Kademlia::setReference(Kademlia::key_type const &reference)
         {
             m_ref = reference;
