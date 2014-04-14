@@ -16,9 +16,6 @@ Implement exploratory tunnel support.
 DHT
 * in-progress table
 * max concurrent lookups
-* only return N peers in the initial Kademlia lookup (not the whole bucket)
-* negative lookup cache
 * better timeout logic
 
 Add error codes to C API (handle all exceptions).
-Package everything nicely.
