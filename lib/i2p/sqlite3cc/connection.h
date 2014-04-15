@@ -26,7 +26,7 @@
 
 #include <sqlite3.h>
 #include <boost/utility.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <string>
 
 
@@ -145,7 +145,7 @@ public:
 	 *
 	 * @param sql an SQL statement in UTF-8
 	 */
-	boost::shared_ptr< command > make_command(
+	std::shared_ptr< command > make_command(
 		std::string sql );
 
 	/**
@@ -153,7 +153,7 @@ public:
 	 *
 	 * @param sql an SQL statement in UTF-8
 	 */
-	boost::shared_ptr< query > make_query(
+        std::shared_ptr< query > make_query(
 		std::string sql );
 
 //______________________________________________________________________________

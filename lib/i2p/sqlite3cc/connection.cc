@@ -105,17 +105,15 @@ int sqlite::connection::busy_timeout(
 }
 
 
-boost::shared_ptr< sqlite::command > sqlite::connection::make_command(
+std::shared_ptr< sqlite::command > sqlite::connection::make_command(
 	std::string sql )
 {
-	return boost::shared_ptr< sqlite::command >(
-		new sqlite::command( *this, sql ) );
+    return std::make_shared< sqlite::command >(*this, sql );
 }
 
 
-boost::shared_ptr< sqlite::query > sqlite::connection::make_query(
+std::shared_ptr< sqlite::query > sqlite::connection::make_query(
 	std::string sql )
 {
-	return boost::shared_ptr< sqlite::query >(
-		new sqlite::query( *this, sql ) );
+    return std::make_shared< sqlite::query >(*this, sql);
 }

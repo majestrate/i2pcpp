@@ -24,8 +24,8 @@ extern uint8_t _binary_schema_sql_start[];
 extern uintptr_t _binary_schema_sql_size[];
 
 namespace i2pcpp {
-    std::unordered_map<std::string, boost::shared_ptr<sqlite::command>> Database::commands;
-    std::unordered_map<std::string, boost::shared_ptr<sqlite::query>> Database::queries;
+    std::unordered_map<std::string, std::shared_ptr<sqlite::command>> Database::commands;
+    std::unordered_map<std::string, std::shared_ptr<sqlite::query>> Database::queries;
 
     Database::Database(std::string const &file)
     {

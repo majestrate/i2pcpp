@@ -2,7 +2,7 @@
 
 namespace i2pcpp {
     class statement_guard {
-        boost::shared_ptr<sqlite::detail::basic_statement> m_statement;
+        std::shared_ptr<sqlite::detail::basic_statement> m_statement;
 
         void bind() {}
 
@@ -21,7 +21,7 @@ namespace i2pcpp {
 
         public:
         template<typename ...Params>
-            statement_guard(boost::shared_ptr<sqlite::detail::basic_statement> s,
+            statement_guard(std::shared_ptr<sqlite::detail::basic_statement> s,
                     Params&&... p) : m_statement(s)
         {
             bind(std::forward<Params>(p)...);

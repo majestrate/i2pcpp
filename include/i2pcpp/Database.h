@@ -8,8 +8,7 @@
 #include <i2pcpp/datatypes/ByteArray.h>
 #include <i2pcpp/datatypes/RouterHash.h>
 
-#include <boost/shared_ptr.hpp>
-
+#include <memory>
 #include <string>
 #include <forward_list>
 #include <unordered_map>
@@ -113,8 +112,8 @@ namespace i2pcpp {
         private:
             std::shared_ptr<sqlite::connection> m_conn;
 
-            static std::unordered_map<std::string, boost::shared_ptr<sqlite::command>> commands;
-            static std::unordered_map<std::string, boost::shared_ptr<sqlite::query>> queries;
+            static std::unordered_map<std::string, std::shared_ptr<sqlite::command>> commands;
+            static std::unordered_map<std::string, std::shared_ptr<sqlite::query>> queries;
     };
 }
 
