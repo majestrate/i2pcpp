@@ -7,10 +7,12 @@
 
 #include <i2pcpp/Transport.h>
 
-#include <i2pcpp/datatypes/Endpoint.h>
-#include <i2pcpp/datatypes/RouterIdentity.h>
+namespace Botan { class DSA_PrivateKey; }
 
 namespace i2pcpp {
+    class Endpoint;
+    class RouterIdentity;
+
     namespace SSU {
         struct Context;
 
@@ -21,7 +23,7 @@ namespace i2pcpp {
                  * RouterIdentity. The DSA key is used for signing and the
                  * RouterIdentity key (ElGamal) is used for encryption.
                  */
-                SSU(std::string const &privKeyPEM, RouterIdentity const &ri);
+                SSU(std::shared_ptr<Botan::DSA_PrivateKey> const &dsaPrivKey, RouterIdentity const &ri);
                 ~SSU();
 
                 /**

@@ -34,7 +34,7 @@ namespace i2pcpp {
                  * @param ri the identity of the router we are establishing a
                  *  session here.
                  */
-                EstablishmentManager(UDPTransport &transport, Botan::DSA_PrivateKey const &privKey, RouterIdentity const &ri);
+                EstablishmentManager(UDPTransport &transport, std::shared_ptr<Botan::DSA_PrivateKey> const &privKey, RouterIdentity const &ri);
                 EstablishmentManager(const EstablishmentManager &) = delete;
                 EstablishmentManager& operator=(EstablishmentManager &) = delete;
 
@@ -128,7 +128,7 @@ namespace i2pcpp {
 
                 UDPTransport &m_transport;
 
-                Botan::DSA_PrivateKey m_privKey;
+                std::shared_ptr<Botan::DSA_PrivateKey> m_privKey;
                 RouterIdentity m_identity;
 
                 std::unordered_map<Endpoint, EstablishmentStatePtr> m_stateTable;

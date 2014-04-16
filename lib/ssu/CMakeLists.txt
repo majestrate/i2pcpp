@@ -11,6 +11,7 @@ set(ssu_sources
     # PacketHandler.cpp
     # PeerState.cpp
     # PeerStateList.cpp
+    # Context.cpp
     SSU.cpp
 )
 

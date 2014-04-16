@@ -2,11 +2,11 @@
 
 namespace i2pcpp {
     namespace SSU {
-        Context::Context(std::string const &privKeyPEM, RouterIdentity const &ri) :
+        Context::Context(std::shared_ptr<Botan::DSA_PrivateKey> const &dsaPrivKey, RouterIdentity const &ri) :
             socket(ios),
             peers(*this),
             packetHandler(*this, ri.getHash()),
-            establishmentManager(*this, privKey, ri),
+            establishmentManager(*this, dsaPrivKey, ri),
             ackManager(*this),
             omf(*this),
             log(boost::log::keywords::channel = "SSU") {}

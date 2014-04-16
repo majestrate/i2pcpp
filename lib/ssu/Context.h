@@ -17,7 +17,7 @@
 namespace i2pcpp {
     namespace SSU {
         struct Context {
-            Context(std::string const &privKeyPEM, RouterIdentity const &ri);
+            Context(std::shared_ptr<Botan::DSA_PrivateKey> const &dsaPrivKey, RouterIdentity const &ri);
 
             /**
              * Sends an i2pcpp::Packet.

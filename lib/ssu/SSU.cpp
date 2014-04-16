@@ -13,10 +13,10 @@
 
 namespace i2pcpp {
     namespace SSU {
-        SSU::SSU(std::string const &privKeyPEM, RouterIdentity const &ri) :
+        SSU::SSU(std::shared_ptr<Botan::DSA_PrivateKey> const &dsaPrivKey, RouterIdentity const &ri) :
             Transport()
         {
-            m_impl = std::make_unique<Context>(privKeyPEM, ri);
+            m_impl = std::make_unique<Context>(dsaPrivKey, ri);
         }
 
         SSU::~SSU()

@@ -15,7 +15,11 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 
 add_executable(i2pd ${i2pd_sources})
 set_target_properties(i2pd PROPERTIES OUTPUT_NAME i2p)
-target_link_libraries(i2pd i2p)
+target_link_libraries(i2pd ssu i2p)
+
+# Botan
+include_directories(BEFORE i2pd ${BOTAN_INCLUDE_DIRS})
+target_link_libraries(i2pd "${BOTAN_LIBRARIES}")
 
 # Boost
 include_directories(BEFORE i2pd ${Boost_INCLUDE_DIRS})

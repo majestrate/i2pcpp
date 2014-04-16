@@ -15,7 +15,7 @@
 
 namespace i2pcpp {
     namespace SSU {
-        EstablishmentManager::EstablishmentManager(UDPTransport &transport, Botan::DSA_PrivateKey const &privKey, RouterIdentity const &ri) :
+        EstablishmentManager::EstablishmentManager(UDPTransport &transport, std::shared_ptr<Botan::DSA_PrivateKey> const &privKey, RouterIdentity const &ri) :
             m_transport(transport),
             m_privKey(privKey),
             m_identity(ri),

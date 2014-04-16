@@ -19,6 +19,10 @@
 #include <boost/program_options/variables_map.hpp>
 #include <boost/program_options/parsers.hpp>
 
+#include <botan/elgamal.h>
+#include <botan/dsa.h>
+#include <botan/auto_rng.h>
+
 #include <signal.h>
 #include <iostream>
 #include <fstream>
@@ -231,7 +235,23 @@ int main(int argc, char **argv)
             s->run();
         }
 
-        //
+        Botan::AutoSeeded_RNG rng;
+
+        Botan::DataSource_Stream ekds("encryption.key");
+        auto elgPrivKey = std::shared_ptr<Botan::ElGamal_PrivateKey>(dynamic_cast<Botan::ElGamal_PrivateKey *>(Botan::PKCS8::load_key(ekds, rng, (std::string)"")));
+
+        Botan::DataSource_Stream skds("signing.key");
+        auto dsaPrivKey = std::shared_ptr<Botan::DSA_PrivateKey>(dynamic_cast<Botan::DSA_PrivateKey *>(Botan::PKCS8::load_key(skds, rng, (std::string)"")));
+
+        Botan::BigInt elgPubKey, dsaPubKey;
+        elgPubKey = elgPrivKey->get_y();
+        dsaPubKey = dsaPrivKey->get_y();
+
+        ByteArray elgPubKeyBytes = Botan::BigInt::encode(elgPubKey);
+        ByteArray dsaPubKeyBytes = Botan::BigInt::encode(dsaPubKey);
+        RouterIdentity ri(elgPubKeyBytes, dsaPubKeyBytes, Certificate());
+
+        //SSU::SSU transport(dsaPrivKey, ri);
 
         I2P_LOG(lg, info) << "starting router";
         r.start();
