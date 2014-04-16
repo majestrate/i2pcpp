@@ -5,9 +5,9 @@
 #ifndef SSUINBOUNDMESSAGEFRAGMENTS_H
 #define SSUINBOUNDMESSAGEFRAGMENTS_H
 
-#include "../i2p/Log.h" // XXX BAD
-
 #include "InboundMessageState.h"
+
+#include <i2pcpp/Log.h>
 
 #include <i2pcpp/datatypes/ByteArray.h>
 

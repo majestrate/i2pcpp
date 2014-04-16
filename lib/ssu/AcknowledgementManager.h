@@ -5,7 +5,7 @@
 #ifndef SSUACKNOWLEDGEMENTMANAGER_H
 #define SSUACKNOWLEDGEMENTMANAGER_H
 
-#include "../i2p/Log.h" // XXX BAD
+#include <i2pcpp/Log.h>
 
 #include <boost/asio.hpp>
 

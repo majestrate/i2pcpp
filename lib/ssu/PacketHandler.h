@@ -7,7 +7,7 @@
 
 #include "InboundMessageFragments.h"
 
-#include "../i2p/Log.h" // XXX BAD
+#include <i2pcpp/Log.h>
 
 #include <i2pcpp/datatypes/SessionKey.h>
 

@@ -10,7 +10,7 @@
 
 namespace i2pcpp {
     namespace SSU {
-        PeerStateList::PeerStateList(UDPTransport &transport) :
+        PeerStateList::PeerStateList(SSU &transport) :
             m_transport(transport) {}
 
         void PeerStateList::addPeer(PeerState ps)

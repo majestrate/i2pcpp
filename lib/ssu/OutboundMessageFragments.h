@@ -58,7 +58,7 @@ namespace i2pcpp {
                  */
                 void timerCallback(const boost::system::error_code& e, PeerState ps, uint32_t const msgId);
 
-                std::map<uint32_t, SSU::OutboundMessageState> m_states;
+                std::map<uint32_t, OutboundMessageState> m_states;
 
                 mutable std::mutex m_mutex;
 
