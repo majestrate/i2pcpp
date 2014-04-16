@@ -231,6 +231,8 @@ int main(int argc, char **argv)
             s->run();
         }
 
+        //
+
         I2P_LOG(lg, info) << "starting router";
         r.start();
 

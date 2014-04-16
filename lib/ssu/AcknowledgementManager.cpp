@@ -6,6 +6,8 @@
 
 #include "../../include/i2pcpp/transports/SSU.h"
 
+#include "Context.h"
+
 #include <boost/bind.hpp>
 
 namespace i2pcpp {

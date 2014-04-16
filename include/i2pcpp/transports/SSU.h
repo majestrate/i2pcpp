@@ -12,6 +12,8 @@
 
 namespace i2pcpp {
     namespace SSU {
+        struct Context;
+
         class SSU : public Transport {
             public:
                 /**
@@ -55,8 +57,7 @@ namespace i2pcpp {
                 void shutdown();
 
             private:
-                struct SSUImpl;
-                std::unique_ptr<SSUImpl> m_impl;
+                std::unique_ptr<Context> m_impl;
         };
     }
 }
