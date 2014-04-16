@@ -1,7 +1,7 @@
 #ifndef TUNNELTUNNEL_H
 #define TUNNELTUNNEL_H
 
-#include "../Log.h"
+#include <i2pcpp/Log.h>
 
 #include <i2pcpp/datatypes/BuildRequestRecord.h>
 

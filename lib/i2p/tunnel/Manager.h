@@ -4,7 +4,7 @@
 #include "Tunnel.h"
 #include "FragmentHandler.h"
 
-#include "../Log.h"
+#include <i2pcpp/Log.h>
 
 #include <i2pcpp/datatypes/BuildRecord.h>
 #include <i2pcpp/datatypes/BuildRequestRecord.h>

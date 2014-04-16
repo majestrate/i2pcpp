@@ -7,9 +7,9 @@
 #include "../../include/i2pcpp/Transport.h"
 #include "../../include/i2pcpp/Database.h"
 
-#include "Log.h"
 #include "RouterContext.h"
 
+#include <i2pcpp/Log.h>
 #include <i2pcpp/util/make_unique.h>
 #include <i2pcpp/datatypes/RouterInfo.h>
 

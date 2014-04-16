@@ -14,9 +14,10 @@
 #include "Signals.h"
 #include "ProfileManager.h"
 #include "PeerManager.h"
-#include "Log.h"
 #include "dht/DHTFacade.h"
 #include "tunnel/Manager.h"
+
+#include <i2pcpp/Log.h>
 
 namespace Botan { class ElGamal_PrivateKey; class DSA_PrivateKey; }
 

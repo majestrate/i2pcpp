@@ -1,10 +1,34 @@
 /**
- * @file UDPTransport.cpp
+ * @file SSU.cpp
  * @brief Implements SSU.h
  */
 #include "../../include/i2pcpp/transports/SSU.h"
 
-#include "PeerState.h"
+#include <i2pcpp/Log.h>
+
+#include <boost/asio.hpp>
+
+namespace i2pcpp {
+    namespace SSU {
+        struct SSU::SSUImpl {
+            public:
+                SSUImpl(std::string const &privKeyPEM, RouterIdentity const &ri) :
+                    log(boost::log::keywords::channel = "SSU") {}
+
+            private:
+                boost::asio::io_service ios;
+
+                i2p_logger_mt log;
+        };
+
+        SSU::SSU(std::string const &privKeyPEM, RouterIdentity const &ri) :
+            Transport()
+        {
+        }
+    }
+}
+
+/*#include "PeerState.h"
 #include "OutboundMessageState.h"
 #include "PacketBuilder.h"
 
@@ -217,4 +241,4 @@ namespace i2pcpp {
     {
         return m_establishmentManager;
     }
-}
+}*/

@@ -1,16 +1,16 @@
 set(ssu_sources
-    AcknowledgementManager.cpp
-    EstablishmentManager.cpp
-    EstablishmentState.cpp
-    InboundMessageFragments.cpp
-    InboundMessageState.cpp
-    OutboundMessageFragments.cpp
-    OutboundMessageState.cpp
-    Packet.cpp
-    PacketBuilder.cpp
-    PacketHandler.cpp
-    PeerState.cpp
-    PeerStateList.cpp
+    # AcknowledgementManager.cpp
+    # EstablishmentManager.cpp
+    # EstablishmentState.cpp
+    # InboundMessageFragments.cpp
+    # InboundMessageState.cpp
+    # OutboundMessageFragments.cpp
+    # OutboundMessageState.cpp
+    # Packet.cpp
+    # PacketBuilder.cpp
+    # PacketHandler.cpp
+    # PeerState.cpp
+    # PeerStateList.cpp
     SSU.cpp
 )
 
