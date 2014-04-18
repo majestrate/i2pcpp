@@ -14,6 +14,20 @@ namespace i2pcpp {
 
         }
 
+        SearchState::SearchState(const SearchState& ss)
+            : SearchState(ss, std::lock_guard<std::mutex>(m_alternatesMutex),
+               std::lock_guard<std::mutex>(m_currentMutex))
+        {
+
+        }
+
+        SearchState::SearchState(const SearchState& ss, const std::lock_guard<std::mutex>&,
+         const std::lock_guard<std::mutex>&)
+            : goal(ss.goal), current(ss.current), m_excluded(ss.m_excluded),
+              m_alternates(ss.m_alternates), m_current(ss.m_current)
+        {
+        }
+
         bool SearchState::isAlternate(const RouterHash& rh) const
         {
             return std::find(m_current, m_alternates.end(), rh) != m_alternates.end();
@@ -33,11 +47,13 @@ namespace i2pcpp {
 
         void SearchState::addAlternate(const RouterHash& rh)
         {
+            std::lock_guard<std::mutex> lock(m_alternatesMutex);
             m_alternates.push_back(rh);
         }
 
         void SearchState::popAlternate()
         {
+            std::lock_guard<std::mutex> lock(m_currentMutex);
             ++m_current;
             current = *m_current;
         }
