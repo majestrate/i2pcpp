@@ -102,9 +102,9 @@ namespace i2pcpp {
              const std::lock_guard<std::mutex>&);
             std::list<RouterHash> m_excluded;
             std::vector<RouterHash> m_alternates;
-            std::mutex m_alternatesMutex;
+            mutable std::mutex m_alternatesMutex;
             std::vector<RouterHash>::const_iterator m_current;
-            std::mutex m_currentMutex;
+            mutable std::mutex m_currentMutex;
         };
 
         /**

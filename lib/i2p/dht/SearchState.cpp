@@ -30,11 +30,15 @@ namespace i2pcpp {
 
         bool SearchState::isAlternate(const RouterHash& rh) const
         {
+            std::lock_guard<std::mutex> lock1(m_currentMutex);
+            std::lock_guard<std::mutex> lock2(m_alternatesMutex);
             return std::find(m_current, m_alternates.end(), rh) != m_alternates.end();
         }
 
         bool SearchState::isTried(const RouterHash& rh) const
         {
+            std::lock_guard<std::mutex> lock1(m_alternatesMutex);
+            std::lock_guard<std::mutex> lock2(m_currentMutex);
             return std::find(
                 m_alternates.begin(), std::prev(m_current), rh
             ) != m_alternates.end();
@@ -42,6 +46,7 @@ namespace i2pcpp {
 
         std::size_t SearchState::countAlternates() const
         {
+            std::lock_guard<std::mutex> lock(m_currentMutex);
             return std::distance(m_current, m_alternates.end());
         }
 
@@ -60,6 +65,7 @@ namespace i2pcpp {
 
         RouterHash SearchState::getNext() const
         {
+            std::lock_guard<std::mutex> lock(m_currentMutex);
             return *std::next(m_current);
         }
 
