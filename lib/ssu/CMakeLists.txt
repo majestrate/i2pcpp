@@ -1,5 +1,5 @@
 set(ssu_sources
-    # AcknowledgementManager.cpp
+    AcknowledgementManager.cpp
     # EstablishmentManager.cpp
     # EstablishmentState.cpp
     # InboundMessageFragments.cpp
