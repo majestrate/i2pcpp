@@ -52,6 +52,8 @@ namespace i2pcpp {
              */
             SearchState(const SearchState& ss);
 
+            SearchState& operator=(const SearchState&) = delete;
+
             /**
              * Checks whether a given i2pcpp::RouterHash is an unused alternate for
              *  this search operation.
