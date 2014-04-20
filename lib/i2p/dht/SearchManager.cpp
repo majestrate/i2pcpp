@@ -81,10 +81,11 @@ namespace i2pcpp {
 
         void SearchManager::cancel(Kademlia::key_type const &k)
         {
+            std::lock_guard<std::mutex> lock(m_searchesMutex);
             SearchStateByGoal::iterator itr = m_searches.get<0>().find(k);
             
             if(itr != m_searches.get<0>().end()) {
-                m_ios.post(boost::bind(boost::ref(m_failureSignal), itr->goal));
+                m_ios.post(boost::bind(boost::ref(m_failureSignal), k));
 
                 m_searches.get<0>().erase(itr);
                 m_timers.erase(k);

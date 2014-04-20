@@ -32,7 +32,8 @@ namespace i2pcpp {
             I2P_LOG_SCOPED_TAG(m_log, "RouterHash", to);
             I2P_LOG(m_log, debug) << "not connected, queueing message";
 
-            queueMessage(to, msg);
+            std::lock_guard<std::mutex> lock(m_mutex);
+            m_pending.insert(MapType::value_type(to, msg));
 
             if(m_ctx.getDatabase()->routerExists(to))
                 m_transport->connect(m_ctx.getDatabase()->getRouterInfo(to));
@@ -45,13 +46,6 @@ namespace i2pcpp {
                 }
             }
         }
-    }
-
-    void OutboundMessageDispatcher::queueMessage(RouterHash const &to, I2NP::MessagePtr const &msg)
-    {
-        std::lock_guard<std::mutex> lock(m_mutex);
-
-        m_pending.insert(MapType::value_type(to, msg));
     }
 
     void OutboundMessageDispatcher::registerTransport(TransportPtr const &t)

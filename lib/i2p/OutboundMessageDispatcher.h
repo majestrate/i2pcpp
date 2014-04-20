@@ -45,14 +45,6 @@ namespace i2pcpp {
             void sendMessage(RouterHash const &to, I2NP::MessagePtr const &msg);
 
             /**
-             * Queues a message for sending.
-             * @param to the i2pcpp::RouterHash of the router to send the
-             *  message to
-             * @param msg pointer the i2pcpp::I2NP::Message to send
-             */
-            void queueMessage(RouterHash const &to, I2NP::MessagePtr const &msg);
-
-            /**
              * Registers an i2pcpp::Transport object to which we may dispatch
              *  messages.
              * @param t a pointer to the i2pcpp::Transport object to be registered

@@ -11,7 +11,6 @@
 #include <list>
 #include <queue>
 #include <set>
-#include <mutex>
 
 #include <boost/asio.hpp>
 
@@ -26,7 +25,6 @@ namespace i2pcpp {
          * Defines the state of a search operation.
          */
         class SearchState {
-            friend class PushAlternates;
             friend class ModifyState;
 
         public:
@@ -45,14 +43,6 @@ namespace i2pcpp {
              * @param start the first router to contact
              */
             SearchState(const Kademlia::key_type& goal, const RouterHash& start);
-
-            /**
-             * Copy constructor, defined in terms of the private copy constructor
-             *  for safe copying of the std::mutex objects of this class.
-             */
-            SearchState(const SearchState& ss);
-
-            SearchState& operator=(const SearchState&) = delete;
 
             /**
              * Checks whether a given i2pcpp::RouterHash is an unused alternate for
@@ -100,14 +90,11 @@ namespace i2pcpp {
             RouterHash current;
             Kademlia::key_type goal;
         private:
-            SearchState(const SearchState& ss, const std::lock_guard<std::mutex>&,
-             const std::lock_guard<std::mutex>&);
             std::list<RouterHash> m_excluded;
             std::vector<RouterHash> m_alternates;
-            mutable std::mutex m_alternatesMutex;
             std::vector<RouterHash>::const_iterator m_current;
-            mutable std::mutex m_currentMutex;
         };
+
 
         /**
          * Function object to remove the peer at the front of the alternates
