@@ -45,6 +45,16 @@ namespace i2pcpp {
             SearchState(const Kademlia::key_type& goal, const RouterHash& start);
 
             /**
+             * Explicity copy constructor to avoid shallow copy of iterator.
+             */
+            SearchState(const SearchState& ss);
+
+            /**
+             * Explicity assignment operator to avoid shallow copy of iterator.
+             */
+            SearchState& operator=(const SearchState& ss);
+
+            /**
              * Checks whether a given i2pcpp::RouterHash is an unused alternate for
              *  this search operation.
              * @return true if it is an unused alternate, false otherwise
@@ -73,6 +83,7 @@ namespace i2pcpp {
             /**
              * Pops an alternate from the emulated alternates queue.
              * This is done by advancing the \a m_current pointer.
+             * If there are no alternates left, nothing happens.
              */
             void popAlternate();
 
@@ -91,8 +102,8 @@ namespace i2pcpp {
             Kademlia::key_type goal;
         private:
             std::list<RouterHash> m_excluded;
-            std::vector<RouterHash> m_alternates;
-            std::vector<RouterHash>::const_iterator m_current;
+            std::list<RouterHash> m_alternates;
+            std::list<RouterHash>::const_iterator m_current;
         };
 
 
@@ -153,6 +164,8 @@ namespace i2pcpp {
                  * Modifies the state to the "new connection" state.
                  * @param exclude i2pcpp::RouterHash to be excluded in database
                  *  lookups (usually the peer that told this one about \a current)
+                 * @note starting a new connection also requires using
+                 *  i2pcpp::DHT::PopAlternates()
                  */
                 ModifyState(RouterHash const &exclude);
 

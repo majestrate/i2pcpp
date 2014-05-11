@@ -5,6 +5,8 @@
 #include "../../include/i2pcpp/Router.h"
 
 #include "../../include/i2pcpp/Database.h"
+// EXTRA, TODO: remove
+#include "../../lib/i2p/i2np/DatabaseLookup.h"
 
 #include "Log.h"
 #include "RouterContext.h"
