@@ -55,7 +55,7 @@ namespace i2pcpp {
     }
 }
 
-void Logger::logToConsole()
+void Logger::logToConsole(i2pcpp::severity_level log_level)
 {
     typedef sinks::synchronous_sink<sinks::text_ostream_backend> sink_t;
 
@@ -64,13 +64,13 @@ void Logger::logToConsole()
 
     boost::shared_ptr<sink_t> sink(new sink_t(backend));
     boost::log::core::get()->add_sink(sink);
-    sink->set_filter(expr::attr<severity_level>("Severity") >= debug);
+    sink->set_filter(expr::attr<severity_level>("Severity") >= log_level);
     sink->set_formatter(&Logger::formatter);
 
     boost::log::core::get()->add_global_attribute("Timestamp", attrs::local_clock());
 }
 
-void Logger::logToFile(const std::string &file)
+void Logger::logToFile(const std::string &file, i2pcpp::severity_level log_level)
 {
     boost::log::core::get()->remove_all_sinks();
 
@@ -81,7 +81,7 @@ void Logger::logToFile(const std::string &file)
     boost::shared_ptr<sink_t> sink(new sink_t(backend));
     boost::log::core::get()->add_sink(sink);
 
-    sink->set_filter(expr::attr<severity_level>("Severity") >= debug);
+    sink->set_filter(expr::attr<severity_level>("Severity") >= log_level);
     sink->set_formatter(&Logger::formatter);
 }
 

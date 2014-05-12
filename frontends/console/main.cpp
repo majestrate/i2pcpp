@@ -54,8 +54,9 @@ int main(int argc, char **argv)
         general.add_options()
             ("help,h", "Print help")
             ("version,v", "Print application version")
-            ("log,l", po::value<string>()->implicit_value("i2p.log"), "Log to file instead of clog");
-
+            ("log,l", po::value<string>()->implicit_value("i2p.log"), "Log to file instead of clog")
+					  ("debug,d", "allow debug output");
+				
         po::options_description dbDesc("Database manipulation");
         dbDesc.add_options()
             ("db", po::value<string>(&dbFile)->default_value("i2p.db"), "Database file to operate on")
@@ -92,6 +93,10 @@ int main(int argc, char **argv)
             return EXIT_SUCCESS;
         }
 
+				i2pcpp::severity_level log_level = i2pcpp::warning;
+				if (vm.count("debug")) {
+					  log_level = i2pcpp::debug;
+				}
         Logger l;
         i2p_logger_mt lg(boost::log::keywords::channel = "M");
 
@@ -109,9 +114,9 @@ int main(int argc, char **argv)
 
         if(vm.count("log")) {
             // TODO Log rotation, etc
-            Logger::logToFile(vm["log"].as<string>());
+   					Logger::logToFile(vm["log"].as<string>(), log_level);
         } else {
-            Logger::logToConsole();
+            Logger::logToConsole(log_level);
         }
 
         /*if(vm.count("export")) {
@@ -251,7 +256,7 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     } catch(std::exception &e) {
         cerr << "error: " << e.what() << endl;
-
+        
         return EXIT_FAILURE;
     }
 }
