@@ -107,6 +107,27 @@ BOOST_AUTO_TEST_CASE(CountAlternatesAfterPushPopRand)
     DHT::SearchState ss(DHT::Kademlia::makeKey(RouterHash()), RouterHash());
 }
 
+BOOST_AUTO_TEST_CASE(DoubleAddAlternates)
+{
+    DHT::SearchState ss(DHT::Kademlia::makeKey(RouterHash()), RouterHash());
+    RouterHash rh;
+    rh.fill(0x01);
+    ss.addAlternate(rh);
+    ss.addAlternate(rh);
+    BOOST_CHECK_EQUAL(ss.countAlternates(), 1);
+}
+
+BOOST_AUTO_TEST_CASE(DoubleAddAlternatesTried)
+{
+    DHT::SearchState ss(DHT::Kademlia::makeKey(RouterHash()), RouterHash());
+    RouterHash rh;
+    rh.fill(0x01);
+    ss.addAlternate(rh);
+    ss.popAlternate();
+    ss.addAlternate(rh);
+    BOOST_CHECK_EQUAL(ss.countAlternates(), 0);
+}
+
 BOOST_AUTO_TEST_CASE(GetNextOne)
 {
     DHT::SearchState ss(DHT::Kademlia::makeKey(RouterHash()), RouterHash());
