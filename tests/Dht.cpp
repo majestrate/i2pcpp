@@ -44,14 +44,14 @@ BOOST_AUTO_TEST_CASE(CountAlternatesRand)
     std::default_random_engine rng;
     for(int i = 0; i < 50; ++i) {
         DHT::SearchState ss(DHT::Kademlia::makeKey(RouterHash()), RouterHash());
-        std::uniform_int_distribution<unsigned> dist(1, 200);
+        std::uniform_int_distribution<unsigned> dist(1, 250);
         const unsigned c = dist(rng);
-        for(int j = 0; j < c; ++j) {
+        for(int j = 1; j <= c; ++j) {
             RouterHash rh;
             rh.fill(j);
             ss.addAlternate(rh);
         }
-        BOOST_CHECK_EQUAL(ss.countAlternates(), c - 1);
+        BOOST_CHECK_EQUAL(ss.countAlternates(), c);
     }
 }
 
@@ -72,20 +72,20 @@ BOOST_AUTO_TEST_CASE(CountAlternatesAfterPopRand)
     std::default_random_engine rng;
     for(int i = 0; i < 50; ++i) {
         DHT::SearchState ss(DHT::Kademlia::makeKey(RouterHash()), RouterHash());
-        std::uniform_int_distribution<unsigned> dist(1, 200);
+        std::uniform_int_distribution<unsigned> dist(1, 250);
         const unsigned c = dist(rng);
-        for(int j = 0; j < c; ++j) {
+        for(int j = 1; j <= c; ++j) {
             RouterHash rh;
             rh.fill(j);
             ss.addAlternate(rh);
         }
 
-        std::uniform_int_distribution<unsigned> dist_pop(0, c - 1);
+        std::uniform_int_distribution<unsigned> dist_pop(0, c);
         const unsigned c_pop = dist_pop(rng);
         for(int j = 0; j < c_pop; ++j)
             ss.popAlternate();
 
-        BOOST_CHECK_EQUAL(ss.countAlternates(), c - c_pop - 1);
+        BOOST_CHECK_EQUAL(ss.countAlternates(), c - c_pop);
     }
 }
 
