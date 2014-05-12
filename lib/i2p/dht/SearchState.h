@@ -11,7 +11,6 @@
 #include <list>
 #include <queue>
 #include <set>
-#include <mutex>
 
 #include <boost/asio.hpp>
 
@@ -26,7 +25,6 @@ namespace i2pcpp {
          * Defines the state of a search operation.
          */
         class SearchState {
-            friend class PushAlternates;
             friend class ModifyState;
 
         public:
@@ -47,12 +45,14 @@ namespace i2pcpp {
             SearchState(const Kademlia::key_type& goal, const RouterHash& start);
 
             /**
-             * Copy constructor, defined in terms of the private copy constructor
-             *  for safe copying of the std::mutex objects of this class.
+             * Explicit copy constructor to avoid shallow copy of iterator.
              */
             SearchState(const SearchState& ss);
 
-            SearchState& operator=(const SearchState&) = delete;
+            /**
+             * Explicit assignment operator to avoid shallow copy of iterator.
+             */
+            SearchState& operator=(const SearchState& ss);
 
             /**
              * Checks whether a given i2pcpp::RouterHash is an unused alternate for
@@ -83,6 +83,7 @@ namespace i2pcpp {
             /**
              * Pops an alternate from the emulated alternates queue.
              * This is done by advancing the \a m_current pointer.
+             * If there are no alternates left, nothing happens.
              */
             void popAlternate();
 
@@ -100,14 +101,11 @@ namespace i2pcpp {
             RouterHash current;
             Kademlia::key_type goal;
         private:
-            SearchState(const SearchState& ss, const std::lock_guard<std::mutex>&,
-             const std::lock_guard<std::mutex>&);
             std::list<RouterHash> m_excluded;
-            std::vector<RouterHash> m_alternates;
-            mutable std::mutex m_alternatesMutex;
-            std::vector<RouterHash>::const_iterator m_current;
-            mutable std::mutex m_currentMutex;
+            std::list<RouterHash> m_alternates;
+            std::list<RouterHash>::const_iterator m_current;
         };
+
 
         /**
          * Function object to remove the peer at the front of the alternates
@@ -166,6 +164,8 @@ namespace i2pcpp {
                  * Modifies the state to the "new connection" state.
                  * @param exclude i2pcpp::RouterHash to be excluded in database
                  *  lookups (usually the peer that told this one about \a current)
+                 * @note starting a new connection also requires using
+                 *  i2pcpp::DHT::PopAlternates()
                  */
                 ModifyState(RouterHash const &exclude);
 
