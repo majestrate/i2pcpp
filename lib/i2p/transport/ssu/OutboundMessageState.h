@@ -7,12 +7,12 @@
 
 #include "PacketBuilder.h"
 
-#include <boost/dynamic_bitset.hpp>
 #include <boost/asio.hpp>
 
 #include <i2pcpp/datatypes/ByteArray.h>
 
 #include <vector>
+#include <utility>
 
 namespace i2pcpp {
     namespace SSU {
@@ -22,6 +22,14 @@ namespace i2pcpp {
          */
         class OutboundMessageState {
             public:
+                struct FragmentFlags {
+                    bool ackd;
+                    bool sent; 
+                    FragmentFlags()
+                     : ackd(false), sent(false) {}
+                };
+                typedef std::pair<PacketBuilder::FragmentPtr, FragmentFlags> FragmentState;
+
                 OutboundMessageState(uint32_t msgId, ByteArray const &data);
                 OutboundMessageState(OutboundMessageState &&) = default;
 
@@ -79,13 +87,8 @@ namespace i2pcpp {
 
                 uint32_t m_msgId;
                 ByteArray m_data;
-                std::vector<PacketBuilder::FragmentPtr> m_fragments;
+                std::vector<FragmentState> m_fragments;
                 uint8_t m_tries = 0;
-
-                /* Bit 1 = received (acknowledged)
-                 * Bit 0 = sent (not yet acknowledged)
-                 */
-                boost::dynamic_bitset<> m_fragmentStates;
 
                 std::unique_ptr<boost::asio::deadline_timer> m_timer;
         };
