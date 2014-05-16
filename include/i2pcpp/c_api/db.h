@@ -30,4 +30,12 @@ char *i2p_db_config_get(void *db, char *name);
  */
 bool i2p_db_router_exists(void *db, char *hash);
 
+void * i2p_db_ri_get_rh(void * ri);
+
+void i2p_db_ri_free(void * ri);
+void i2p_db_rh_free(void * rh);
+
+void * i2p_db_get_ri_via_hash(void * db, char * c_hash_str);
+
+
 #endif

@@ -34,32 +34,45 @@ namespace i2pcpp {
 
         void Manager::receiveRecords(uint32_t const msgId, std::list<BuildRecordPtr> records)
         {
+            bool tunnelSuccess = false;
+            TunnelPtr t;
             /* First check to see if we have a pending tunnel for this msgId */
             {
                 std::lock_guard<std::mutex> lock(m_pendingMutex);
                 auto itr = m_pending.find(msgId);
                 if(itr != m_pending.end()) {
-                    TunnelPtr t = itr->second;
+                    t = itr->second;
 
                     if(t->getState() != Tunnel::State::REQUESTED) {
                         I2P_LOG(m_log, debug) << "found Tunnel with matching tunnel ID, but was not requested";
                         // reject
                         return;
                     }
-
+                    
                     t->handleResponses(records);
                     if(t->getState() == Tunnel::State::OPERATIONAL) {
                         I2P_LOG(m_log, debug) << "tunnel is operational";
-
+                        
                         std::lock_guard<std::mutex> lock(m_tunnelsMutex);
                         m_tunnels[t->getTunnelId()] = std::move(t);
+                        
+                        tunnelSuccess = true;
                     } else {
                         I2P_LOG(m_log, debug) << "failed to build tunnel";
                     }
 
                     m_pending.erase(itr);
-                    return;
+                    /*
+                     * call tunnel build hooks
+                     */
+                    auto tunnelId = t->getTunnelId();
+                    if (tunnelSuccess) {
+                        m_ios.post(boost::bind(&Manager::onTunnelBuildSuccess, this, tunnelId));
+                    } else {
+                        m_ios.post(boost::bind(&Manager::onTunnelBuildFailure, this, tunnelId));
+                    }
                 }
+                return;
             }
 
             /* If we don't, then check to see if any of the records have a truncated
@@ -236,6 +249,13 @@ namespace i2pcpp {
             }
         }
 
+        void Manager::tunnelBuildExpireCallback(const boost::system::error_code & e, uint32_t tunnelId)
+        {
+            I2P_LOG(m_log, info) << "tunnel build with tunnelId " << std::to_string(tunnelId) << " timed out";
+            m_ios.post(boost::bind(&Manager::onTunnelBuildTimeout, this, tunnelId));
+            
+        }
+
         void Manager::callback(const boost::system::error_code &e)
         {
             createTunnel();
@@ -248,7 +268,7 @@ namespace i2pcpp {
         {
             I2P_LOG(m_log, debug) << "creating tunnel";
             std::vector<RouterIdentity> hops = { m_ctx.getProfileManager().getPeer().getIdentity() };
-
+            /*
             auto z = std::make_shared<InboundTunnel>(m_ctx.getIdentity()->getHash());
             auto t = std::make_shared<OutboundTunnel>(hops, m_ctx.getIdentity()->getHash(), z->getTunnelId());
             //auto t = std::make_shared<InboundTunnel>(m_ctx.getIdentity().getHash(), hops);
@@ -257,6 +277,61 @@ namespace i2pcpp {
 
             I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(t->getRecords()));
             m_ctx.getOutMsgDisp().sendMessage(t->getDownstream(), vtb);
+            */
+        }
+
+        uint32_t Manager::buildIBTunnel(std::vector<RouterIdentity> & hops)
+        {
+            I2P_LOG(m_log, info) << "build OB tunnel";
+
+            auto my_hash = m_ctx.getIdentity()->getHash();
+            auto tun = std::make_shared<InboundTunnel>(my_hash ,hops);
+            {
+                std::lock_guard<std::mutex> lock_tunnels(m_tunnelsMutex);
+                m_tunnels[tun->getTunnelId()] = tun;
+            }
+            {
+                std::lock_guard<std::mutex> lock_pending(m_pendingMutex);
+                m_pending[tun->getTunnelId()] = tun;
+            }
+
+            auto tunnelId = tun->getTunnelId();
+            
+            I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(tun->getRecords()));
+            m_ctx.getOutMsgDisp().sendMessage(tun->getDownstream(), vtb);
+            
+            // bug?
+            boost::asio::deadline_timer tunnel_expire_timer(m_ios, boost::posix_time::time_duration(0,0,60));
+            tunnel_expire_timer.async_wait(boost::bind(&Manager::tunnelBuildExpireCallback, this, boost::asio::placeholders::error, tunnelId));
+            
+            return tun->getTunnelId();
+            
+        }
+
+        uint32_t Manager::buildOBTunnel(std::vector<RouterIdentity> & hops, RouterHash const & reply, uint32_t reply_tunnel_id )
+        {
+            I2P_LOG(m_log, info) << "build OB tunnel";
+
+            auto tun = std::make_shared<OutboundTunnel>(hops, reply, reply_tunnel_id);
+            {
+                std::lock_guard<std::mutex> lock_tunnels(m_tunnelsMutex);
+                m_tunnels[tun->getTunnelId()] = tun;
+            }
+            {
+                std::lock_guard<std::mutex> lock_pending(m_pendingMutex);
+                m_pending[tun->getTunnelId()] = tun;
+            }
+    
+            auto tunnelId = tun->getTunnelId();
+
+            I2NP::MessagePtr vtb(new I2NP::VariableTunnelBuild(tun->getRecords()));
+            m_ctx.getOutMsgDisp().sendMessage(tun->getDownstream(), vtb);
+        
+            // bug?
+            boost::asio::deadline_timer tunnel_expire_timer(m_ios, boost::posix_time::time_duration(0,0,60));
+            tunnel_expire_timer.async_wait(boost::bind(&Manager::tunnelBuildExpireCallback, this, boost::asio::placeholders::error, tunnelId));
+            
+            return tun->getTunnelId();
         }
     }
 }
