@@ -245,7 +245,9 @@ namespace i2pcpp {
             hashPipe.read(hash.data(), 20);
 
             Botan::AutoSeeded_RNG rng;
-            Botan::PK_Signer *pks = new Botan::PK_Signer(m_dsaKey, "Raw");
+            std::unique_ptr<Botan::PK_Signer> pks(
+                new Botan::PK_Signer(m_dsaKey, "Raw")
+            );
             ByteArray signature = pks->sign_message(hash, rng);
 
             return signature;
@@ -300,7 +302,9 @@ namespace i2pcpp {
             hashPipe.read(hash.data(), 20);
 
             Botan::AutoSeeded_RNG rng;
-            Botan::PK_Verifier *pkv = new Botan::PK_Verifier(dsaKey, "Raw");
+            std::unique_ptr<Botan::PK_Verifier> pkv(
+                new Botan::PK_Verifier(dsaKey, "Raw")
+            );
 
             return pkv->verify_message(hash, decryptedSig);
         }
@@ -344,7 +348,9 @@ namespace i2pcpp {
             ByteArray hash(20);
             hashPipe.read(hash.data(), 20);
 
-            Botan::PK_Verifier *pkv = new Botan::PK_Verifier(dsaKey, "Raw");
+            std::unique_ptr<Botan::PK_Verifier> pkv(
+                new Botan::PK_Verifier(dsaKey, "Raw")
+            );
 
             return pkv->verify_message(hash, m_signature);
         }
