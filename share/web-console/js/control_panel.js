@@ -65,7 +65,7 @@ var stats_update = function(stats, j_obj)
     stats.send.mean = calc_mean(stats.send.hist);
     stats.recv.mean = calc_mean(stats.recv.hist);
 
-    stats.tunnel.participating = j_obj.tunnels.particapting;
+    stats.tunnel.participating = j_obj.tunnels.participating;
 
     if ( j_obj.i2np.vtb !== undefined ) {
         stats.i2np.vtb = j_obj.i2np.vtb;
@@ -109,10 +109,9 @@ function make_i2np_graph(elem, h)
 
     var graph = new Rickshaw.Graph({ 
         element: elem,
-        height: h,
         renderer: 'multi',
-        
-        stroke: true,
+        stroke: true,        
+        //width: 500,
         series: new Rickshaw.Series.FixedDuration([
             { name: 'vtb'  , renderer: 'bar' },
             { name: 'dbsto' , renderer: 'bar' },
@@ -122,7 +121,7 @@ function make_i2np_graph(elem, h)
             palette,
             {
                 timeInterval: 1000,
-                maxDataPoints: 180,
+                maxDataPoints: 100,
                 timeBase: new Date().getTime() / 1000
             })
     });
@@ -148,15 +147,14 @@ function make_i2np_graph(elem, h)
     return [graph, render]
 }
 
-function make_graph(elem, h) 
+function make_graph(elem, h, not_bw) 
 {
     var palette = new Rickshaw.Color.Palette( { scheme: 'spectrum14' } );
 
     var graph = new Rickshaw.Graph({ 
         element: elem,
-        height: h,
         renderer: 'multi',
-        
+        //width: 500,
         stroke: true,
         series: new Rickshaw.Series.FixedDuration([
             { name: 'mean'  , renderer: 'bar' },
@@ -165,7 +163,7 @@ function make_graph(elem, h)
             palette,
             {
                 timeInterval: 1000,
-                maxDataPoints: 180,
+                maxDataPoints: 50,
                 timeBase: new Date().getTime() / 1000
             })
     });
@@ -173,7 +171,11 @@ function make_graph(elem, h)
     var hover = new Rickshaw.Graph.HoverDetail( {
         graph: graph,
         formatter: function(series, x, y) {
-            return make_amount(y);
+            if (not_bw) {
+                return y;
+            } else {
+                return make_amount(y);
+            }
         }
     });
 
@@ -191,7 +193,7 @@ function make_graph(elem, h)
     return [graph, render]
 }
 
-var part = make_graph($("#graph_participating").get(0), 200);
+var part = make_graph($("#graph_participating").get(0), 0, true);
 
 var render_part = part[1];
 var graph_part = part[0];
@@ -199,28 +201,28 @@ var graph_part = part[0];
 render_part();
 graph_part.render();
 
-var i2np = make_i2np_graph($("#graph_i2np").get(0), 200);
+var i2np = make_i2np_graph($("#graph_i2np").get(0), 0);
 var render_i2np = i2np[1];
 var graph_i2np = i2np[0];
 
 render_i2np();
 graph_i2np.render();
 
-var send = make_graph($("#graph_send").get(0), 200)
+var send = make_graph($("#graph_send").get(0), 0)
 var send_axis_render = send[1];
 var graph_send = send[0];
 
 send_axis_render();
 graph_send.render();
 
-var recv = make_graph($("#graph_recv").get(0), 200);
+var recv = make_graph($("#graph_recv").get(0), 0);
 var recv_axis_render = recv[1];
 var graph_recv = recv[0];
 
 recv_axis_render();
 graph_recv.render();
 
-var peers = make_graph($("#graph_peers").get(0), 200);
+var peers = make_graph($("#graph_peers").get(0), 0, true);
 var peers_axis_render = peers[1];
 var graph_peers = peers[0];
 
@@ -245,7 +247,7 @@ statsConnection.onmessage = function(msg)
     stats_put_graph(stats.send, graph_send);
     graph_send.render(); 
 
-    graph_part.series.add({amount: stats.tunnel.participating, mean: 0});
+    graph_part.series.addData({amount: stats.tunnel.participating, mean: 0});
     graph_part.render();
 
     graph_peers.series.addData({ amount: data.peers, mean: 0});
@@ -254,7 +256,8 @@ statsConnection.onmessage = function(msg)
     update_label(stats.recv, "#recv_str");
     update_label(stats.send, "#send_str");
 
-    $("#peers_str").html(data.peers + " Peers");
+    $("#peers_str").html(data.peers);
+    $("#participating_str").html(stats.tunnel.participating);
 
     graph_i2np.series.addData(stats.i2np);
     graph_i2np.render();

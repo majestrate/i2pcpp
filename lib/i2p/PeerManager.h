@@ -53,6 +53,8 @@ namespace i2pcpp {
              */
             void disconnected(const RouterHash rh);
 
+            void gracefulShutdown();
+
         private:
             /**
              * Called when the deadline timer expires.
@@ -70,6 +72,8 @@ namespace i2pcpp {
             boost::asio::deadline_timer m_timer;
 
             i2p_logger_mt m_log; ///< Logging object
+            
+            bool m_graceful;
     };
 }
 

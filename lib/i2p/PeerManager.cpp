@@ -15,6 +15,7 @@ namespace i2pcpp {
     PeerManager::PeerManager(boost::asio::io_service &ios, RouterContext &ctx) :
         m_ios(ios),
         m_ctx(ctx),
+        m_graceful(false),
         m_timer(m_ios, boost::posix_time::time_duration(0, 0, 5)),
         m_log(I2P_LOG_CHANNEL("PM")) {}
 
@@ -53,8 +54,14 @@ namespace i2pcpp {
         } catch(std::exception &e) {
                 I2P_LOG(m_log, error) << "exception in PeerManager: " << e.what();
         }
+        if ( ! m_graceful ) {
+            m_timer.expires_at(m_timer.expires_at() + boost::posix_time::time_duration(0, 0, 10));
+            m_timer.async_wait(boost::bind(&PeerManager::callback, this, boost::asio::placeholders::error));
+        }
+    }
 
-        m_timer.expires_at(m_timer.expires_at() + boost::posix_time::time_duration(0, 0, 10));
-        m_timer.async_wait(boost::bind(&PeerManager::callback, this, boost::asio::placeholders::error));
+    void PeerManager::gracefulShutdown()
+    {
+        m_graceful = true;
     }
 }

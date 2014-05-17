@@ -36,8 +36,8 @@ void StatsBackend::consume(boost::log::record_view const& rec)
             m_stats.i2np_count[msg_type] = 0;
         }
         m_stats.i2np_count[msg_type] += 1;
-    } else if(rec.attribute_values().count("tunnel.participating")) {
-        m_stats.participating_tunnels = boost::log::extract<uint32_t>("tunnel.participating", rec).get();
+    } else if(rec.attribute_values().count("participating")) {
+        m_stats.participating_tunnels = boost::log::extract<uint32_t>("participating", rec).get();
     }
 }
 

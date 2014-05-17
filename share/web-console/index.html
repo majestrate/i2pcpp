@@ -13,37 +13,41 @@
     <script src="js/d3.v3.js"></script>
   </head>
   <body>
-    <h2>I2P Router: <span id="connection_label">Disconnected</span></h2>
-    <section class="row">
-      <section class="col-md-8">
-        <p>SEND <span id="send_str">N/A</span></p>
-        <div id="graph_send" class="graph"></div>
+    <header>
+      <h2>I2P Router: <span id="connection_label">Disconnected</span></h2>
+    </header>
+    <section class="container">
+      <section id="wrapper" class="row">
+        <section class="col-md-12">
+          <section class="row">
+            <section class="col-md-6">
+              <p>UDP outbound <span id="send_str">N/A</span></p>
+              <div id="graph_send" class="graph"></div>
+            </section>
+            <section class="col-md-6">
+              <span>UDP inbound <span id="recv_str">N/A</span></span>
+              <div id="graph_recv" class="graph"></div>
+            </section>
+          </section>
+          <section class="row">
+            <section class="col-md-6">
+              <span>Connected Peers: <span id="peers_str">N/A</span></span>
+              <div id="graph_peers" class="graph"></div>
+            </section>
+            <section class="col-md-6">
+              <span>Participating Tunnels: <span id="participating_str">N/A</span></span>
+              <div id="graph_participating" class="graph"></div>
+            </section>
+          </section>
+          <section class="row">
+            <section class="col-md-12">
+              <span>I2NP</span>
+              <div id="graph_i2np" class="graph"></div>
+            </section>      
+          </section>
+        </section>
       </section>
     </section>
-    <section class="row">
-      <section class="col-md-8" >
-        <span>RECV <span id="recv_str">N/A</span></span>
-        <div id="graph_recv" class="graph"></div>
-      </section>
-      <section class="col-md-8">
-        <span>PEERS <span id="peers_str">N/A</span></span>
-        <div id="graph_peers" class="graph"></div>
-      </section>
-    </section>
-    <section class="row">
-      <section class="col-md-8">
-        <span>I2NP</span>
-        <div id="graph_i2np" class="graph"></div>
-      </section>
-      <section class="col-md-8">
-        <span>I2NP</span>
-        <div id="graph_particpating" class="graph"></div>
-      </section>
-    </section>
-    <br/>
-    <br/>
-    <br/>
-    <br/>
     <script src="js/control_panel.js"></script>
   </body>
 </html>

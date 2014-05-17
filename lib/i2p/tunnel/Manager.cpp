@@ -35,6 +35,7 @@ namespace i2pcpp {
 
         void Manager::receiveRecords(uint32_t const msgId, std::list<BuildRecordPtr> records)
         {
+            I2P_LOG(m_log, debug) << "recieve records";
             bool tunnelSuccess = false;
             TunnelPtr t;
             /* First check to see if we have a pending tunnel for this msgId */
@@ -73,7 +74,6 @@ namespace i2pcpp {
                         m_ios.post(boost::bind(&Manager::onTunnelBuildFailure, this, tunnelId));
                     }
                 }
-                return;
             }
 
             /* If we don't, then check to see if any of the records have a truncated
@@ -192,10 +192,11 @@ namespace i2pcpp {
 
         void Manager::receiveData(RouterHash const from, uint32_t const tunnelId, StaticByteArray<1024> const data)
         {
-            std::lock_guard<std::mutex> lock(m_participatingMutex);
 
             I2P_LOG_SCOPED_TAG(m_log, "TunnelId", tunnelId);
             I2P_LOG(m_log, debug) << "received " << data.size() << " bytes of tunnel data";
+
+            std::lock_guard<std::mutex> lock(m_participatingMutex);
 
             auto itr = m_participating.find(tunnelId);
             if(itr != m_participating.end()) {
@@ -260,17 +261,16 @@ namespace i2pcpp {
         void Manager::callback(const boost::system::error_code &e)
         {
             auto count = getParticipatingTunnelCount();
+            I2P_LOG(m_log, debug) << boost::log::add_value("participating", (uint32_t) count);
             I2P_LOG(m_log, debug) << "we have " << std::to_string(count) << " participating tunnels";
-            I2P_LOG(m_log, debug) << boost::log::add_value("tunnel.participating", (uint32_t) count);
 
             if ( count == 0 && m_graceful ) { 
                 I2P_LOG(m_log, info) << "no more participating tunnels, we can now die";
-                return;
+               
+            } else {
+                m_timer.expires_at(m_timer.expires_at() + boost::posix_time::time_duration(0, 0, 5));
+                m_timer.async_wait(boost::bind(&Manager::callback, this, boost::asio::placeholders::error));
             }
-
-            
-            m_timer.expires_at(m_timer.expires_at() + boost::posix_time::time_duration(0, 0, 5));
-            m_timer.async_wait(boost::bind(&Manager::callback, this, boost::asio::placeholders::error));
         
         }
 
@@ -346,8 +346,13 @@ namespace i2pcpp {
         
         uint32_t Manager::getParticipatingTunnelCount()
         {
-            std::lock_guard<std::mutex> lock_participating(m_participatingMutex);
-            return m_participating.size();
+
+            uint32_t count;
+            {
+                std::lock_guard<std::mutex> lock(m_participatingMutex);
+                count = m_participating.size();
+            }
+            return count;
         }
         
         void Manager::gracefulShutdown()

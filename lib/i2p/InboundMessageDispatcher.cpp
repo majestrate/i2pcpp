@@ -96,7 +96,6 @@ namespace i2pcpp {
             }
            
             I2P_LOG(m_log, debug) << boost::log::add_value("i2np", msg_type);
-            I2P_LOG(m_log, debug) << "got message";
         }
     }
 
