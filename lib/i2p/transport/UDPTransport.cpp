@@ -190,9 +190,9 @@ namespace i2pcpp {
             if(n >= SSU::Packet::MIN_PACKET_LEN) {
                 auto p = std::make_shared<SSU::Packet>(ep, m_receiveBuf.data(), n);
                 m_ios.post(boost::bind(&SSU::PacketHandler::packetReceived, &m_packetHandler, p));
-            } else
+            } else {
                 I2P_LOG(m_log, debug) << "dropping short packet";
-
+            }
             m_socket.async_receive_from(
                     boost::asio::buffer(m_receiveBuf.data(), m_receiveBuf.size()),
                     m_senderEndpoint,

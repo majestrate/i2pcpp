@@ -36,6 +36,12 @@ var stats_new = function()
         hist_count: 0,
         hist_len: 0,
         hist_mean_interval: 5,
+        i2np : { //TODO: add more
+            vtb: 0,
+            dbsto: 0,
+            td: 0,
+            tg: 0 
+        }
     };
 }
 
@@ -56,6 +62,29 @@ var stats_update = function(stats, j_obj)
     stats.send.mean = calc_mean(stats.send.hist);
     stats.recv.mean = calc_mean(stats.recv.hist);
 
+    if ( j_obj.i2np.vtb !== undefined ) {
+        stats.i2np.vtb = j_obj.i2np.vtb;
+    } else {
+        stats.i2np.vtb = 0;
+    }
+
+    if ( j_obj.i2np.dbsto !== undefined ) {
+        stats.i2np.dbsto = j_obj.i2np.dbsto;
+    } else {
+        stats.i2np.dbsto = 0;
+    }
+
+    if ( j_obj.i2np.td !== undefined ) {
+        stats.i2np.td = j_obj.i2np.td;
+    } else {
+        stats.i2np.td = 0;
+    }
+
+    if ( j_obj.i2np.tg !== undefined ) {
+        stats.i2np.tg = j_obj.i2np.tg;
+    } else {
+        stats.i2np.tg = 0;
+    }
 }
 
 var stats_put_graph = function(stat, graph)
@@ -68,6 +97,51 @@ var statsConnection = new WebSocket("ws://127.0.0.1:10010/stats");
 
 statsConnection.onopen = function() { $("#connection_label").html("Connected"); }
 statsConnection.onclose = function() { $("#connection_label").html("Disconnected"); }
+
+function make_i2np_graph(elem, h) 
+{
+    var palette = new Rickshaw.Color.Palette( { scheme: 'munin' } );
+
+    var graph = new Rickshaw.Graph({ 
+        element: elem,
+        height: h,
+        renderer: 'multi',
+        
+        stroke: true,
+        series: new Rickshaw.Series.FixedDuration([
+            { name: 'vtb'  , renderer: 'bar' },
+            { name: 'dbsto' , renderer: 'bar' },
+            { name: 'td'  , renderer: 'bar' },
+            { name: 'tg' , renderer: 'bar' },
+            ],
+            palette,
+            {
+                timeInterval: 1000,
+                maxDataPoints: 180,
+                timeBase: new Date().getTime() / 1000
+            })
+    });
+
+    var hover = new Rickshaw.Graph.HoverDetail( {
+        graph: graph,
+        formatter: function(series, x, y) {
+            return series.name + " : " + y;
+        }
+    });
+
+    var x_axis = new Rickshaw.Graph.Axis.Time({
+        graph: graph,
+        ticksTreatment: 'glow',
+        timeFixture: new Rickshaw.Fixtures.Time.Local()
+    })
+    var y_axis = new Rickshaw.Graph.Axis.Y({
+        graph: graph,
+        tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
+        ticksTreatment: 'glow'
+    });
+    var render = function() { x_axis.render(); y_axis.render(); };
+    return [graph, render]
+}
 
 function make_graph(elem, h) 
 {
@@ -91,6 +165,13 @@ function make_graph(elem, h)
             })
     });
 
+    var hover = new Rickshaw.Graph.HoverDetail( {
+        graph: graph,
+        formatter: function(series, x, y) {
+            return make_amount(y);
+        }
+    });
+
     var x_axis = new Rickshaw.Graph.Axis.Time({
         graph: graph,
         ticksTreatment: 'glow',
@@ -104,6 +185,10 @@ function make_graph(elem, h)
     var render = function() { x_axis.render(); y_axis.render(); };
     return [graph, render]
 }
+
+var i2np = make_i2np_graph($("#graph_i2np").get(0), 200);
+var render_i2np = i2np[1];
+var graph_i2np = i2np[0];
 
 var send = make_graph($("#graph_send").get(0), 200)
 var send_axis_render = send[1];
@@ -150,5 +235,9 @@ statsConnection.onmessage = function(msg)
 
     update_label(stats.recv, "#recv_str");
     update_label(stats.send, "#send_str");
+
     $("#peers_str").html(data.peers + " Peers");
+
+    graph_i2np.series.addData(stats.i2np);
+    graph_i2np.render();
 };
