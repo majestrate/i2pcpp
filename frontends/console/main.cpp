@@ -26,10 +26,18 @@
 #include <condition_variable>
 
 static volatile bool quit = false;
+static volatile bool graceful = false;
 static std::condition_variable cv;
 
 static void sighandler(int sig)
 {
+    quit = true;
+    cv.notify_all();
+}
+
+static void sig_graceful_shutdown(int sig)
+{
+    graceful = true;
     quit = true;
     cv.notify_all();
 }
@@ -44,6 +52,8 @@ int main(int argc, char **argv)
             cerr << "error setting up signal handler" << endl;
 
             return EXIT_FAILURE;
+        } else if(signal(SIGUSR1, &sig_graceful_shutdown) == SIG_ERR) {
+            cerr << "error setting up signal handler" << endl;
         }
 
         string dbFile;
@@ -241,6 +251,15 @@ int main(int argc, char **argv)
         std::mutex mtx;
         std::unique_lock<std::mutex> lock(mtx);
         cv.wait(lock, [] { return quit; });
+        if ( graceful )  {
+            I2P_LOG(lg, info) << "doing graceful shutdown";
+            r.gracefulShutdown();
+            std::chrono::seconds sleep_duration(10);
+            while ( r.isActive() ) { 
+                I2P_LOG(lg, debug) << "waiting for tunnels to expire";
+                std::this_thread::sleep_for(sleep_duration); 
+            }
+        }
 
         I2P_LOG(lg, debug) << "shutting down";
 

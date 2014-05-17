@@ -77,6 +77,11 @@ namespace i2pcpp {
              */
             boost::signals2::connection registerDisconnectedSignal(DisconnectedSignal::slot_type const &ds);
 
+            /**
+             * stop accepting new peers
+             */
+            virtual void gracefulShutdown() = 0;
+
         protected:
             EstablishedSignal m_establishedSignal;
             ReceivedSignal m_receivedSignal;

@@ -21,6 +21,7 @@ namespace i2pcpp {
         m_establishmentManager(*this, privKey, ri),
         m_ackManager(*this),
         m_omf(*this),
+        m_acceptNewPeers(true),
         m_log(I2P_LOG_CHANNEL("SSU")) {}
 
     UDPTransport::~UDPTransport()
@@ -70,6 +71,12 @@ namespace i2pcpp {
 
     void UDPTransport::connect(RouterInfo const &ri)
     {
+        if( ! m_acceptNewPeers ) {
+
+            I2P_LOG_SCOPED_TAG(m_log, "RouterHash", ri.getIdentity().getHash());  
+            I2P_LOG(m_log, debug) << "not connecting out, graceful shutdown initiated";
+            return;
+        }
         try {
             for(auto a: ri) {
                 if(a.getTransport() == "SSU") {
@@ -90,7 +97,7 @@ namespace i2pcpp {
                     m_establishmentManager.createState(ep, id);
 
                     I2P_LOG_SCOPED_TAG(m_log, "Endpoint", ep);
-                    I2P_LOG_SCOPED_TAG(m_log, "RouterHash", id.getHash());
+                    I2P_LOG_SCOPED_TAG(m_log, "RouterHash", id.getHash());  
                     I2P_LOG(m_log, debug) << "attempting to establish session";
 
                     break; // Only connect to the first address
@@ -218,5 +225,16 @@ namespace i2pcpp {
     SSU::EstablishmentManager& UDPTransport::getEstablisher()
     {
         return m_establishmentManager;
+    }
+
+    void UDPTransport::gracefulShutdown()
+    {
+        I2P_LOG(m_log, info) << "transport doing graceful shutdown";
+        m_acceptNewPeers = false;
+    }
+
+    bool UDPTransport::acceptingNewPeers()
+    {
+        return m_acceptNewPeers;
     }
 }

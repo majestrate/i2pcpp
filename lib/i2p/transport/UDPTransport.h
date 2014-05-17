@@ -70,7 +70,11 @@ namespace i2pcpp {
              *  and joins all of the service threads.
              */
             void shutdown();
+            
+            void gracefulShutdown();
 
+            bool acceptingNewPeers();
+            
         private:
             /**
              * Sends an i2pcpp::Packet.
@@ -126,6 +130,7 @@ namespace i2pcpp {
 
             /// Logging object
             i2p_logger_mt m_log;
+            bool m_acceptNewPeers;
     };
 }
 

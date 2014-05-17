@@ -24,6 +24,7 @@ namespace i2pcpp {
             m_ios(ios),
             m_ctx(ctx),
             m_fragmentHandler(ios, ctx),
+            m_graceful(false),
             m_timer(m_ios, boost::posix_time::time_duration(0, 0, 1)),
             m_log(boost::log::keywords::channel = "TM") {}
 
@@ -258,10 +259,19 @@ namespace i2pcpp {
 
         void Manager::callback(const boost::system::error_code &e)
         {
-            createTunnel();
+            auto count = getParticipatingTunnelCount();
+            I2P_LOG(m_log, debug) << "we have " << std::to_string(count) << " participating tunnels";
+            I2P_LOG(m_log, debug) << boost::log::add_value("tunnel.participating", (uint32_t) count);
 
+            if ( count == 0 && m_graceful ) { 
+                I2P_LOG(m_log, info) << "no more participating tunnels, we can now die";
+                return;
+            }
+
+            
             m_timer.expires_at(m_timer.expires_at() + boost::posix_time::time_duration(0, 0, 5));
             m_timer.async_wait(boost::bind(&Manager::callback, this, boost::asio::placeholders::error));
+        
         }
 
         void Manager::createTunnel()
@@ -333,5 +343,17 @@ namespace i2pcpp {
             
             return tun->getTunnelId();
         }
+        
+        uint32_t Manager::getParticipatingTunnelCount()
+        {
+            std::lock_guard<std::mutex> lock_participating(m_participatingMutex);
+            return m_participating.size();
+        }
+        
+        void Manager::gracefulShutdown()
+        {
+            m_graceful = true;
+        }
+        
     }
 }

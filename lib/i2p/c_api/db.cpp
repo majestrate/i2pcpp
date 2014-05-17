@@ -5,6 +5,7 @@
 #include "../../../include/i2pcpp/Database.h"
 
 #include <i2pcpp/datatypes/RouterHash.h>
+#include <i2pcpp/datatypes/RouterInfo.h>
 
 #include <string>
 #include <array>
@@ -49,8 +50,8 @@ void * i2p_db_get_ri_via_hash(void * db, char * c_hash_str)
     if (! i2p_db_router_exists(db, c_hash_str) ) {
         return nullptr;
     } 
-    std::string hash(c_hash_str);
-    RouterIdentity * info = new RouterIdentiy(((Database *)db)->getRouterInfo(hash));
+    std::string hash(c_hash_str); 
+    RouterInfo * info = new RouterInfo(((Database *)db)->getRouterInfo(hash));
     return info;
 }
 
@@ -62,7 +63,7 @@ void i2p_db_rh_free(void * rh)
 
 void i2p_db_ri_free(void * ri)
 {
-    RouterIdentity * info = (RouterIdentity *) ri;
+    RouterInfo * info = (RouterInfo *) ri;
     delete info;
 }
 

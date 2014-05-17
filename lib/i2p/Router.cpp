@@ -33,6 +33,9 @@ namespace i2pcpp {
         RouterContext ctx;
 
         i2p_logger_mt log; ///< Logging object
+        bool running;
+
+        TransportPtr trans;
     };
 
     Router::Router(std::shared_ptr<Database> const &db)
@@ -143,13 +146,33 @@ namespace i2pcpp {
             m_impl->ctx.getDatabase()->getConfigValue("ssu_bind_ip"),
             std::stoi(m_impl->ctx.getDatabase()->getConfigValue("ssu_bind_port"))
         ));
+        
+        m_impl->trans = t;
 
         m_impl->ctx.getPeerManager().begin();
-        //m_impl->ctx.getTunnelManager().begin();
+        m_impl->ctx.getTunnelManager().begin();
+        m_impl->running = true;
     }
 
     void Router::stop()
     {
         m_impl->ios.stop();
+        m_impl->running = false;
+    }
+
+    bool Router::isRunning()
+    {
+        return m_impl->running;
+    }
+    
+    bool Router::isActive()
+    {
+        return m_impl->ctx.getTunnelManager().getParticipatingTunnelCount() > 0;
+    }
+
+    void Router::gracefulShutdown()
+    {
+        m_impl->ctx.gracefulShutdown();
+        m_impl->trans->gracefulShutdown();
     }
 }

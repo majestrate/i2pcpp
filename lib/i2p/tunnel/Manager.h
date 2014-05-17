@@ -61,7 +61,13 @@ namespace i2pcpp {
                 virtual void onTunnelBuildSuccess(uint32_t tunnelId) {}
                 virtual void onTunnelBuildFailure(uint32_t tunnelId) {}
                 virtual void onTunnelBuildTimeout(uint32_t tunnelId) {}
-                
+
+                /**
+                 * count participating tunnels
+                 */
+                uint32_t getParticipatingTunnelCount();
+
+                void gracefulShutdown();
             private:
                 /**
                  * Deletes the \a tunnelId.
@@ -87,6 +93,7 @@ namespace i2pcpp {
                 boost::asio::deadline_timer m_timer;
 
                 i2p_logger_mt m_log;
+                bool m_graceful;
         };
     }
 }

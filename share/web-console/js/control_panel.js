@@ -36,6 +36,9 @@ var stats_new = function()
         hist_count: 0,
         hist_len: 0,
         hist_mean_interval: 5,
+        tunnel : { //TODO: add more
+            participating: 0
+        },
         i2np : { //TODO: add more
             vtb: 0,
             dbsto: 0,
@@ -62,6 +65,8 @@ var stats_update = function(stats, j_obj)
     stats.send.mean = calc_mean(stats.send.hist);
     stats.recv.mean = calc_mean(stats.recv.hist);
 
+    stats.tunnel.participating = j_obj.tunnels.particapting;
+
     if ( j_obj.i2np.vtb !== undefined ) {
         stats.i2np.vtb = j_obj.i2np.vtb;
     } else {
@@ -84,7 +89,7 @@ var stats_update = function(stats, j_obj)
         stats.i2np.tg = j_obj.i2np.tg;
     } else {
         stats.i2np.tg = 0;
-    }
+    } 
 }
 
 var stats_put_graph = function(stat, graph)

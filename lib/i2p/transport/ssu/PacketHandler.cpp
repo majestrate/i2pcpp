@@ -26,12 +26,14 @@ namespace i2pcpp {
 
             if(m_transport.m_peers.peerExists(ep)) {
                 handlePacket(p, m_transport.m_peers.getPeer(ep));
-            } else {
+            } else if( m_transport.acceptingNewPeers() ){
                 EstablishmentStatePtr es = m_transport.getEstablisher().getState(ep);
                 if(es)
                     handlePacket(p, es);
                 else
                     handlePacket(p);
+            } else {
+                I2P_LOG(m_log, debug) << "dropping inbound request from remote peer, graceful shutdown initiated";
             }
         }
 
