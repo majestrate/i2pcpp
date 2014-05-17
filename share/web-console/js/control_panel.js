@@ -191,9 +191,20 @@ function make_graph(elem, h)
     return [graph, render]
 }
 
+var part = make_graph($("#graph_participating").get(0), 200);
+
+var render_part = part[1];
+var graph_part = part[0];
+
+render_part();
+graph_part.render();
+
 var i2np = make_i2np_graph($("#graph_i2np").get(0), 200);
 var render_i2np = i2np[1];
 var graph_i2np = i2np[0];
+
+render_i2np();
+graph_i2np.render();
 
 var send = make_graph($("#graph_send").get(0), 200)
 var send_axis_render = send[1];
@@ -234,6 +245,8 @@ statsConnection.onmessage = function(msg)
     stats_put_graph(stats.send, graph_send);
     graph_send.render(); 
 
+    graph_part.series.add({amount: stats.tunnel.participating, mean: 0});
+    graph_part.render();
 
     graph_peers.series.addData({ amount: data.peers, mean: 0});
     graph_peers.render();
