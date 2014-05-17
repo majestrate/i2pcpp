@@ -43,3 +43,26 @@ bool i2p_db_router_exists(void *db, char *hash)
     RouterHash rh = i2p_util_to_routerhash(hash);
     return ((Database *)db)->routerExists(rh);
 }
+
+void * i2p_db_get_ri_via_hash(void * db, char * c_hash_str) 
+{
+    if (! i2p_db_router_exists(db, c_hash_str) ) {
+        return nullptr;
+    } 
+    std::string hash(c_hash_str);
+    RouterIdentity * info = new RouterIdentiy(((Database *)db)->getRouterInfo(hash));
+    return info;
+}
+
+void i2p_db_rh_free(void * rh)
+{
+    RouterHash * hash = (RouterHash *) rh;
+    delete hash;
+}
+
+void i2p_db_ri_free(void * ri)
+{
+    RouterIdentity * info = (RouterIdentity *) ri;
+    delete info;
+}
+
