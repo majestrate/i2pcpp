@@ -34,7 +34,7 @@ For this bleeding edge branch I provide an easy intialization script.
 You need to have an existing i2p netdb, this version does NOT come with initial peers.
 
     python3 $HOME/i2pcpp/share/i2pinit.py --port 11050 --netdb $HOME/.i2p/netDb
-    $HOME/i2pcpp/build/out/bin/i2p
+    $HOME/i2pcpp/build/out/bin/i2p -d -l
 
 ## Building
 
