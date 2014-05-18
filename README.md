@@ -2,6 +2,8 @@
 
 Official/Stable Repo is [here](https://github.com/i2pcpp/i2pcpp)
 
+Please note: this fork uses a slightly different database format
+
 # i2pcpp
 
 i2pcpp is an I2P router written in C++11 by orion. It is targeted for the advanced I2P user demographic.

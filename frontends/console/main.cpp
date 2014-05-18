@@ -17,6 +17,9 @@
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/variables_map.hpp>
 #include <boost/program_options/parsers.hpp>
+#include <botan/botan.h>
+#include <botan/elgamal.h>
+#include <botan/dsa.h>
 
 #include <signal.h>
 #include <iostream>
@@ -129,12 +132,30 @@ int main(int argc, char **argv)
             Logger::logToConsole(log_level);
         }
 
-        /*if(vm.count("export")) {
+        if(vm.count("export")) {
             string file = vm["export"].as<string>();
             ofstream f(file, ios::binary);
 
             if(f.is_open()) {
-                ByteArray info = db->getRouterInfo();
+                Botan::AutoSeeded_RNG rng;
+                
+                std::string encryptingKeyPEM = db->getConfigValue("private_encryption_key");
+                Botan::DataSource_Memory dsm((unsigned char *)encryptingKeyPEM.data(), encryptingKeyPEM.size());
+                std::shared_ptr<Botan::ElGamal_PrivateKey> ekey(dynamic_cast<Botan::ElGamal_PrivateKey *>(Botan::PKCS8::load_key(dsm, rng, (std::string)"")));
+                
+                std::string signingKeyPEM = db->getConfigValue("private_signing_key");
+                Botan::DataSource_Memory dsm2((unsigned char *)signingKeyPEM.data(), signingKeyPEM.size());
+                std::shared_ptr< Botan::DSA_PrivateKey> skey(dynamic_cast<Botan::DSA_PrivateKey *>(Botan::PKCS8::load_key(dsm2, rng, (std::string)"")));
+
+                Botan::BigInt encryptionKeyPublic, signingKeyPublic;
+                encryptionKeyPublic = ekey->get_y();
+                signingKeyPublic = skey->get_y();
+                
+                ByteArray encryptionKeyBytes = Botan::BigInt::encode(encryptionKeyPublic), signingKeyBytes = Botan::BigInt::encode(signingKeyPublic);
+                RouterIdentity ident(encryptionKeyBytes, signingKeyBytes, Certificate());
+                RouterHash rh = ident.getHash();
+                RouterInfo ri = db->getRouterInfo(rh);
+                ByteArray info = ri.serialize();
                 f.write((char *)info.data(), info.size());
                 f.close();
 
@@ -144,7 +165,7 @@ int main(int argc, char **argv)
 
                 return EXIT_FAILURE;
             }
-        }*/
+        }
 
         if(vm.count("import")) {
             string file = vm["import"].as<string>();

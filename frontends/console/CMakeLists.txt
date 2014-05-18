@@ -21,4 +21,7 @@ target_link_libraries(i2pd i2p)
 include_directories(BEFORE i2pd ${Boost_INCLUDE_DIRS})
 target_link_libraries(i2pd ${Boost_LIBRARIES})
 
+# botan
+include_directories(BEFORE i2pd ${BOTAN_INCLUDE_DIRS})
+
 add_definitions(-DBOOST_ALL_DYN_LINK)
