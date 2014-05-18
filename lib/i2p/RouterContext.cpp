@@ -107,5 +107,6 @@ namespace i2pcpp {
     void RouterContext::gracefulShutdown()
     {
         m_tunnelManager.gracefulShutdown();
+        m_peerManager.gracefulShutdown();
     }
 }
