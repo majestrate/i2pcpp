@@ -47,55 +47,45 @@ namespace i2pcpp {
             m = I2NP::Message::fromBytes(0, data);
 
         if(m) {
-            std::string msg_type;
+            I2P_LOG(m_log, info) << boost::log::add_value("i2np_ib", m->getTypeString());
+
             switch(m->getType())
             {
                 case I2NP::Message::Type::DELIVERY_STATUS:
-                    msg_type = "ds";
                     m_ios.post(boost::bind(&Handlers::Message::handleMessage, m_deliveryStatusHandler, from, m));
                     break;
 
                 case I2NP::Message::Type::DB_STORE:
-                    msg_type = "dbsto";
                     m_ios.post(boost::bind(&Handlers::Message::handleMessage, m_dbStoreHandler, from, m));
                     break;
 
                 case I2NP::Message::Type::DB_SEARCH_REPLY:
-                    msg_type = "dbsr";
                     m_ios.post(boost::bind(&Handlers::Message::handleMessage, m_dbSearchReplyHandler, from, m));
                     break;
 
                 case I2NP::Message::Type::VARIABLE_TUNNEL_BUILD:
-                    msg_type = "vtb";
                     m_ios.post(boost::bind(&Handlers::Message::handleMessage, m_variableTunnelBuildHandler, from, m));
                     break;
 
                 case I2NP::Message::Type::VARIABLE_TUNNEL_BUILD_REPLY:
-                    msg_type = "vtbr";
                     m_ios.post(boost::bind(&Handlers::Message::handleMessage, m_variableTunnelBuildReplyHandler, from, m));
                     break;
 
                 case I2NP::Message::Type::TUNNEL_DATA:
-                    msg_type = "td";
                     m_ios.post(boost::bind(&Handlers::Message::handleMessage, m_tunnelDataHandler, from, m));
                     break;
 
                 case I2NP::Message::Type::TUNNEL_GATEWAY:
-                    msg_type = "tg";
                     m_ios.post(boost::bind(&Handlers::Message::handleMessage, m_tunnelGatewayHandler, from, m));
                     break;
 
                 case I2NP::Message::Type::GARLIC:
-                    msg_type = "g";
                     break;
 
                 default:
-                    msg_type = "u";
                     I2P_LOG(m_log, error) << "dropping unhandled message of type " << (int)m->getType();
                     break;
-            }
-           
-            I2P_LOG(m_log, debug) << boost::log::add_value("i2np", msg_type);
+            }           
         }
     }
 

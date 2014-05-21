@@ -20,8 +20,22 @@ function calc_mean(arr)
     return ( 0.0 + s ) / arr.length;
 }
 
+var new_i2np = function () {
+    return { DBL: 0,
+             DS: 0,
+             DBS: 0,
+             DBSR: 0,
+             VTB: 0,
+             VTBR: 0,
+             TD: 0,
+             TG: 0,
+             G: 0,
+             X: 0 };
+}
+
 var stats_new = function() 
 {
+    
     return {
         send : {
             hist: [],
@@ -39,12 +53,8 @@ var stats_new = function()
         tunnel : { //TODO: add more
             participating: 0
         },
-        i2np : { //TODO: add more
-            vtb: 0,
-            dbsto: 0,
-            td: 0,
-            tg: 0 
-        }
+        i2np_ib : new_i2np() ,
+        i2np_ob : new_i2np() 
     };
 }
 
@@ -66,30 +76,21 @@ var stats_update = function(stats, j_obj)
     stats.recv.mean = calc_mean(stats.recv.hist);
 
     stats.tunnel.participating = j_obj.tunnels.participating;
+    
+    stats.i2np_ib = new_i2np();
+    stats.i2np_ob = new_i2np();
+    
+    var i2np_ib = j_obj.i2np[0];
+    var i2np_ob = j_obj.i2np[1];
 
-    if ( j_obj.i2np.vtb !== undefined ) {
-        stats.i2np.vtb = j_obj.i2np.vtb;
-    } else {
-        stats.i2np.vtb = 0;
+    for ( var k in i2np_ib ) {
+        stats.i2np_ib[k] = i2np_ib[k];
     }
 
-    if ( j_obj.i2np.dbsto !== undefined ) {
-        stats.i2np.dbsto = j_obj.i2np.dbsto;
-    } else {
-        stats.i2np.dbsto = 0;
+    for ( var k in i2np_ob ) {
+        stats.i2np_ob[k] = i2np_ob[k];
     }
 
-    if ( j_obj.i2np.td !== undefined ) {
-        stats.i2np.td = j_obj.i2np.td;
-    } else {
-        stats.i2np.td = 0;
-    }
-
-    if ( j_obj.i2np.tg !== undefined ) {
-        stats.i2np.tg = j_obj.i2np.tg;
-    } else {
-        stats.i2np.tg = 0;
-    } 
 }
 
 var stats_put_graph = function(stat, graph)
@@ -109,21 +110,28 @@ function make_i2np_graph(elem, h)
 
     var graph = new Rickshaw.Graph({ 
         element: elem,
-        renderer: 'multi',
+        renderer: 'bar',
         stroke: true,        
         //width: 500,
         series: new Rickshaw.Series.FixedDuration([
-            { name: 'vtb'  , renderer: 'bar' },
-            { name: 'dbsto' , renderer: 'bar' },
-            { name: 'td'  , renderer: 'bar' },
-            { name: 'tg' , renderer: 'bar' },
-            ],
-            palette,
-            {
-                timeInterval: 1000,
-                maxDataPoints: 100,
-                timeBase: new Date().getTime() / 1000
-            })
+            { name:  'DS' , color: '#fd0' },
+            { name:  'DBS' , color : '#df0' },
+            { name:  'DBL' , color : '#0df' },
+            { name:  'DBSR', color : '#0fd' },
+            { name:  'VTB' , color : 'green' },
+            { name:  'VTBR' , color : 'blue' },
+            { name:  'TD' , color : 'orange' },
+            { name:  'TG' , color : 'yellow' },
+            { name:  'G' , color : '#01f' },
+            { name:  'X' , color: 'red' }
+
+        ],
+        palette,
+        {
+        timeInterval: 1000,
+        maxDataPoints: 50,
+        timeBase: new Date().getTime() / 1000
+        })
     });
 
     var hover = new Rickshaw.Graph.HoverDetail( {
@@ -201,12 +209,19 @@ var graph_part = part[0];
 render_part();
 graph_part.render();
 
-var i2np = make_i2np_graph($("#graph_i2np").get(0), 0);
-var render_i2np = i2np[1];
-var graph_i2np = i2np[0];
+var i2np = make_i2np_graph($("#graph_i2np_ib").get(0), 0);
+var render_i2np_ib = i2np[1];
+var graph_i2np_ib = i2np[0];
 
-render_i2np();
-graph_i2np.render();
+render_i2np_ib();
+graph_i2np_ib.render();
+
+var i2np = make_i2np_graph($("#graph_i2np_ob").get(0), 0);
+var render_i2np_ob = i2np[1];
+var graph_i2np_ob = i2np[0];
+
+render_i2np_ob();
+graph_i2np_ob.render();
 
 var send = make_graph($("#graph_send").get(0), 0)
 var send_axis_render = send[1];
@@ -259,6 +274,9 @@ statsConnection.onmessage = function(msg)
     $("#peers_str").html(data.peers);
     $("#participating_str").html(stats.tunnel.participating);
 
-    graph_i2np.series.addData(stats.i2np);
-    graph_i2np.render();
+    graph_i2np_ib.series.addData(stats.i2np_ib);
+    graph_i2np_ib.render();    
+
+    graph_i2np_ob.series.addData(stats.i2np_ob);
+    graph_i2np_ob.render();
 };

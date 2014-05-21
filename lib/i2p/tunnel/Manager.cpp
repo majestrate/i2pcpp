@@ -86,19 +86,26 @@ namespace i2pcpp {
             auto itr = std::find_if(records.begin(), records.end(), [myTruncatedHash](BuildRecordPtr const &r) { return (myTruncatedHash == r->getHeader()); });
             if(itr != records.end()) {
                 I2P_LOG(m_log, debug) << "found BRR with our identity";
+                
+                if (m_graceful) {
+                    I2P_LOG(m_log, debug) << "rejecting tunnel participation request: shutting down";
+                    // reject
+                    return;
+                }
 
                 /* We found a record that belongs to us. Let's decrypt and parse it. */
                 auto req = std::make_shared<BuildRequestRecord>(**itr);
                 req->decrypt(m_ctx.getEncryptionKey());
                 req->parse();
-
+                
                 std::lock_guard<std::mutex> lock(m_participatingMutex);
                 if(m_participating.count(req->getTunnelId()) > 0) {
                     I2P_LOG(m_log, debug) << "rejecting tunnel participation request: tunnel ID in use";
                     // reject
                     return;
                 }
-
+                
+                //XXX: does this leak?
                 auto timer = std::make_unique<boost::asio::deadline_timer>(m_ios, boost::posix_time::time_duration(0, 10, 0));
                 timer->async_wait(boost::bind(&Manager::timerCallback, this, boost::asio::placeholders::error, true, req->getTunnelId()));
 
@@ -261,7 +268,7 @@ namespace i2pcpp {
         void Manager::callback(const boost::system::error_code &e)
         {
             auto count = getParticipatingTunnelCount();
-            I2P_LOG(m_log, debug) << boost::log::add_value("participating", (uint32_t) count);
+            I2P_LOG(m_log, info) << boost::log::add_value("participating", (uint32_t) count);
             I2P_LOG(m_log, debug) << "we have " << std::to_string(count) << " participating tunnels";
 
             if ( count == 0 && m_graceful ) { 

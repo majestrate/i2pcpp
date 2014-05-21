@@ -101,6 +101,23 @@ namespace i2pcpp {
             throw std::runtime_error("couldn't identify myself");
         }
 
+        std::string Message::getTypeString() const
+        {
+            auto type = getType();
+            switch(type) {
+            case Type::DB_LOOKUP: return "DBL";
+            case Type::DELIVERY_STATUS: return "DS";
+            case Type::DB_STORE: return "DBS";
+            case Type::DB_SEARCH_REPLY: return "DBSR";
+            case Type::VARIABLE_TUNNEL_BUILD: return "VTB";
+            case Type::VARIABLE_TUNNEL_BUILD_REPLY: return "VTBR";
+            case Type::TUNNEL_DATA: return "TD";
+            case Type::TUNNEL_GATEWAY: return "TG";
+            case Type::GARLIC: return "G";
+            default: "X";
+            }
+        }
+
         MessagePtr Message::fromBytes(uint32_t msgId, ByteArray const &data, bool standardHeader)
         {
             MessagePtr m;

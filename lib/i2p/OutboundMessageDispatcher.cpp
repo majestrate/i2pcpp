@@ -25,10 +25,11 @@ namespace i2pcpp {
             return;
         }
 
-        if(m_transport->isConnected(to))
+        if(m_transport->isConnected(to)) {
+            I2P_LOG(m_log, info) << boost::log::add_value("i2np_ob", (std::string) msg->getTypeString());
             // SSU is the only transport implemented, so use the short header
             m_transport->send(to, msg->getMsgId(), msg->toBytes(false));
-        else {
+        } else {
             I2P_LOG_SCOPED_TAG(m_log, "RouterHash", to);
             I2P_LOG(m_log, debug) << "not connected, queueing message";
 

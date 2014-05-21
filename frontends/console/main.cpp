@@ -106,10 +106,10 @@ int main(int argc, char **argv)
             return EXIT_SUCCESS;
         }
 
-				i2pcpp::severity_level log_level = i2pcpp::warning;
-				if (vm.count("debug")) {
-					  log_level = i2pcpp::debug;
-				}
+        i2pcpp::severity_level log_level = i2pcpp::info;
+        if (vm.count("debug")) {
+            log_level = i2pcpp::debug;
+        }
         Logger l;
         i2p_logger_mt lg(boost::log::keywords::channel = "M");
 
