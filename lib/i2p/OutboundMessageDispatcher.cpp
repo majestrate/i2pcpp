@@ -70,6 +70,8 @@ namespace i2pcpp {
             // Short header, as above
             m_transport->send(itr->first, itr->second->getMsgId(), itr->second->toBytes(false));
         }
+        // we have succeeded and flushed data, we are no longer pending
+        m_pending.erase(rh);
     }
 
     void OutboundMessageDispatcher::dhtSuccess(DHT::Kademlia::key_type const k, DHT::Kademlia::value_type const v)
