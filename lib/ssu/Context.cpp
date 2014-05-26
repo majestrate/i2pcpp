@@ -1,8 +1,16 @@
 #include "Context.h"
+#include "Packet.h"
+
+#include "../../include/i2pcpp/transports/SSU.h"
 
 namespace i2pcpp {
     namespace SSU {
-        Context::Context(std::shared_ptr<Botan::DSA_PrivateKey> const &dsaPrivKey, RouterIdentity const &ri) :
+        Context::Context(SSU &s, std::shared_ptr<Botan::DSA_PrivateKey> const &dsaPrivKey, RouterIdentity const &ri) :
+            self(s),
+            establishedSignal(s.m_establishedSignal),
+            receivedSignal(s.m_receivedSignal),
+            failureSignal(s.m_failureSignal),
+            disconnectedSignal(s.m_disconnectedSignal),
             socket(ios),
             peers(*this),
             packetHandler(*this, ri.getHash()),
@@ -63,6 +71,11 @@ namespace i2pcpp {
             I2P_LOG_SCOPED_TAG(log, "Endpoint", Endpoint(ep));
             I2P_LOG(log, debug) << "sent " << n << " bytes";
             I2P_LOG(log, debug) << boost::log::add_value("sent", (uint64_t)n);
+        }
+
+        void Context::disconnect(RouterHash const &rh)
+        {
+            self.disconnect(rh);
         }
     }
 }

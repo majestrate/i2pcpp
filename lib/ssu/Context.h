@@ -8,6 +8,8 @@
 #include "OutboundMessageFragments.h"
 #include "PacketBuilder.h"
 
+#include "../../include/i2pcpp/Transport.h"
+
 #include <i2pcpp/Log.h>
 
 #include <boost/asio.hpp>
@@ -16,8 +18,10 @@
 
 namespace i2pcpp {
     namespace SSU {
+        class SSU;
+
         struct Context {
-            Context(std::shared_ptr<Botan::DSA_PrivateKey> const &dsaPrivKey, RouterIdentity const &ri);
+            Context(SSU &s, std::shared_ptr<Botan::DSA_PrivateKey> const &dsaPrivKey, RouterIdentity const &ri);
 
             /**
              * Sends an i2pcpp::Packet.
@@ -42,6 +46,20 @@ namespace i2pcpp {
              * @param ep the UDP endpoint involved
              */
             void dataSent(const boost::system::error_code& e, size_t n, boost::asio::ip::udp::endpoint ep);
+
+            /**
+             * Calls the disconnect member function on the pimpl exterior.
+             */
+            void disconnect(RouterHash const &rh);
+
+            /// Reference to the pimpl exterior
+            SSU& self;
+
+            /// Reference to the signals
+            Transport::EstablishedSignal &establishedSignal;
+            Transport::ReceivedSignal &receivedSignal;
+            Transport::FailureSignal &failureSignal;
+            Transport::DisconnectedSignal &disconnectedSignal;
 
             boost::asio::io_service ios;
             boost::asio::ip::udp::socket socket;

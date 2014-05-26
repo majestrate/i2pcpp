@@ -22,9 +22,9 @@
 namespace bmi = boost::multi_index;
 
 namespace i2pcpp {
-    class UDPTransport;
-
     namespace SSU {
+        class Context;
+
         /**
          * Manages (fragments) of messages received by this router.
          */
@@ -35,7 +35,7 @@ namespace i2pcpp {
                 /**
                  * Constructs from a reference the the i2pcpp::UDPTranport class.
                  */
-                InboundMessageFragments(UDPTransport &transport);
+                InboundMessageFragments(Context &c);
                 InboundMessageFragments(const InboundMessageFragments &) = delete;
                 InboundMessageFragments& operator=(InboundMessageFragments &) = delete;
 
@@ -59,7 +59,7 @@ namespace i2pcpp {
                 void receiveData(RouterHash const &rh, ByteArrayConstItr &begin, ByteArrayConstItr end);
 
             private:
-                UDPTransport &m_transport;
+                Context& m_context;
 
                 /**
                  * Adds a new i2pcpp::SSU::InboundMessageState to the state container

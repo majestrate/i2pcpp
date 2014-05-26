@@ -16,7 +16,7 @@ namespace i2pcpp {
         SSU::SSU(std::shared_ptr<Botan::DSA_PrivateKey> const &dsaPrivKey, RouterIdentity const &ri) :
             Transport()
         {
-            m_impl = std::make_unique<Context>(dsaPrivKey, ri);
+            m_impl = std::make_unique<Context>(*this, dsaPrivKey, ri);
         }
 
         SSU::~SSU()

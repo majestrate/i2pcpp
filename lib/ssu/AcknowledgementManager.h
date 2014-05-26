@@ -20,9 +20,9 @@ namespace i2pcpp {
             public:
 
                 /**
-                 * Constructs given a reference to an i2pcpp::UDPTranport object.
+                 * Constructs given a reference to an i2pcpp::SSU::Context object.
                  */
-                AcknowledgementManager(Context &transport);
+                AcknowledgementManager(Context &c);
 
                 AcknowledgementManager(const AcknowledgementManager &) = delete;
                 AcknowledgementManager& operator=(AcknowledgementManager &) = delete;
@@ -36,7 +36,7 @@ namespace i2pcpp {
                 void flushAckCallback(const boost::system::error_code& e);
 
                 /// Reference to the i2pcpp::SSU::Context object.
-                Context& m_transport;
+                Context& m_context;
 
                 /// Timer to invoke the ACK callback.
                 boost::asio::deadline_timer m_timer;

@@ -5,8 +5,7 @@
 #include "InboundMessageFragments.h"
 
 #include "InboundMessageState.h"
-
-#include "../../include/i2pcpp/transports/SSU.h"
+#include "Context.h"
 
 #include <i2pcpp/util/make_unique.h>
 
@@ -19,8 +18,8 @@
 
 namespace i2pcpp {
     namespace SSU {
-        InboundMessageFragments::InboundMessageFragments(UDPTransport &transport) :
-            m_transport(transport),
+        InboundMessageFragments::InboundMessageFragments(Context &c) :
+            m_context(c),
             m_log(boost::log::keywords::channel = "IMF") {}
 
         void InboundMessageFragments::receiveData(RouterHash const &rh, ByteArrayConstItr &begin, ByteArrayConstItr end)
@@ -38,8 +37,8 @@ namespace i2pcpp {
                 while(numAcks--) {
                     uint32_t msgId = parseUint32(begin);
 
-                    std::lock_guard<std::mutex> lock(m_transport.m_omf.m_mutex);
-                    m_transport.m_omf.delState(msgId);
+                    std::lock_guard<std::mutex> lock(m_context.omf.m_mutex);
+                    m_context.omf.delState(msgId);
                 }
             }
 
@@ -50,15 +49,15 @@ namespace i2pcpp {
                     uint32_t msgId = parseUint32(begin);
 
                     // Read ACK bitfield (1 byte)
-                    std::lock_guard<std::mutex> lock(m_transport.m_omf.m_mutex);
-                    auto itr = m_transport.m_omf.m_states.find(msgId);
+                    std::lock_guard<std::mutex> lock(m_context.omf.m_mutex);
+                    auto itr = m_context.omf.m_states.find(msgId);
                     uint8_t byteNum = 0;
                     do {
                         uint8_t byte = *begin;
                         for(int i = 6, j = 0; i >= 0; i--, j++) {
                             // If the bit is 1, the fragment has been received
                             if(byte & (1 << i)) {
-                                if(itr != m_transport.m_omf.m_states.end())
+                                if(itr != m_context.omf.m_states.end())
                                     itr->second.markFragmentAckd((byteNum * 7) + j);
                             }
                         }
@@ -67,8 +66,8 @@ namespace i2pcpp {
                     // If the low bit is 1, another bitfield follows
                     } while(*(begin++) & (1 << 7));
 
-                    if(itr != m_transport.m_omf.m_states.end() && itr->second.allFragmentsAckd())
-                        m_transport.m_omf.delState(msgId);
+                    if(itr != m_context.omf.m_states.end() && itr->second.allFragmentsAckd())
+                        m_context.omf.delState(msgId);
                 }
             }
 
@@ -119,7 +118,7 @@ namespace i2pcpp {
             sc.msgId = msgId;
             sc.hash = rh;
 
-            auto timer = std::make_unique<boost::asio::deadline_timer>(m_transport.m_ios, boost::posix_time::time_duration(0, 0, 10));
+            auto timer = std::make_unique<boost::asio::deadline_timer>(m_context.ios, boost::posix_time::time_duration(0, 0, 10));
             timer->async_wait(boost::bind(&InboundMessageFragments::timerCallback, this, boost::asio::placeholders::error, msgId));
             sc.timer = std::move(timer);
 
@@ -144,7 +143,7 @@ namespace i2pcpp {
             if(ims.allFragmentsReceived()) {
                 const ByteArray& data = ims.assemble();
                 if(data.size())
-                    m_transport.m_ios.post(boost::bind(boost::ref(m_transport.m_receivedSignal), ims.getRouterHash(), msgId, data));
+                    m_context.ios.post(boost::bind(boost::ref(m_context.receivedSignal), ims.getRouterHash(), msgId, data));
             }
         }
 

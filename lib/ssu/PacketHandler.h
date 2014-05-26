@@ -12,9 +12,8 @@
 #include <i2pcpp/datatypes/SessionKey.h>
 
 namespace i2pcpp {
-    class UDPTransport;
-
     namespace SSU {
+        class Context;
         class PeerState;
         class Packet; typedef std::shared_ptr<Packet> PacketPtr;
         class EstablishmentState; typedef std::shared_ptr<EstablishmentState> EstablishmentStatePtr;
@@ -30,7 +29,7 @@ namespace i2pcpp {
                  * Constructs from a reference to the i2pcpp::SSU::UDPTransport
                  *  and an i2pcpp::SessionKey.
                  */
-                PacketHandler(UDPTransport &transport, SessionKey const &sk);
+                PacketHandler(Context &c, SessionKey const &sk);
                 PacketHandler(const PacketHandler &) = delete;
                 PacketHandler& operator=(PacketHandler &) = delete;
 
@@ -106,7 +105,7 @@ namespace i2pcpp {
                  */
                 void handleSessionDestroyed(EstablishmentStatePtr const &state);
 
-                UDPTransport& m_transport;
+                Context& m_context;
 
                 SessionKey m_inboundKey;
 

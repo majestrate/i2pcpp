@@ -17,6 +17,8 @@ namespace i2pcpp {
         struct Context;
 
         class SSU : public Transport {
+            friend Context;
+
             public:
                 /**
                  * Constructs an SSU transport given a private DSA key and

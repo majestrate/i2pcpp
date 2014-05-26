@@ -4,10 +4,10 @@
  */
 #include "EstablishmentManager.h"
 
+#include "Context.h"
 #include "EstablishmentState.h"
 #include "PacketBuilder.h"
-
-#include "../../include/i2pcpp/transports/SSU.h"
+#include "Packet.h"
 
 #include <i2pcpp/util/make_unique.h>
 
@@ -15,8 +15,8 @@
 
 namespace i2pcpp {
     namespace SSU {
-        EstablishmentManager::EstablishmentManager(UDPTransport &transport, std::shared_ptr<Botan::DSA_PrivateKey> const &privKey, RouterIdentity const &ri) :
-            m_transport(transport),
+        EstablishmentManager::EstablishmentManager(Context &c, std::shared_ptr<const Botan::DSA_PrivateKey> const &privKey, RouterIdentity const &ri) :
+            m_context(c),
             m_privKey(privKey),
             m_identity(ri),
             m_log(boost::log::keywords::channel = "EM") {}
@@ -28,7 +28,7 @@ namespace i2pcpp {
             auto es = std::make_shared<EstablishmentState>(m_privKey, m_identity, ep);
             m_stateTable[ep] = es;
 
-            m_stateTimers[ep] = std::make_unique<boost::asio::deadline_timer>(m_transport.m_ios, boost::posix_time::time_duration(0, 0, 10));
+            m_stateTimers[ep] = std::make_unique<boost::asio::deadline_timer>(m_context.ios, boost::posix_time::time_duration(0, 0, 10));
             m_stateTimers[ep]->async_wait(boost::bind(&EstablishmentManager::timeoutCallback, this, boost::asio::placeholders::error, es));
 
             return es;
@@ -43,7 +43,7 @@ namespace i2pcpp {
 
             sendRequest(es);
 
-            m_stateTimers[ep] = std::make_unique<boost::asio::deadline_timer>(m_transport.m_ios, boost::posix_time::time_duration(0, 0, 10));
+            m_stateTimers[ep] = std::make_unique<boost::asio::deadline_timer>(m_context.ios, boost::posix_time::time_duration(0, 0, 10));
             m_stateTimers[ep]->async_wait(boost::bind(&EstablishmentManager::timeoutCallback, this, boost::asio::placeholders::error, es));
         }
 
@@ -54,7 +54,7 @@ namespace i2pcpp {
 
         void EstablishmentManager::post(EstablishmentStatePtr const &es)
         {
-            m_transport.m_ios.post(boost::bind(&EstablishmentManager::stateChanged, this, es));
+            m_context.ios.post(boost::bind(&EstablishmentManager::stateChanged, this, es));
         }
 
         void EstablishmentManager::stateChanged(EstablishmentStatePtr es)
@@ -87,7 +87,7 @@ namespace i2pcpp {
                         const RouterHash &rh = es->getTheirIdentity().getHash();
                         I2P_LOG_SCOPED_TAG(m_log, "RouterHash", rh);
                         I2P_LOG(m_log, debug) << "sent session confirmed";
-                        m_transport.m_ios.post(boost::bind(boost::ref(m_transport.m_establishedSignal), rh, (es->getDirection() == EstablishmentState::Direction::INBOUND)));
+                        m_context.ios.post(boost::bind(boost::ref(m_context.establishedSignal), rh, (es->getDirection() == EstablishmentState::Direction::INBOUND)));
                         delState(ep);
                     }
                     break;
@@ -101,7 +101,7 @@ namespace i2pcpp {
                 case EstablishmentState::State::FAILURE:
                     I2P_LOG(m_log, error) << "establishment failed";
                     if(es->getDirection() == EstablishmentState::Direction::OUTBOUND)
-                        m_transport.m_ios.post(boost::bind(boost::ref(m_transport.m_failureSignal), es->getTheirIdentity().getHash()));
+                        m_context.ios.post(boost::bind(boost::ref(m_context.failureSignal), es->getTheirIdentity().getHash()));
 
                     delState(ep);
                     break;
@@ -149,7 +149,7 @@ namespace i2pcpp {
             PacketPtr p = PacketBuilder::buildSessionRequest(state);
             p->encrypt(state->getSessionKey(), state->getMacKey());
 
-            m_transport.sendPacket(p);
+            m_context.sendPacket(p);
 
             state->setState(EstablishmentState::State::REQUEST_SENT);
             post(state);
@@ -170,7 +170,7 @@ namespace i2pcpp {
             copy(dhSecret.begin() + 32, dhSecret.begin() + 32 + 32, newMacKey.begin());
             state->setMacKey(newMacKey);
 
-            m_transport.sendPacket(p);
+            m_context.sendPacket(p);
 
             state->setState(EstablishmentState::State::CREATED_SENT);
             post(state);
@@ -199,13 +199,13 @@ namespace i2pcpp {
             ps.setCurrentSessionKey(state->getSessionKey());
             ps.setCurrentMacKey(state->getMacKey());
 
-            std::lock_guard<std::mutex> lock(m_transport.m_peers.getMutex());
-            m_transport.m_peers.addPeer(std::move(ps));
+            std::lock_guard<std::mutex> lock(m_context.peers.getMutex());
+            m_context.peers.addPeer(std::move(ps));
 
             PacketPtr p = PacketBuilder::buildSessionConfirmed(state);
             p->encrypt(state->getSessionKey(), state->getMacKey());
 
-            m_transport.sendPacket(p);
+            m_context.sendPacket(p);
 
             state->setState(EstablishmentState::State::CONFIRMED_SENT);
             post(state);
@@ -229,12 +229,12 @@ namespace i2pcpp {
             ps.setCurrentSessionKey(state->getSessionKey());
             ps.setCurrentMacKey(state->getMacKey());
 
-            std::lock_guard<std::mutex> lock(m_transport.m_peers.getMutex());
-            m_transport.m_peers.addPeer(std::move(ps));
+            std::lock_guard<std::mutex> lock(m_context.peers.getMutex());
+            m_context.peers.addPeer(std::move(ps));
 
             delState(ep);
 
-            m_transport.m_ios.post(boost::bind(boost::ref(m_transport.m_establishedSignal), state->getTheirIdentity().getHash(), (state->getDirection() == EstablishmentState::Direction::INBOUND)));
+            m_context.ios.post(boost::bind(boost::ref(m_context.establishedSignal), state->getTheirIdentity().getHash(), (state->getDirection() == EstablishmentState::Direction::INBOUND)));
         }
     }
 }

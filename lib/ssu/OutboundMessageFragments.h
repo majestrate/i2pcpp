@@ -10,9 +10,8 @@
 #include <mutex>
 
 namespace i2pcpp {
-    class UDPTransport;
-
     namespace SSU {
+        class Context;
         class PeerState;
 
         /**
@@ -25,7 +24,7 @@ namespace i2pcpp {
                 /**
                  * Constructs from a reference to the i2pcpp::UDPTransport object.
                  */
-                OutboundMessageFragments(UDPTransport &transport);
+                OutboundMessageFragments(Context &c);
                 OutboundMessageFragments(const OutboundMessageFragments &) = delete;
                 OutboundMessageFragments& operator=(OutboundMessageFragments &) = delete;
 
@@ -62,7 +61,7 @@ namespace i2pcpp {
 
                 mutable std::mutex m_mutex;
 
-                UDPTransport &m_transport;
+                Context& m_context;
         };
     }
 }

@@ -4,7 +4,7 @@
  */
 #include "OutboundMessageState.h"
 
-#include "../i2p/Log.h" // XXX BAD
+#include <i2pcpp/Log.h>
 
 namespace i2pcpp {
     namespace SSU {

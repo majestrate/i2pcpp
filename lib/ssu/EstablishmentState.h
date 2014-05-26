@@ -30,7 +30,7 @@ namespace i2pcpp {
                  * @param myIdentity identity of this router
                  * @param ep enpoint with which we are establishing a session
                  */
-                EstablishmentState(Botan::DSA_PrivateKey const &dsaKey, RouterIdentity const &myIdentity, Endpoint const &ep);
+                EstablishmentState(std::shared_ptr<const Botan::DSA_PrivateKey> const &dsaKey, RouterIdentity const &myIdentity, Endpoint const &ep);
 
                 /**
                  * Constructs. Generates a Diffie-Hellman private key (exponent).
@@ -40,7 +40,7 @@ namespace i2pcpp {
                  * @param theirIdentity identity of router with which we are
                  *  establishing a session
                  */
-                EstablishmentState(Botan::DSA_PrivateKey const &dsaKey, RouterIdentity const &myIdentity, Endpoint const &ep, RouterIdentity const &theirIdentity);
+                EstablishmentState(std::shared_ptr<const Botan::DSA_PrivateKey> const &dsaKey, RouterIdentity const &myIdentity, Endpoint const &ep, RouterIdentity const &theirIdentity);
 
                 EstablishmentState(EstablishmentState const &state) = delete;
                 ~EstablishmentState();
@@ -228,7 +228,7 @@ namespace i2pcpp {
                 Direction m_direction;
 
                 /// DSA private key used to create certifcates
-                const Botan::DSA_PrivateKey& m_dsaKey;
+                const std::shared_ptr<const Botan::DSA_PrivateKey> m_dsaKey;
                 /// Identity of this router
                 const RouterIdentity& m_myIdentity;
                 /// Endpoint of this router
