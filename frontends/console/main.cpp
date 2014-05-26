@@ -251,10 +251,12 @@ int main(int argc, char **argv)
         ByteArray dsaPubKeyBytes = Botan::BigInt::encode(dsaPubKey);
         RouterIdentity ri(elgPubKeyBytes, dsaPubKeyBytes, Certificate());
 
-        //SSU::SSU transport(dsaPrivKey, ri);
+        auto t = std::make_shared<SSU::SSU>(dsaPrivKey, ri);
+        r.addTransport(t);
 
         I2P_LOG(lg, info) << "starting router";
         r.start();
+        t->start(Endpoint(db->getConfigValue("ssu_bind_ip"), std::stoi(db->getConfigValue("ssu_bind_port"))));
 
         std::mutex mtx;
         std::unique_lock<std::mutex> lock(mtx);

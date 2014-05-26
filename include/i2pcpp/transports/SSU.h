@@ -17,7 +17,7 @@ namespace i2pcpp {
         struct Context;
 
         class SSU : public Transport {
-            friend Context;
+            friend class Context;
 
             public:
                 /**

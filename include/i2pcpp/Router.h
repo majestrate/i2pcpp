@@ -43,7 +43,7 @@ namespace i2pcpp {
             /**
              * Starts the i2pcpp::Router.
              * That is, runs the boost::asio I/O service, registers the handlers,
-             *  binds the signals and creates an i2pcpp::UDPTransport object.
+             *  binds the signals, etc.
              */
             void start();
 
