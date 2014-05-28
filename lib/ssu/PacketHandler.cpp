@@ -3,17 +3,16 @@
  * @brief Implements PacketHandler.h
  */
 #include "PacketHandler.h"
-
+#include "Packet.h"
 #include "EstablishmentState.h"
-
-#include "../UDPTransport.h"
+#include "Context.h"
 
 namespace i2pcpp {
     namespace SSU {
-        PacketHandler::PacketHandler(UDPTransport &transport, SessionKey const &sk) :
-            m_transport(transport),
+        PacketHandler::PacketHandler(Context &c, SessionKey const &sk) :
+            m_context(c),
             m_inboundKey(sk),
-            m_imf(transport),
+            m_imf(c),
             m_log(boost::log::keywords::channel = "PH") {}
 
         void PacketHandler::packetReceived(PacketPtr p)
@@ -22,12 +21,12 @@ namespace i2pcpp {
 
             auto ep = p->getEndpoint();
 
-            std::lock_guard<std::mutex> lock(m_transport.m_peers.getMutex());
+            std::lock_guard<std::mutex> lock(m_context.peers.getMutex());
 
-            if(m_transport.m_peers.peerExists(ep)) {
-                handlePacket(p, m_transport.m_peers.getPeer(ep));
+            if(m_context.peers.peerExists(ep)) {
+                handlePacket(p, m_context.peers.getPeer(ep));
             } else {
-                EstablishmentStatePtr es = m_transport.getEstablisher().getState(ep);
+                EstablishmentStatePtr es = m_context.establishmentManager.getState(ep);
                 if(es)
                     handlePacket(p, es);
                 else
@@ -42,7 +41,7 @@ namespace i2pcpp {
                 return;
             }
 
-            m_transport.m_peers.resetPeerTimer(state.getHash());
+            m_context.peers.resetPeerTimer(state.getHash());
 
             packet->decrypt(state.getCurrentSessionKey());
             ByteArray &data = packet->getData();
@@ -130,7 +129,7 @@ namespace i2pcpp {
 
             switch(ptype) {
                 case Packet::PayloadType::SESSION_REQUEST:
-                    handleSessionRequest(dataItr, end, m_transport.getEstablisher().createState(ep));
+                    handleSessionRequest(dataItr, end, m_context.establishmentManager.createState(ep));
                     break;
 
                 default:
@@ -156,7 +155,7 @@ namespace i2pcpp {
             state->setRelayTag(0); // TODO Relay support
 
             state->setState(EstablishmentState::State::REQUEST_RECEIVED);
-            m_transport.getEstablisher().post(state);
+            m_context.establishmentManager.post(state);
         }
 
         void PacketHandler::handleSessionCreated(ByteArrayConstItr &begin, ByteArrayConstItr end, EstablishmentStatePtr const &state)
@@ -186,7 +185,7 @@ namespace i2pcpp {
             state->setSignature(begin, begin + 48);
 
             state->setState(EstablishmentState::State::CREATED_RECEIVED);
-            m_transport.getEstablisher().post(state);
+            m_context.establishmentManager.post(state);
         }
 
         void PacketHandler::handleSessionConfirmed(ByteArrayConstItr &begin, ByteArrayConstItr end, EstablishmentStatePtr const &state)
@@ -207,20 +206,20 @@ namespace i2pcpp {
             state->setSignature(end - 40, end);
 
             state->setState(EstablishmentState::State::CONFIRMED_RECEIVED);
-            m_transport.getEstablisher().post(state);
+            m_context.establishmentManager.post(state);
         }
 
         void PacketHandler::handleSessionDestroyed(PeerState const &ps)
         {
             // m_peers is already locked above
-            m_transport.m_peers.delPeer(ps.getEndpoint());
-            m_transport.m_ios.post(boost::bind(boost::ref(m_transport.m_disconnectedSignal), ps.getHash()));
+            m_context.peers.delPeer(ps.getEndpoint());
+            m_context.ios.post(boost::bind(boost::ref(m_context.disconnectedSignal), ps.getHash()));
         }
 
         void PacketHandler::handleSessionDestroyed(EstablishmentStatePtr const &state)
         {
             state->setState(EstablishmentState::State::FAILURE);
-            m_transport.getEstablisher().post(state);
+            m_context.establishmentManager.post(state);
         }
     }
 }

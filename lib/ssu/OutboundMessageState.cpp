@@ -4,7 +4,7 @@
  */
 #include "OutboundMessageState.h"
 
-#include "../../Log.h"
+#include <i2pcpp/Log.h>
 
 namespace i2pcpp {
     namespace SSU {

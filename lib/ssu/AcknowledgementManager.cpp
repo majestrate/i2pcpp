@@ -4,15 +4,16 @@
  */
 #include "AcknowledgementManager.h"
 
-#include "../UDPTransport.h"
+#include "Context.h"
+#include "Packet.h"
 
 #include <boost/bind.hpp>
 
 namespace i2pcpp {
     namespace SSU {
-        AcknowledgementManager::AcknowledgementManager(UDPTransport &transport) :
-            m_transport(transport),
-            m_timer(m_transport.m_ios, boost::posix_time::time_duration(0, 0, 1)),
+        AcknowledgementManager::AcknowledgementManager(Context &c) :
+            m_context(c),
+            m_timer(m_context.ios, boost::posix_time::time_duration(0, 0, 1)),
             m_log(boost::log::keywords::channel = "AM")
         {
             m_timer.async_wait(boost::bind(&AcknowledgementManager::flushAckCallback, this, boost::asio::placeholders::error));
@@ -20,15 +21,15 @@ namespace i2pcpp {
 
         void AcknowledgementManager::flushAckCallback(const boost::system::error_code& e)
         {
-            std::lock_guard<std::mutex> lock(m_transport.m_packetHandler.m_imf.m_mutex);
-            auto& stateTable = m_transport.m_packetHandler.m_imf.m_states;
+            std::lock_guard<std::mutex> lock(m_context.packetHandler.m_imf.m_mutex);
+            auto& stateTable = m_context.packetHandler.m_imf.m_states;
 
             for(auto itr = stateTable.get<1>().cbegin(); itr != stateTable.get<1>().cend();) {
-                std::lock_guard<std::mutex> lock(m_transport.m_peers.getMutex());
+                std::lock_guard<std::mutex> lock(m_context.peers.getMutex());
 
                 auto hashToAckFor = itr->hash;
 
-                if(!m_transport.m_peers.peerExists(hashToAckFor))
+                if(!m_context.peers.peerExists(hashToAckFor))
                     continue;
 
                 CompleteAckList completeAckList;
@@ -47,12 +48,12 @@ namespace i2pcpp {
                 }
 
                 if(completeAckList.size() || partialAckList.size()) {
-                    PeerState ps = m_transport.m_peers.getPeer(hashToAckFor);
+                    PeerState ps = m_context.peers.getPeer(hashToAckFor);
 
                     std::vector<PacketBuilder::FragmentPtr> emptyFragList;
                     PacketPtr p = PacketBuilder::buildData(ps.getEndpoint(), false, completeAckList, partialAckList, emptyFragList);
                     p->encrypt(ps.getCurrentSessionKey(), ps.getCurrentMacKey());
-                    m_transport.sendPacket(p);
+                    m_context.sendPacket(p);
                 }
             }
 

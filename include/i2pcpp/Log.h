@@ -5,7 +5,7 @@
 #ifndef LOG_H
 #define LOG_H
 
-#include "../../include/i2pcpp/LogLevels.h"
+#include "LogLevels.h"
 
 #include <boost/log/sources/severity_channel_logger.hpp>
 #include <boost/log/sources/record_ostream.hpp>

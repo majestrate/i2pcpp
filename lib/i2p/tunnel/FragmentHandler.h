@@ -1,12 +1,11 @@
 #ifndef TUNNELFRAGMENTHANDLER_H
 #define TUNNELFRAGMENTHANDLER_H
 
-#include "../Log.h"
-
 #include "FragmentState.h"
 
-#include <unordered_map>
+#include <i2pcpp/Log.h>
 
+#include <unordered_map>
 #include <mutex>
 
 namespace i2pcpp {

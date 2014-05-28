@@ -7,7 +7,7 @@
 #include "Packet.h"
 #include "EstablishmentState.h"
 
-#include "../../Log.h"
+#include <i2pcpp/Log.h>
 
 #include <i2pcpp/datatypes/RouterIdentity.h>
 

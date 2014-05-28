@@ -5,7 +5,7 @@
 #ifndef ESTABLISHMENTMANAGER_H
 #define ESTABLISHMENTMANAGER_H
 
-#include "../../Log.h"
+#include <i2pcpp/Log.h>
 
 #include <i2pcpp/datatypes/Endpoint.h>
 #include <i2pcpp/datatypes/RouterIdentity.h>
@@ -15,10 +15,10 @@
 #include <unordered_map>
 
 namespace i2pcpp {
-    class UDPTransport;
     class Endpoint;
 
     namespace SSU {
+        class Context;
         class EstablishmentState; typedef std::shared_ptr<EstablishmentState> EstablishmentStatePtr;
 
         /**
@@ -34,7 +34,7 @@ namespace i2pcpp {
                  * @param ri the identity of the router we are establishing a
                  *  session here.
                  */
-                EstablishmentManager(UDPTransport &transport, Botan::DSA_PrivateKey const &privKey, RouterIdentity const &ri);
+                EstablishmentManager(Context &c, std::shared_ptr<const Botan::DSA_PrivateKey> const &privKey, RouterIdentity const &ri);
                 EstablishmentManager(const EstablishmentManager &) = delete;
                 EstablishmentManager& operator=(EstablishmentManager &) = delete;
 
@@ -126,10 +126,10 @@ namespace i2pcpp {
                  */
                 void processConfirmed(EstablishmentStatePtr const &state);
 
-                UDPTransport &m_transport;
+                Context& m_context;
 
-                Botan::DSA_PrivateKey m_privKey;
-                RouterIdentity m_identity;
+                const std::shared_ptr<const Botan::DSA_PrivateKey> m_privKey;
+                const RouterIdentity m_identity;
 
                 std::unordered_map<Endpoint, EstablishmentStatePtr> m_stateTable;
                 std::unordered_map<Endpoint, std::unique_ptr<boost::asio::deadline_timer>> m_stateTimers;

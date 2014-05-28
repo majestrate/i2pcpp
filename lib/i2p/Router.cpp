@@ -4,13 +4,12 @@
  */
 #include "../../include/i2pcpp/Router.h"
 
+#include "../../include/i2pcpp/Transport.h"
 #include "../../include/i2pcpp/Database.h"
 
-#include "Log.h"
 #include "RouterContext.h"
 
-#include "transport/UDPTransport.h"
-
+#include <i2pcpp/Log.h>
 #include <i2pcpp/util/make_unique.h>
 #include <i2pcpp/datatypes/RouterInfo.h>
 
@@ -51,6 +50,27 @@ namespace i2pcpp {
         Botan::LibraryInitializer init("thread_safe=true");
     }
 
+    void Router::addTransport(std::shared_ptr<Transport> t)
+    {
+        t->registerReceivedHandler(boost::bind(
+            &InboundMessageDispatcher::messageReceived,
+            boost::ref(m_impl->ctx.getInMsgDisp()), _1, _2, _3
+        ));
+        t->registerEstablishedHandler(boost::bind(
+            &InboundMessageDispatcher::connectionEstablished,
+            boost::ref(m_impl->ctx.getInMsgDisp()), _1, _2
+        ));
+        t->registerFailureSignal(boost::bind(
+            &InboundMessageDispatcher::connectionFailure,
+            boost::ref(m_impl->ctx.getInMsgDisp()), _1
+        ));
+        t->registerDisconnectedSignal(boost::bind(
+            &PeerManager::disconnected, boost::ref(m_impl->ctx.getPeerManager()), _1
+        ));
+
+        m_impl->ctx.getOutMsgDisp().registerTransport(t);
+    }
+
     void Router::start()
     {
         I2P_LOG(m_impl->log, info) << "local router hash: " << m_impl->ctx.getIdentity()->getHash();
@@ -67,26 +87,7 @@ namespace i2pcpp {
             }
         });
 
-        TransportPtr t = TransportPtr(new UDPTransport(
-            *m_impl->ctx.getSigningKey(), *m_impl->ctx.getIdentity())
-        );
-        t->registerReceivedHandler(boost::bind(
-            &InboundMessageDispatcher::messageReceived,
-            boost::ref(m_impl->ctx.getInMsgDisp()), _1, _2, _3
-        ));
-        t->registerEstablishedHandler(boost::bind(
-            &InboundMessageDispatcher::connectionEstablished,
-            boost::ref(m_impl->ctx.getInMsgDisp()), _1, _2
-        ));
-        t->registerFailureSignal(boost::bind(
-            &InboundMessageDispatcher::connectionFailure,
-            boost::ref(m_impl->ctx.getInMsgDisp()), _1
-        ));
-        t->registerDisconnectedSignal(boost::bind(
-            &PeerManager::disconnected, boost::ref(m_impl->ctx.getPeerManager()), _1
-        ));
-        m_impl->ctx.getOutMsgDisp().registerTransport(t);
-
+        /* Peer conected */
         m_impl->ctx.getSignals().registerPeerConnected(boost::bind(
             &PeerManager::connected, boost::ref(m_impl->ctx.getPeerManager()), _1
         ));
@@ -99,6 +100,7 @@ namespace i2pcpp {
             boost::ref(m_impl->ctx.getDHT()->getSearchManager()), _1
         ));
 
+        /* Connection failure */
         m_impl->ctx.getSignals().registerConnectionFailure(boost::bind(
             &DHT::SearchManager::connectionFailure,
             boost::ref(m_impl->ctx.getDHT()->getSearchManager()), _1
@@ -116,6 +118,7 @@ namespace i2pcpp {
             boost::ref(m_impl->ctx.getDHT()->getSearchManager()), _1, _2, _3
         ));
 
+        /* Everything related to tunnels */
         m_impl->ctx.getSignals().registerTunnelRecordsReceived(boost::bind(
             &Tunnel::Manager::receiveRecords,
             boost::ref(m_impl->ctx.getTunnelManager()), _1, _2
@@ -129,6 +132,7 @@ namespace i2pcpp {
             boost::ref(m_impl->ctx.getTunnelManager()), _1, _2, _3
         ));
 
+        /* Everything related to the DHT */
         m_impl->ctx.getDHT()->getSearchManager().registerSuccess(boost::bind(
             &OutboundMessageDispatcher::dhtSuccess,
             boost::ref(m_impl->ctx.getOutMsgDisp()), _1, _2
@@ -136,12 +140,6 @@ namespace i2pcpp {
         m_impl->ctx.getDHT()->getSearchManager().registerFailure(
             boost::bind(&OutboundMessageDispatcher::dhtFailure,
             boost::ref(m_impl->ctx.getOutMsgDisp()), _1
-        ));
-
-        std::shared_ptr<UDPTransport> u = std::static_pointer_cast<UDPTransport>(t);
-        u->start(Endpoint(
-            m_impl->ctx.getDatabase()->getConfigValue("ssu_bind_ip"),
-            std::stoi(m_impl->ctx.getDatabase()->getConfigValue("ssu_bind_port"))
         ));
 
         m_impl->ctx.getPeerManager().begin();

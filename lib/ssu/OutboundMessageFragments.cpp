@@ -2,20 +2,20 @@
  * @file OutboundMessageFragments.cpp
  * @brief Implements OutboundMessageFragments.h
  */
+#include "Packet.h"
 #include "OutboundMessageFragments.h"
-
-#include "../UDPTransport.h"
+#include "Context.h"
 
 #include <i2pcpp/util/make_unique.h>
 
 namespace i2pcpp {
     namespace SSU {
-        OutboundMessageFragments::OutboundMessageFragments(UDPTransport &transport) :
-            m_transport(transport) {}
+        OutboundMessageFragments::OutboundMessageFragments(Context &c) :
+            m_context(c) {}
 
         void OutboundMessageFragments::sendData(PeerState const &ps, uint32_t const msgId, ByteArray const &data)
         {
-            auto timer = std::make_unique<boost::asio::deadline_timer>(m_transport.m_ios, boost::posix_time::time_duration(0, 0, 2));
+            auto timer = std::make_unique<boost::asio::deadline_timer>(m_context.ios, boost::posix_time::time_duration(0, 0, 2));
             timer->async_wait(boost::bind(&OutboundMessageFragments::timerCallback, this, boost::asio::placeholders::error, ps, msgId));
 
             OutboundMessageState oms(msgId, data);
@@ -25,7 +25,7 @@ namespace i2pcpp {
             uint32_t tmp = msgId;
             m_states.emplace(std::make_pair(std::move(tmp), std::move(oms)));
 
-            m_transport.m_ios.post(boost::bind(&OutboundMessageFragments::sendDataCallback, this, ps, msgId));
+            m_context.ios.post(boost::bind(&OutboundMessageFragments::sendDataCallback, this, ps, msgId));
         }
 
         void OutboundMessageFragments::delState(const uint32_t msgId)
@@ -48,10 +48,10 @@ namespace i2pcpp {
 
                 PacketPtr p = PacketBuilder::buildData(ps.getEndpoint(), false, CompleteAckList(), PartialAckList(), fragList);
                 p->encrypt(ps.getCurrentSessionKey(), ps.getCurrentMacKey());
-                m_transport.sendPacket(p);
+                m_context.sendPacket(p);
 
                 if(!oms.allFragmentsSent())
-                    m_transport.m_ios.post(boost::bind(&OutboundMessageFragments::sendDataCallback, this, ps, msgId));
+                    m_context.ios.post(boost::bind(&OutboundMessageFragments::sendDataCallback, this, ps, msgId));
             }
         }
 
@@ -78,7 +78,7 @@ namespace i2pcpp {
 
                         PacketPtr p = PacketBuilder::buildData(ps.getEndpoint(), false, CompleteAckList(), PartialAckList(), fragList);
                         p->encrypt(ps.getCurrentSessionKey(), ps.getCurrentMacKey());
-                        m_transport.sendPacket(p);
+                        m_context.sendPacket(p);
 
                         oms.incrementTries();
 

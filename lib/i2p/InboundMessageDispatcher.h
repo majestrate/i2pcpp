@@ -5,8 +5,6 @@
 #ifndef INBOUNDMESSAGEDISPATCHER_H
 #define INBOUNDMESSAGEDISPATCHER_H
 
-#include "Log.h"
-
 #include "handlers/DeliveryStatus.h"
 #include "handlers/DatabaseStore.h"
 #include "handlers/DatabaseSearchReply.h"
@@ -14,6 +12,8 @@
 #include "handlers/VariableTunnelBuildReply.h"
 #include "handlers/TunnelData.h"
 #include "handlers/TunnelGateway.h"
+
+#include <i2pcpp/Log.h>
 
 #include <i2pcpp/datatypes/RouterHash.h>
 

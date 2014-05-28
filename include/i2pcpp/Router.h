@@ -11,6 +11,7 @@
 
 namespace i2pcpp {
     class RouterInfo;
+    class Transport;
     class Database;
 
     /**
@@ -34,9 +35,15 @@ namespace i2pcpp {
             static void initialize();
 
             /**
+             * Registers a transport with libi2p. The transport must already have
+             * been initialized properly.
+             */
+            void addTransport(std::shared_ptr<Transport> t);
+
+            /**
              * Starts the i2pcpp::Router.
              * That is, runs the boost::asio I/O service, registers the handlers,
-             *  binds the signals and creates an i2pcpp::UDPTransport object.
+             *  binds the signals, etc.
              */
             void start();
 

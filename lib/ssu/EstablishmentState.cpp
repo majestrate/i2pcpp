@@ -14,7 +14,7 @@
 
 namespace i2pcpp {
     namespace SSU {
-        EstablishmentState::EstablishmentState(Botan::DSA_PrivateKey const &dsaKey, RouterIdentity const &myIdentity, Endpoint const &ep) :
+        EstablishmentState::EstablishmentState(std::shared_ptr<const Botan::DSA_PrivateKey> const &dsaKey, RouterIdentity const &myIdentity, Endpoint const &ep) :
             m_direction(EstablishmentState::Direction::INBOUND),
             m_dsaKey(dsaKey),
             m_myIdentity(myIdentity),
@@ -28,7 +28,7 @@ namespace i2pcpp {
             m_dhKey = new Botan::DH_PrivateKey(rng, dh_group);
         }
 
-        EstablishmentState::EstablishmentState(Botan::DSA_PrivateKey const &dsaKey, RouterIdentity const &myIdentity, Endpoint const &ep, RouterIdentity const &theirIdentity) :
+        EstablishmentState::EstablishmentState(std::shared_ptr<const Botan::DSA_PrivateKey> const &dsaKey, RouterIdentity const &myIdentity, Endpoint const &ep, RouterIdentity const &theirIdentity) :
             m_direction(EstablishmentState::Direction::OUTBOUND),
             m_dsaKey(dsaKey),
             m_myIdentity(myIdentity),
@@ -188,7 +188,7 @@ namespace i2pcpp {
             hashPipe.read(hash.data(), 20);
 
             Botan::AutoSeeded_RNG rng;
-            Botan::PK_Signer *pks = new Botan::PK_Signer(m_dsaKey, "Raw");
+            Botan::PK_Signer *pks = new Botan::PK_Signer(*m_dsaKey, "Raw");
             ByteArray signature = pks->sign_message(hash, rng);
 
             unsigned char padSize = 16 - (signature.size() % 16);
@@ -246,7 +246,7 @@ namespace i2pcpp {
 
             Botan::AutoSeeded_RNG rng;
             std::unique_ptr<Botan::PK_Signer> pks(
-                new Botan::PK_Signer(m_dsaKey, "Raw")
+                new Botan::PK_Signer(*m_dsaKey, "Raw")
             );
             ByteArray signature = pks->sign_message(hash, rng);
 

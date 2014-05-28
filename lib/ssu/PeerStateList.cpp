@@ -3,21 +3,20 @@
  * Implements PeerStateList.h
  */
 #include "PeerStateList.h"
+#include "Context.h"
 
 #include <i2pcpp/util/make_unique.h>
 
-#include "../UDPTransport.h"
-
 namespace i2pcpp {
     namespace SSU {
-        PeerStateList::PeerStateList(UDPTransport &transport) :
-            m_transport(transport) {}
+        PeerStateList::PeerStateList(Context &c) :
+            m_context(c) {}
 
         void PeerStateList::addPeer(PeerState ps)
         {
             PeerStateContainer psc(ps);
 
-            auto timer = std::make_unique<boost::asio::deadline_timer>(m_transport.m_ios, boost::posix_time::time_duration(0, 20, 0));
+            auto timer = std::make_unique<boost::asio::deadline_timer>(m_context.ios, boost::posix_time::time_duration(0, 20, 0));
             timer->async_wait(boost::bind(&PeerStateList::timerCallback, this, boost::asio::placeholders::error, ps.getHash()));
             psc.timer = std::move(timer);
 
@@ -94,7 +93,7 @@ namespace i2pcpp {
         void PeerStateList::timerCallback(const boost::system::error_code& e, RouterHash const rh)
         {
             if(!e)
-                m_transport.disconnect(rh);
+                m_context.disconnect(rh);
         }
 
         std::mutex& PeerStateList::getMutex() const
