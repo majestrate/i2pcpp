@@ -1,6 +1,7 @@
 set(i2pcpp_sources
     Database.cpp
     InboundMessageDispatcher.cpp
+    LeaseQuery.cpp
     OutboundMessageDispatcher.cpp
     PeerManager.cpp
     ProfileManager.cpp

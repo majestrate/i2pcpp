@@ -71,6 +71,18 @@ namespace i2pcpp {
                     boost::signals2::connection registerFailure(FailureSignal::slot_type const &fh);
 
                     /**
+                     * Removes a signal handler for the signal that is triggered
+                     * when a lookup succeeds.
+                     */
+                    void removeSuccess(boost::signals2::connection const &conn);
+
+                    /**
+                     * Removes a signal handler for the signal that is triggered
+                     * when a lookup fails.
+                     */
+                    void removeFailure(boost::signals2::connection const &conn);
+
+                    /**
                      * Creates a new i2pcpp::DHT::SearchState to track the status.
                      * Starts connecting to the first closest peer. If the
                      *  connection is successful, this will result in a call to
