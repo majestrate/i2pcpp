@@ -8,6 +8,7 @@
 #include <i2pcpp/Router.h>
 #include <i2pcpp/Version.h>
 #include <i2pcpp/Database.h>
+#include <i2pcpp/Callbacks.h>
 
 #include <i2pcpp/transports/SSU.h>
 #include <i2pcpp/datatypes/RouterInfo.h>
@@ -110,6 +111,7 @@ int main(int argc, char **argv)
 
         Router::initialize();
         auto db = std::make_shared<Database>(dbFile);
+        Callbacks cb;
         Router r(db);
 
         if(vm.count("log")) {
