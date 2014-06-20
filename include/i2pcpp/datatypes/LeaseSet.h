@@ -8,6 +8,8 @@ namespace i2pcpp {
         public:
             LeaseSet(ByteArrayConstItr &begin, ByteArrayConstItr end);
             LeaseSet(Destination const &dst, ByteArray const &encKey, ByteArray const &sigKey);
+            virtual ByteArray serialize() const;
+
     };
 }
 
