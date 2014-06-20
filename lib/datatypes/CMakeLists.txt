@@ -7,6 +7,7 @@ set(datatypes_sources
     Date.cpp
     Endpoint.cpp
     Lease.cpp
+    LeaseSet.cpp
     Mapping.cpp
     RouterAddress.cpp
     RouterIdentity.cpp

@@ -19,6 +19,11 @@ namespace i2pcpp {
     m_tid(tid),
     m_end(end) {}
 
+    ByteArray Lease::serialize() const
+    {
+        return ByteArray();
+    }
+
     RouterHash Lease::getGateway() const
     {
         return m_gw;
