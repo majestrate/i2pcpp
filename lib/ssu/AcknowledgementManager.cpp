@@ -14,7 +14,7 @@ namespace i2pcpp {
         AcknowledgementManager::AcknowledgementManager(Context &c) :
             m_context(c),
             m_timer(m_context.ios, boost::posix_time::time_duration(0, 0, 1)),
-            m_log(boost::log::keywords::channel = "AM")
+            m_log(I2P_LOG_CHANNEL("AM"))
         {
             m_timer.async_wait(boost::bind(&AcknowledgementManager::flushAckCallback, this, boost::asio::placeholders::error));
         }

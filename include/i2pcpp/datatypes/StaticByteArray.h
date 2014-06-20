@@ -1,14 +1,15 @@
 #ifndef STATICBYTEARRAY_H
 #define STATICBYTEARRAY_H
+#include <boost/functional/hash.hpp> 
 
-#include "ByteArray.h"
-
+#include <i2pcpp/datatypes/ByteArray.h>
 #include <i2pcpp/util/Base64.h>
 
 #include <array>
 #include <iostream>
 
 namespace i2pcpp {
+
     template<std::size_t L>
     using StaticByteArray = std::array<unsigned char, L>;
 
@@ -29,6 +30,13 @@ namespace i2pcpp {
     inline ByteArray toByteArray(StaticByteArray<L> const &sba)
     {
         return ByteArray(sba.cbegin(), sba.cend());
+    }
+
+    template<std::size_t L>
+    std::size_t hash_value(StaticByteArray<L> const &sba)
+    {
+        boost::hash<std::string> f;
+        return f(sba);
     }
 }
 

@@ -40,7 +40,8 @@ namespace i2pcpp {
 
         Database::queries["get_config"] = m_conn->make_query("SELECT value FROM config WHERE name = ?");
         Database::queries["get_random_router"] = m_conn->make_query("SELECT id FROM routers ORDER BY RANDOM() LIMIT 1");
-        Database::queries["router_exists"] = m_conn->make_query("SELECT COUNT(id) AS count FROM routers WHERE id = ?");
+        Database::queries["router_exists"] = m_conn->make_query("SELECT COUNT(id) AS count FROM routers_raw WHERE id = ?");
+        Database::queries["get_router_raw"] = m_conn->make_query("SELECT raw FROM routers_raw WHERE id = ?");
         Database::queries["get_router"] = m_conn->make_query("SELECT encryption_key, signing_key, certificate, published, signature FROM routers WHERE id = ?");
         Database::queries["get_router_options"] = m_conn->make_query("SELECT name, value FROM router_options WHERE router_id = ?");
         Database::queries["get_router_addresses"] = m_conn->make_query("SELECT \"index\", cost, expiration, transport FROM router_addresses WHERE router_id = ?");
@@ -57,6 +58,7 @@ namespace i2pcpp {
         Database::commands["truncate_router_addresses"] = m_conn->make_command("DELETE FROM router_addresses");
         Database::commands["truncate_router_options"] = m_conn->make_command("DELETE FROM router_options");
         Database::commands["truncate_router_options"] = m_conn->make_command("DELETE FROM routers");
+        Database::commands["insert_router_raw"] = m_conn->make_command("INSERT OR REPLACE INTO routers_raw(id, raw) VALUES(?, ?)");
         Database::commands["insert_router"] = m_conn->make_command("INSERT OR REPLACE INTO routers(id, encryption_key, signing_key, certificate, published, signature) VALUES(?, ?, ?, ?, ?, ?)");
         Database::commands["insert_router_address"] = m_conn->make_command("INSERT OR REPLACE INTO router_addresses(router_id, \"index\", cost, expiration, transport) VALUES(?, ?, ?, ?, ?)");
         Database::commands["insert_router_address_option"] = m_conn->make_command("INSERT OR REPLACE INTO router_address_options(router_id, \"index\", name, value) VALUES(?, ?, ?, ?)");
@@ -72,9 +74,8 @@ namespace i2pcpp {
 
             {
                 sqlite::transaction_guard<> t(conn);
-
-                std::string schema((char *)_binary_schema_sql_start, (uintptr_t)_binary_schema_sql_size);
-
+                std::string schema((const char *)_binary_schema_sql_start);
+                
                 boost::char_separator<char> sep(";");
                 boost::tokenizer<boost::char_separator<char>> tok(schema, sep);
 
@@ -154,8 +155,27 @@ namespace i2pcpp {
     RouterInfo Database::getRouterInfo(std::string const &routerHash)
     {
         sqlite::transaction_guard<> t(*m_conn);
+        auto q = Database::queries["get_router_raw"];
+        statement_guard sg(q, routerHash);
+
+        sqlite::row r = q->step();
+
+        if (!r) { throw std::runtime_error("router not found"); }
+
+        std::string info_str;
+
+        r >> info_str;
+
+        ByteArray info_raw(Base64::decode(info_str));
+        
+        auto info_begin = info_raw.cbegin();
+        auto info_end = info_raw.cend();
+        
+        RouterInfo ri(info_begin, info_end);
+        if ( ! ri.verifySignature() ) { throw std::runtime_error("router info corrupt"); }
 
         // *** First query
+        /* 
         auto q1 = Database::queries["get_router"];
         statement_guard sg1(q1, routerHash);
 
@@ -219,9 +239,9 @@ namespace i2pcpp {
             RouterAddress ra(cost, Date(expItr, expEndItr), transport, address_options);
             ri.addAddress(ra);
         }
-
+        */
         t.commit();
-
+        
         return ri;
     }
 
@@ -234,7 +254,7 @@ namespace i2pcpp {
         statement_guard sg3(Database::commands["delete_router_addresses"], rh, sqlite::exec);
         statement_guard sg4(Database::commands["delete_router_options"], rh, sqlite::exec);
         statement_guard sg5(Database::commands["delete_router"], rh, sqlite::exec);
-
+        statement_guard sg6(Database::commands["detete_router_raw"], rh, sqlite::exec);
         t.commit();
     }
 
@@ -268,6 +288,9 @@ namespace i2pcpp {
         t.begin();
 
         std::string rh = Base64::encode(info.getIdentity().getHash());
+        std::string ri = Base64::encode(info.serialize());
+
+        statement_guard sg0(Database::commands["insert_router_raw"], rh, ri, sqlite::exec);
 
         const ByteArray& encKey = info.getIdentity().getEncryptionKey();
         const ByteArray& sigKey = info.getIdentity().getSigningKey();
@@ -297,7 +320,7 @@ namespace i2pcpp {
     {
         std::forward_list<RouterHash> hashes;
 
-        auto q = m_conn->make_query("SELECT id FROM routers");
+        auto q = m_conn->make_query("SELECT id FROM routers_raw");
 
         while(auto r = q->step()) {
             std::string rhStr;

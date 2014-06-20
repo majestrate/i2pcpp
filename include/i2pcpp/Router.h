@@ -53,6 +53,21 @@ namespace i2pcpp {
              */
             void stop();
 
+            /**
+             * determinte if the router is running
+             */
+            bool isRunning();
+            
+            /**
+             * begin graceful shutdown process
+             */
+            void gracefulShutdown();
+            
+            /**
+             * determine if the router is participating in the network
+             */
+            bool isActive();
+
         private:
             struct RouterImpl;
             std::unique_ptr<RouterImpl> m_impl;

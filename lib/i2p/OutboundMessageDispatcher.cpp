@@ -13,7 +13,7 @@
 namespace i2pcpp {
     OutboundMessageDispatcher::OutboundMessageDispatcher(RouterContext &ctx) :
         m_ctx(ctx),
-        m_log(boost::log::keywords::channel = "OMD") {}
+        m_log(I2P_LOG_CHANNEL("OMD")) {}
 
     void OutboundMessageDispatcher::sendMessage(RouterHash const &to, I2NP::MessagePtr const &msg)
     {
@@ -25,10 +25,11 @@ namespace i2pcpp {
             return;
         }
 
-        if(m_transport->isConnected(to))
+        if(m_transport->isConnected(to)) {
+            I2P_LOG(m_log, info) << boost::log::add_value("i2np_ob", (std::string) msg->getTypeString());
             // SSU is the only transport implemented, so use the short header
             m_transport->send(to, msg->getMsgId(), msg->toBytes(false));
-        else {
+        } else {
             I2P_LOG_SCOPED_TAG(m_log, "RouterHash", to);
             I2P_LOG(m_log, debug) << "not connected, queueing message";
 
@@ -69,6 +70,8 @@ namespace i2pcpp {
             // Short header, as above
             m_transport->send(itr->first, itr->second->getMsgId(), itr->second->toBytes(false));
         }
+        // we have succeeded and flushed data, we are no longer pending
+        m_pending.erase(rh);
     }
 
     void OutboundMessageDispatcher::dhtSuccess(DHT::Kademlia::key_type const k, DHT::Kademlia::value_type const v)

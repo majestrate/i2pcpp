@@ -60,6 +60,7 @@ namespace i2pcpp {
                  */
                 void shutdown();
 
+                virtual void gracefulShutdown();
             private:
                 std::unique_ptr<Context> m_impl;
         };

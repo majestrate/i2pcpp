@@ -1,3 +1,9 @@
+# This is a bleeding edge fork
+
+Official/Stable Repo is [here](https://github.com/i2pcpp/i2pcpp)
+
+Please note: this fork uses a slightly different database format
+
 # i2pcpp
 
 i2pcpp is an I2P router written in C++11 by orion. It is targeted for the advanced I2P user demographic.
@@ -5,6 +11,32 @@ i2pcpp is an I2P router written in C++11 by orion. It is targeted for the advanc
 ## Features
 
 Currently the router is able to forward traffic between peers. It is unable to do much more at this time.
+
+## Easy Instructions
+
+Get the source code
+
+    git clone https://github.com/majestrate/i2pcpp $HOME/i2pcpp
+
+Make a build directory
+
+    mkdir $HOME/i2pcpp/build
+    cd $HOME/i2pcpp/build
+
+If your version of boost is 1.55.0 or higher run:
+
+    cmake $HOME/i2pcpp -DCMAKE_BUILD_TYPE=Debug
+
+Otherwise download boost 1.55.0, unpack to a folder (in this case we'll use $HOME/boost_1_55_0/)
+compile it but don't install. then run:
+
+    cmake $HOME/i2pcpp --DCMAKE_BUILD_TYPE=Debug -DBOOST_ROOT=$HOME/boost_1_55_0
+
+For this bleeding edge branch I provide an easy intialization script.
+You need to have an existing i2p netdb, this version does NOT come with initial peers.
+
+    python3 $HOME/i2pcpp/share/i2pinit.py --port 11050 --netdb $HOME/.i2p/netDb
+    $HOME/i2pcpp/build/out/bin/i2p -d -l
 
 ## Building
 
@@ -53,7 +85,7 @@ On most systems you simply need to execute `make` and everything will be built. 
 
 One binary, `i2p` will be produced. If you are building unit tests, a second binary `testi2p` will be produced.
 
-## First time setup
+## First time setup (Hard)
 
 ### Database initialization
 

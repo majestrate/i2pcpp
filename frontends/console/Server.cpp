@@ -72,20 +72,20 @@ void Server::on_close(wspp::connection_hdl handle)
         m_controlClients.erase(handle);
 }
 
-void Server::broadcastStats(uint64_t bytesSent, uint64_t bytesReceived)
+void Server::broadcastStats(stats_t & stats)
 {
     std::lock_guard<std::mutex> lock(m_connectionsMutex);
-
     for(auto& c: m_statsClients) {
-        m_server.send(c, ("[" + std::to_string(bytesSent) + "," + std::to_string(bytesReceived) + "]"), wspp::frame::opcode::text);
+        m_server.send(c, stats.json(), 
+                      wspp::frame::opcode::text);
     }
 }
 
 void Server::timerCallback(const boost::system::error_code &e)
 {
     if(!e) {
-        auto stats = m_stats->getBytesAndReset();
-        broadcastStats(stats.first, stats.second);
+        auto stats = m_stats->getStats();
+        broadcastStats(stats);
 
         m_statsTimer.expires_at(m_statsTimer.expires_at() + boost::posix_time::time_duration(0, 0, 1));
         m_statsTimer.async_wait(boost::bind(&Server::timerCallback, this, boost::asio::placeholders::error));

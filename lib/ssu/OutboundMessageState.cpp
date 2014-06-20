@@ -15,7 +15,7 @@ namespace i2pcpp {
 
         void OutboundMessageState::fragment()
         {
-            constexpr std::size_t maxFragmentSize = 1024;
+            constexpr size_t maxFragmentSize = 1120;
 
             auto dataItr = m_data.cbegin();
             auto end = m_data.cend();

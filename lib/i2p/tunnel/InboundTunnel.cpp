@@ -6,12 +6,10 @@
 
 namespace i2pcpp {
     namespace Tunnel {
-        InboundTunnel::InboundTunnel(RouterHash const &myHash, std::vector<RouterIdentity> const &hops)
+        InboundTunnel::InboundTunnel(RouterHash const &myHash, std::vector<RouterIdentity> const &hops) 
         {
             /* Zero hop tunnel */
             if(hops.empty()) {
-                Botan::AutoSeeded_RNG rng;
-                rng.randomize((unsigned char *)&m_tunnelId, sizeof(m_tunnelId));
                 m_state = State::OPERATIONAL;
                 return;
             }

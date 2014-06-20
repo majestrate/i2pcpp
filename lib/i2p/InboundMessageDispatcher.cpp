@@ -31,7 +31,8 @@ namespace i2pcpp {
         m_variableTunnelBuildReplyHandler(ctx),
         m_tunnelDataHandler(ctx),
         m_tunnelGatewayHandler(ctx),
-        m_log(boost::log::keywords::channel = "IMD") {}
+        m_log(I2P_LOG_CHANNEL("IMD")) {}
+
 
     void InboundMessageDispatcher::messageReceived(RouterHash const from, uint32_t const msgId, ByteArray data)
     {
@@ -46,6 +47,8 @@ namespace i2pcpp {
             m = I2NP::Message::fromBytes(0, data);
 
         if(m) {
+            I2P_LOG(m_log, info) << boost::log::add_value("i2np_ib", m->getTypeString());
+
             switch(m->getType())
             {
                 case I2NP::Message::Type::DELIVERY_STATUS:
@@ -82,7 +85,7 @@ namespace i2pcpp {
                 default:
                     I2P_LOG(m_log, error) << "dropping unhandled message of type " << (int)m->getType();
                     break;
-            }
+            }           
         }
     }
 

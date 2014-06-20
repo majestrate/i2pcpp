@@ -19,6 +19,9 @@
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/variables_map.hpp>
 #include <boost/program_options/parsers.hpp>
+#include <botan/botan.h>
+#include <botan/elgamal.h>
+#include <botan/dsa.h>
 
 #include <botan/elgamal.h>
 #include <botan/dsa.h>
@@ -32,10 +35,18 @@
 #include <condition_variable>
 
 static volatile bool quit = false;
+static volatile bool graceful = false;
 static std::condition_variable cv;
 
 static void sighandler(int sig)
 {
+    quit = true;
+    cv.notify_all();
+}
+
+static void sig_graceful_shutdown(int sig)
+{
+    graceful = true;
     quit = true;
     cv.notify_all();
 }
@@ -50,6 +61,8 @@ int main(int argc, char **argv)
             cerr << "error setting up signal handler" << endl;
 
             return EXIT_FAILURE;
+        } else if(signal(SIGUSR1, &sig_graceful_shutdown) == SIG_ERR) {
+            cerr << "error setting up signal handler" << endl;
         }
 
         string dbFile;
@@ -60,8 +73,9 @@ int main(int argc, char **argv)
         general.add_options()
             ("help,h", "Print help")
             ("version,v", "Print application version")
-            ("log,l", po::value<string>()->implicit_value("i2p.log"), "Log to file instead of clog");
-
+            ("log,l", po::value<string>()->implicit_value("i2p.log"), "Log to file instead of clog")
+					  ("debug,d", "allow debug output");
+				
         po::options_description dbDesc("Database manipulation");
         dbDesc.add_options()
             ("db", po::value<string>(&dbFile)->default_value("i2p.db"), "Database file to operate on")
@@ -98,6 +112,10 @@ int main(int argc, char **argv)
             return EXIT_SUCCESS;
         }
 
+        i2pcpp::severity_level log_level = i2pcpp::info;
+        if (vm.count("debug")) {
+            log_level = i2pcpp::debug;
+        }
         Logger l;
         i2p_logger_mt lg(boost::log::keywords::channel = "M");
 
@@ -116,17 +134,35 @@ int main(int argc, char **argv)
 
         if(vm.count("log")) {
             // TODO Log rotation, etc
-            Logger::logToFile(vm["log"].as<string>());
+   					Logger::logToFile(vm["log"].as<string>(), log_level);
         } else {
-            Logger::logToConsole();
+            Logger::logToConsole(log_level);
         }
 
-        /*if(vm.count("export")) {
+        if(vm.count("export")) {
             string file = vm["export"].as<string>();
             ofstream f(file, ios::binary);
 
             if(f.is_open()) {
-                ByteArray info = db->getRouterInfo();
+                Botan::AutoSeeded_RNG rng;
+                
+                std::string encryptingKeyPEM = db->getConfigValue("private_encryption_key");
+                Botan::DataSource_Memory dsm((unsigned char *)encryptingKeyPEM.data(), encryptingKeyPEM.size());
+                std::shared_ptr<Botan::ElGamal_PrivateKey> ekey(dynamic_cast<Botan::ElGamal_PrivateKey *>(Botan::PKCS8::load_key(dsm, rng, (std::string)"")));
+                
+                std::string signingKeyPEM = db->getConfigValue("private_signing_key");
+                Botan::DataSource_Memory dsm2((unsigned char *)signingKeyPEM.data(), signingKeyPEM.size());
+                std::shared_ptr< Botan::DSA_PrivateKey> skey(dynamic_cast<Botan::DSA_PrivateKey *>(Botan::PKCS8::load_key(dsm2, rng, (std::string)"")));
+
+                Botan::BigInt encryptionKeyPublic, signingKeyPublic;
+                encryptionKeyPublic = ekey->get_y();
+                signingKeyPublic = skey->get_y();
+                
+                ByteArray encryptionKeyBytes = Botan::BigInt::encode(encryptionKeyPublic), signingKeyBytes = Botan::BigInt::encode(signingKeyPublic);
+                RouterIdentity ident(encryptionKeyBytes, signingKeyBytes, Certificate());
+                RouterHash rh = ident.getHash();
+                RouterInfo ri = db->getRouterInfo(rh);
+                ByteArray info = ri.serialize();
                 f.write((char *)info.data(), info.size());
                 f.close();
 
@@ -136,7 +172,7 @@ int main(int argc, char **argv)
 
                 return EXIT_FAILURE;
             }
-        }*/
+        }
 
         if(vm.count("import")) {
             string file = vm["import"].as<string>();
@@ -235,6 +271,7 @@ int main(int argc, char **argv)
 
             I2P_LOG(lg, info) << "starting control server";
             s->run();
+            I2P_LOG(lg, info) << "started control server";
         }
 
         Botan::AutoSeeded_RNG rng;
@@ -253,6 +290,8 @@ int main(int argc, char **argv)
         ByteArray dsaPubKeyBytes = Botan::BigInt::encode(dsaPubKey);
         RouterIdentity ri(elgPubKeyBytes, dsaPubKeyBytes, Certificate());
 
+        I2P_LOG(lg, info) << "loading transport";
+
         auto t = std::make_shared<SSU::SSU>(dsaPrivKey, ri);
         r.addTransport(t);
 
@@ -263,6 +302,15 @@ int main(int argc, char **argv)
         std::mutex mtx;
         std::unique_lock<std::mutex> lock(mtx);
         cv.wait(lock, [] { return quit; });
+        if ( graceful )  {
+            I2P_LOG(lg, info) << "doing graceful shutdown";
+            r.gracefulShutdown();
+            std::chrono::seconds sleep_duration(10);
+            while ( r.isActive() ) { 
+                I2P_LOG(lg, debug) << "waiting for tunnels to expire";
+                std::this_thread::sleep_for(sleep_duration); 
+            }
+        }
 
         I2P_LOG(lg, debug) << "shutting down";
 
@@ -278,7 +326,7 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     } catch(std::exception &e) {
         cerr << "error: " << e.what() << endl;
-
+        
         return EXIT_FAILURE;
     }
 }

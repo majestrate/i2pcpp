@@ -52,6 +52,8 @@ namespace i2pcpp {
              */
             void disconnect(RouterHash const &rh);
 
+            bool acceptingNewPeers = true;
+            
             /// Reference to the pimpl exterior
             SSU& self;
 

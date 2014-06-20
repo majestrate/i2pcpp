@@ -17,7 +17,7 @@ namespace i2pcpp {
     namespace Handlers {
         DeliveryStatus::DeliveryStatus(RouterContext &ctx) :
             Message(ctx),
-            m_log(boost::log::keywords::channel = "H[DStat]") {}
+            m_log(I2P_LOG_CHANNEL("H[DStat]")) {}
 
         void DeliveryStatus::handleMessage(RouterHash const from, I2NP::MessagePtr const msg)
         {

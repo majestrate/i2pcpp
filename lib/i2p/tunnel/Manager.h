@@ -51,12 +51,30 @@ namespace i2pcpp {
                  */
                 void receiveData(RouterHash const from, uint32_t const tunnelId, StaticByteArray<1024> const data);
 
+                /**
+                 * Build a tunnel over a set of Routers
+                 * return the tunnelId
+                 */
+                uint32_t buildIBTunnel(std::vector<RouterIdentity> & hops);
+                uint32_t buildOBTunnel(std::vector<RouterIdentity> & hops, RouterHash const & replyTo, uint32_t reply_tunnel);
+
+                virtual void onTunnelBuildSuccess(uint32_t tunnelId) {}
+                virtual void onTunnelBuildFailure(uint32_t tunnelId) {}
+                virtual void onTunnelBuildTimeout(uint32_t tunnelId) {}
+
+                /**
+                 * count participating tunnels
+                 */
+                uint32_t getParticipatingTunnelCount();
+
+                void gracefulShutdown();
             private:
                 /**
                  * Deletes the \a tunnelId.
                  */
                 void timerCallback(const boost::system::error_code &e, bool participating, uint32_t tunnelId);
                 void callback(const boost::system::error_code &e);
+                void tunnelBuildExpireCallback(const boost::system::error_code & e, uint32_t tunnelId);
                 void createTunnel();
 
                 boost::asio::io_service &m_ios;
@@ -75,6 +93,7 @@ namespace i2pcpp {
                 boost::asio::deadline_timer m_timer;
 
                 i2p_logger_mt m_log;
+                bool m_graceful;
         };
     }
 }

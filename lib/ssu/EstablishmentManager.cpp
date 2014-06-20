@@ -19,7 +19,7 @@ namespace i2pcpp {
             m_context(c),
             m_privKey(privKey),
             m_identity(ri),
-            m_log(boost::log::keywords::channel = "EM") {}
+            m_log(I2P_LOG_CHANNEL("EM")) {}
 
         EstablishmentStatePtr EstablishmentManager::createState(Endpoint const &ep)
         {
@@ -99,7 +99,7 @@ namespace i2pcpp {
 
                 case EstablishmentState::State::UNKNOWN:
                 case EstablishmentState::State::FAILURE:
-                    I2P_LOG(m_log, error) << "establishment failed";
+                    I2P_LOG(m_log, info) << "establishment failed";
                     if(es->getDirection() == EstablishmentState::Direction::OUTBOUND)
                         m_context.ios.post(boost::bind(boost::ref(m_context.failureSignal), es->getTheirIdentity().getHash()));
 
@@ -181,7 +181,7 @@ namespace i2pcpp {
             state->calculateDHSecret();
 
             if(!state->verifyCreationSignature()) {
-                I2P_LOG(m_log, error) << "creation signature verification failed";
+                I2P_LOG(m_log, warning) << "creation signature verification failed";
                 state->setState(EstablishmentState::State::FAILURE);
                 return;
             }
@@ -216,7 +216,7 @@ namespace i2pcpp {
             I2P_LOG_SCOPED_TAG(m_log, "RouterHash", state->getTheirIdentity().getHash());
 
             if(!state->verifyConfirmationSignature()) {
-                I2P_LOG(m_log, error) << "confirmation signature verification failed";
+                I2P_LOG(m_log, warning) << "confirmation signature verification failed";
                 state->setState(EstablishmentState::State::FAILURE);
                 post(state);
 

@@ -8,3 +8,8 @@ build/
 *.tgz
 .*
 *.key
+*~
+*.orig
+*.me
+*.pyc
+*.so

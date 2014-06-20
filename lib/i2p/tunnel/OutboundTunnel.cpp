@@ -6,6 +6,12 @@ namespace i2pcpp {
     namespace Tunnel {
         OutboundTunnel::OutboundTunnel(std::vector<RouterIdentity> const &hops, RouterHash const &replyHash, uint32_t const replyTunnelId)
         {
+            /* Zero hop tunnel */
+            if(hops.empty()) {
+                m_state = State::OPERATIONAL;
+                return;
+            }
+
             uint32_t lastTunnelId;
             RouterHash lastRouterHash;
 
@@ -18,9 +24,9 @@ namespace i2pcpp {
                     h->setNextTunnelId(replyTunnelId);
                     m_tunnelId = h->getNextTunnelId();
                     m_nextMsgId = h->getNextMsgId();
-                } else
+                } else {
                     h = std::make_shared<BuildRequestRecord>(hops[i], lastRouterHash, lastTunnelId);
-
+                }
                 lastTunnelId = h->getTunnelId();
                 lastRouterHash = h->getLocalHash();
 

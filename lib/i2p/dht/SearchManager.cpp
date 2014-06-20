@@ -18,7 +18,7 @@ namespace i2pcpp {
             m_ios(ios),
             m_ctx(ctx),
             m_nlc(m_ios, boost::posix_time::time_duration(5, 0, 0)),
-            m_log(boost::log::keywords::channel = "SM") {}
+            m_log(I2P_LOG_CHANNEL("SM")) {}
 
         boost::signals2::connection SearchManager::registerSuccess(SuccessSignal::slot_type const &sh)
         {

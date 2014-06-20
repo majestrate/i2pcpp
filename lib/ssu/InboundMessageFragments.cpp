@@ -20,7 +20,7 @@ namespace i2pcpp {
     namespace SSU {
         InboundMessageFragments::InboundMessageFragments(Context &c) :
             m_context(c),
-            m_log(boost::log::keywords::channel = "IMF") {}
+            m_log(I2P_LOG_CHANNEL("IMF")) {}
 
         void InboundMessageFragments::receiveData(RouterHash const &rh, ByteArrayConstItr &begin, ByteArrayConstItr end)
         {

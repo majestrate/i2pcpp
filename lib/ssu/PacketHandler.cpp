@@ -13,7 +13,7 @@ namespace i2pcpp {
             m_context(c),
             m_inboundKey(sk),
             m_imf(c),
-            m_log(boost::log::keywords::channel = "PH") {}
+            m_log(I2P_LOG_CHANNEL("PH")) {}
 
         void PacketHandler::packetReceived(PacketPtr p)
         {
@@ -25,12 +25,14 @@ namespace i2pcpp {
 
             if(m_context.peers.peerExists(ep)) {
                 handlePacket(p, m_context.peers.getPeer(ep));
-            } else {
+            } else if( m_context.acceptingNewPeers ){
                 EstablishmentStatePtr es = m_context.establishmentManager.getState(ep);
                 if(es)
                     handlePacket(p, es);
                 else
                     handlePacket(p);
+            } else {
+                I2P_LOG(m_log, debug) << "dropping inbound request from remote peer, graceful shutdown initiated";
             }
         }
 

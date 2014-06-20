@@ -36,8 +36,10 @@ namespace i2pcpp {
                     TUNNEL_BUILD_REPLY = 22,
                     VARIABLE_TUNNEL_BUILD = 23,
                     VARIABLE_TUNNEL_BUILD_REPLY = 24
-                };
 
+                };
+           
+       
                 virtual ~Message() {}
 
                 /**
@@ -64,6 +66,7 @@ namespace i2pcpp {
                  *  (i.e. the derived type is unkown)
                  */
                 Type getType() const;
+                std::string getTypeString() const;
 
                 /**
                  * Converts an i2pcpp::ByteArray to an i2pcpp::I2NP::Message object.

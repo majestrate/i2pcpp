@@ -1,5 +1,7 @@
 #include "Tunnel.h"
 
+#include <stdexcept>
+
 #include <i2pcpp/datatypes/BuildResponseRecord.h>
 
 namespace i2pcpp {
@@ -53,8 +55,7 @@ namespace i2pcpp {
                     }
                 }
             }
-
-            if(allgood)
+        if(allgood)
                 m_state = Tunnel::State::OPERATIONAL;
             else
                 m_state = Tunnel::State::FAILED;

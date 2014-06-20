@@ -12,7 +12,7 @@ namespace i2pcpp {
     namespace Handlers {
         TunnelData::TunnelData(RouterContext &ctx) :
             Message(ctx),
-            m_log(boost::log::keywords::channel = "H[TD]") {}
+            m_log(I2P_LOG_CHANNEL("H[TD]")) {}
 
         void TunnelData::handleMessage(RouterHash const from, I2NP::MessagePtr const msg)
         {

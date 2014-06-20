@@ -1,0 +1,17 @@
+body {
+/*
+	background: #252525;
+        color: #00ff00;
+*/
+}
+
+#wrapper {
+}
+
+.col-md-4 {
+    padding: 10px;
+}
+
+.graph {
+    margin: 10px;
+}

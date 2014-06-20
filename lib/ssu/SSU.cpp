@@ -127,6 +127,11 @@ namespace i2pcpp {
             return m_impl->peers.peerExists(rh);
         }
 
+        void SSU::gracefulShutdown()
+        {
+            m_impl->acceptingNewPeers = false;
+        }
+
         void SSU::shutdown()
         {
             std::lock_guard<std::mutex> lock(m_impl->peers.getMutex());

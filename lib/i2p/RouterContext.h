@@ -101,6 +101,8 @@ namespace i2pcpp {
              */
             boost::asio::io_service& getIoService();
 
+            void gracefulShutdown();
+
         private:
             boost::asio::io_service& m_ios;
 
