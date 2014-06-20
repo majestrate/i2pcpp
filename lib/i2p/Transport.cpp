@@ -2,7 +2,7 @@
  * @file Transport.cpp
  * @brief Implements i2pcpp::Transport.
  */
-#include "Transport.h"
+#include "../../include/i2pcpp/Transport.h"
 
 namespace i2pcpp {
     Transport::~Transport() {}

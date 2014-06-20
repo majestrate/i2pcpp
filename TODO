@@ -1,24 +1,26 @@
-Comment/document the code and usage (ongoing).
-Convert shared_ptr --> unique_ptr where necessary.
-Double check locking requirements. Ensure that locking is initiated by the object which owns the data to be locked (etc).
-JSON-RPC(?) and HTML5 control panel.
-Investigate text based configuration.
-Identify and use c++11 algorithms where possible.
-Handle edge cases in --importdir.
-Add exceptions with backtrace support.
-Write unit tests (ongoing).
-Ensure that unused objects get destroyed (expire tunnels after 10 minutes, etc).
-Investigate whether the Version.cpp/.h system should be modified.
-Reimplement OMS internals in a more sane way (no bitset).
-Implement exploratory tunnel support.
+Refactoring and small changes:
+* Comment/document the code and usage (ongoing).
+* Convert shared_ptr --> unique_ptr where necessary.
+* Double check locking requirements. Ensure that locking is initiated by the object which owns the data to be locked (etc).
+* Identify and use c++11 algorithms where possible.
+* Handle edge cases in --importdir.
+* Write unit tests (ongoing).
+* Add exceptions with backtrace support.
+* Ensure that unused objects get destroyed (expire tunnels after 10 minutes, etc).
+* Add error codes to C API (handle all exceptions).
 
-DHT
-* in-progress table
-* max concurrent lookups
-* better timeout logic
+New features:
+* Implement exploratory tunnel support.
+* JSON-RPC(?) and HTML5 control panel.
+* NTCP
+* DHT
+    - in-progress table
+    - max concurrent lookups
+    - better timeout logic
 
-Add error codes to C API (handle all exceptions).
+Structural changes:
+* As part of libssu's initialization, config parameters will need to be passed. These parameters should be stored in a text file (boost propertytree). This obsoletes the `config' table in the libi2p database.
 
-i2pcpp::Transport should stay within libi2p, and UDPTransport should be moved to a new `libssu'.
-Frontends should be responsible for declaring transports (and link against libssu). This requires an API change.
-As part of libssu's initialization, config parameters will need to be passed. These parameters should be stored in a text file (boost propertytree). This obsoletes the `config' table in the libi2p database.
+Ideas to investigate:
+* Text based configuration.
+* Modification of the Version.cpp/.h system.

@@ -5,9 +5,11 @@
 #ifndef DHTSEARCHMANAGER_H
 #define DHTSEARCHMANAGER_H
 
-#include <mutex>
+#include "Kademlia.h"
+#include "SearchState.h"
+#include "NegativeLookupCache.h"
 
-#include "../Log.h"
+#include <i2pcpp/Log.h>
 
 #include <i2pcpp/datatypes/RouterHash.h>
 
@@ -17,13 +19,7 @@
 #include <boost/multi_index/member.hpp>
 #include <boost/signals2.hpp>
 
-#include <i2pcpp/datatypes/RouterHash.h>
-
-#include "../Log.h"
-
-#include "Kademlia.h"
-#include "SearchState.h"
-#include "NegativeLookupCache.h"
+#include <mutex>
 
 namespace bmi = boost::multi_index;
 
@@ -73,6 +69,18 @@ namespace i2pcpp {
                      *  when a lookup fails.
                      */
                     boost::signals2::connection registerFailure(FailureSignal::slot_type const &fh);
+
+                    /**
+                     * Removes a signal handler for the signal that is triggered
+                     * when a lookup succeeds.
+                     */
+                    void removeSuccess(boost::signals2::connection const &conn);
+
+                    /**
+                     * Removes a signal handler for the signal that is triggered
+                     * when a lookup fails.
+                     */
+                    void removeFailure(boost::signals2::connection const &conn);
 
                     /**
                      * Creates a new i2pcpp::DHT::SearchState to track the status.

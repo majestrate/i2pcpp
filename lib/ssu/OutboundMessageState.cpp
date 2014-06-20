@@ -4,17 +4,18 @@
  */
 #include "OutboundMessageState.h"
 
-#include "../../Log.h"
+#include <i2pcpp/Log.h>
 
 namespace i2pcpp {
     namespace SSU {
         OutboundMessageState::OutboundMessageState(uint32_t msgId, ByteArray const &data) :
             m_msgId(msgId),
-            m_data(data) {}
+            m_data(data),
+            m_fragments() {}
 
         void OutboundMessageState::fragment()
         {
-            constexpr size_t maxFragmentSize = 1024;
+            constexpr std::size_t maxFragmentSize = 1024;
 
             auto dataItr = m_data.cbegin();
             auto end = m_data.cend();
@@ -24,7 +25,10 @@ namespace i2pcpp {
 
             size_t step, i = 0;
             while(dataItr < end) {
-                step = std::min((size_t)(end - dataItr), maxFragmentSize);
+                step = std::min(
+                    static_cast<std::size_t>(std::distance(dataItr, end)),
+                    maxFragmentSize
+                );
 
                 auto f = std::make_shared<PacketBuilder::Fragment>();
                 f->msgId = m_msgId;
@@ -32,12 +36,10 @@ namespace i2pcpp {
                 f->isLast = (step < maxFragmentSize);
                 f->data = ByteArray(dataItr, dataItr + step);
 
-                m_fragments.push_back(f);
+                m_fragments.push_back(std::make_pair(f, FragmentFlags()));
 
                 dataItr += step;
             }
-
-            m_fragmentStates.resize(m_fragments.size() * 2);
         }
 
         const PacketBuilder::FragmentPtr OutboundMessageState::getNextFragment()
@@ -45,52 +47,57 @@ namespace i2pcpp {
             if(!m_fragments.size())
                 fragment();
 
-            unsigned char i = 0, size = m_fragmentStates.size();
-            while(i < size && m_fragmentStates.test(i)) i += 2;
-
-            if(i >= size) return PacketBuilder::FragmentPtr();
-
-            return m_fragments[i / 2];
+            for(const auto& fs : m_fragments) {
+                if(!fs.second.sent)
+                    return fs.first;
+            }
+            return PacketBuilder::FragmentPtr();
         }
 
         const PacketBuilder::FragmentPtr OutboundMessageState::getNextUnackdFragment() const
         {
-            unsigned char i = 1, size = m_fragmentStates.size();
-            while(i < size && m_fragmentStates.test(i)) i += 2;
-
-            if(i >= size) return PacketBuilder::FragmentPtr();
-
-            return m_fragments[i / 2];
+            for(const auto& fs : m_fragments) {
+                if(!fs.second.ackd)
+                    return fs.first;
+            }
+            return PacketBuilder::FragmentPtr();
         }
 
         void OutboundMessageState::markFragmentSent(const uint8_t fragNum)
         {
-            if((fragNum * 2) >= m_fragmentStates.size()) return;
+            if(fragNum >= m_fragments.size())
+                return;
 
-            m_fragmentStates[fragNum * 2] = 1;
+            m_fragments[fragNum].second.sent = true;
         }
 
         void OutboundMessageState::markFragmentAckd(const uint8_t fragNum)
         {
-            if((fragNum * 2) >= m_fragmentStates.size()) return;
 
-            m_fragmentStates[(fragNum * 2) + 1] = 1;
+            if(fragNum >= m_fragments.size())
+                return;
+
+            m_fragments[fragNum].second.ackd = true;
         }
 
         bool OutboundMessageState::allFragmentsSent() const
         {
-            unsigned char i = 0, size = m_fragmentStates.size();
-            while(i < size && m_fragmentStates.test(i)) i += 2;
-
-            return (i >= size);
+            return std::all_of(
+                m_fragments.begin(), m_fragments.end(),
+                [](const FragmentState& fs) -> bool{
+                    return fs.second.sent; 
+                }
+            );
         }
 
         bool OutboundMessageState::allFragmentsAckd() const
         {
-            unsigned char i = 1, size = m_fragmentStates.size();
-            while(i < size && m_fragmentStates.test(i)) i += 2;
-
-            return (i >= size);
+            return std::all_of(
+                m_fragments.begin(), m_fragments.end(),
+                [](const FragmentState& fs) -> bool{
+                    return fs.second.ackd; 
+                }
+            );
         }
 
         uint32_t OutboundMessageState::getMsgId() const

@@ -5,7 +5,7 @@
 #ifndef PEERMANAGER_H
 #define PEERMANAGER_H
 
-#include "Log.h"
+#include <i2pcpp/Log.h>
 
 #include <i2pcpp/datatypes/RouterHash.h>
 

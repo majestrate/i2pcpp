@@ -6,6 +6,7 @@ set(datatypes_sources
     BuildResponseRecord.cpp
     Date.cpp
     Endpoint.cpp
+    Lease.cpp
     Mapping.cpp
     RouterAddress.cpp
     RouterIdentity.cpp

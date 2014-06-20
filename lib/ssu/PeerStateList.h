@@ -19,9 +19,9 @@
 namespace bmi = boost::multi_index;
 
 namespace i2pcpp {
-    class UDPTransport;
-
     namespace SSU {
+
+        class Context;
 
         /**
          * Stores a list of i2pcpp::SSU::PeerState objects.
@@ -57,10 +57,10 @@ namespace i2pcpp {
                 typedef StateContainer::nth_index<0>::type::const_iterator const_iterator;
 
                 /**
-                 * Constructs from a reference to the i2pcpp::SSU::UDPTranpport
+                 * Constructs from a reference to the i2pcpp::SSU::Context
                  *  object.
                  */
-                PeerStateList(UDPTransport &transport);
+                PeerStateList(Context &c);
 
                 /**
                  * Adds an i2pcpp::SSU::PeerState object to the list.
@@ -137,7 +137,7 @@ namespace i2pcpp {
                 std::mutex& getMutex() const;
 
             private:
-                UDPTransport& m_transport;
+                Context& m_context;
                 StateContainer m_container;
 
                 mutable std::mutex m_mutex;
