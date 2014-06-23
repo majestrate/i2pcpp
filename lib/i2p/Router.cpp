@@ -34,7 +34,7 @@ namespace i2pcpp {
         i2p_logger_mt log; ///< Logging object
     };
 
-    Router::Router(std::shared_ptr<Database> const &db)
+    Router::Router(std::shared_ptr<Database> const &db, Callbacks const &cb)
     {
         m_impl = std::make_unique<RouterImpl>(db);
     }
