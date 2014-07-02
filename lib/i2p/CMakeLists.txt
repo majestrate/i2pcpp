@@ -36,6 +36,7 @@ set(i2pcpp_sources
     i2np/TunnelGateway.cpp
     i2np/VariableTunnelBuild.cpp
     i2np/VariableTunnelBuildReply.cpp
+    kad/RoutingTable.cpp
     tunnel/InboundTunnel.cpp
     tunnel/OutboundTunnel.cpp
     tunnel/Tunnel.cpp
