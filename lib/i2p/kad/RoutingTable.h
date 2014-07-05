@@ -6,7 +6,7 @@
 #ifndef KADROUTINGTABLE_H
 #define KADROUTINGTABLE_H
 
-#include <i2pcpp/datatypes/RouterHash.h>
+#include <i2pcpp/datatypes/RouterInfo.h>
 
 #include <set>
 
@@ -18,7 +18,14 @@ namespace i2pcpp {
     namespace Kad {
         class RoutingTable {
             private:
-                typedef std::set<RouterHash> bucket_t;
+                struct Entry {
+                    StaticByteArray<32> key;
+                    RouterInfo value;
+
+                    bool operator<(const Entry& e) const;
+                };
+
+                typedef std::set<Entry> bucket_t;
                 std::array<bucket_t, NUM_BUCKETS> m_buckets;
         };
     }
