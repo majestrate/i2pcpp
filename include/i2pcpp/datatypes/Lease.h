@@ -10,6 +10,7 @@ namespace i2pcpp {
         public:
             Lease(ByteArrayConstItr &begin, ByteArrayConstItr end);
             Lease(RouterHash const &gw, uint32_t const &tid, Date const &end);
+            virtual ByteArray serialize() const;
 
             RouterHash getGateway() const;
             uint32_t getTunnelId() const;

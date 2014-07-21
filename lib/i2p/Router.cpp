@@ -37,7 +37,7 @@ namespace i2pcpp {
         TransportPtr trans;
     };
 
-    Router::Router(std::shared_ptr<Database> const &db)
+    Router::Router(std::shared_ptr<Database> const &db, Callbacks const &cb)
     {
         m_impl = std::make_unique<RouterImpl>(db);
     }

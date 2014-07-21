@@ -2,6 +2,7 @@
 
 #include "../../../include/i2pcpp/Router.h"
 #include "../../../include/i2pcpp/Database.h"
+#include "../../../include/i2pcpp/Callbacks.h"
 
 #include <string>
 
@@ -10,7 +11,8 @@ using namespace i2pcpp;
 void *i2p_router_new(void *db)
 {
     std::shared_ptr<Database> db_ptr((Database *)db);
-    Router *r = new (std::nothrow) Router(db_ptr);
+    Callbacks cb;
+    Router *r = new (std::nothrow) Router(db_ptr, cb);
 
     return r;
 }

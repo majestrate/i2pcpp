@@ -130,7 +130,7 @@ int main(int argc, char **argv)
         Router::initialize();
         auto db = std::make_shared<Database>(dbFile);
         Callbacks cb;
-        Router r(db);
+        Router r(db, cb);
 
         if(vm.count("log")) {
             // TODO Log rotation, etc

@@ -13,6 +13,7 @@ namespace i2pcpp {
     class RouterInfo;
     class Transport;
     class Database;
+    struct Callbacks;
 
     /**
      * Represents an I2P router.
@@ -22,8 +23,9 @@ namespace i2pcpp {
             /**
              * Constructs a router.
              * @param db a valid i2pcpp::Database object.
+             * @param cb a struct containing the callbacks for various events.
              */
-            Router(std::shared_ptr<Database> const &db);
+            Router(std::shared_ptr<Database> const &db, Callbacks const &cb);
             Router(const Router &) = delete;
             Router& operator=(Router &) = delete;
             ~Router();
